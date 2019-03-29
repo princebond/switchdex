@@ -1,4 +1,4 @@
-import { BigNumber } from '0x.js';
+import { BigNumber, ExchangeFillEventArgs, LogWithDecodedArgs } from '0x.js';
 import { createAction } from 'typesafe-actions';
 
 import {
@@ -14,7 +14,7 @@ import { getGasEstimationInfoAsync } from '../../services/gas_price_estimation';
 import { LocalStorage } from '../../services/local_storage';
 import { tokenToTokenBalance } from '../../services/tokens';
 import { getWeb3WrapperOrThrow, reconnectWallet } from '../../services/web3_wrapper';
-import { getKnownTokens, isWeth } from '../../util/known_tokens';
+import { getKnownTokens, isWeth, KnownTokens } from '../../util/known_tokens';
 import { buildOrderFilledNotification } from '../../util/notifications';
 import { BlockchainState, GasInfo, Token, TokenBalance, Web3State } from '../../util/types';
 import { getMarkets, setMarketTokens, updateMarketPriceEther } from '../market/actions';
@@ -216,39 +216,10 @@ export const setConnectedUser = (ethAccount: string, networkId: number) => {
             toBlock,
             ethAccount,
             fillEventCallback: async fillEvent => {
-                if (!knownTokens.isValidFillEvent(fillEvent)) {
-                    return;
-                }
-
-                const timestamp = await web3Wrapper.getBlockTimestampAsync(fillEvent.blockNumber || blockNumber);
-                const notification = buildOrderFilledNotification(fillEvent, knownTokens);
-                dispatch(
-                    addNotifications([
-                        {
-                            ...notification,
-                            timestamp: new Date(timestamp * 1000),
-                        },
-                    ]),
-                );
+                dispatch(sendNotificationsFromCallback([fillEvent], knownTokens));
             },
             pastFillEventsCallback: async fillEvents => {
-                const validFillEvents = fillEvents.filter(knownTokens.isValidFillEvent);
-
-                const notifications = await Promise.all(
-                    validFillEvents.map(async fillEvent => {
-                        const timestamp = await web3Wrapper.getBlockTimestampAsync(
-                            fillEvent.blockNumber || blockNumber,
-                        );
-                        const notification = buildOrderFilledNotification(fillEvent, knownTokens);
-
-                        return {
-                            ...notification,
-                            timestamp: new Date(timestamp * 1000),
-                        };
-                    }),
-                );
-
-                dispatch(addNotifications(notifications));
+                dispatch(sendNotificationsFromCallback(fillEvents, knownTokens));
             },
         });
 
@@ -258,6 +229,31 @@ export const setConnectedUser = (ethAccount: string, networkId: number) => {
         fillEventsSubscription = subscription;
 
         localStorage.saveLastBlockChecked(blockNumber, ethAccount);
+    };
+};
+
+export const sendNotificationsFromCallback = (
+    fillEvents: Array<LogWithDecodedArgs<ExchangeFillEventArgs>>,
+    knownTokens: KnownTokens,
+) => {
+    return async (dispatch: any, getState: any) => {
+        const web3Wrapper = await getWeb3WrapperOrThrow();
+        const blockNumber = await web3Wrapper.getBlockNumberAsync();
+
+        const validFillEvents = fillEvents.filter(knownTokens.isValidFillEvent);
+
+        const notifications = await Promise.all(
+            validFillEvents.map(async fillEvent => {
+                const timestamp = await web3Wrapper.getBlockTimestampAsync(fillEvent.blockNumber || blockNumber);
+                const notification = buildOrderFilledNotification(fillEvent, knownTokens);
+
+                return {
+                    ...notification,
+                    timestamp: new Date(timestamp * 1000),
+                };
+            }),
+        );
+        dispatch(addNotifications(notifications));
     };
 };
 
