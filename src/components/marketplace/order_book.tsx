@@ -1,6 +1,7 @@
 import { BigNumber } from '0x.js';
 import React from 'react';
 import { connect } from 'react-redux';
+import { Sticky, StickyContainer } from 'react-sticky';
 
 import { UI_DECIMALS_DISPLAYED_ORDER_SIZE, UI_DECIMALS_DISPLAYED_PRICE_ETH } from '../../common/constants';
 import { getBaseToken, getOrderBook, getQuoteToken, getUserOrders, getWeb3State } from '../../store/selectors';
@@ -11,7 +12,7 @@ import { Card } from '../common/card';
 import { EmptyContent } from '../common/empty_content';
 import { CardLoading } from '../common/loading';
 import { ShowNumberWithColors } from '../common/show_number_with_colors';
-import { CustomTD, CustomTDLast, CustomTDTitle, Table, TH, THead, THLast, TR } from '../common/table';
+import { CustomTD, CustomTDLast, CustomTDTitle, Table, TBody, TH, THead, THLast, TR } from '../common/table';
 
 interface StateProps {
     orderBook: OrderBook;
@@ -88,41 +89,69 @@ class OrderBookTable extends React.Component<Props> {
                     <TH styles={{ textAlign: 'right', borderBottom: true }}>My Size</TH>
                 ) : null;
             content = (
-                <Table fitInCard={true}>
-                    <THead>
-                        <TR>
-                            <TH styles={{ textAlign: 'right', borderBottom: true }}>Trade size</TH>
-                            {mySizeHeader}
-                            <THLast styles={{ textAlign: 'right', borderBottom: true }}>
-                                Price ({quoteToken.symbol})
-                            </THLast>
-                        </TR>
-                    </THead>
-                    <tbody>
-                        {sellOrders.map((order, index) =>
-                            orderToRow(order, index, sellOrders.length, baseToken, mySizeSellArray, web3State),
+                <StickyContainer>
+                    <Table>
+                        <THead>
+                            <TR>
+                                <TH styles={{ textAlign: 'right', borderBottom: true }}>Trade size</TH>
+                                {mySizeHeader}
+                                <THLast styles={{ textAlign: 'right', borderBottom: true }}>
+                                    Price ({quoteToken.symbol})
+                                </THLast>
+                            </TR>
+                        </THead>
+                        <TBody>
+                            {sellOrders.map((order, index) =>
+                                orderToRow(order, index, sellOrders.length, baseToken, mySizeSellArray, web3State),
+                            )}
+                        </TBody>
+                    </Table>
+                    <Sticky relative={true}>
+                        {({
+                            style,
+
+                            // the following are also available but unused in this example
+                            isSticky,
+                            wasSticky,
+                            distanceFromTop,
+                            distanceFromBottom,
+                            calculatedHeight,
+                        }) => (
+                            <Table>
+                                <TBody>
+                                    <TR>
+                                        <CustomTDTitle
+                                            styles={{ textAlign: 'right', borderBottom: true, borderTop: true }}
+                                        >
+                                            Spread
+                                        </CustomTDTitle>
+                                        <CustomTD styles={{ textAlign: 'right', borderBottom: true, borderTop: true }}>
+                                            {}
+                                        </CustomTD>
+                                        <CustomTDLast
+                                            styles={{
+                                                tabular: true,
+                                                textAlign: 'right',
+                                                borderBottom: true,
+                                                borderTop: true,
+                                            }}
+                                        >
+                                            {spread.toFixed(UI_DECIMALS_DISPLAYED_PRICE_ETH)}
+                                        </CustomTDLast>
+                                    </TR>
+                                </TBody>
+                            </Table>
                         )}
-                        <TR>
-                            <CustomTDTitle styles={{ textAlign: 'right', borderBottom: true, borderTop: true }}>
-                                Spread
-                            </CustomTDTitle>
-                            <CustomTD styles={{ textAlign: 'right', borderBottom: true, borderTop: true }}>{}</CustomTD>
-                            <CustomTDLast
-                                styles={{
-                                    tabular: true,
-                                    textAlign: 'right',
-                                    borderBottom: true,
-                                    borderTop: true,
-                                }}
-                            >
-                                {spread.toFixed(UI_DECIMALS_DISPLAYED_PRICE_ETH)}
-                            </CustomTDLast>
-                        </TR>
-                        {buyOrders.map((order, index) =>
-                            orderToRow(order, index, buyOrders.length, baseToken, mySizeBuyArray, web3State),
-                        )}
-                    </tbody>
-                </Table>
+                    </Sticky>
+
+                    <Table>
+                        <TBody>
+                            {buyOrders.map((order, index) =>
+                                orderToRow(order, index, buyOrders.length, baseToken, mySizeBuyArray, web3State),
+                            )}
+                        </TBody>
+                    </Table>
+                </StickyContainer>
             );
         }
 
