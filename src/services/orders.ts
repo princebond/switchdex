@@ -12,11 +12,16 @@ import { getWeb3Wrapper } from './web3_wrapper';
 
 const logger = getLogger('Services::Orders');
 
-export const getAllOrders = (baseToken: Token, quoteToken: Token) => {
+export const getAllOrdersERC20 = (baseToken: Token, quoteToken: Token) => {
     const relayer = getRelayer();
     const baseTokenAssetData = assetDataUtils.encodeERC20AssetData(baseToken.address);
     const quoteTokenAssetData = assetDataUtils.encodeERC20AssetData(quoteToken.address);
-    return relayer.getAllOrdersAsync(baseTokenAssetData, quoteTokenAssetData);
+    return relayer.getAllOrdersAsync({ baseTokenAssetData, quoteTokenAssetData });
+};
+
+export const getAllOrdersERC721 = (makerAssetAddress: string, takerAssetAddress: string) => {
+    const relayer = getRelayer();
+    return relayer.getAllOrdersAsync({ makerAssetAddress, takerAssetAddress });
 };
 
 export const getAllOrdersAsUIOrders = async (baseToken: Token, quoteToken: Token) => {
@@ -24,7 +29,7 @@ export const getAllOrdersAsUIOrders = async (baseToken: Token, quoteToken: Token
     let orders: SignedOrder[] = [];
 
     try {
-        orders = await getAllOrders(baseToken, quoteToken);
+        orders = await getAllOrdersERC20(baseToken, quoteToken);
     } catch (error) {
         logger.error('The fetch orders from the relayer failed', error);
     }

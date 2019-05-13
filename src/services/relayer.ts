@@ -4,6 +4,21 @@ import { HttpClient, SignedOrder } from '@0x/connect';
 import { RELAYER_URL } from '../common/constants';
 import { Token } from '../util/types';
 
+interface GetOrderRequestOpts {
+    makerAssetData?: string;
+    takerAssetData?: string;
+    makerAddress?: string;
+    makerAssetAddress?: string;
+    takerAssetAddress?: string;
+}
+
+interface AllOrderOpts {
+    baseTokenAssetData?: string;
+    quoteTokenAssetData?: string;
+    makerAssetAddress?: string;
+    takerAssetAddress?: string;
+}
+
 export class Relayer {
     public readonly client: HttpClient;
 
@@ -11,13 +26,32 @@ export class Relayer {
         this.client = client;
     }
 
-    public async getAllOrdersAsync(baseTokenAssetData: string, quoteTokenAssetData: string): Promise<SignedOrder[]> {
-        const [sellOrders, buyOrders] = await Promise.all([
-            this._getOrdersAsync(baseTokenAssetData, quoteTokenAssetData),
-            this._getOrdersAsync(quoteTokenAssetData, baseTokenAssetData),
-        ]);
-
-        return [...sellOrders, ...buyOrders];
+    public async getAllOrdersAsync({
+        baseTokenAssetData,
+        quoteTokenAssetData,
+        makerAssetAddress,
+        takerAssetAddress,
+    }: AllOrderOpts): Promise<SignedOrder[]> {
+        if (baseTokenAssetData && quoteTokenAssetData) {
+            const [sellOrders, buyOrders] = await Promise.all([
+                this._getOrdersAsync({
+                    makerAssetData: baseTokenAssetData,
+                    takerAssetData: quoteTokenAssetData,
+                }),
+                this._getOrdersAsync({
+                    makerAssetData: quoteTokenAssetData,
+                    takerAssetData: baseTokenAssetData,
+                }),
+            ]);
+            return [...sellOrders, ...buyOrders];
+        } else if (makerAssetAddress && takerAssetAddress) {
+            return this._getOrdersAsync({
+                makerAssetAddress,
+                takerAssetAddress,
+            });
+        } else {
+            return [];
+        }
     }
 
     public async getUserOrdersAsync(
@@ -26,8 +60,16 @@ export class Relayer {
         quoteTokenAssetData: string,
     ): Promise<SignedOrder[]> {
         const [sellOrders, buyOrders] = await Promise.all([
-            this._getOrdersAsync(baseTokenAssetData, quoteTokenAssetData, account),
-            this._getOrdersAsync(quoteTokenAssetData, baseTokenAssetData, account),
+            this._getOrdersAsync({
+                makerAssetData: baseTokenAssetData,
+                takerAssetData: quoteTokenAssetData,
+                makerAddress: account,
+            }),
+            this._getOrdersAsync({
+                makerAssetData: quoteTokenAssetData,
+                takerAssetData: baseTokenAssetData,
+                makerAddress: account,
+            }),
         ]);
 
         return [...sellOrders, ...buyOrders];
@@ -50,17 +92,8 @@ export class Relayer {
         return null;
     }
 
-    private async _getOrdersAsync(
-        makerAssetData: string,
-        takerAssetData: string,
-        makerAddress?: string,
-    ): Promise<SignedOrder[]> {
+    private async _getOrdersAsync(requestOpts: GetOrderRequestOpts): Promise<SignedOrder[]> {
         let recordsToReturn: SignedOrder[] = [];
-        const requestOpts = {
-            makerAssetData,
-            takerAssetData,
-            makerAddress,
-        };
 
         let hasMorePages = true;
         let page = 1;
