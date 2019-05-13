@@ -21,6 +21,7 @@ export function collectibles(state: CollectiblesState = initialCollectibles, act
 
             // tslint:disable-next-line:no-shadowed-variable
             const { collectibles, ethAccount } = action.payload;
+
             collectibles.forEach(collectible => {
                 allCollectibles[collectible.tokenId] = collectible;
 

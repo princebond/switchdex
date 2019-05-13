@@ -241,6 +241,7 @@ export interface Collectible {
     currentOwner: string;
     assetUrl: string;
     description: string;
+    order?: SignedOrder;
 }
 
 export interface CollectiblesState {

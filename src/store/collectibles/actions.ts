@@ -1,5 +1,8 @@
 import { createAsyncAction } from 'typesafe-actions';
 
+import { COLLECTIBLE_CONTRACT_ADDRESSES } from '../../common/constants';
+import { getAllOrdersERC721 } from '../../services/orders';
+import { getKnownTokens } from '../../util/known_tokens';
 import { Collectible, ThunkCreator } from '../../util/types';
 import { getEthAccount, getNetworkId } from '../selectors';
 
@@ -23,8 +26,19 @@ export const getAllCollectibles: ThunkCreator = () => {
             const state = getState();
             const networkId = getNetworkId(state);
             const ethAccount = getEthAccount(state);
+            if (!networkId) {
+                throw new Error(`Network id is not setted`);
+            }
+            const knownTokens = getKnownTokens(networkId);
+            const wethToken = knownTokens.getWethToken();
             const collectiblesMetadataGateway = getCollectiblesMetadataGateway();
+
             const collectibles = await collectiblesMetadataGateway.fetchAllCollectibles(networkId);
+            const orders = await getAllOrdersERC721(COLLECTIBLE_CONTRACT_ADDRESSES[networkId], wethToken.address);
+
+            // TODO Match orders
+            console.dir(orders);
+
             dispatch(fetchAllCollectiblesAsync.success({ collectibles, ethAccount }));
         } catch (err) {
             dispatch(fetchAllCollectiblesAsync.failure(err));
