@@ -1,20 +1,21 @@
-import { OrderStatus } from '0x.js';
+
 import React from 'react';
 import { connect } from 'react-redux';
 import TimeAgo from 'react-timeago';
 import styled from 'styled-components';
 
-import { UI_DECIMALS_DISPLAYED_PRICE_ETH, UI_DECIMALS_DISPLAYED_ORDER_SIZE } from '../../../common/constants';
-import { getBaseToken, getQuoteToken, getUserOrders, getWeb3State, getFills } from '../../../store/selectors';
+import { UI_DECIMALS_DISPLAYED_ORDER_SIZE, UI_DECIMALS_DISPLAYED_PRICE_ETH } from '../../../common/constants';
+import { changeMarket, goToHome } from '../../../store/actions';
+import { getBaseToken, getFills, getQuoteToken, getUserOrders, getWeb3State } from '../../../store/selectors';
+import { isWeth } from '../../../util/known_tokens';
 import { tokenAmountInUnits } from '../../../util/tokens';
-import { OrderSide, StoreState, Token, UIOrder, Web3State, Fill, CurrencyPair } from '../../../util/types';
+import { CurrencyPair, Fill, OrderSide, StoreState, Token, UIOrder, Web3State } from '../../../util/types';
 import { Card } from '../../common/card';
 import { EmptyContent } from '../../common/empty_content';
 import { LoadingWrapper } from '../../common/loading';
 import { CustomTD, Table, TH, THead, TR } from '../../common/table';
-import { isWeth } from '../../../util/known_tokens';
-import { symbol } from 'd3-shape';
-import { changeMarket, goToHome } from '../../../store/actions';
+
+
 
 
 interface StateProps {
@@ -33,12 +34,15 @@ interface DispatchProps {
 
 type Props = StateProps & DispatchProps;
 
-const SideTD = styled(CustomTD)<{ side: OrderSide }>`
+const SideTD = styled(CustomTD) <{ side: OrderSide }>`
     color: ${props =>
         props.side === OrderSide.Buy ? props.theme.componentsTheme.green : props.theme.componentsTheme.red};
 `;
+const ClicableTD = styled(CustomTD)`
+   cursor: pointer;
+`;
 
-const fillToRow = (fill: Fill, index: number) => {
+const fillToRow = (fill: Fill, index: number, _setMarket: any) => {
     const sideLabel = fill.side === OrderSide.Sell ? 'Sell' : 'Buy';
     const amountBase = tokenAmountInUnits(fill.amountBase, fill.tokenBase.decimals, UI_DECIMALS_DISPLAYED_ORDER_SIZE);
     const displayAmountBase = `${amountBase} ${fill.tokenBase.symbol.toUpperCase()}`;
@@ -48,11 +52,15 @@ const fillToRow = (fill: Fill, index: number) => {
     const market = `${fill.tokenBase.symbol.toUpperCase()}/${tokenQuoteSymbol}`;
 
     const price = parseFloat(fill.price.toString()).toFixed(UI_DECIMALS_DISPLAYED_PRICE_ETH);
-
+    const currencyPair: CurrencyPair = {
+        base: fill.tokenBase.symbol,
+        quote: fill.tokenQuote.symbol,
+    }
+    const setMarket = () => _setMarket(currencyPair);
     return (
         <TR key={index}>
             <SideTD side={fill.side}>{sideLabel}</SideTD>
-            <CustomTD styles={{ textAlign: 'right', tabular: true }}>{market}</CustomTD>
+            <ClicableTD styles={{ textAlign: 'right', tabular: true }} onClick={setMarket}>{market}</ClicableTD>
             <CustomTD styles={{ textAlign: 'right', tabular: true }}>{price}</CustomTD>
             <CustomTD styles={{ textAlign: 'right', tabular: true }}>{displayAmountBase}</CustomTD>
             <CustomTD styles={{ textAlign: 'right', tabular: true }}>{displayAmountQuote}</CustomTD>
@@ -80,6 +88,11 @@ class OrderFills extends React.Component<Props> {
                 } else if (!fills.length || !baseToken || !quoteToken) {
                     content = <EmptyContent alignAbsoluteCenter={true} text="There are no trades to show" />;
                 } else {
+                    const _setMarket: any = (currencyPair: CurrencyPair) => {
+                        this.props.changeMarket(currencyPair);
+                        this.props.goToHome();
+                    };
+
                     content = (
                         <Table isResponsive={true}>
                             <THead>
@@ -92,7 +105,7 @@ class OrderFills extends React.Component<Props> {
                                     <TH styles={{ textAlign: 'right' }}>Age</TH>
                                 </TR>
                             </THead>
-                            <tbody>{fills.map((fill, index) => fillToRow(fill, index))}</tbody>
+                            <tbody>{fills.map((fill, index) => fillToRow(fill, index, _setMarket))}</tbody>
                         </Table>
                     );
                 }

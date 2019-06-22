@@ -2,13 +2,14 @@
 import { BigNumber, MetamaskSubprovider, signatureUtils } from '0x.js';
 import { createAction } from 'typesafe-actions';
 
-import { COLLECTIBLE_ADDRESS, NETWORK_ID, START_BLOCK_LIMIT, FEE_RECIPIENT } from '../../common/constants';
+import { COLLECTIBLE_ADDRESS, FEE_RECIPIENT, NETWORK_ID, START_BLOCK_LIMIT } from '../../common/constants';
 import { SignedOrderException } from '../../exceptions/signed_order_exception';
 import { subscribeToFillEvents, subscribeToFillEventsByFeeRecipient } from '../../services/exchange';
 import { getGasEstimationInfoAsync } from '../../services/gas_price_estimation';
 import { LocalStorage } from '../../services/local_storage';
 import { tokenToTokenBalance } from '../../services/tokens';
 import { isMetamaskInstalled } from '../../services/web3_wrapper';
+import { buildFill } from '../../util/fills';
 import { getKnownTokens, isWeth } from '../../util/known_tokens';
 import { getLogger } from '../../util/logger';
 import { buildOrderFilledNotification } from '../../util/notifications';
@@ -38,8 +39,7 @@ import {
     getWethBalance,
     getWethTokenBalance,
 } from '../selectors';
-import { addNotifications, setHasUnreadNotifications, setNotifications, setFills, addFills } from '../ui/actions';
-import { buildFill } from '../../util/fills';
+import { addFills, addNotifications, setFills, setHasUnreadNotifications, setNotifications } from '../ui/actions';
 
 const logger = getLogger('Blockchain::Actions');
 
@@ -177,9 +177,9 @@ export const updateWethBalance: ThunkCreator<Promise<any>> = (newWethBalance: Bi
 
             const newWethTokenBalance = wethTokenBalance
                 ? {
-                      ...wethTokenBalance,
-                      balance: newWethBalance,
-                  }
+                    ...wethTokenBalance,
+                    balance: newWethBalance,
+                }
                 : null;
 
             dispatch(setWethTokenBalance(newWethTokenBalance));
@@ -287,10 +287,9 @@ export const setConnectedDexFills: ThunkCreator<Promise<any>> = (ethAccount: str
         const blockNumber = await web3Wrapper.getBlockNumberAsync();
 
         const lastBlockChecked = localStorage.getLastBlockChecked(ethAccount);
- 
-    /*    const fromBlock =
-            lastBlockChecked !== null ? lastBlockChecked + 1 : Math.max(blockNumber - START_BLOCK_LIMIT, 1);*/
-        const fromBlock = Math.max(blockNumber - 100000, 1);
+
+        const fromBlock =lastBlockChecked !== null ? lastBlockChecked + 1 : Math.max(blockNumber - START_BLOCK_LIMIT, 1);
+       
 
         const toBlock = blockNumber;
 
@@ -317,7 +316,7 @@ export const setConnectedDexFills: ThunkCreator<Promise<any>> = (ethAccount: str
                 );
             },
             pastFillEventsCallback: async fillEvents => {
-                console.log(fillEvents);
+
                 const validFillEvents = fillEvents.filter(knownTokens.isValidFillEvent);
                 const fills = await Promise.all(
                     validFillEvents.map(async fillEvent => {
@@ -446,7 +445,7 @@ const initWalletERC20: ThunkCreator<Promise<any>> = () => {
                 // For executing this method (setConnectedUserNotifications) is necessary that the setMarkets method is already dispatched, otherwise it wont work (redux-thunk problem), so it's need to be dispatched here
                 // tslint:disable-next-line:no-floating-promises
                 dispatch(setConnectedUserNotifications(ethAccount));
-                 // tslint:disable-next-line:no-floating-promises
+                // tslint:disable-next-line:no-floating-promises
                 dispatch(setConnectedDexFills(FEE_RECIPIENT));
             } catch (error) {
                 // Relayer error
