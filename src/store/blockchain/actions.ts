@@ -2,9 +2,9 @@
 import { BigNumber, MetamaskSubprovider, signatureUtils } from '0x.js';
 import { createAction } from 'typesafe-actions';
 
-import { COLLECTIBLE_ADDRESS, NETWORK_ID, START_BLOCK_LIMIT } from '../../common/constants';
+import { COLLECTIBLE_ADDRESS, NETWORK_ID, START_BLOCK_LIMIT, FEE_RECIPIENT } from '../../common/constants';
 import { SignedOrderException } from '../../exceptions/signed_order_exception';
-import { subscribeToFillEvents } from '../../services/exchange';
+import { subscribeToFillEvents, subscribeToFillEventsByFeeRecipient } from '../../services/exchange';
 import { getGasEstimationInfoAsync } from '../../services/gas_price_estimation';
 import { LocalStorage } from '../../services/local_storage';
 import { tokenToTokenBalance } from '../../services/tokens';
@@ -38,7 +38,8 @@ import {
     getWethBalance,
     getWethTokenBalance,
 } from '../selectors';
-import { addNotifications, setHasUnreadNotifications, setNotifications } from '../ui/actions';
+import { addNotifications, setHasUnreadNotifications, setNotifications, setFills, addFills } from '../ui/actions';
+import { buildFill } from '../../util/fills';
 
 const logger = getLogger('Blockchain::Actions');
 
@@ -272,6 +273,82 @@ export const setConnectedUserNotifications: ThunkCreator<Promise<any>> = (ethAcc
     };
 };
 
+export const setConnectedDexFills: ThunkCreator<Promise<any>> = (ethAccount: string) => {
+    return async (dispatch, getState, { getContractWrappers, getWeb3Wrapper }) => {
+        const knownTokens = getKnownTokens();
+        const localStorage = new LocalStorage(window.localStorage);
+
+        dispatch(setFills(localStorage.getFills(ethAccount)));
+
+        const state = getState();
+        const web3Wrapper = await getWeb3Wrapper();
+        const contractWrappers = await getContractWrappers();
+
+        const blockNumber = await web3Wrapper.getBlockNumberAsync();
+
+        const lastBlockChecked = localStorage.getLastBlockChecked(ethAccount);
+ 
+    /*    const fromBlock =
+            lastBlockChecked !== null ? lastBlockChecked + 1 : Math.max(blockNumber - START_BLOCK_LIMIT, 1);*/
+        const fromBlock = Math.max(blockNumber - 100000, 1);
+
+        const toBlock = blockNumber;
+
+        const markets = getMarkets(state);
+
+        const subscription = subscribeToFillEventsByFeeRecipient({
+            exchange: contractWrappers.exchange,
+            fromBlock,
+            toBlock,
+            ethAccount,
+            fillEventCallback: async fillEvent => {
+                if (!knownTokens.isValidFillEvent(fillEvent)) {
+                    return;
+                }
+                const timestamp = await web3Wrapper.getBlockTimestampAsync(fillEvent.blockNumber || blockNumber);
+                const fill = buildFill(fillEvent, knownTokens, markets);
+                dispatch(
+                    addFills([
+                        {
+                            ...fill,
+                            timestamp: new Date(timestamp * 1000),
+                        },
+                    ]),
+                );
+            },
+            pastFillEventsCallback: async fillEvents => {
+                console.log(fillEvents);
+                const validFillEvents = fillEvents.filter(knownTokens.isValidFillEvent);
+                const fills = await Promise.all(
+                    validFillEvents.map(async fillEvent => {
+                        const timestamp = await web3Wrapper.getBlockTimestampAsync(
+                            fillEvent.blockNumber || blockNumber,
+                        );
+                        const fill = buildFill(fillEvent, knownTokens, markets);
+
+                        return {
+                            ...fill,
+                            timestamp: new Date(timestamp * 1000),
+                        };
+                    }),
+                );
+
+                dispatch(addFills(fills));
+            },
+        });
+
+        if (fillEventsSubscription) {
+            contractWrappers.exchange.unsubscribe(fillEventsSubscription);
+        }
+        fillEventsSubscription = subscription;
+
+        localStorage.saveLastBlockChecked(blockNumber, ethAccount);
+    };
+};
+
+
+
+
 export const initWallet: ThunkCreator<Promise<any>> = () => {
     return async (dispatch, getState) => {
         dispatch(setWeb3State(Web3State.Loading));
@@ -369,6 +446,8 @@ const initWalletERC20: ThunkCreator<Promise<any>> = () => {
                 // For executing this method (setConnectedUserNotifications) is necessary that the setMarkets method is already dispatched, otherwise it wont work (redux-thunk problem), so it's need to be dispatched here
                 // tslint:disable-next-line:no-floating-promises
                 dispatch(setConnectedUserNotifications(ethAccount));
+                 // tslint:disable-next-line:no-floating-promises
+                dispatch(setConnectedDexFills(FEE_RECIPIENT));
             } catch (error) {
                 // Relayer error
                 logger.error('The fetch markets from the relayer failed', error);
