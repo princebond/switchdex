@@ -54,6 +54,7 @@ export interface BlockchainState {
     readonly ethBalance: BigNumber;
     readonly wethTokenBalance: TokenBalance | null;
     readonly gasInfo: GasInfo;
+    readonly convertBalanceState: ConvertBalanceState;
 }
 
 export interface RelayerState {
@@ -273,6 +274,7 @@ export enum TokenSymbol {
     Bomb = 'bomb',
     Ethplo = 'ethplo',
     Sntvt = 'sntvt',
+    Nuke = 'nuke',
 }
 
 export enum OrderType {
@@ -307,6 +309,12 @@ export interface Collectible {
 }
 
 export enum AllCollectiblesFetchStatus {
+    Request = 'Request',
+    Success = 'Success',
+}
+
+export enum ConvertBalanceState {
+    Failure = 'Failure',
     Request = 'Request',
     Success = 'Success',
 }
