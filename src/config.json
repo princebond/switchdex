@@ -1,23 +1,29 @@
 {
     "general": {
         "title": "VeriDex",
-        "icon": "assets/icons/nuke.svg"
+        "icon": "assets/icons/vsf.svg"
     },
     "tokens": [
         {
-            "symbol": "zrx",
-            "name": "0x Protocol Token",
-            "primaryColor": "#333333",
-            "icon": "assets/icons/zrx.svg",
-            "addresses": {
-                "1": "0xE41d2489571d322189246DaFA5ebDe1F4699F498",
-                "4": "0x8080c7e4b81ecf23aa6f877cfbfd9b0c228c6ffa",
-                "5": "0xff67881f8d12f372d91baae9752eb3631ff0ed00",
-                "42": "0x2002d3812f58e35f0ea1ffbf80a75a38c32175fa",
-                "50": "0x871dd7c2b4b25e1aa18728e9d5f2af4c4e431f5c"
-            },
             "decimals": 18,
-            "displayDecimals": 2
+            "symbol": "vsf",
+            "name": "VeriSafe",
+            "primaryColor": "#081e6e",
+            "icon": "assets/icons/vsf.svg",
+            "addresses": {
+               "1": "0xac9ce326e95f51b5005e9fe1dd8085a01f18450c"
+            },
+            "id": "verisafe"
+        },
+        {
+            "decimals": 18,
+            "symbol": "kubo",
+            "name": "KuboCoin",
+            "primaryColor": "#020202",
+            "icon": "assets/icons/kubo.svg",
+            "addresses": {
+                "1": "0x4f76E85d067e219779A863ff18577846b3152F1F"
+            }
         },
         {
             "symbol": "weth",
@@ -35,6 +41,52 @@
             "displayDecimals": 2,
             "id": "ethereum"
         },
+        {
+            "decimals": 18,
+            "symbol": "nuke",
+            "name": "Half Life",
+            "primaryColor": "#fb3520",
+            "icon": "assets/icons/nuke.svg",
+            "addresses": {
+                "1": "0xc58c0Fca06908E66540102356f2E91edCaEB8D81"
+            }
+        },
+        {
+            "decimals": 18,
+            "symbol": "sntvt",
+            "name": "Sentivate",
+            "primaryColor": "#fe2e57",
+            "icon": "assets/icons/sntvt.svg",
+            "addresses": {
+                "1": "0x7865af71cf0b288b4e7f654f4f7851eb46a2b7f8"
+            }
+        },
+        {
+            "decimals": 6,
+            "symbol": "ethplo",
+            "name": "ETHplode",
+            "primaryColor": "#1b95e0",
+            "icon": "assets/icons/ethplo.svg",
+            "addresses": {
+                "1": "0xe0c6ce3e73029f201e5c0bedb97f67572a93711c"
+            }
+        },
+        {
+            "symbol": "zrx",
+            "name": "0x Protocol Token",
+            "primaryColor": "#333333",
+            "icon": "assets/icons/zrx.svg",
+            "addresses": {
+                "1": "0xE41d2489571d322189246DaFA5ebDe1F4699F498",
+                "4": "0x8080c7e4b81ecf23aa6f877cfbfd9b0c228c6ffa",
+                "5": "0xff67881f8d12f372d91baae9752eb3631ff0ed00",
+                "42": "0x2002d3812f58e35f0ea1ffbf80a75a38c32175fa",
+                "50": "0x871dd7c2b4b25e1aa18728e9d5f2af4c4e431f5c"
+            },
+            "decimals": 18,
+            "displayDecimals": 2
+        },
+   
         {
             "decimals": 18,
             "symbol": "dai",
@@ -104,42 +156,98 @@
                 "42": "0x17e394D1Df6cE29d042195Ea38411A98ff3Ead94",
                 "50": "0x1e2f9e10d02a6b8f8f69fcbf515e75039d2ea30d"
             }
+        },
+        {
+            "decimals": 18,
+            "symbol": "ftm",
+            "name": "Fantom",
+            "primaryColor": "#020202",
+            "icon": "assets/icons/ftm.svg",
+            "addresses": {
+                "1": "0x4e15361fd6b4bb609fa63c81a2be19d873717870"
+            }
         }
+    
     ],
     "pairs": [
         {
-            "base": "zrx",
+            "base": "nuke",
             "quote": "weth"
         },
         {
-            "base": "zrx",
-            "quote": "dai"
+            "base": "vsf",
+            "quote": "weth"
+        },
+        {
+            "base": "kubo",
+            "quote": "vsf"
+        },
+        {
+            "base": "kubo",
+            "quote": "weth"
+        },
+        {
+            "base": "sntvt",
+            "quote": "vsf"
+        },
+        {
+            "base": "sntvt",
+            "quote": "weth"
+        },
+        {
+            "base": "nuke",
+            "quote": "vsf"
+        },
+        {
+            "base": "ethplo",
+            "quote": "vsf"
+        },
+        {
+            "base": "ethplo",
+            "quote": "weth"
+        },
+        {
+            "base": "ftm",
+            "quote": "vsf"
+        },
+        {
+            "base": "ftm",
+            "quote": "weth"
         },
         {
             "base": "mkr",
             "quote": "weth"
         },
         {
-            "base": "mln",
-            "quote": "weth"
-        },
-        {
-            "base": "dgx",
-            "quote": "weth"
+            "base": "mkr",
+            "quote": "vsf"
         },
         {
             "base": "rep",
+            "quote": "vsf"
+        },
+        {
+            "base": "mln",
+            "quote": "vsf"
+        },
+        {
+            "base": "zrx",
+            "quote": "vsf"
+        },
+        {
+            "base": "zrx",
             "quote": "weth"
         }
     ],
     "marketFilters": [
         {
-            "text": "ETH",
-            "value": "weth"
+            "text": "VSF",
+            "value": "vsf"
         },
         {
-            "text": "DAI",
-            "value": "dai"
-        }
+            "text": "ETH",
+            "value": "weth"
+        }    
     ]
+    
 }

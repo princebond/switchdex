@@ -29,7 +29,7 @@ import {
     Web3State,
 } from '../../util/types';
 import { getAllCollectibles } from '../collectibles/actions';
-import { fetchMarkets, setMarketTokens, updateMarketPriceEther } from '../market/actions';
+import { fetchMarkets, setMarketTokens, updateMarketPriceEther, updateMarketPriceQuote } from '../market/actions';
 import { getOrderBook, getOrderbookAndUserOrders, initializeRelayerData } from '../relayer/actions';
 import {
     getCurrencyPair,
@@ -603,6 +603,8 @@ export const initializeAppNoMetamaskOrLocked: ThunkCreator = () => {
 
             // tslint:disable-next-line:no-floating-promises
             await dispatch(fetchMarkets());
+             // tslint:disable-next-line: no-floating-promises
+            dispatch(updateMarketPriceQuote());
         } else {
             // tslint:disable-next-line:no-floating-promises
             dispatch(getAllCollectibles());
@@ -610,5 +612,6 @@ export const initializeAppNoMetamaskOrLocked: ThunkCreator = () => {
 
         // tslint:disable-next-line:no-floating-promises
         dispatch(updateMarketPriceEther());
+   
     };
 };
