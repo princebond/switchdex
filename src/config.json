@@ -13,7 +13,8 @@
             "addresses": {
                "1": "0xac9ce326e95f51b5005e9fe1dd8085a01f18450c"
             },
-            "id": "verisafe"
+            "id": "verisafe",
+            "displayDecimals": 0
         },
         {
             "decimals": 18,
@@ -23,7 +24,8 @@
             "icon": "assets/icons/kubo.svg",
             "addresses": {
                 "1": "0x4f76E85d067e219779A863ff18577846b3152F1F"
-            }
+            },
+            "displayDecimals": 0
         },
         {
             "symbol": "weth",
@@ -49,7 +51,8 @@
             "icon": "assets/icons/nuke.svg",
             "addresses": {
                 "1": "0xc58c0Fca06908E66540102356f2E91edCaEB8D81"
-            }
+            },
+            "displayDecimals": 0
         },
         {
             "decimals": 18,
@@ -59,7 +62,8 @@
             "icon": "assets/icons/sntvt.svg",
             "addresses": {
                 "1": "0x7865af71cf0b288b4e7f654f4f7851eb46a2b7f8"
-            }
+            },
+            "displayDecimals": 0
         },
         {
             "decimals": 6,
@@ -69,7 +73,8 @@
             "icon": "assets/icons/ethplo.svg",
             "addresses": {
                 "1": "0xe0c6ce3e73029f201e5c0bedb97f67572a93711c"
-            }
+            },
+            "displayDecimals": 0
         },
         {
             "symbol": "zrx",
@@ -165,7 +170,8 @@
             "icon": "assets/icons/ftm.svg",
             "addresses": {
                 "1": "0x4e15361fd6b4bb609fa63c81a2be19d873717870"
-            }
+            },
+            "displayDecimals": 0
         }
     
     ],
