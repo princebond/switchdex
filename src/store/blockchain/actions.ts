@@ -461,6 +461,8 @@ const initWalletERC20: ThunkCreator<Promise<any>> = () => {
                 // Relayer error
                 logger.error('The fetch markets from the relayer failed', error);
             }
+            // tslint:disable-next-line:no-floating-promises
+            dispatch(updateMarketPriceQuote());
         }
     };
 };
