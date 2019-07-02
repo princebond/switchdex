@@ -70,6 +70,9 @@ export interface RelayerState {
 export interface UIState {
     readonly notifications: Notification[];
     readonly fills: Fill[];
+    readonly marketFills: MarketFill;
+    readonly userMarketFills: MarketFill;
+    readonly userFills: Fill[];
     readonly hasUnreadNotifications: boolean;
     readonly stepsModal: StepsModalState;
     readonly orderPriceSelected: BigNumber | null;
@@ -225,7 +228,15 @@ export interface Fill {
     side: OrderSide;
     price: string;
     timestamp: Date;
+    makerAddress: string;
+    takerAddress: string;
+    market: string;
 }
+
+export interface MarketFill {
+    [market: string]: Fill[];
+}
+
 
 interface BaseNotification {
     id: string;

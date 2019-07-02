@@ -4,6 +4,8 @@ import { Step, StepsModalState, UIState } from '../../util/types';
 import * as actions from '../actions';
 import { RootAction } from '../reducers';
 
+
+
 const initialStepsModalState: StepsModalState = {
     doneSteps: [],
     currentStep: null,
@@ -13,6 +15,9 @@ const initialStepsModalState: StepsModalState = {
 const initialUIState: UIState = {
     notifications: [],
     fills: [],
+    marketFills: {},
+    userFills: [],
+    userMarketFills: {},
     hasUnreadNotifications: false,
     stepsModal: initialStepsModalState,
     orderPriceSelected: null,
@@ -81,13 +86,18 @@ export function ui(state: UIState = initialUIState, action: RootAction): UIState
         }
         case getType(actions.setFills):
             return { ...state, fills: action.payload };
+        case getType(actions.setMarketFills):
+            return { ...state, marketFills: action.payload };
+        case getType(actions.setUserMarketFills):
+            return { ...state, userMarketFills: action.payload };
+        case getType(actions.setUserFills):
+            return { ...state, userFills: action.payload };
         case getType(actions.addFills): {
             const newFills = action.payload.filter(fill => {
                 const doesAlreadyExist = state.fills
                     .some(f => f.id === fill.id);
                 return !doesAlreadyExist;
             });
-
             if (newFills.length) {
                 return {
                     ...state,
@@ -97,6 +107,67 @@ export function ui(state: UIState = initialUIState, action: RootAction): UIState
                 return state;
             }
         }
+        case getType(actions.addUserFills): {
+            const newFills = action.payload.filter(fill => {
+                const doesAlreadyExist = state.userFills
+                    .some(f => f.id === fill.id);
+                return !doesAlreadyExist;
+            });
+            if (newFills.length) {
+                return {
+                    ...state,
+                    userFills: [...newFills, ...state.userFills],
+                };
+            } else {
+                return state;
+            }
+        }
+        case getType(actions.addMarketFills): {
+            const marketFills = state.marketFills;
+            // filter to see if have any 
+           /* Object.keys(action.payload).filter( m => {
+                if (marketFills[m] && marketFills[m].length) {
+                   newMarketsFills[m] = newMarketsFills[m].filter(fill => {
+                        const doesAlreadyExist = marketFills[m]
+                            .some(f => f.id === fill.id);
+                        return !doesAlreadyExist;
+                    });
+                   if (!newMarketsFills[m].length) {
+                        delete newMarketsFills[m];
+                    }
+                }
+            });
+
+            const markets: MarketFill = {
+                ...marketFills,
+                ...newMarketsFills,
+            };*/
+    
+
+            if (Object.keys(action.payload)) {
+                return {
+                    ...state,
+                    marketFills: {...action.payload, ...marketFills},
+                };
+            } else {
+                return state;
+            }
+        }
+        /*case getType(actions.addUserMarketFills): {
+            const newFills = action.payload.filter(fill => {
+                const doesAlreadyExist = state.userMarketFills
+                    .some(f => f.id === fill.id);
+                return !doesAlreadyExist;
+            });
+            if (newFills.length) {
+                return {
+                    ...state,
+                    userMarketFills: [...newFills, ...state.userMarketFills],
+                };
+            } else {
+                return state;
+            }
+        }*/
         default:
             return {
                 ...state,

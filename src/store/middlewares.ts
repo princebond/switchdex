@@ -1,11 +1,12 @@
 import { Dispatch, Middleware, MiddlewareAPI } from 'redux';
 import { getType } from 'typesafe-actions';
 
+import { FEE_RECIPIENT } from '../common/constants';
 import { LocalStorage } from '../services/local_storage';
+import { Fill } from '../util/types';
 
 import * as actions from './actions';
-import { getEthAccount, getHasUnreadNotifications, getNotifications, getFills } from './selectors';
-import { FEE_RECIPIENT } from '../common/constants';
+import { getEthAccount, getFills, getHasUnreadNotifications, getMarketFills, getNotifications } from './selectors';
 
 const localStorage = new LocalStorage(window.localStorage);
 
@@ -29,16 +30,29 @@ export const localStorageMiddleware: Middleware = ({ getState }: MiddlewareAPI) 
             const ethAccount = getEthAccount(state);
             const notifications = getNotifications(state);
             localStorage.saveNotifications(notifications, ethAccount);
-
             break;
         }
         case getType(actions.addFills): {
             const state = getState();
             const ethAccount = FEE_RECIPIENT;
             const fills = getFills(state);
-    
             localStorage.saveFills(fills, ethAccount);
-    
+            const userAccount =  getEthAccount(state);
+            const userFills = fills.filter(f => f.takerAddress === userAccount || f.makerAddress === userAccount);
+            localStorage.saveFills(userFills, userAccount);
+            const markets: {[key: string]: Fill[]} = {};
+            fills.forEach(f => {
+                if (markets[f.market]) {
+                    markets[f.market].push(f);
+                } else {
+                    markets[f.market] = [f];
+                }
+            });
+          /*  Object.keys(markets).forEach(m => {
+               localStorage.saveMarketFills(markets[m], ethAccount, m);
+               localStorage.saveMarketFills(markets[m].filter(f  => f.takerAddress === userAccount || f.makerAddress === userAccount), userAccount, m);
+            });*/
+
             break;
         }
         case getType(actions.setFills): {
@@ -46,12 +60,72 @@ export const localStorageMiddleware: Middleware = ({ getState }: MiddlewareAPI) 
             const ethAccount = FEE_RECIPIENT;
             const fills = getFills(state);
             localStorage.saveFills(fills, ethAccount);
-
             break;
         }
-
-
-
+        case getType(actions.setMarketFills): {
+            const state = getState();
+            const ethAccount =  FEE_RECIPIENT;
+            const fills = getMarketFills(state);
+            localStorage.saveMarketFills(fills, ethAccount);
+            break;
+        }
+        case getType(actions.addMarketFills): {
+            const state = getState();
+            const ethAccount =  FEE_RECIPIENT;
+            const fills = getMarketFills(state);
+            localStorage.saveMarketFills(fills, ethAccount);
+            break;
+        }
+       /* case getType(actions.addUserFills): {
+            const state = getState();
+            const ethAccount = getEthAccount(state);
+            const fills = getFills(state);
+            localStorage.saveFills(fills, ethAccount);
+            break;
+        }
+        case getType(actions.setUserFills): {
+            const state = getState();
+            const ethAccount =  getEthAccount(state);
+            const fills = getUserFills(state);
+            localStorage.saveFills(fills, ethAccount);
+            break;
+        }
+        case getType(actions.addUserMarketFills): {
+            const state = getState();
+            const ethAccount =  getEthAccount(state);
+            const currencyPair =  getCurrencyPair(state);
+            const market = marketToString(currencyPair);
+            const fills = getUserMarketFills(state);
+            localStorage.saveMarketFills(fills, ethAccount, market);
+            break;
+        }
+        case getType(actions.setUserMarketFills): {
+            const state = getState();
+            const ethAccount =  getEthAccount(state);
+            const currencyPair =  getCurrencyPair(state);
+            const market = marketToString(currencyPair);
+            const fills = getUserMarketFills(state);
+            localStorage.saveMarketFills(fills, ethAccount, market);
+            break;
+        }
+        case getType(actions.setMarketFills): {
+            const state = getState();
+            const ethAccount =  FEE_RECIPIENT;
+            const currencyPair =  getCurrencyPair(state);
+            const market = marketToString(currencyPair);
+            const fills = getMarketFills(state);
+            localStorage.saveMarketFills(fills, ethAccount, market);
+            break;
+        }
+        case getType(actions.addMarketFills): {
+            const state = getState();
+            const ethAccount =  FEE_RECIPIENT;
+            const currencyPair =  getCurrencyPair(state);
+            const market = marketToString(currencyPair);
+            const fills = getMarketFills(state);
+            localStorage.saveMarketFills(fills, ethAccount, market);
+            break;
+        }*/
 
         default:
             return result;

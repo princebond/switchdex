@@ -12,6 +12,7 @@ import { getLogger } from '../../util/logger';
 import { CurrencyPair, Market, StoreState, ThunkCreator, Token } from '../../util/types';
 import { getOrderbookAndUserOrders } from '../actions';
 
+
 const logger = getLogger('Market::Actions');
 
 export const setMarketTokens = createAction('market/MARKET_TOKENS_set', resolve => {
