@@ -11,7 +11,8 @@
             "primaryColor": "#081e6e",
             "icon": "assets/icons/vsf.svg",
             "addresses": {
-               "1": "0xac9ce326e95f51b5005e9fe1dd8085a01f18450c"
+                "1": "0xac9ce326e95f51b5005e9fe1dd8085a01f18450c",
+                "3": "0xba3a79d758f19efe588247388754b8e4d6edda81"
             },
             "id": "verisafe",
             "displayDecimals": 0
@@ -91,7 +92,7 @@
             "decimals": 18,
             "displayDecimals": 2
         },
-   
+
         {
             "decimals": 18,
             "symbol": "dai",
@@ -173,76 +174,143 @@
             },
             "displayDecimals": 0
         }
-    
     ],
     "pairs": [
         {
             "base": "nuke",
-            "quote": "weth"
+            "quote": "weth",
+            "config": {
+                "basePrecision": 2,
+                "pricePrecision": 8
+            }
         },
         {
             "base": "vsf",
-            "quote": "weth"
+            "quote": "weth",
+            "config": {
+                "basePrecision": 0,
+                "pricePrecision": 8
+            }
         },
         {
             "base": "kubo",
-            "quote": "vsf"
+            "quote": "vsf",
+            "config": {
+                "basePrecision": 2,
+                "pricePrecision": 8
+            }
         },
         {
             "base": "kubo",
-            "quote": "weth"
+            "quote": "weth",
+            "config": {
+                "basePrecision": 2,
+                "pricePrecision": 8
+            }
         },
         {
             "base": "sntvt",
-            "quote": "vsf"
+            "quote": "vsf",
+            "config": {
+                "basePrecision": 2,
+                "pricePrecision": 8
+            }
         },
         {
             "base": "sntvt",
-            "quote": "weth"
+            "quote": "weth",
+            "config": {
+                "basePrecision": 2,
+                "pricePrecision": 8
+            }
         },
         {
             "base": "nuke",
-            "quote": "vsf"
+            "quote": "vsf",
+            "config": {
+                "basePrecision": 2,
+                "pricePrecision": 8
+            }
         },
         {
             "base": "ethplo",
-            "quote": "vsf"
+            "quote": "vsf",
+            "config": {
+                "basePrecision": 2,
+                "pricePrecision": 8
+            }
         },
         {
             "base": "ethplo",
-            "quote": "weth"
+            "quote": "weth",
+            "config": {
+                "basePrecision": 2,
+                "pricePrecision": 8
+            }
         },
         {
             "base": "ftm",
-            "quote": "vsf"
+            "quote": "vsf",
+            "config": {
+                "basePrecision": 2,
+                "pricePrecision": 8
+            }
         },
         {
             "base": "ftm",
-            "quote": "weth"
+            "quote": "weth",
+            "config": {
+                "basePrecision": 2,
+                "pricePrecision": 8
+            }
         },
         {
             "base": "mkr",
-            "quote": "weth"
+            "quote": "weth",
+            "config": {
+                "basePrecision": 2,
+                "pricePrecision": 8
+            }
         },
         {
             "base": "mkr",
-            "quote": "vsf"
+            "quote": "vsf",
+            "config": {
+                "basePrecision": 2,
+                "pricePrecision": 8
+            }
         },
         {
             "base": "rep",
-            "quote": "vsf"
+            "quote": "vsf",
+            "config": {
+                "basePrecision": 2,
+                "pricePrecision": 8
+            }
         },
         {
             "base": "mln",
-            "quote": "vsf"
+            "quote": "vsf",
+            "config": {
+                "basePrecision": 2,
+                "pricePrecision": 8
+            }
         },
         {
             "base": "zrx",
-            "quote": "vsf"
+            "quote": "vsf",
+            "config": {
+                "basePrecision": 2,
+                "pricePrecision": 8
+            }
         },
         {
             "base": "zrx",
-            "quote": "weth"
+            "quote": "weth",
+            "config": {
+                "basePrecision": 2,
+                "pricePrecision": 8
+            }
         }
     ],
     "marketFilters": [
@@ -253,7 +321,6 @@
         {
             "text": "ETH",
             "value": "weth"
-        }    
+        }
     ]
-    
 }
