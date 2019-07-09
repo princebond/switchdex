@@ -11,7 +11,7 @@ import { ThemeProvider } from 'styled-components';
 
 import { OrderBookTableWithTheme } from '../../../../components/erc20/marketplace/order_book';
 import { DefaultTheme } from '../../../../themes/default_theme';
-import { openOrder, tokenFactory, getCurrencyPairFromTokens } from '../../../../util/test-utils';
+import { getCurrencyPairFromTokens, openOrder, tokenFactory } from '../../../../util/test-utils';
 import { OrderSide, Token, Web3State } from '../../../../util/types';
 
 const mockStore = configureMockStore([]);
