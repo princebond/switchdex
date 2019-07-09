@@ -181,7 +181,8 @@
             "quote": "weth",
             "config": {
                 "basePrecision": 2,
-                "pricePrecision": 8
+                "pricePrecision": 8,
+                "minAmount": 5
             }
         },
         {
@@ -189,23 +190,26 @@
             "quote": "weth",
             "config": {
                 "basePrecision": 0,
-                "pricePrecision": 8
+                "pricePrecision": 8,
+                "minAmount": 10000
             }
         },
         {
             "base": "kubo",
             "quote": "vsf",
             "config": {
-                "basePrecision": 2,
-                "pricePrecision": 8
+                "basePrecision": 0,
+                "pricePrecision": 2,
+                "minAmount": 10000
             }
         },
         {
             "base": "kubo",
             "quote": "weth",
             "config": {
-                "basePrecision": 2,
-                "pricePrecision": 8
+                "basePrecision": 0,
+                "pricePrecision": 8,
+                "minAmount": 10000
             }
         },
         {
@@ -213,23 +217,26 @@
             "quote": "vsf",
             "config": {
                 "basePrecision": 2,
-                "pricePrecision": 8
+                "pricePrecision": 8,
+                "minAmount": 1000
             }
         },
         {
             "base": "sntvt",
             "quote": "weth",
             "config": {
-                "basePrecision": 2,
-                "pricePrecision": 8
+                "basePrecision": 0,
+                "pricePrecision": 8,
+                "minAmount": 1000
             }
         },
         {
             "base": "nuke",
             "quote": "vsf",
             "config": {
-                "basePrecision": 2,
-                "pricePrecision": 8
+                "basePrecision": 0,
+                "pricePrecision": 8,
+                "minAmount": 5
             }
         },
         {
@@ -237,7 +244,8 @@
             "quote": "vsf",
             "config": {
                 "basePrecision": 2,
-                "pricePrecision": 8
+                "pricePrecision": 8,
+                "minAmount": 1
             }
         },
         {
@@ -245,7 +253,8 @@
             "quote": "weth",
             "config": {
                 "basePrecision": 2,
-                "pricePrecision": 8
+                "pricePrecision": 8,
+                "minAmount": 1
             }
         },
         {
@@ -253,7 +262,8 @@
             "quote": "vsf",
             "config": {
                 "basePrecision": 2,
-                "pricePrecision": 8
+                "pricePrecision": 8,
+                "minAmount": 1000
             }
         },
         {
@@ -261,7 +271,8 @@
             "quote": "weth",
             "config": {
                 "basePrecision": 2,
-                "pricePrecision": 8
+                "pricePrecision": 8,
+                "minAmount": 1000
             }
         },
         {
@@ -269,7 +280,8 @@
             "quote": "weth",
             "config": {
                 "basePrecision": 2,
-                "pricePrecision": 8
+                "pricePrecision": 8,
+                "minAmount": 10
             }
         },
         {
@@ -277,7 +289,8 @@
             "quote": "vsf",
             "config": {
                 "basePrecision": 2,
-                "pricePrecision": 8
+                "pricePrecision": 8,
+                "minAmount": 10
             }
         },
         {
@@ -285,7 +298,8 @@
             "quote": "vsf",
             "config": {
                 "basePrecision": 2,
-                "pricePrecision": 8
+                "pricePrecision": 8,
+                "minAmount": 10
             }
         },
         {
@@ -293,7 +307,8 @@
             "quote": "vsf",
             "config": {
                 "basePrecision": 2,
-                "pricePrecision": 8
+                "pricePrecision": 8,
+                "minAmount": 10
             }
         },
         {
@@ -301,7 +316,8 @@
             "quote": "vsf",
             "config": {
                 "basePrecision": 2,
-                "pricePrecision": 8
+                "pricePrecision": 5,
+                "minAmount": 10
             }
         },
         {
@@ -309,7 +325,8 @@
             "quote": "weth",
             "config": {
                 "basePrecision": 2,
-                "pricePrecision": 8
+                "pricePrecision": 5,
+                "minAmount": 10
             }
         }
     ],

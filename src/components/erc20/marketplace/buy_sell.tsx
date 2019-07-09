@@ -119,6 +119,14 @@ const Label = styled.label<{ color?: string }>`
     margin: 0;
 `;
 
+const MinLabel = styled.label<{ color?: string }>`
+    color: ${props => props.color || props.theme.componentsTheme.textColorCommon};
+    font-size: 10px;
+    font-weight: 500;
+    line-height: normal;
+    margin: 0;
+`;
+
 const InnerTabs = styled(CardTabSelector)`
     font-size: 14px;
 `;
@@ -249,7 +257,9 @@ class BuySell extends React.Component<Props, State> {
                     </TabsContainer>
                     <Content>
                         <LabelContainer>
-                            <Label>Amount</Label>
+                            <Label>
+                                Amount <MinLabel>(Min: {minAmount})</MinLabel>
+                            </Label>
                             <InnerTabs tabs={buySellInnerTabs} />
                         </LabelContainer>
                         <FieldContainer>
@@ -257,7 +267,7 @@ class BuySell extends React.Component<Props, State> {
                                 decimals={decimals}
                                 min={minAmountUnits}
                                 onChange={this.updateMakerAmount}
-                                value={makerAmount}
+                                value={makerAmount || minAmountUnits}
                                 step={stepAmountUnits}
                                 placeholder={new BigNumber(minAmount).toString()}
                                 valueFixedDecimals={basePrecision}
