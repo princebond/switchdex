@@ -53,14 +53,27 @@ This is a detailed list of planned features to add to this DEX (includes VeriDex
 -   [ ] List descriptions for each project
 -   [ ] Report data to the most known crypto data aggregators
 -   [ ] List last prices for each token
--   [ ] Support multiple wallets, like Portis
+-   [ ] Support multiple wallets, like Portis, Torus etc please see list of planned wallets below
 -   [ ] Add mobile support
+-   [ ] Theme switcher
+
+## Planned Wallets Support
+
+-   [x] [Metamask](https://metamask.io/)
+-   [ ] [Torus](https://docs.tor.us/developers/getting-started)
+-   [ ] [Portis](https://developers.portis.io/)
+-   [ ] [Fortmatic](https://developers.fortmatic.com/)
+-   [ ] [WalletConnect](https://docs.walletconnect.org/)
+
+Library to use: [web3-react](https://noahzinsmeister.gitbook.io/web3-react/v/latest/)
 
 ### Using VeriDex relayer
 
 ```
 REACT_APP_RELAYER_URL='https://veridex.herokuapp.com/v2' yarn start
 ```
+
+[VeriDEX OPEN API SPEC](https://verisafe.github.io/veridex-api-spec/)
 
 This relayer has additional endpoints to enable market view data with stats and candles. We will be adding as an opt-in option use these features in your frontend. That way you can use a Standard Relayer without any issues.
 
@@ -78,4 +91,4 @@ If you want to add your own theme for the app, please read the [THEMES.md](THEME
 
 ### Using custom Config on the DEX
 
-If you want to config the app, please read the [CONFIG.md](CONFIG.md) file
+If you want to config the app and markets, please read the [CONFIG.md](CONFIG.md) file

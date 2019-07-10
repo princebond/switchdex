@@ -225,7 +225,7 @@ class BuySell extends React.Component<Props, State> {
         const stepAmountUnits = unitsInTokenAmount(String(stepAmount), decimals);
 
         const isMakerAmountEmpty = makerAmount === null || makerAmount.isZero();
-        const isMakerAmountMin = makerAmount === null || makerAmount.isLessThan(minAmountUnits);
+        const isMakerAmountMin = makerAmount === null || makerAmount.isLessThanOrEqualTo(minAmountUnits);
         const isPriceEmpty = price === null || price.isZero();
         const isPriceMin =
             price === null || price.isLessThan(new BigNumber(1).div(new BigNumber(10).pow(pricePrecision)));
