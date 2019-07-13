@@ -3,6 +3,12 @@
         "title": "VeriDex",
         "icon": "assets/icons/vsf.svg"
     },
+    "wallets": {
+        "metamask": true,
+        "portis": true,
+        "fortmatic": true,
+        "torus": true
+    },
     "tokens": [
         {
             "decimals": 18,

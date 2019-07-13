@@ -7,6 +7,7 @@ import { LockIcon } from './icons/lock_icon';
 import { MetamaskSideIcon } from './icons/metamask_side_icon';
 import { SadIcon } from './icons/sad_icon';
 import { WarningIcon } from './icons/warning_icon';
+import { WalletIcon } from './icons/wallet_icon';
 
 interface Props extends HTMLAttributes<HTMLDivElement>, ErrorProps {
     text: string;
@@ -23,6 +24,7 @@ export enum ErrorIcons {
     Sad = 2,
     Metamask = 3,
     Warning = 4,
+    Wallet = 5,
 }
 
 export enum FontSize {
@@ -61,6 +63,9 @@ const getIcon = (icon: ErrorIcons) => {
     }
     if (icon === ErrorIcons.Warning) {
         theIcon = <WarningIcon />;
+    }
+    if (icon === ErrorIcons.Wallet) {
+        theIcon = <WalletIcon />;
     }
 
     return <IconContainer>{theIcon}</IconContainer>;

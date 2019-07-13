@@ -53,11 +53,14 @@ export enum Web3State {
     Error = 'Error',
     Loading = 'Loading',
     NotInstalled = 'NotInstalled',
+    Connect = 'Connect',
+    Connecting = 'Connecting',
     Locked = 'Locked',
 }
 
 export interface BlockchainState {
     readonly ethAccount: string;
+    readonly wallet: Wallet | null;
     readonly web3State: Web3State;
     readonly tokenBalances: TokenBalance[];
     readonly ethBalance: BigNumber;
@@ -100,6 +103,7 @@ export interface StoreState {
 export enum StepKind {
     WrapEth = 'WrapEth',
     ToggleTokenLock = 'ToggleTokenLock',
+    TransferToken = 'TransferToken',
     BuySellLimit = 'BuySellLimit',
     BuySellMarket = 'BuySellMarket',
     UnlockCollectibles = 'UnlockCollectibles',
@@ -135,6 +139,14 @@ export interface StepBuySellLimitOrder {
     token: Token;
 }
 
+export interface StepTransferToken {
+    kind: StepKind.TransferToken;
+    amount: BigNumber;
+    address: string;
+    token: Token;
+    isEth: boolean;
+}
+
 export interface StepBuySellMarket {
     kind: StepKind.BuySellMarket;
     amount: BigNumber;
@@ -164,7 +176,8 @@ export type Step =
     | StepBuySellMarket
     | StepSellCollectible
     | StepBuyCollectible
-    | StepUnlockCollectibles;
+    | StepUnlockCollectibles
+    | StepTransferToken;
 
 export interface StepsModalState {
     readonly doneSteps: Step[];
@@ -236,6 +249,7 @@ export enum NotificationKind {
     Market = 'Market',
     Limit = 'Limit',
     OrderFilled = 'OrderFilled',
+    TokenTransferred = 'TokenTransferred',
 }
 
 export interface Fill {
@@ -272,6 +286,13 @@ interface MarketNotification extends TransactionNotification {
     side: OrderSide;
 }
 
+interface TransferTokenNotification extends TransactionNotification {
+    kind: NotificationKind.TokenTransferred;
+    amount: BigNumber;
+    token: Token;
+    address: string;
+}
+
 interface LimitNotification extends BaseNotification {
     kind: NotificationKind.Limit;
     amount: BigNumber;
@@ -286,7 +307,12 @@ export interface OrderFilledNotification extends BaseNotification {
     side: OrderSide;
 }
 
-export type Notification = CancelOrderNotification | MarketNotification | LimitNotification | OrderFilledNotification;
+export type Notification =
+    | CancelOrderNotification
+    | MarketNotification
+    | LimitNotification
+    | OrderFilledNotification
+    | TransferTokenNotification;
 
 export enum OrderType {
     Limit = 'Limit',
@@ -301,11 +327,21 @@ export interface GasInfo {
 export enum ModalDisplay {
     InstallMetamask = 'INSTALL_METAMASK',
     EnablePermissions = 'ACCEPT_PERMISSIONS',
+    ConnectWallet = 'CONNECT_WALLET',
 }
 
 export enum MARKETPLACES {
     ERC20 = 'ERC20',
     ERC721 = 'ERC721',
+}
+
+export enum Wallet {
+    Network = 'Network',
+    Metamask = 'Metamask',
+    Portis = 'Portis',
+    Torus = 'Torus',
+    Fortmatic = 'Fortmatic',
+    WalletConnect = 'WalletConnect',
 }
 
 export interface Collectible {
@@ -352,6 +388,9 @@ export enum ButtonVariant {
     Secondary = 'secondary',
     Sell = 'sell',
     Tertiary = 'tertiary',
+    Portis = 'portis',
+    Torus = 'torus',
+    Fortmatic = 'fortmatic',
 }
 
 export enum ButtonIcons {
@@ -373,10 +412,18 @@ export interface GeneralConfig {
     icon?: string;
 }
 
+interface WalletsConfig {
+    metamask: boolean;
+    fortmatic: boolean;
+    portis: boolean;
+    torus: boolean;
+}
+
 export interface ConfigFile {
     tokens: TokenMetaData[];
     pairs: CurrencyPairMetaData[];
     marketFilters?: Filter[];
+    wallets?: WalletsConfig;
     theme?: PartialTheme;
     general?: GeneralConfig;
 }
