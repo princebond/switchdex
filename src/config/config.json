@@ -3,12 +3,6 @@
         "title": "VeriDex",
         "icon": "assets/icons/vsf.svg"
     },
-    "wallets": {
-        "metamask": true,
-        "portis": false,
-        "fortmatic": true,
-        "torus": true
-    },
     "tokens": [
         {
             "decimals": 18,
@@ -18,11 +12,12 @@
             "icon": "assets/icons/vsf.svg",
             "addresses": {
                 "1": "0xac9ce326e95f51b5005e9fe1dd8085a01f18450c",
-                "3": "0xba3a79d758f19efe588247388754b8e4d6edda81",
-                "50": "0xba3a79d758f19efe588247388754b8e4d6edda81"
+                "3": "0xba3a79d758f19efe588247388754b8e4d6edda81"
             },
             "id": "verisafe",
-            "displayDecimals": 0
+            "displayDecimals": 0,
+            "description": "The transparent ecossystem that crypto needs!",
+            "website": "https://www.verisafe.io"
         },
         {
             "symbol": "weth",
@@ -37,10 +32,11 @@
                 "50": "0x0b1ba0af832d7c05fd64161e0db78e85978e8082"
             },
             "decimals": 18,
-            "displayDecimals": 3,
-            "id": "ethereum"
+            "displayDecimals": 2,
+            "id": "ethereum",
+            "website": "https://weth.io",
+            "description": "wETH is 'wrapped ETH'"
         },
-
         {
             "symbol": "zrx",
             "name": "0x Protocol Token",
@@ -48,7 +44,6 @@
             "icon": "assets/icons/zrx.svg",
             "addresses": {
                 "1": "0xE41d2489571d322189246DaFA5ebDe1F4699F498",
-                "3": "0xff67881f8d12f372d91baae9752eb3631ff0ed00",
                 "4": "0x8080c7e4b81ecf23aa6f877cfbfd9b0c228c6ffa",
                 "5": "0xff67881f8d12f372d91baae9752eb3631ff0ed00",
                 "42": "0x2002d3812f58e35f0ea1ffbf80a75a38c32175fa",
@@ -56,7 +51,8 @@
             },
             "decimals": 18,
             "displayDecimals": 2,
-            "id": "0x"
+            "website": "https://0x.org",
+            "description": "0x is an open protocol that enables the peer-to-peer exchange of assets on the Ethereum blockchain."
         }
     ],
     "pairs": [
@@ -66,23 +62,7 @@
             "config": {
                 "basePrecision": 0,
                 "pricePrecision": 7,
-                "minAmount": 1000
-            }
-        },
-        {
-            "base": "zrx",
-            "quote": "vsf",
-            "config": {
-                "basePrecision": 0,
-                "pricePrecision": 0
-            }
-        },
-        {
-            "base": "zrx",
-            "quote": "weth",
-            "config": {
-                "basePrecision": 2,
-                "pricePrecision": 5
+                "minAmount": 10000
             }
         }
     ],

@@ -5,7 +5,6 @@ import { withRouter } from 'react-router-dom';
 import { UI_UPDATE_CHECK_INTERVAL, UPDATE_ETHER_PRICE_INTERVAL } from '../common/constants';
 import { LocalStorage } from '../services/local_storage';
 import {
-    initializeAppNoMetamaskOrLocked,
     initializeAppWallet,
     initWallet,
     updateMarketPriceEther,
@@ -43,9 +42,11 @@ class App extends React.Component<Props> {
     public componentDidMount = () => {
         // this.props.onInitWalletState();
         const walletConnected = localStorage.getWalletConnected();
-        if (walletConnected) {
-            this.props.onConnectWallet(walletConnected);
+        if (walletConnected !== false && walletConnected !== undefined) {
+            console.log(walletConnected);
+            this.props.onConnectWallet(walletConnected as Wallet);
         } else {
+            console.log(walletConnected);
             this.props.onInitWalletState();
         }
     };

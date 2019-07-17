@@ -3,7 +3,7 @@ import Portis from '@portis/web3';
 // @ts-ignore - no typings
 import Fortmatic from 'fortmatic';
 
-import { FORTMATIC_APP_ID, PORTIS_APP_ID, NETWORK_NAME, NETWORK_ID } from '../common/constants';
+import { FORTMATIC_APP_ID, NETWORK_ID, NETWORK_NAME, PORTIS_APP_ID } from '../common/constants';
 import { sleep } from '../util/sleep';
 import { Wallet } from '../util/types';
 
@@ -155,12 +155,11 @@ export const initFortmatic = async (): Promise<Web3Wrapper | null> => {
     if (!FORTMATIC_APP_ID) {
         return null;
     }
-    let fm;
-    if (NETWORK_ID === 1) {
-        fm = new Fortmatic(FORTMATIC_APP_ID);
-    } else {
-        fm = new Fortmatic(FORTMATIC_APP_ID, NETWORK_NAME.toLowerCase());
-    }
+    const fm =
+        NETWORK_ID === 1
+            ? new Fortmatic(FORTMATIC_APP_ID)
+            : new Fortmatic(FORTMATIC_APP_ID, NETWORK_NAME.toLowerCase());
+
     web3Wrapper = new Web3Wrapper(fm.getProvider());
     let isUserLoggedIn = await fm.user.isLoggedIn();
     // user is already logged

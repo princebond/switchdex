@@ -1,23 +1,18 @@
 import { BigNumber } from '0x.js';
-import React, { HTMLAttributes } from 'react';
+import { addressUtils } from '@0x/utils';
+import React from 'react';
 import Modal from 'react-modal';
-import { connect } from 'react-redux';
 import styled from 'styled-components';
 
-import { startTranferTokenSteps } from '../../store/actions';
-import { getWeb3State } from '../../store/selectors';
-import { Theme, themeDimensions } from '../../themes/commons';
-import { tokenAmountInUnits, tokenSymbolToDisplayString } from '../../util/tokens';
-import { ButtonIcons, OrderSide, StoreState, Token, TokenBalance, Web3State } from '../../util/types';
-import { BigNumberInput } from '../common/big_number_input';
-import { TextInput } from '../common/text_input';
-
-import { Button } from '../common/button';
-import { CloseModalButton } from '../common/icons/close_modal_button';
-import { ButtonVariant, ModalDisplay, Wallet } from '../../util/types';
-import { addressUtils } from '@0x/utils';
-import { ErrorCard, FontSize, ErrorIcons } from '../common/error_card';
 import { TX_DEFAULTS } from '../../common/constants';
+import { themeDimensions } from '../../themes/commons';
+import { tokenAmountInUnits, tokenSymbolToDisplayString } from '../../util/tokens';
+import { ButtonIcons, ButtonVariant, Token, TokenBalance } from '../../util/types';
+import { BigNumberInput } from '../common/big_number_input';
+import { Button } from '../common/button';
+import { ErrorCard, ErrorIcons, FontSize } from '../common/error_card';
+import { CloseModalButton } from '../common/icons/close_modal_button';
+import { TextInput } from '../common/text_input';
 
 interface State {
     amount: BigNumber | null;
@@ -60,48 +55,9 @@ const ModalTitle = styled.h1`
     text-align: center;
 `;
 
-const ModalText = styled.p`
-    color: ${props => props.theme.componentsTheme.textColorCommon};
-    font-size: 16px;
-    font-weight: normal;
-    line-height: 1.5;
-    margin: 0 0 25px;
-    padding: 0;
-    text-align: center;
-
-    &:last-child {
-        margin-bottom: 0;
-    }
-`;
-
-const ModalTextLink = styled.a`
-    color: ${props => props.theme.componentsTheme.textLight};
-    cursor: pointer;
-    font-size: 13px;
-    text-decoration: underline;
-`;
-
-const IconContainer = styled.div`
-    align-items: center;
-    display: flex;
-    height: 62px;
-    justify-content: center;
-    margin-bottom: 30px;
-
-    svg {
-        height: 52px;
-        width: 52px;
-    }
-`;
-
 const ButtonStyled = styled(Button)`
     width: 100%;
     margin: 10px;
-`;
-
-const LinkButton = styled.a`
-    color: ${props => props.theme.componentsTheme.buttonTextColor};
-    text-decoration: none;
 `;
 
 const FieldContainer = styled.div`

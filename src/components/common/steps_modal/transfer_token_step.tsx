@@ -3,11 +3,11 @@ import React from 'react';
 import { connect } from 'react-redux';
 
 import { getWeb3Wrapper } from '../../../services/web3_wrapper';
-import { getOrderbookAndUserOrders, submitMarketOrder, transferToken } from '../../../store/actions';
-import { getEstimatedTxTimeMs, getQuoteToken, getStepsModalCurrentStep, getWallet } from '../../../store/selectors';
-import { addMarketBuySellNotification, addTransferTokenNotification } from '../../../store/ui/actions';
+import { transferToken } from '../../../store/actions';
+import { getEstimatedTxTimeMs, getStepsModalCurrentStep, getWallet } from '../../../store/selectors';
+import { addTransferTokenNotification } from '../../../store/ui/actions';
 import { tokenAmountInUnits, tokenSymbolToDisplayString } from '../../../util/tokens';
-import { OrderSide, StepBuySellMarket, StepTransferToken, StoreState, Token, Wallet } from '../../../util/types';
+import { StepTransferToken, StoreState, Token, Wallet } from '../../../util/types';
 
 import { BaseStepModal } from './base_step_modal';
 import { StepItem } from './steps_progress';

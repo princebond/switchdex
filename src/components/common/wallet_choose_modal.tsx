@@ -2,13 +2,11 @@ import React, { HTMLAttributes } from 'react';
 import Modal from 'react-modal';
 import styled, { withTheme } from 'styled-components';
 
-import { ReactComponent as InstallMetamaskSvg } from '../../assets/icons/install_metamask.svg';
-import { METAMASK_CHROME_EXTENSION_DOWNLOAD_URL } from '../../common/constants';
 import { Config } from '../../common/config';
+import { METAMASK_CHROME_EXTENSION_DOWNLOAD_URL } from '../../common/constants';
 import { isMetamaskInstalled } from '../../services/web3_wrapper';
 import { Theme } from '../../themes/commons';
-import { errorsWallet } from '../../util/error_messages';
-import { ButtonVariant, ModalDisplay, Wallet } from '../../util/types';
+import { ButtonVariant, Wallet } from '../../util/types';
 
 import { Button } from './button';
 import { CloseModalButton } from './icons/close_modal_button';
@@ -41,38 +39,11 @@ const ModalTitle = styled.h1`
     text-align: center;
 `;
 
-const ModalText = styled.p`
-    color: ${props => props.theme.componentsTheme.textColorCommon};
-    font-size: 16px;
-    font-weight: normal;
-    line-height: 1.5;
-    margin: 0 0 25px;
-    padding: 0;
-    text-align: center;
-
-    &:last-child {
-        margin-bottom: 0;
-    }
-`;
-
 const ModalTextLink = styled.a`
     color: ${props => props.theme.componentsTheme.textLight};
     cursor: pointer;
     font-size: 13px;
     text-decoration: underline;
-`;
-
-const IconContainer = styled.div`
-    align-items: center;
-    display: flex;
-    height: 62px;
-    justify-content: center;
-    margin-bottom: 30px;
-
-    svg {
-        height: 52px;
-        width: 52px;
-    }
 `;
 
 const ButtonStyled = styled(Button)`
@@ -89,7 +60,8 @@ const WalletChooseModalContainer: React.FC<Props> = props => {
     const { isOpen, closeModal, chooseWallet, theme } = props;
 
     const isMMInstalled = () => isMetamaskInstalled();
-    // const wallets = Config.getConfig().wallets;
+    // TODO: Enable and disable wallets
+    //   const wallets = Config.getConfig().wallets;
     const getMetamask = () => {
         window.open(METAMASK_CHROME_EXTENSION_DOWNLOAD_URL, '_blank');
     };
@@ -100,9 +72,9 @@ const WalletChooseModalContainer: React.FC<Props> = props => {
     const chooseMetamask = () => {
         chooseWallet(Wallet.Metamask);
     };
-    const chooseWalletTorus = () => {
+    /*const chooseWalletTorus = () => {
         chooseWallet(Wallet.Torus);
-    };
+    };*/
     const chooseFortmatic = () => {
         chooseWallet(Wallet.Fortmatic);
     };
@@ -118,7 +90,7 @@ const WalletChooseModalContainer: React.FC<Props> = props => {
             </ButtonStyled>
             {/*<ButtonStyled  onClick={chooseWalletTorus} variant={ButtonVariant.Torus}>
                 <LinkButton>{'Torus'}</LinkButton>
-    </ButtonStyled>*/}
+               </ButtonStyled>*/}
             {/*isMMInstalled() ? <ModalTextLink>Torus not work with Metamask installed! </ModalTextLink> : ''*/}
             <ButtonStyled disabled={!isMMInstalled()} onClick={chooseMetamask} variant={ButtonVariant.Tertiary}>
                 <LinkButton>{'Metamask'}</LinkButton>

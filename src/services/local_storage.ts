@@ -162,9 +162,9 @@ export class LocalStorage {
         this._storage.setItem(walletConnectedKey, JSON.stringify(walletConnected));
     }
     public resetWalletConnected(): void {
-        this._storage.setItem(walletConnectedKey, JSON.stringify('false'));
+        this._storage.setItem(walletConnectedKey, JSON.stringify(false));
     }
-    public getWalletConnected(): Wallet | null {
-        return JSON.parse(this._storage.getItem(walletConnectedKey) || 'false');
+    public getWalletConnected(): Wallet | null | boolean {
+        return JSON.parse(this._storage.getItem(walletConnectedKey) || JSON.stringify(false));
     }
 }

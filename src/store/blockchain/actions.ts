@@ -21,13 +21,13 @@ import {
     Collectible,
     GasInfo,
     MARKETPLACES,
+    NotificationKind,
     OrderSide,
     ThunkCreator,
     Token,
     TokenBalance,
     Wallet,
     Web3State,
-    NotificationKind,
 } from '../../util/types';
 import { getAllCollectibles } from '../collectibles/actions';
 import { fetchMarkets, setMarketTokens, updateMarketPriceEther, updateMarketPriceQuote } from '../market/actions';
@@ -354,8 +354,10 @@ export const setConnectedDexFills: ThunkCreator<Promise<any>> = (ethAccount: str
     return async (dispatch, getState, { getContractWrappers, getWeb3Wrapper }) => {
         const knownTokens = getKnownTokens();
         const localStorage = new LocalStorage(window.localStorage);
-
-        dispatch(setFills(localStorage.getFills(ethAccount)));
+        const storageFills = localStorage.getFills(ethAccount).filter(f => {
+            return knownTokens.isKnownAddress(f.tokenBase.address) && knownTokens.isKnownAddress(f.tokenQuote.address);
+        });
+        dispatch(setFills(storageFills));
 
         const state = getState();
         const web3Wrapper = await getWeb3Wrapper();
@@ -476,6 +478,7 @@ const initWalletBeginCommon: ThunkCreator<Promise<any>> = (wallet: Wallet) => {
         if (web3Wrapper) {
             dispatch(setWallet(wallet));
             const [ethAccount] = await web3Wrapper.getAvailableAddressesAsync();
+            console.log(ethAccount);
             const knownTokens = getKnownTokens();
             const wethToken = knownTokens.getWethToken();
             const wethTokenBalance = await tokenToTokenBalance(wethToken, ethAccount);
@@ -719,7 +722,9 @@ export const initializeAppWallet: ThunkCreator = () => {
         }*/
         const state = getState();
         const wallet = getWallet(state);
+        console.log(wallet);
         if (!wallet) {
+            console.log(wallet);
             dispatch(setWeb3State(Web3State.Connecting));
         }
 
