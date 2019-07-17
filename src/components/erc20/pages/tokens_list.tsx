@@ -3,7 +3,7 @@ import styled from 'styled-components';
 
 import { ColumnWide } from '../../common/column_wide';
 import { Content } from '../common/content_wrapper';
-import { TokensList } from '../marketplace/tokens_list';
+import { TokenListWithTheme } from '../marketplace/tokens_list';
 
 const ColumnWideMyWallet = styled(ColumnWide)`
     margin-left: 0;
@@ -16,7 +16,7 @@ const ColumnWideMyWallet = styled(ColumnWide)`
 export const TokensListPage = () => (
     <Content>
         <ColumnWideMyWallet>
-            <TokensList />
+            <TokenListWithTheme />
         </ColumnWideMyWallet>
     </Content>
 );

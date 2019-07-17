@@ -1,5 +1,5 @@
 import React from 'react';
-import styled from 'styled-components';
+import styled, { withTheme } from 'styled-components';
 
 import { getKnownTokens } from '../../../util/known_tokens';
 import { getEtherscanLinkForToken } from '../../../util/tokens';
@@ -140,4 +140,6 @@ class TokensList extends React.PureComponent {
     };
 }
 
-export { TokensList };
+const TokenListWithTheme = withTheme(TokensList);
+
+export { TokensList, TokenListWithTheme };
