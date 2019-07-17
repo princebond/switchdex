@@ -13,7 +13,7 @@ if (process.env.NODE_ENV === 'production') {
     configFile = configFileProduction;
 }
 if (process.env.NODE_ENV === 'development') {
-    configFile = configFileProduction;
+    configFile = configFileTest;
 }
 
 export { configFile };
