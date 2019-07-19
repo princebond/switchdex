@@ -332,16 +332,12 @@ class WalletBalance extends React.Component<Props, State> {
 
         if (web3State === Web3State.Loading) {
             let loadingText = errorsWallet.mmLoading;
-            console.log(wallet);
             if (wallet) {
                 loadingText = `Please wait while we load ${wallet}`;
             }
             content = (
                 <>
                     <ButtonStyled variant={ButtonVariant.Tertiary}>{loadingText}</ButtonStyled>
-                    <ButtonStyled onClick={onChooseWallet} variant={ButtonVariant.Tertiary}>
-                        {'Choose other wallet'}
-                    </ButtonStyled>
                 </>
             );
         }

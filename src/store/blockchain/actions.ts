@@ -45,6 +45,7 @@ import {
 } from '../selectors';
 import { addFills, addNotifications, setFills, setHasUnreadNotifications, setNotifications } from '../ui/actions';
 
+
 const logger = getLogger('Blockchain::Actions');
 
 export const convertBalanceStateAsync = createAsyncAction(
@@ -248,9 +249,10 @@ export const updateTokenBalances: ThunkCreator<Promise<any>> = (txHash?: string)
     return async (dispatch, getState, { getWeb3Wrapper }) => {
         const state = getState();
         const ethAccount = getEthAccount(state);
+        console.log(ethAccount);
         const knownTokens = getKnownTokens();
         const wethToken = knownTokens.getWethToken();
-
+        console.log('Update Token Balances');
         const allTokenBalances = await tokensToTokenBalances([...knownTokens.getTokens(), wethToken], ethAccount);
         const wethBalance = allTokenBalances.find(b => b.token.symbol === wethToken.symbol);
         const tokenBalances = allTokenBalances.filter(b => b.token.symbol !== wethToken.symbol);
@@ -426,6 +428,7 @@ export const setConnectedDexFills: ThunkCreator<Promise<any>> = (ethAccount: str
 export const chooseWallet: ThunkCreator<Promise<any>> = () => {
     return async (dispatch, getState) => {
         dispatch(setWeb3State(Web3State.Loading));
+        console.log("called choose wallet");
         const state = getState();
         const currentMarketPlace = getCurrentMarketPlace(state);
 
@@ -452,7 +455,6 @@ export const initWallet: ThunkCreator<Promise<any>> = (wallet: Wallet) => {
         dispatch(setWeb3State(Web3State.Loading));
         const state = getState();
         const currentMarketPlace = getCurrentMarketPlace(state);
-
         try {
             await dispatch(initWalletBeginCommon(wallet));
 
@@ -478,7 +480,6 @@ const initWalletBeginCommon: ThunkCreator<Promise<any>> = (wallet: Wallet) => {
         if (web3Wrapper) {
             dispatch(setWallet(wallet));
             const [ethAccount] = await web3Wrapper.getAvailableAddressesAsync();
-            console.log(ethAccount);
             const knownTokens = getKnownTokens();
             const wethToken = knownTokens.getWethToken();
             const wethTokenBalance = await tokenToTokenBalance(wethToken, ethAccount);
@@ -722,9 +723,7 @@ export const initializeAppWallet: ThunkCreator = () => {
         }*/
         const state = getState();
         const wallet = getWallet(state);
-        console.log(wallet);
         if (!wallet) {
-            console.log(wallet);
             dispatch(setWeb3State(Web3State.Connecting));
         }
 

@@ -3,13 +3,13 @@ import CopyToClipboard from 'react-copy-to-clipboard';
 import { connect } from 'react-redux';
 import styled from 'styled-components';
 
+import { logoutWallet } from '../../../store/actions';
 import { getEthAccount } from '../../../store/selectors';
 import { truncateAddress } from '../../../util/number_utils';
 import { StoreState } from '../../../util/types';
 import { WalletConnectionStatusContainer } from '../../account/wallet_connection_status';
 import { CardBase } from '../../common/card_base';
 import { DropdownTextItem } from '../../common/dropdown_text_item';
-import { logoutWallet } from '../../../store/actions';
 
 interface OwnProps extends HTMLAttributes<HTMLSpanElement> {}
 

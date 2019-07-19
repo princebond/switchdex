@@ -22,6 +22,9 @@ export const updateStore = () => {
         const web3Wrapper = await getWeb3Wrapper();
         if (web3Wrapper) {
             const [ethAccount] = await web3Wrapper.getAvailableAddressesAsync();
+            console.log(ethAccount);
+            console.log('Update store');
+
             dispatch(updateTokenBalances());
             dispatch(updateGasInfo());
             dispatch(updateMarketPriceEther());
