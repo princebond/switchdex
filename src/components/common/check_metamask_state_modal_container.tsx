@@ -1,7 +1,6 @@
 import React from 'react';
 import { connect } from 'react-redux';
 
-
 import { getWeb3State } from '../../store/selectors';
 import { ModalDisplay, StoreState, Web3State } from '../../util/types';
 
