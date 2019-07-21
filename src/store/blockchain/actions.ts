@@ -45,7 +45,6 @@ import {
 } from '../selectors';
 import { addFills, addNotifications, setFills, setHasUnreadNotifications, setNotifications } from '../ui/actions';
 
-
 const logger = getLogger('Blockchain::Actions');
 
 export const convertBalanceStateAsync = createAsyncAction(
@@ -428,7 +427,6 @@ export const setConnectedDexFills: ThunkCreator<Promise<any>> = (ethAccount: str
 export const chooseWallet: ThunkCreator<Promise<any>> = () => {
     return async (dispatch, getState) => {
         dispatch(setWeb3State(Web3State.Loading));
-        console.log("called choose wallet");
         const state = getState();
         const currentMarketPlace = getCurrentMarketPlace(state);
 
@@ -769,9 +767,10 @@ export const logoutWallet: ThunkCreator = () => {
         const wallet = getWallet(state);
         dispatch(resetWallet());
         deleteWeb3Wrapper();
+        const { location } = window;
+        location.reload();
         // needs to reload when the wallet is Torus
         if (wallet === Wallet.Torus) {
-            const { location } = window;
             location.reload();
         }
     };

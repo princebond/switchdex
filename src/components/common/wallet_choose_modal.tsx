@@ -2,7 +2,6 @@ import React, { HTMLAttributes } from 'react';
 import Modal from 'react-modal';
 import styled, { withTheme } from 'styled-components';
 
-
 import { METAMASK_CHROME_EXTENSION_DOWNLOAD_URL } from '../../common/constants';
 import { isMetamaskInstalled } from '../../services/web3_wrapper';
 import { Theme } from '../../themes/commons';
