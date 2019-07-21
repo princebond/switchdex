@@ -56,7 +56,7 @@ const StyledButton = styled.button<{ variant?: ButtonVariant }>`
     ${props =>
         props.variant && props.variant === ButtonVariant.Fortmatic
             ? `background-color: ${props.theme.componentsTheme.buttonFortmaticBackgroundColor};`
-            : ''}                        
+            : ''}
     align-items: center;
     border-radius: ${themeDimensions.borderRadius};
     border: none;

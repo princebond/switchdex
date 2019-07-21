@@ -248,10 +248,8 @@ export const updateTokenBalances: ThunkCreator<Promise<any>> = (txHash?: string)
     return async (dispatch, getState, { getWeb3Wrapper }) => {
         const state = getState();
         const ethAccount = getEthAccount(state);
-        console.log(ethAccount);
         const knownTokens = getKnownTokens();
         const wethToken = knownTokens.getWethToken();
-        console.log('Update Token Balances');
         const allTokenBalances = await tokensToTokenBalances([...knownTokens.getTokens(), wethToken], ethAccount);
         const wethBalance = allTokenBalances.find(b => b.token.symbol === wethToken.symbol);
         const tokenBalances = allTokenBalances.filter(b => b.token.symbol !== wethToken.symbol);

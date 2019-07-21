@@ -2,14 +2,14 @@ import React from 'react';
 import styled from 'styled-components';
 
 import { SpinnerSize } from '../../../themes/commons';
+import { FortmaticLarge } from '../icons/icon_fortmatic_large';
 import { MetamaskLarge } from '../icons/icon_metamask_large';
+import { PortisLarge } from '../icons/icon_portis_large';
+import { TorusLarge } from '../icons/icon_torus_large';
 import { NotificationCancelIcon } from '../icons/notification_cancel_icon';
 import { NotificationCheckmarkIcon } from '../icons/notification_checkmark_icon';
 import { Spinner } from '../spinner';
 
-import { FortmaticLarge } from '../icons/icon_fortmatic_large';
-import { PortisLarge } from '../icons/icon_portis_large';
-import { TorusLarge } from '../icons/icon_torus_large';
 import { StepsProgress } from './steps_progress';
 
 enum StepStatus {

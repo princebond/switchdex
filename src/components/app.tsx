@@ -43,10 +43,8 @@ class App extends React.Component<Props> {
         // this.props.onInitWalletState();
         const walletConnected = localStorage.getWalletConnected();
         if (walletConnected !== false && walletConnected !== undefined) {
-            console.log(walletConnected);
             this.props.onConnectWallet(walletConnected as Wallet);
         } else {
-            console.log(walletConnected);
             this.props.onInitWalletState();
         }
     };

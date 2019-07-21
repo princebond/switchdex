@@ -16,9 +16,9 @@ import { SignOrderStepContainer } from './sign_order_step';
 import { ModalContent } from './steps_common';
 import { StepItem } from './steps_progress';
 import { ToggleTokenLockStepContainer } from './toggle_token_lock_step';
+import { TransferTokenStepContainer } from './transfer_token_step';
 import { UnlockCollectiblesStepContainer } from './unlock_collectibles_step';
 import { WrapEthStepContainer } from './wrap_eth_step';
-import { TransferTokenStepContainer } from './transfer_token_step';
 
 interface StateProps {
     currentStep: Step | null;

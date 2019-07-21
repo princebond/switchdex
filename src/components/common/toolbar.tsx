@@ -2,13 +2,13 @@ import React from 'react';
 import { connect } from 'react-redux';
 import styled, { css } from 'styled-components';
 
+import { setWeb3State } from '../../store/actions';
 import { getWeb3State } from '../../store/selectors';
 import { themeBreakPoints, themeDimensions } from '../../themes/commons';
 import { errorsWallet } from '../../util/error_messages';
 import { StoreState, Web3State } from '../../util/types';
 
 import { ErrorCard, ErrorIcons, FontSize } from './error_card';
-import { setWeb3State } from '../../store/actions';
 
 interface OwnProps {
     centerContent?: React.ReactNode;

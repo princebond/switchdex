@@ -28,7 +28,6 @@ interface OwnProps {
 
 type Props = StateProps & DispatchProps & OwnProps;
 
-const localStorage = new LocalStorage(window.localStorage);
 class CheckMetamaskStateModal extends React.Component<Props, State> {
     public state = {
         shouldOpenModal: true,
