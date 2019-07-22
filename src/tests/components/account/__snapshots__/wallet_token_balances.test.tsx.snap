@@ -132,7 +132,7 @@ exports[`WalletTokenBalances should properly show locked and unlocked tokens 1`]
             className="sc-cSHVUG fNRZMA"
           >
             <button
-              className="sc-bdVaJa ekewAX"
+              className="sc-bdVaJa iPzAIi"
               onClick={[Function]}
             >
               Send
@@ -220,7 +220,7 @@ exports[`WalletTokenBalances should properly show locked and unlocked tokens 1`]
             className="sc-cSHVUG fNRZMA"
           >
             <button
-              className="sc-bdVaJa ekewAX"
+              className="sc-bdVaJa iPzAIi"
               onClick={[Function]}
             >
               Send
@@ -308,7 +308,7 @@ exports[`WalletTokenBalances should properly show locked and unlocked tokens 1`]
             className="sc-cSHVUG fNRZMA"
           >
             <button
-              className="sc-bdVaJa ekewAX"
+              className="sc-bdVaJa iPzAIi"
               onClick={[Function]}
             >
               Send
@@ -396,7 +396,7 @@ exports[`WalletTokenBalances should properly show locked and unlocked tokens 1`]
             className="sc-cSHVUG fNRZMA"
           >
             <button
-              className="sc-bdVaJa ekewAX"
+              className="sc-bdVaJa iPzAIi"
               onClick={[Function]}
             >
               Send
