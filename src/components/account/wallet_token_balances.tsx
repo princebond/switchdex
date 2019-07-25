@@ -8,12 +8,13 @@ import {
     getEthAccount,
     getEthBalance,
     getTokenBalances,
+    getTokensPrice,
     getWeb3State,
     getWethTokenBalance,
 } from '../../store/selectors';
 import { Theme } from '../../themes/commons';
 import { getEtherscanLinkForToken, getEtherscanLinkForTokenAndAddress, tokenAmountInUnits } from '../../util/tokens';
-import { ButtonVariant, StoreState, Token, TokenBalance, Web3State } from '../../util/types';
+import { ButtonVariant, StoreState, Token, TokenBalance, TokenPrice, Web3State } from '../../util/types';
 import { Button } from '../common/button';
 import { Card } from '../common/card';
 import { TokenIcon } from '../common/icons/token_icon';
@@ -28,6 +29,7 @@ interface StateProps {
     web3State: Web3State;
     wethTokenBalance: TokenBalance | null;
     ethAccount: string;
+    tokensPrice: TokenPrice[] | null;
 }
 interface OwnProps {
     theme: Theme;
@@ -105,6 +107,20 @@ const CustomTDLockIcon = styled(CustomTD)`
     }
 `;
 
+const CustomTDPriceChange = styled(CustomTD)`
+    .lockedIcon {
+        path {
+            fill: ${props => props.theme.componentsTheme.iconLockedColor};
+        }
+    }
+
+    .unlockedIcon {
+        path {
+            fill: ${props => props.theme.componentsTheme.iconUnlockedColor};
+        }
+    }
+`;
+
 const TokenName = styled.span`
     font-weight: 700;
 `;
@@ -165,6 +181,19 @@ const LockCell = ({ isUnlocked, onClick }: LockCellProps) => {
     );
 };
 
+interface PriceChangeProps {
+    price_usd_24h_change: BigNumber;
+}
+const PriceChangeCell = ({ price_usd_24h_change }: PriceChangeProps) => {
+    return (
+        <CustomTDPriceChange
+            styles={{ borderBottom: true, textAlign: 'right', color: price_usd_24h_change.gte(0) ? 'green' : 'red' }}
+        >
+            {price_usd_24h_change.toFormat(2)} %
+        </CustomTDPriceChange>
+    );
+};
+
 class WalletTokenBalances extends React.PureComponent<Props, State> {
     public readonly state: State = {
         modalIsOpen: false,
@@ -182,6 +211,7 @@ class WalletTokenBalances extends React.PureComponent<Props, State> {
             wethTokenBalance,
             ethAccount,
             theme,
+            tokensPrice,
         } = this.props;
 
         if (!wethTokenBalance) {
@@ -241,6 +271,7 @@ class WalletTokenBalances extends React.PureComponent<Props, State> {
                     isEth: false,
                 });
             };
+            const tokenPrice = tokensPrice && tokensPrice.find(t => t.c_id === token.c_id);
 
             return (
                 <TR key={symbol}>
@@ -260,8 +291,14 @@ class WalletTokenBalances extends React.PureComponent<Props, State> {
                             {formattedBalance}
                         </QuantityEtherscanLink>
                     </CustomTD>
-                    <CustomTD styles={{ borderBottom: true, textAlign: 'right' }}>-</CustomTD>
-                    <CustomTD styles={{ borderBottom: true, textAlign: 'right' }}>-</CustomTD>
+                    <CustomTD styles={{ borderBottom: true, textAlign: 'right' }}>
+                        {tokenPrice ? `${tokenPrice.price_usd.toString()}$` : '-'}
+                    </CustomTD>
+                    {tokenPrice ? (
+                        <PriceChangeCell price_usd_24h_change={tokenPrice.price_usd_24h_change} />
+                    ) : (
+                        <CustomTD styles={{ borderBottom: true, textAlign: 'right' }}>-</CustomTD>
+                    )}
                     <LockCell
                         isUnlocked={isUnlocked}
                         onClick={onClick}
@@ -275,6 +312,42 @@ class WalletTokenBalances extends React.PureComponent<Props, State> {
                 </TR>
             );
         });
+        const totalHoldingsRow = () => {
+            const totalHoldingsValue: BigNumber =
+                (tokenBalances.length &&
+                    tokenBalances
+                        .filter(tb => tb.token.c_id !== null)
+                        .map(tb => {
+                            const tokenPrice = tokensPrice && tokensPrice.find(tp => tp.c_id === tb.token.c_id);
+                            if (tokenPrice) {
+                                const { token, balance } = tb;
+                                const formattedBalance = new BigNumber(
+                                    tokenAmountInUnits(balance, token.decimals, token.displayDecimals),
+                                );
+                                return formattedBalance.multipliedBy(tokenPrice.price_usd);
+                            } else {
+                                return new BigNumber(0);
+                            }
+                        })
+                        .reduce((p, c) => {
+                            return p.plus(c);
+                        })) ||
+                new BigNumber(0);
+
+            return (
+                <TR>
+                    <CustomTD styles={{ borderBottom: true, textAlign: 'right', tabular: true }}></CustomTD>
+                    <CustomTDTokenName styles={{ borderBottom: true }}>TOTAL HOLDINGS</CustomTDTokenName>
+                    <CustomTD styles={{ borderBottom: true, textAlign: 'right', tabular: true }}>
+                        {`${totalHoldingsValue.toFixed(3)}$`}
+                    </CustomTD>
+                    <CustomTD styles={{ borderBottom: true, textAlign: 'right', tabular: true }}></CustomTD>
+                    <CustomTD styles={{ borderBottom: true, textAlign: 'right', tabular: true }}></CustomTD>
+                    <CustomTD styles={{ borderBottom: true, textAlign: 'right', tabular: true }}></CustomTD>
+                    <CustomTD styles={{ borderBottom: true, textAlign: 'left' }}>Prices by Coingecko</CustomTD>
+                </TR>
+            );
+        };
 
         let content: React.ReactNode;
         if (web3State === Web3State.Loading) {
@@ -297,6 +370,7 @@ class WalletTokenBalances extends React.PureComponent<Props, State> {
                         <TBody>
                             {totalEthRow}
                             {tokensRows}
+                            {totalHoldingsRow()}
                         </TBody>
                     </Table>
                     <TransferTokenModal
@@ -350,6 +424,7 @@ const mapStateToProps = (state: StoreState): StateProps => {
         web3State: getWeb3State(state),
         wethTokenBalance: getWethTokenBalance(state),
         ethAccount: getEthAccount(state),
+        tokensPrice: getTokensPrice(state),
     };
 };
 const mapDispatchToProps = {

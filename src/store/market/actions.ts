@@ -5,11 +5,11 @@ import { createAction } from 'typesafe-actions';
 
 import { ERC20_APP_BASE_PATH } from '../../common/constants';
 import { availableMarkets } from '../../common/markets';
-import { getMarketPriceEther, getMarketPriceQuote } from '../../services/markets';
+import { getMarketPriceEther, getMarketPriceQuote, getMarketPriceTokens } from '../../services/markets';
 import { getRelayer } from '../../services/relayer';
 import { getKnownTokens } from '../../util/known_tokens';
 import { getLogger } from '../../util/logger';
-import { CurrencyPair, Market, StoreState, ThunkCreator, Token } from '../../util/types';
+import { CurrencyPair, Market, StoreState, ThunkCreator, Token, TokenPrice } from '../../util/types';
 import { getOrderbookAndUserOrders } from '../actions';
 
 const logger = getLogger('Market::Actions');
@@ -49,6 +49,22 @@ export const fetchMarketPriceQuoteStart = createAction('market/PRICE_QUOTE_fetch
 
 export const fetchMarketPriceQuoteUpdate = createAction('market/PRICE_QUOTE_fetch_success', resolve => {
     return (quoteInUsd: BigNumber) => resolve(quoteInUsd);
+});
+
+export const fetchMarketPriceTokensStart = createAction('market/PRICE_TOKENS_fetch_request', resolve => {
+    return () => resolve();
+});
+
+export const fetchMarketPriceTokensUpdate = createAction('market/PRICE_TOKENS_fetch_success', resolve => {
+    return (tokensPrices: TokenPrice[]) => resolve(tokensPrices);
+});
+
+export const fetchMarketPriceTokensError = createAction('market/PRICE_TOKENS_fetch_failure', resolve => {
+    return (payload: any) => resolve(payload);
+});
+
+export const fetchERC20MarketsError = createAction('market/ERC20_MARKETS_TOKENS_fetch_failure', resolve => {
+    return (payload: any) => resolve(payload);
 });
 
 export const changeMarket: ThunkCreator = (currencyPair: CurrencyPair) => {
@@ -165,6 +181,30 @@ export const updateMarketPriceQuote: ThunkCreator = () => {
             }
         } catch (err) {
             dispatch(fetchMarketPriceQuoteError(err));
+        }
+    };
+};
+
+export const updateMarketPriceTokens: ThunkCreator = () => {
+    return async (dispatch, getState) => {
+        dispatch(fetchMarketPriceTokensStart());
+        const state = getState() as StoreState;
+        try {
+            const tokenBalances = state.blockchain.tokenBalances;
+            const tokensPrices = await getMarketPriceTokens(tokenBalances);
+            dispatch(fetchMarketPriceTokensUpdate(tokensPrices));
+        } catch (err) {
+            dispatch(fetchMarketPriceTokensError(err));
+        }
+    };
+};
+
+export const updateERC20Markets = () => {
+    return async (dispatch: any) => {
+        try {
+            await dispatch(fetchMarkets());
+        } catch (error) {
+            dispatch(fetchERC20MarketsError(error));
         }
     };
 };
