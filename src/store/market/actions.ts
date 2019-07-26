@@ -9,8 +9,9 @@ import { getMarketPriceEther, getMarketPriceQuote, getMarketPriceTokens } from '
 import { getRelayer } from '../../services/relayer';
 import { getKnownTokens } from '../../util/known_tokens';
 import { getLogger } from '../../util/logger';
-import { CurrencyPair, Market, StoreState, ThunkCreator, Token, TokenPrice } from '../../util/types';
+import { CurrencyPair, Market, StoreState, ThunkCreator, Token, TokenBalance, TokenPrice } from '../../util/types';
 import { getOrderbookAndUserOrders } from '../actions';
+import { getWethTokenBalance } from '../selectors';
 
 const logger = getLogger('Market::Actions');
 
@@ -190,8 +191,11 @@ export const updateMarketPriceTokens: ThunkCreator = () => {
         dispatch(fetchMarketPriceTokensStart());
         const state = getState() as StoreState;
         try {
+            let tBalances: TokenBalance[] = [];
             const tokenBalances = state.blockchain.tokenBalances;
-            const tokensPrices = await getMarketPriceTokens(tokenBalances);
+            const wethBalance = getWethTokenBalance(state);
+            wethBalance ? (tBalances = [...tokenBalances, wethBalance]) : (tBalances = [...tokenBalances]);
+            const tokensPrices = await getMarketPriceTokens(tBalances);
             dispatch(fetchMarketPriceTokensUpdate(tokensPrices));
         } catch (err) {
             dispatch(fetchMarketPriceTokensError(err));

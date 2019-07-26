@@ -7,6 +7,7 @@ import { startToggleTokenLockSteps, startTranferTokenSteps } from '../../store/a
 import {
     getEthAccount,
     getEthBalance,
+    getEthInUsd,
     getTokenBalances,
     getTokensPrice,
     getWeb3State,
@@ -29,6 +30,7 @@ interface StateProps {
     web3State: Web3State;
     wethTokenBalance: TokenBalance | null;
     ethAccount: string;
+    ethUsd: BigNumber | null;
     tokensPrice: TokenPrice[] | null;
 }
 interface OwnProps {
@@ -212,6 +214,7 @@ class WalletTokenBalances extends React.PureComponent<Props, State> {
             ethAccount,
             theme,
             tokensPrice,
+            ethUsd,
         } = this.props;
 
         if (!wethTokenBalance) {
@@ -222,6 +225,8 @@ class WalletTokenBalances extends React.PureComponent<Props, State> {
         const totalEth = wethTokenBalance.balance.plus(ethBalance);
         const formattedTotalEthBalance = tokenAmountInUnits(totalEth, wethToken.decimals, wethToken.displayDecimals);
         const onTotalEthClick = () => onStartToggleTokenLockSteps(wethTokenBalance.token, wethTokenBalance.isUnlocked);
+        const ethPrice = tokensPrice && tokensPrice.find(t => t.c_id === 'ethereum');
+        console.log(ethPrice);
 
         const openTransferEthModal = () => {
             this.setState({
@@ -244,8 +249,17 @@ class WalletTokenBalances extends React.PureComponent<Props, State> {
                 <CustomTD styles={{ borderBottom: true, textAlign: 'right', tabular: true }}>
                     {formattedTotalEthBalance}
                 </CustomTD>
-                <CustomTD styles={{ borderBottom: true, textAlign: 'right', tabular: true }}>-</CustomTD>
-                <CustomTD styles={{ borderBottom: true, textAlign: 'right', tabular: true }}>-</CustomTD>
+                <CustomTD styles={{ borderBottom: true, textAlign: 'right', tabular: true }}>
+                    {ethUsd ? `${ethUsd.toString()}$` : '-'}
+                </CustomTD>
+                <CustomTD styles={{ borderBottom: true, textAlign: 'right', tabular: true }}>
+                    {ethUsd ? `${ethUsd.multipliedBy(new BigNumber(formattedTotalEthBalance)).toFixed(3)}$` : '-'}
+                </CustomTD>
+                {ethPrice ? (
+                    <PriceChangeCell price_usd_24h_change={ethPrice.price_usd_24h_change} />
+                ) : (
+                    <CustomTD styles={{ borderBottom: true, textAlign: 'right' }}>-</CustomTD>
+                )}
                 <LockCell
                     isUnlocked={wethTokenBalance.isUnlocked}
                     onClick={onTotalEthClick}
@@ -294,6 +308,11 @@ class WalletTokenBalances extends React.PureComponent<Props, State> {
                     <CustomTD styles={{ borderBottom: true, textAlign: 'right' }}>
                         {tokenPrice ? `${tokenPrice.price_usd.toString()}$` : '-'}
                     </CustomTD>
+                    <CustomTD styles={{ borderBottom: true, textAlign: 'right' }}>
+                        {tokenPrice
+                            ? `${tokenPrice.price_usd.multipliedBy(new BigNumber(formattedBalance)).toFixed(3)}$`
+                            : '-'}
+                    </CustomTD>
                     {tokenPrice ? (
                         <PriceChangeCell price_usd_24h_change={tokenPrice.price_usd_24h_change} />
                     ) : (
@@ -338,10 +357,11 @@ class WalletTokenBalances extends React.PureComponent<Props, State> {
                 <TR>
                     <CustomTD styles={{ borderBottom: true, textAlign: 'right', tabular: true }}></CustomTD>
                     <CustomTDTokenName styles={{ borderBottom: true }}>TOTAL HOLDINGS</CustomTDTokenName>
+                    <CustomTD styles={{ borderBottom: true, textAlign: 'right', tabular: true }}></CustomTD>
+                    <CustomTD styles={{ borderBottom: true, textAlign: 'right', tabular: true }}></CustomTD>
                     <CustomTD styles={{ borderBottom: true, textAlign: 'right', tabular: true }}>
                         {`${totalHoldingsValue.toFixed(3)}$`}
                     </CustomTD>
-                    <CustomTD styles={{ borderBottom: true, textAlign: 'right', tabular: true }}></CustomTD>
                     <CustomTD styles={{ borderBottom: true, textAlign: 'right', tabular: true }}></CustomTD>
                     <CustomTD styles={{ borderBottom: true, textAlign: 'right', tabular: true }}></CustomTD>
                     <CustomTD styles={{ borderBottom: true, textAlign: 'left' }}>Prices by Coingecko</CustomTD>
@@ -362,6 +382,7 @@ class WalletTokenBalances extends React.PureComponent<Props, State> {
                                 <THStyled>{}</THStyled>
                                 <THStyled styles={{ textAlign: 'right' }}>Available Qty.</THStyled>
                                 <THStyled styles={{ textAlign: 'right' }}>Price (USD)</THStyled>
+                                <THStyled styles={{ textAlign: 'right' }}>Value (USD)</THStyled>
                                 <THStyled styles={{ textAlign: 'right' }}>% Change</THStyled>
                                 <THLast styles={{ textAlign: 'center' }}>Locked?</THLast>
                                 <THLast styles={{ textAlign: 'center' }}>Actions</THLast>
@@ -424,6 +445,7 @@ const mapStateToProps = (state: StoreState): StateProps => {
         web3State: getWeb3State(state),
         wethTokenBalance: getWethTokenBalance(state),
         ethAccount: getEthAccount(state),
+        ethUsd: getEthInUsd(state),
         tokensPrice: getTokensPrice(state),
     };
 };

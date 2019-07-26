@@ -38,6 +38,7 @@ export const getMarketPriceQuote = async (quoteId: string): Promise<BigNumber> =
 
 export const getMarketPriceTokens = async (tokensBalance: TokenBalance[]): Promise<TokenPrice[]> => {
     // Reduce this to only a 1 string, if we have more than 50 tokens this will not work
+
     const accToken = tokensBalance
         .map(tb => tb.token)
         .filter(t => t.c_id !== null)
