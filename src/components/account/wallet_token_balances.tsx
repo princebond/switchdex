@@ -226,8 +226,6 @@ class WalletTokenBalances extends React.PureComponent<Props, State> {
         const formattedTotalEthBalance = tokenAmountInUnits(totalEth, wethToken.decimals, wethToken.displayDecimals);
         const onTotalEthClick = () => onStartToggleTokenLockSteps(wethTokenBalance.token, wethTokenBalance.isUnlocked);
         const ethPrice = tokensPrice && tokensPrice.find(t => t.c_id === 'ethereum');
-        console.log(ethPrice);
-
         const openTransferEthModal = () => {
             this.setState({
                 modalIsOpen: true,
