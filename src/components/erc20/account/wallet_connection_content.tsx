@@ -42,7 +42,7 @@ class WalletConnectionContent extends React.PureComponent<Props> {
 
         const viewOnFabrx = () => {
             window.open(
-                `https://dash.fabrx.io/thread/partner/VeriDEX&a3bccf&1127661506559188992--K_DyiHA0_400x400--jpg&ETH&${ethAccount}/`,
+                `https://dash.fabrx.io/thread/partner/VeriDex&a3bccf&1127661506559188992--K_DyiHA0_400x400--jpg&ETH&${ethAccount}/`,
             );
         };
 
