@@ -19,6 +19,7 @@ import { mergeByPrice } from '../util/ui_orders';
 export const getEthAccount = (state: StoreState) => state.blockchain.ethAccount;
 export const getTokenBalances = (state: StoreState) => state.blockchain.tokenBalances;
 export const getWeb3State = (state: StoreState) => state.blockchain.web3State;
+export const getWallet = (state: StoreState) => state.blockchain.wallet;
 export const getEthBalance = (state: StoreState) => state.blockchain.ethBalance;
 export const getWethTokenBalance = (state: StoreState) => state.blockchain.wethTokenBalance;
 export const getConvertBalanceState = (state: StoreState) => state.blockchain.convertBalanceState;
@@ -41,6 +42,7 @@ export const getBaseToken = (state: StoreState) => state.market.baseToken;
 export const getQuoteToken = (state: StoreState) => state.market.quoteToken;
 export const getMarkets = (state: StoreState) => state.market.markets;
 export const getEthInUsd = (state: StoreState) => state.market.ethInUsd;
+export const getTokensPrice = (state: StoreState) => state.market.tokensPrice;
 export const getQuoteInUsd = (state: StoreState) => state.market.quoteInUsd;
 export const getGasPriceInWei = (state: StoreState) => state.blockchain.gasInfo.gasPriceInWei;
 export const getEstimatedTxTimeMs = (state: StoreState) => state.blockchain.gasInfo.estimatedTimeMs;
@@ -172,10 +174,11 @@ export const getOrderBook = createSelector(
     getOpenSellOrders,
     getOpenBuyOrders,
     getMySizeOrders,
-    (sellOrders, buyOrders, mySizeOrders): OrderBook => {
+    getCurrencyPair,
+    (sellOrders, buyOrders, mySizeOrders, currencyPair): OrderBook => {
         const orderBook = {
-            sellOrders: mergeByPrice(sellOrders),
-            buyOrders: mergeByPrice(buyOrders),
+            sellOrders: mergeByPrice(sellOrders, currencyPair.config.pricePrecision),
+            buyOrders: mergeByPrice(buyOrders, currencyPair.config.pricePrecision),
             mySizeOrders,
         };
         return orderBook;

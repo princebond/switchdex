@@ -10,6 +10,7 @@ export const RELAYER_URL = process.env.REACT_APP_RELAYER_URL || 'http://localhos
 
 export const TX_DEFAULTS = {
     gasLimit: 1000000,
+    gasTransferToken: 21000,
 };
 
 export const ZERO_ADDRESS = '0x0000000000000000000000000000000000000000';
@@ -17,17 +18,21 @@ export const ZERO_ADDRESS = '0x0000000000000000000000000000000000000000';
 export const FEE_RECIPIENT = process.env.REACT_APP_FEE_RECIPIENT || ZERO_ADDRESS;
 
 export const ETH_DECIMALS = 18;
+export const MAX_AMOUNT_TOKENS_IN_UNITS = 100000000000000000000000000000000000;
 
 export const UI_DECIMALS_DISPLAYED_ON_STEP_MODALS = 3;
 export const UI_DECIMALS_DISPLAYED_SPREAD_PERCENT = 2;
 export const UI_DECIMALS_DISPLAYED_DEFAULT_PRECISION = 2;
 export const UI_DECIMALS_DISPLAYED_ORDER_SIZE = 0;
 export const UI_DECIMALS_DISPLAYED_PRICE_ETH = 7;
-export const UI_GENERAL_TITLE = 'Launch Kit';
+export const UI_GENERAL_TITLE = 'VeriDex';
 
 export const METAMASK_EXTENSION_URL = 'https://metamask.io/';
 export const METAMASK_CHROME_EXTENSION_DOWNLOAD_URL =
     'https://chrome.google.com/webstore/detail/metamask/nkbihfbeogaeaoehlefnkodbefgpgknn';
+
+export const PORTIS_APP_ID = process.env.REACT_APP_PORTIS_APP_ID;
+export const FORTMATIC_APP_ID = process.env.REACT_APP_FORTMATIC_APP_ID;
 
 // Default value is enabled, 0 is disabled
 export const UI_UPDATE_CHECK_INTERVAL: number = process.env.REACT_APP_UI_UPDATE_CHECK_INTERVAL
@@ -36,6 +41,16 @@ export const UI_UPDATE_CHECK_INTERVAL: number = process.env.REACT_APP_UI_UPDATE_
 
 // Default value is enabled, 0 is disabled
 export const UPDATE_ETHER_PRICE_INTERVAL: number = process.env.REACT_APP_UPDATE_ETHER_PRICE_INTERVAL
+    ? Number.parseInt(process.env.REACT_APP_UPDATE_ETHER_PRICE_INTERVAL as string, 10)
+    : 3600000;
+
+// Default value is enabled, 0 is disabled
+export const UPDATE_TOKENS_PRICE_INTERVAL: number = process.env.REACT_APP_UPDATE_TOKENS_PRICE_INTERVAL
+    ? Number.parseInt(process.env.REACT_APP_UPDATE_ETHER_PRICE_INTERVAL as string, 10)
+    : 3600000;
+
+// Default value is enabled, 0 is disabled
+export const UPDATE_ERC20_MARKETS: number = process.env.REACT_APP_UPDATE_ERC20_MARKETS_INTERVAL
     ? Number.parseInt(process.env.REACT_APP_UPDATE_ETHER_PRICE_INTERVAL as string, 10)
     : 3600000;
 
@@ -77,6 +92,4 @@ export const NETWORK_ID: number = Number.parseInt(process.env.REACT_APP_NETWORK_
 
 export const NETWORK_NAME: string = Network[NETWORK_ID];
 
-export const FILLS_LIMIT: number =
-    Number.parseInt(process.env.REACT_APP_FILLS_LIMIT as string, 10) || 50;
-
+export const FILLS_LIMIT: number = Number.parseInt(process.env.REACT_APP_FILLS_LIMIT as string, 10) || 50;

@@ -40,6 +40,13 @@ describe('WalletBalance', () => {
         const currencyPair = {
             base: baseToken.symbol,
             quote: quoteToken.symbol,
+            config: {
+                basePrecision: 8,
+                pricePrecision: 8,
+                quotePrecision: 8,
+                minAmount: 0,
+                maxAmount: 1000000,
+            },
         };
 
         const baseTokenBalance = tokenBalanceFactory.build();
@@ -64,6 +71,90 @@ describe('WalletBalance', () => {
         const result = wrapper.text();
         expect(result).toContain(resultExpected1);
     });
+    it('should display a message if the user needs to connect wallet', async () => {
+        // given
+        const resultExpected1 = 'Connect Your Wallet';
+        const ethAccount = addressFactory.build().address;
+        const onConnectWalletFn = jest.fn();
+        const baseToken = tokenFactory.build();
+        const quoteToken = tokenFactory.build();
+        const currencyPair = {
+            base: baseToken.symbol,
+            quote: quoteToken.symbol,
+            config: {
+                basePrecision: 8,
+                pricePrecision: 8,
+                quotePrecision: 8,
+                minAmount: 0,
+                maxAmount: 1000000,
+            },
+        };
+
+        const baseTokenBalance = tokenBalanceFactory.build();
+        const quoteTokenBalance = tokenBalanceFactory.build();
+
+        // when
+        const wrapper = mountWithTheme(
+            <WalletBalance
+                web3State={Web3State.Connect}
+                onConnectWallet={onConnectWalletFn}
+                baseToken={baseToken}
+                quoteToken={quoteToken}
+                currencyPair={currencyPair}
+                ethAccount={ethAccount}
+                baseTokenBalance={baseTokenBalance}
+                quoteTokenBalance={quoteTokenBalance}
+                totalEthBalance={new BigNumber(2)}
+            />,
+        );
+
+        // then
+        const result = wrapper.text();
+        expect(result).toContain(resultExpected1);
+    });
+
+    it('should display a message if user is connecting a wallet', async () => {
+        // given
+        const resultExpected1 = 'Connecting Your Wallet';
+        const ethAccount = addressFactory.build().address;
+        const onConnectWalletFn = jest.fn();
+        const baseToken = tokenFactory.build();
+        const quoteToken = tokenFactory.build();
+        const currencyPair = {
+            base: baseToken.symbol,
+            quote: quoteToken.symbol,
+            config: {
+                basePrecision: 8,
+                pricePrecision: 8,
+                quotePrecision: 8,
+                minAmount: 0,
+                maxAmount: 1000000,
+            },
+        };
+
+        const baseTokenBalance = tokenBalanceFactory.build();
+        const quoteTokenBalance = tokenBalanceFactory.build();
+
+        // when
+        const wrapper = mountWithTheme(
+            <WalletBalance
+                web3State={Web3State.Connecting}
+                onConnectWallet={onConnectWalletFn}
+                baseToken={baseToken}
+                quoteToken={quoteToken}
+                currencyPair={currencyPair}
+                ethAccount={ethAccount}
+                baseTokenBalance={baseTokenBalance}
+                quoteTokenBalance={quoteTokenBalance}
+                totalEthBalance={new BigNumber(2)}
+            />,
+        );
+
+        // then
+        const result = wrapper.text();
+        expect(result).toContain(resultExpected1);
+    });
+
     it('should display a message if the user did not have metamask installed', async () => {
         // given
         const resultExpected1 = 'No wallet found';
@@ -75,6 +166,13 @@ describe('WalletBalance', () => {
         const currencyPair = {
             base: baseToken.symbol,
             quote: quoteToken.symbol,
+            config: {
+                basePrecision: 8,
+                pricePrecision: 8,
+                quotePrecision: 8,
+                minAmount: 0,
+                maxAmount: 1000000,
+            },
         };
 
         const baseTokenBalance = tokenBalanceFactory.build();
@@ -106,6 +204,13 @@ describe('WalletBalance', () => {
         const currencyPair = {
             base: 'weth',
             quote: 'zrx',
+            config: {
+                basePrecision: 8,
+                pricePrecision: 8,
+                quotePrecision: 8,
+                minAmount: 0,
+                maxAmount: 1000000,
+            },
         };
         const ethAccount = 'This is a test';
 

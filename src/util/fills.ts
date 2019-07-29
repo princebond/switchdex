@@ -18,13 +18,15 @@ export const buildFill = (
     let baseToken: Token;
     let quoteToken: Token;
 
-    quoteTokenAddress = side === OrderSide.Buy
-        ? assetDataUtils.decodeERC20AssetData(args.takerAssetData).tokenAddress
-        : assetDataUtils.decodeERC20AssetData(args.makerAssetData).tokenAddress;
+    quoteTokenAddress =
+        side === OrderSide.Buy
+            ? assetDataUtils.decodeERC20AssetData(args.takerAssetData).tokenAddress
+            : assetDataUtils.decodeERC20AssetData(args.makerAssetData).tokenAddress;
 
-    baseTokenAddress = side === OrderSide.Buy
-        ? assetDataUtils.decodeERC20AssetData(args.makerAssetData).tokenAddress
-        : assetDataUtils.decodeERC20AssetData(args.takerAssetData).tokenAddress;
+    baseTokenAddress =
+        side === OrderSide.Buy
+            ? assetDataUtils.decodeERC20AssetData(args.makerAssetData).tokenAddress
+            : assetDataUtils.decodeERC20AssetData(args.takerAssetData).tokenAddress;
 
     baseToken = knownTokens.getTokenByAddress(baseTokenAddress);
     quoteToken = knownTokens.getTokenByAddress(quoteTokenAddress);

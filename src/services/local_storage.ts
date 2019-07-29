@@ -1,7 +1,7 @@
 import { BigNumber } from '0x.js';
 
-import { FILLS_LIMIT, NETWORK_ID, NOTIFICATIONS_LIMIT  } from '../common/constants';
-import { Fill, MarketFill, Notification } from '../util/types';
+import { FILLS_LIMIT, NETWORK_ID, NOTIFICATIONS_LIMIT } from '../common/constants';
+import { Fill, MarketFill, Notification, Wallet } from '../util/types';
 
 const addPrefix = (key: string) => `VeriDex.${key}`;
 
@@ -87,21 +87,18 @@ export class LocalStorage {
         return false;
     }
     public getFills(account: string): Fill[] {
-        const currentFills = JSON.parse(
-            this._storage.getItem(fillsKey) || '{}',
-            (key: string, value: string) => {
-                if (key === 'amountQuote' || key === 'amountBase') {
-                    return new BigNumber(value);
-                }
-                if (key === 'timestamp') {
-                    return new Date(value);
-                }
-                if (key === 'tx') {
-                    return Promise.resolve();
-                }
-                return value;
-            },
-        );
+        const currentFills = JSON.parse(this._storage.getItem(fillsKey) || '{}', (key: string, value: string) => {
+            if (key === 'amountQuote' || key === 'amountBase') {
+                return new BigNumber(value);
+            }
+            if (key === 'timestamp') {
+                return new Date(value);
+            }
+            if (key === 'tx') {
+                return Promise.resolve();
+            }
+            return value;
+        });
 
         if (currentFills[NETWORK_ID] && currentFills[NETWORK_ID][account]) {
             return currentFills[NETWORK_ID][account];
@@ -140,13 +137,11 @@ export class LocalStorage {
             },
         };
         // Sort array by timestamp property
-        newFills[NETWORK_ID][account] = newFills[NETWORK_ID][account].sort(
-                (a: Fill, b: Fill) => {
-                    const aTimestamp = a.timestamp ? a.timestamp.getTime() : 0;
-                    const bTimestamp = b.timestamp ? b.timestamp.getTime() : 0;
-                    return bTimestamp - aTimestamp;
-                },
-        );
+        newFills[NETWORK_ID][account] = newFills[NETWORK_ID][account].sort((a: Fill, b: Fill) => {
+            const aTimestamp = a.timestamp ? a.timestamp.getTime() : 0;
+            const bTimestamp = b.timestamp ? b.timestamp.getTime() : 0;
+            return bTimestamp - aTimestamp;
+        });
         // Limit number of fills
         if (newFills[NETWORK_ID][account].length > FILLS_LIMIT) {
             newFills[NETWORK_ID][account].length = FILLS_LIMIT;
@@ -215,11 +210,13 @@ export class LocalStorage {
         return JSON.parse(this._storage.getItem(adBlockMessageShownKey) || 'false');
     }
 
-    public saveWalletConnected(walletConnected: boolean): void {
+    public saveWalletConnected(walletConnected: string): void {
         this._storage.setItem(walletConnectedKey, JSON.stringify(walletConnected));
     }
-
-    public getWalletConnected(): boolean {
-        return JSON.parse(this._storage.getItem(walletConnectedKey) || 'false');
+    public resetWalletConnected(): void {
+        this._storage.setItem(walletConnectedKey, JSON.stringify(false));
+    }
+    public getWalletConnected(): Wallet | null | boolean {
+        return JSON.parse(this._storage.getItem(walletConnectedKey) || JSON.stringify(false));
     }
 }

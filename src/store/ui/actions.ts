@@ -24,6 +24,7 @@ import {
     Step,
     StepKind,
     StepToggleTokenLock,
+    StepTransferToken,
     StepWrapEth,
     ThunkCreator,
     Token,
@@ -95,6 +96,10 @@ export const stepsModalAdvanceStep = createAction('ui/steps_modal/advance_step')
 
 export const stepsModalReset = createAction('ui/steps_modal/reset');
 
+export const setModalTransfer = createAction('ui/TRANSFER_MODAL_set', resolve => {
+    return (isOpen: boolean) => resolve(isOpen);
+});
+
 export const startToggleTokenLockSteps: ThunkCreator = (token: Token, isUnlocked: boolean) => {
     return async dispatch => {
         const toggleTokenLockStep = isUnlocked ? getLockTokenStep(token) : getUnlockTokenStep(token);
@@ -118,6 +123,27 @@ export const startWrapEtherSteps: ThunkCreator = (newWethBalance: BigNumber) => 
         };
 
         dispatch(setStepsModalCurrentStep(wrapEthStep));
+        dispatch(setStepsModalPendingSteps([]));
+        dispatch(setStepsModalDoneSteps([]));
+    };
+};
+
+export const startTranferTokenSteps: ThunkCreator = (
+    amount: BigNumber,
+    token: Token,
+    address: string,
+    isEth: boolean,
+) => {
+    return async dispatch => {
+        const transferTokenStep: StepTransferToken = {
+            kind: StepKind.TransferToken,
+            amount,
+            token,
+            address,
+            isEth,
+        };
+
+        dispatch(setStepsModalCurrentStep(transferTokenStep));
         dispatch(setStepsModalPendingSteps([]));
         dispatch(setStepsModalDoneSteps([]));
     };
@@ -347,6 +373,30 @@ export const addMarketBuySellNotification: ThunkCreator = (
                     amount,
                     token,
                     side,
+                    tx,
+                    timestamp: new Date(),
+                },
+            ]),
+        );
+    };
+};
+
+export const addTransferTokenNotification: ThunkCreator = (
+    id: string,
+    amount: BigNumber,
+    token: Token,
+    address: string,
+    tx: Promise<any>,
+) => {
+    return async dispatch => {
+        dispatch(
+            addNotifications([
+                {
+                    id,
+                    kind: NotificationKind.TokenTransferred,
+                    amount,
+                    token,
+                    address,
                     tx,
                     timestamp: new Date(),
                 },

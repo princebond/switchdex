@@ -1,6 +1,6 @@
 import React from 'react';
 
-import { CheckMetamaskStateModalContainer } from '../../common/check_metamask_state_modal_container';
+import { CheckWalletStateModalContainer } from '../../common/check_wallet_state_modal_container';
 import { ColumnNarrow } from '../../common/column_narrow';
 import { ColumnWide } from '../../common/column_wide';
 import { Content } from '../common/content_wrapper';
@@ -11,9 +11,6 @@ import { OrderFillsContainer } from '../marketplace/order_fills';
 import { OrderHistoryContainer } from '../marketplace/order_history';
 import { WalletBalanceContainer } from '../marketplace/wallet_balance';
 import { MarketFillsContainer } from '../marketplace/market_fills';
-
-
-
 
 class Marketplace extends React.PureComponent {
     public render = () => {
@@ -30,16 +27,14 @@ class Marketplace extends React.PureComponent {
                     <OrderHistoryContainer />
                     <MarketFillsContainer />
                     <OrderFillsContainer />
-                   { /*<GoogleADS client={'ca-pub-8425903251487932'} slot={'3929149992'}  format={'auto'} responsive={'auto'}/>
+                    {/*<GoogleADS client={'ca-pub-8425903251487932'} slot={'3929149992'}  format={'auto'} responsive={'auto'}/>
                     <GoogleADS client={'ca-pub-8425903251487932'} slot={'2421724683'}  format={'auto'} responsive={'auto'}/>
         <GoogleADS client={'ca-pub-8425903251487932'} slot={'7055050362'}  format={'auto'} responsive={'auto'}/> */}
                 </ColumnWide>
-                <CheckMetamaskStateModalContainer />
+                <CheckWalletStateModalContainer />
             </Content>
         );
     };
 }
-
-
 
 export { Marketplace };

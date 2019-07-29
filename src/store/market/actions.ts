@@ -5,12 +5,13 @@ import { createAction } from 'typesafe-actions';
 
 import { ERC20_APP_BASE_PATH } from '../../common/constants';
 import { availableMarkets } from '../../common/markets';
-import { getMarketPriceEther, getMarketPriceQuote } from '../../services/markets';
+import { getMarketPriceEther, getMarketPriceQuote, getMarketPriceTokens } from '../../services/markets';
 import { getRelayer } from '../../services/relayer';
 import { getKnownTokens } from '../../util/known_tokens';
 import { getLogger } from '../../util/logger';
-import { CurrencyPair, Market, StoreState, ThunkCreator, Token } from '../../util/types';
+import { CurrencyPair, Market, StoreState, ThunkCreator, Token, TokenBalance, TokenPrice } from '../../util/types';
 import { getOrderbookAndUserOrders } from '../actions';
+import { getWethTokenBalance } from '../selectors';
 
 
 const logger = getLogger('Market::Actions');
@@ -52,8 +53,21 @@ export const fetchMarketPriceQuoteUpdate = createAction('market/PRICE_QUOTE_fetc
     return (quoteInUsd: BigNumber) => resolve(quoteInUsd);
 });
 
+export const fetchMarketPriceTokensStart = createAction('market/PRICE_TOKENS_fetch_request', resolve => {
+    return () => resolve();
+});
 
+export const fetchMarketPriceTokensUpdate = createAction('market/PRICE_TOKENS_fetch_success', resolve => {
+    return (tokensPrices: TokenPrice[]) => resolve(tokensPrices);
+});
 
+export const fetchMarketPriceTokensError = createAction('market/PRICE_TOKENS_fetch_failure', resolve => {
+    return (payload: any) => resolve(payload);
+});
+
+export const fetchERC20MarketsError = createAction('market/ERC20_MARKETS_TOKENS_fetch_failure', resolve => {
+    return (payload: any) => resolve(payload);
+});
 
 export const changeMarket: ThunkCreator = (currencyPair: CurrencyPair) => {
     return async (dispatch, getState) => {
@@ -73,14 +87,12 @@ export const changeMarket: ThunkCreator = (currencyPair: CurrencyPair) => {
         // if quote token changed, update quote price
         if (oldQuoteToken !== newQuoteToken) {
             try {
-             await  dispatch(updateMarketPriceQuote());
+                await dispatch(updateMarketPriceQuote());
             } catch (e) {
-                logger.error(
-                    `Failed to get Quote price`,
-                );
+                logger.error(`Failed to get Quote price`);
             }
         }
-      
+
         const newSearch = queryString.stringify({
             ...queryString.parse(state.router.location.search),
             base: currencyPair.base,
@@ -161,10 +173,10 @@ export const updateMarketPriceQuote: ThunkCreator = () => {
             if (quoteToken && quoteToken.id) {
                 // if ethereum price is already fetched we use it
                 if (quoteToken.id === 'ethereum' && state.market.ethInUsd) {
-                  dispatch(fetchMarketPriceQuoteUpdate(state.market.ethInUsd));
+                    dispatch(fetchMarketPriceQuoteUpdate(state.market.ethInUsd));
                 } else {
-                  const marketPriceQuoteData = await getMarketPriceQuote(quoteToken.id);
-                  dispatch(fetchMarketPriceQuoteUpdate(marketPriceQuoteData));
+                    const marketPriceQuoteData = await getMarketPriceQuote(quoteToken.id);
+                    dispatch(fetchMarketPriceQuoteUpdate(marketPriceQuoteData));
                 }
             } else {
                 throw new Error('Quote Token Need ID');
@@ -175,3 +187,29 @@ export const updateMarketPriceQuote: ThunkCreator = () => {
     };
 };
 
+export const updateMarketPriceTokens: ThunkCreator = () => {
+    return async (dispatch, getState) => {
+        dispatch(fetchMarketPriceTokensStart());
+        const state = getState() as StoreState;
+        try {
+            let tBalances: TokenBalance[] = [];
+            const tokenBalances = state.blockchain.tokenBalances;
+            const wethBalance = getWethTokenBalance(state);
+            wethBalance ? (tBalances = [...tokenBalances, wethBalance]) : (tBalances = [...tokenBalances]);
+            const tokensPrices = await getMarketPriceTokens(tBalances);
+            dispatch(fetchMarketPriceTokensUpdate(tokensPrices));
+        } catch (err) {
+            dispatch(fetchMarketPriceTokensError(err));
+        }
+    };
+};
+
+export const updateERC20Markets = () => {
+    return async (dispatch: any) => {
+        try {
+            await dispatch(fetchMarkets());
+        } catch (error) {
+            dispatch(fetchERC20MarketsError(error));
+        }
+    };
+};
