@@ -106,21 +106,18 @@ export class LocalStorage {
         return [];
     }
     public getMarketFills(account: string): MarketFill {
-        const currentFills = JSON.parse(
-            this._storage.getItem(fillsKey) || '{}',
-            (key: string, value: string) => {
-                if (key === 'amountQuote' || key === 'amountBase') {
-                    return new BigNumber(value);
-                }
-                if (key === 'timestamp') {
-                    return new Date(value);
-                }
-                if (key === 'tx') {
-                    return Promise.resolve();
-                }
-                return value;
-            },
-        );
+        const currentFills = JSON.parse(this._storage.getItem(fillsKey) || '{}', (key: string, value: string) => {
+            if (key === 'amountQuote' || key === 'amountBase') {
+                return new BigNumber(value);
+            }
+            if (key === 'timestamp') {
+                return new Date(value);
+            }
+            if (key === 'tx') {
+                return Promise.resolve();
+            }
+            return value;
+        });
         if (currentFills[NETWORK_ID] && currentFills[NETWORK_ID].markets && currentFills[NETWORK_ID].markets[account]) {
             return currentFills[NETWORK_ID].markets[account];
         }
@@ -163,19 +160,19 @@ export class LocalStorage {
             },
         };
 
-        Object.keys(newFills[NETWORK_ID].markets[account]).forEach( (m: string) => {
-                // Sort array by timestamp property
+        Object.keys(newFills[NETWORK_ID].markets[account]).forEach((m: string) => {
+            // Sort array by timestamp property
             newFills[NETWORK_ID].markets[account][m] = newFills[NETWORK_ID].markets[account][m].sort(
-                        (a: Fill, b: Fill) => {
-                            const aTimestamp = a.timestamp ? a.timestamp.getTime() : 0;
-                            const bTimestamp = b.timestamp ? b.timestamp.getTime() : 0;
-                            return bTimestamp - aTimestamp;
-                        },
-                );
-                // Limit number of fills
+                (a: Fill, b: Fill) => {
+                    const aTimestamp = a.timestamp ? a.timestamp.getTime() : 0;
+                    const bTimestamp = b.timestamp ? b.timestamp.getTime() : 0;
+                    return bTimestamp - aTimestamp;
+                },
+            );
+            // Limit number of fills
             if (newFills[NETWORK_ID].markets[account][m].length > FILLS_LIMIT) {
-                    newFills[NETWORK_ID].market[account][m].length = FILLS_LIMIT;
-                }
+                newFills[NETWORK_ID].market[account][m].length = FILLS_LIMIT;
+            }
         });
 
         this._storage.setItem(fillsKey, JSON.stringify(newFills));

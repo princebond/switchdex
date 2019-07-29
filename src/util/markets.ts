@@ -1,6 +1,5 @@
 import { CurrencyPair, Market, Token } from './types';
 
-
 export const filterMarketsByTokenSymbol = (markets: Market[], tokenSymbol: string): Market[] => {
     return markets.filter(
         market => market.currencyPair.base === tokenSymbol || market.currencyPair.quote === tokenSymbol,

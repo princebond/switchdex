@@ -286,7 +286,6 @@ export interface MarketFill {
     [market: string]: Fill[];
 }
 
-
 interface BaseNotification {
     id: string;
     kind: NotificationKind;

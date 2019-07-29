@@ -4,8 +4,6 @@ import { Step, StepsModalState, UIState } from '../../util/types';
 import * as actions from '../actions';
 import { RootAction } from '../reducers';
 
-
-
 const initialStepsModalState: StepsModalState = {
     doneSteps: [],
     currentStep: null,
@@ -108,8 +106,7 @@ export function ui(state: UIState = initialUIState, action: RootAction): UIState
         }
         case getType(actions.addUserFills): {
             const newFills = action.payload.filter(fill => {
-                const doesAlreadyExist = state.userFills
-                    .some(f => f.id === fill.id);
+                const doesAlreadyExist = state.userFills.some(f => f.id === fill.id);
                 return !doesAlreadyExist;
             });
             if (newFills.length) {
@@ -123,8 +120,8 @@ export function ui(state: UIState = initialUIState, action: RootAction): UIState
         }
         case getType(actions.addMarketFills): {
             const marketFills = state.marketFills;
-            // filter to see if have any 
-           /* Object.keys(action.payload).filter( m => {
+            // filter to see if have any
+            /* Object.keys(action.payload).filter( m => {
                 if (marketFills[m] && marketFills[m].length) {
                    newMarketsFills[m] = newMarketsFills[m].filter(fill => {
                         const doesAlreadyExist = marketFills[m]
@@ -141,12 +138,11 @@ export function ui(state: UIState = initialUIState, action: RootAction): UIState
                 ...marketFills,
                 ...newMarketsFills,
             };*/
-    
 
             if (Object.keys(action.payload)) {
                 return {
                     ...state,
-                    marketFills: {...action.payload, ...marketFills},
+                    marketFills: { ...action.payload, ...marketFills },
                 };
             } else {
                 return state;

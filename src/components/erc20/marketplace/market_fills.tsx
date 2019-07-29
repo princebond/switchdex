@@ -1,4 +1,3 @@
-
 import React from 'react';
 import { connect } from 'react-redux';
 import TimeAgo from 'react-timeago';
@@ -36,7 +35,7 @@ interface DispatchProps {
 
 type Props = StateProps & DispatchProps;
 
-const SideTD = styled(CustomTD) <{ side: OrderSide }>`
+const SideTD = styled(CustomTD)<{ side: OrderSide }>`
     color: ${props =>
         props.side === OrderSide.Buy ? props.theme.componentsTheme.green : props.theme.componentsTheme.red};
 `;
@@ -65,7 +64,7 @@ const fillToRow = (fill: Fill, index: number) => {
 
 class MarketFills extends React.Component<Props> {
     public render = () => {
-        const {  marketFills, baseToken, quoteToken, web3State } = this.props;
+        const { marketFills, baseToken, quoteToken, web3State } = this.props;
         let content: React.ReactNode;
         switch (web3State) {
             case Web3State.Locked:
@@ -82,9 +81,9 @@ class MarketFills extends React.Component<Props> {
                 } else if (!marketFills[marketToStringFromTokens(baseToken, quoteToken)]) {
                     content = <EmptyContent alignAbsoluteCenter={true} text="There are no trades to show" />;
                 } else {
-                  const market = marketToStringFromTokens(baseToken, quoteToken);
+                    const market = marketToStringFromTokens(baseToken, quoteToken);
 
-                  content = (
+                    content = (
                         <Table isResponsive={true}>
                             <THead>
                                 <TR>
@@ -95,7 +94,9 @@ class MarketFills extends React.Component<Props> {
                                     <TH styles={{ textAlign: 'right' }}>Age</TH>
                                 </TR>
                             </THead>
-                            <tbody>{marketFills[market].map((marketFill, index) => fillToRow(marketFill, index))}</tbody>
+                            <tbody>
+                                {marketFills[market].map((marketFill, index) => fillToRow(marketFill, index))}
+                            </tbody>
                         </Table>
                     );
                 }
@@ -123,6 +124,9 @@ const mapDispatchToProps = (dispatch: any): DispatchProps => {
     };
 };
 
-const MarketFillsContainer = connect(mapStateToProps, mapDispatchToProps)(MarketFills);
+const MarketFillsContainer = connect(
+    mapStateToProps,
+    mapDispatchToProps,
+)(MarketFills);
 
 export { MarketFills, MarketFillsContainer };

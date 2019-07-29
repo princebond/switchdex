@@ -13,7 +13,6 @@ import { CurrencyPair, Market, StoreState, ThunkCreator, Token, TokenBalance, To
 import { getOrderbookAndUserOrders } from '../actions';
 import { getWethTokenBalance } from '../selectors';
 
-
 const logger = getLogger('Market::Actions');
 
 export const setMarketTokens = createAction('market/MARKET_TOKENS_set', resolve => {

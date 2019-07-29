@@ -11,7 +11,7 @@
             "primaryColor": "#081e6e",
             "icon": "assets/icons/vsf.svg",
             "addresses": {
-               "1": "0xac9ce326e95f51b5005e9fe1dd8085a01f18450c"
+                "1": "0xac9ce326e95f51b5005e9fe1dd8085a01f18450c"
             },
             "id": "verisafe",
             "displayDecimals": 0
@@ -91,7 +91,7 @@
             "decimals": 18,
             "displayDecimals": 2
         },
-   
+
         {
             "decimals": 18,
             "symbol": "dai",
@@ -173,7 +173,6 @@
             },
             "displayDecimals": 0
         }
-    
     ],
     "pairs": [
         {
@@ -253,7 +252,6 @@
         {
             "text": "ETH",
             "value": "weth"
-        }    
+        }
     ]
-    
 }

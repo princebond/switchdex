@@ -15,7 +15,7 @@ import { getKnownTokens, isWeth } from '../../util/known_tokens';
 import { getLogger } from '../../util/logger';
 import { buildOrderFilledNotification } from '../../util/notifications';
 import { buildDutchAuctionCollectibleOrder, buildSellCollectibleOrder } from '../../util/orders';
-import {  getTransactionOptions } from '../../util/transactions';
+import { getTransactionOptions } from '../../util/transactions';
 import {
     BlockchainState,
     Collectible,
@@ -50,9 +50,17 @@ import {
     getWethBalance,
     getWethTokenBalance,
 } from '../selectors';
-import { addFills, addMarketFills, addNotifications, setFills, setHasUnreadNotifications, setMarketFills, setNotifications, setUserFills, setUserMarketFills } from '../ui/actions';
-
-
+import {
+    addFills,
+    addMarketFills,
+    addNotifications,
+    setFills,
+    setHasUnreadNotifications,
+    setMarketFills,
+    setNotifications,
+    setUserFills,
+    setUserMarketFills,
+} from '../ui/actions';
 
 const logger = getLogger('Blockchain::Actions');
 
@@ -369,7 +377,7 @@ export const setConnectedDexFills: ThunkCreator<Promise<any>> = (ethAccount: str
         dispatch(setUserFills(localStorage.getFills(userAccount)));
         dispatch(setMarketFills(localStorage.getMarketFills(ethAccount)));
         dispatch(setUserMarketFills(localStorage.getMarketFills(userAccount)));
-  
+
         const state = getState();
         const web3Wrapper = await getWeb3Wrapper();
         const contractWrappers = await getContractWrappers();
@@ -405,14 +413,16 @@ export const setConnectedDexFills: ThunkCreator<Promise<any>> = (ethAccount: str
                         },
                     ]),
                 );
-                dispatch(addMarketFills(
-                    {
-                        [fill.market] : [{
-                            ...fill,
-                            timestamp: new Date(timestamp * 1000),
-                        }],
-                    },
-                ));
+                dispatch(
+                    addMarketFills({
+                        [fill.market]: [
+                            {
+                                ...fill,
+                                timestamp: new Date(timestamp * 1000),
+                            },
+                        ],
+                    }),
+                );
             },
             pastFillEventsCallback: async fillEvents => {
                 const validFillEvents = fillEvents.filter(knownTokens.isValidFillEvent);
@@ -433,14 +443,13 @@ export const setConnectedDexFills: ThunkCreator<Promise<any>> = (ethAccount: str
                 dispatch(addFills(fills));
                 const marketsFill: MarketFill = {};
                 fills.forEach(f => {
-                        if (marketsFill[f.market]) {
-                            marketsFill[f.market].push(f);
-                        } else {
-                            marketsFill[f.market] = [f];
-                        }
-                    });
+                    if (marketsFill[f.market]) {
+                        marketsFill[f.market].push(f);
+                    } else {
+                        marketsFill[f.market] = [f];
+                    }
+                });
                 dispatch(addMarketFills(marketsFill));
-             
             },
         });
 
