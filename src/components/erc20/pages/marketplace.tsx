@@ -4,17 +4,25 @@ import { CheckWalletStateModalContainer } from '../../common/check_wallet_state_
 import { ColumnNarrow } from '../../common/column_narrow';
 import { ColumnWide } from '../../common/column_wide';
 import { Content } from '../common/content_wrapper';
+import {  MarketsListContainer } from '../common/markets_list';
 import { BuySellContainer } from '../marketplace/buy_sell';
+import { MarketFillsContainer } from '../marketplace/market_fills';
 // import GoogleADS from '../../common/google';
 import { OrderBookTableContainer } from '../marketplace/order_book';
 import { OrderFillsContainer } from '../marketplace/order_fills';
 import { OrderHistoryContainer } from '../marketplace/order_history';
 import { WalletBalanceContainer } from '../marketplace/wallet_balance';
-import { MarketFillsContainer } from '../marketplace/market_fills';
 
 class Marketplace extends React.PureComponent {
     public render = () => {
         return (
+            <>
+            <Content>
+               <ColumnWide> 
+                    <MarketsListContainer />
+                </ColumnWide>
+                <CheckWalletStateModalContainer />
+            </Content>
             <Content>
                 <ColumnNarrow>
                     <WalletBalanceContainer />
@@ -33,6 +41,7 @@ class Marketplace extends React.PureComponent {
                 </ColumnWide>
                 <CheckWalletStateModalContainer />
             </Content>
+            </>
         );
     };
 }

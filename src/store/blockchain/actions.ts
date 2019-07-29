@@ -62,6 +62,7 @@ import {
     setUserMarketFills,
 } from '../ui/actions';
 
+
 const logger = getLogger('Blockchain::Actions');
 
 export const convertBalanceStateAsync = createAsyncAction(
@@ -386,8 +387,8 @@ export const setConnectedDexFills: ThunkCreator<Promise<any>> = (ethAccount: str
 
         const lastBlockChecked = localStorage.getLastBlockChecked(ethAccount);
 
-        const fromBlock =
-            lastBlockChecked !== null ? lastBlockChecked + 1 : Math.max(blockNumber - START_BLOCK_LIMIT, 1);
+        const fromBlock = Math.max(blockNumber - START_BLOCK_LIMIT, 1);
+           // lastBlockChecked !== null ? lastBlockChecked + 1 : Math.max(blockNumber - START_BLOCK_LIMIT, 1);
 
         const toBlock = blockNumber;
 
@@ -439,7 +440,7 @@ export const setConnectedDexFills: ThunkCreator<Promise<any>> = (ethAccount: str
                         };
                     }),
                 );
-
+                    console.log(fills);
                 dispatch(addFills(fills));
                 const marketsFill: MarketFill = {};
                 fills.forEach(f => {

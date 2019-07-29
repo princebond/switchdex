@@ -258,6 +258,9 @@ export interface CurrencyPairMetaData {
 export interface Market {
     currencyPair: CurrencyPair;
     price: BigNumber | null;
+    spreadInPercentage: BigNumber | null;
+    bestAsk: BigNumber | null;
+    bestBid: BigNumber | null;
 }
 
 export enum NotificationKind {
@@ -284,6 +287,12 @@ export interface Fill {
 
 export interface MarketFill {
     [market: string]: Fill[];
+}
+
+export interface MarketData {
+    bestAsk: null| BigNumber;
+    bestBid: null | BigNumber;
+    spreadInPercentage: null | BigNumber;
 }
 
 interface BaseNotification {

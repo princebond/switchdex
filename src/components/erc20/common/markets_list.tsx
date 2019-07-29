@@ -2,7 +2,7 @@ import React, { HTMLAttributes } from 'react';
 import { connect } from 'react-redux';
 import styled from 'styled-components';
 
-import { UI_DECIMALS_DISPLAYED_PRICE_ETH } from '../../../common/constants';
+import { UI_DECIMALS_DISPLAYED_PRICE_ETH, UI_DECIMALS_DISPLAYED_SPREAD_PERCENT } from '../../../common/constants';
 import { marketFilters } from '../../../common/markets';
 import { changeMarket, goToHome } from '../../../store/actions';
 import { getBaseToken, getCurrencyPair, getMarkets } from '../../../store/selectors';
@@ -10,6 +10,7 @@ import { themeDimensions } from '../../../themes/commons';
 import { getKnownTokens } from '../../../util/known_tokens';
 import { filterMarketsByString, filterMarketsByTokenSymbol } from '../../../util/markets';
 import { CurrencyPair, Filter, Market, StoreState, Token } from '../../../util/types';
+import { Card } from '../../common/card';
 import { CardBase } from '../../common/card_base';
 import { Dropdown } from '../../common/dropdown';
 import { ChevronDownIcon } from '../../common/icons/chevron_down_icon';
@@ -35,7 +36,6 @@ type Props = PropsDivElement & PropsToken & DispatchProps;
 interface State {
     selectedFilter: Filter;
     search: string;
-    isUserOnDropdown: boolean;
 }
 
 interface TokenFiltersTabProps {
@@ -64,12 +64,18 @@ const MarketsDropdownHeaderText = styled.span`
     margin-right: 10px;
 `;
 
-const MarketsDropdownBody = styled(CardBase)`
+const MarketsCard = styled(CardBase)`
     box-shadow: ${props => props.theme.componentsTheme.boxShadow};
     max-height: 100%;
     max-width: 100%;
     width: 401px;
 `;
+
+const MarketListCard = styled(Card)`
+    max-height: 400px;
+    overflow: auto;
+`;
+
 
 const MarketsFilters = styled.div`
     align-items: center;
@@ -220,68 +226,33 @@ const TokenLabel = styled.div`
     margin: 0 0 0 12px;
 `;
 
-const DropdownTokenIcon = styled(TokenIcon)`
-    margin-right: 10px;
-    vertical-align: top;
-`;
 
-class MarketsDropdown extends React.Component<Props, State> {
+
+class MarketsList extends React.Component<Props, State> {
     public readonly state: State = {
         selectedFilter: marketFilters[0],
         search: '',
-        isUserOnDropdown: false,
     };
 
-    private readonly _dropdown = React.createRef<Dropdown>();
-
     public render = () => {
-        const { currencyPair, baseToken, ...restProps } = this.props;
+        const { currencyPair, baseToken } = this.props;
 
-        const header = (
-            <MarketsDropdownHeader>
-                <MarketsDropdownHeaderText>
-                    {baseToken ? (
-                        <DropdownTokenIcon
-                            symbol={baseToken.symbol}
-                            primaryColor={baseToken.primaryColor}
-                            isInline={true}
-                            icon={baseToken.icon}
-                        />
-                    ) : null}
-                    {currencyPair.base.toUpperCase()}/{currencyPair.quote.toUpperCase()}
-                </MarketsDropdownHeaderText>
-                <ChevronDownIcon />
-            </MarketsDropdownHeader>
-        );
 
-        const body = (
-            <MarketsDropdownBody>
-                <MarketsFilters onMouseOver={this._setUserOnDropdown} onMouseOut={this._removeUserOnDropdown}>
-                    <MarketsFiltersLabel>Markets</MarketsFiltersLabel>
+        const content = (
+            <>
+                <MarketsFilters>
+                 {/*  <MarketsFiltersLabel>Markets</MarketsFiltersLabel>*/}
                     {this._getTokensFilterTabs()}
                     {this._getSearchField()}
                 </MarketsFilters>
                 <TableWrapper>{this._getMarkets()}</TableWrapper>
-            </MarketsDropdownBody>
+            </>
         );
         return (
-            <MarketsDropdownWrapper
-                body={body}
-                header={header}
-                ref={this._dropdown}
-                shouldCloseDropdownOnClickOutside={!this.state.isUserOnDropdown}
-                {...restProps}
-            />
+            <MarketListCard title="Markets">{content}</MarketListCard>
         );
     };
 
-    private readonly _setUserOnDropdown = () => {
-        this.setState({ isUserOnDropdown: true });
-    };
-
-    private readonly _removeUserOnDropdown = () => {
-        this.setState({ isUserOnDropdown: false });
-    };
 
     private readonly _getTokensFilterTabs = () => {
         return (
@@ -341,7 +312,9 @@ class MarketsDropdown extends React.Component<Props, State> {
                 <THead>
                     <TR>
                         <THFirstStyled styles={{ textAlign: 'left' }}>Market</THFirstStyled>
-                        <THLastStyled styles={{ textAlign: 'center' }}>Price</THLastStyled>
+                        <THLastStyled styles={{ textAlign: 'center' }}>Best Ask</THLastStyled>
+                        <THLastStyled styles={{ textAlign: 'center' }}>Best Bid</THLastStyled>
+                        <THLastStyled styles={{ textAlign: 'center' }}>Spread</THLastStyled>
                     </TR>
                 </THead>
                 <TBody>
@@ -371,7 +344,13 @@ class MarketsDropdown extends React.Component<Props, State> {
                                     </TokenIconAndLabel>
                                 </CustomTDFirstStyled>
                                 <CustomTDLastStyled styles={{ textAlign: 'center', borderBottom: true, tabular: true }}>
-                                    {this._getPrice(market)}
+                                    {this._getBestAsk(market)}
+                                </CustomTDLastStyled>
+                                <CustomTDLastStyled styles={{ textAlign: 'center', borderBottom: true, tabular: true }}>
+                                    {this._getBestBid(market)}
+                                </CustomTDLastStyled>
+                                <CustomTDLastStyled styles={{ textAlign: 'center', borderBottom: true, tabular: true }}>
+                                    {this._getSpreadInPercentage(market)}
                                 </CustomTDLastStyled>
                             </TRStyled>
                         );
@@ -384,14 +363,25 @@ class MarketsDropdown extends React.Component<Props, State> {
     private readonly _setSelectedMarket: any = (currencyPair: CurrencyPair) => {
         this.props.changeMarket(currencyPair);
         this.props.goToHome();
-        if (this._dropdown.current) {
-            this._dropdown.current.closeDropdown();
-        }
     };
 
-    private readonly _getPrice: any = (market: Market) => {
+    private readonly _getBestAsk: any = (market: Market) => {
         if (market.bestAsk) {
             return market.bestAsk.toFixed(market.currencyPair.config.pricePrecision);
+        }
+
+        return '-';
+    };
+    private readonly _getBestBid: any = (market: Market) => {
+        if (market.bestBid) {
+            return market.bestBid.toFixed(market.currencyPair.config.pricePrecision);
+        }
+
+        return '-';
+    };
+    private readonly _getSpreadInPercentage: any = (market: Market) => {
+        if (market.spreadInPercentage) {
+            return `${market.spreadInPercentage.toFixed(UI_DECIMALS_DISPLAYED_SPREAD_PERCENT)} %`;
         }
 
         return '-';
@@ -413,9 +403,9 @@ const mapDispatchToProps = (dispatch: any): DispatchProps => {
     };
 };
 
-const MarketsDropdownContainer = connect(
+const MarketsListContainer = connect(
     mapStateToProps,
     mapDispatchToProps,
-)(MarketsDropdown);
+)(MarketsList);
 
-export { MarketsDropdown, MarketsDropdownContainer };
+export { MarketsList, MarketsListContainer };
