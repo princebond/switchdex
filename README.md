@@ -55,13 +55,15 @@ This is a detailed list of planned features to add to this DEX (includes VeriDex
 -   [x] List descriptions for each project
 -   [ ] List Market Trades
 -   [ ] List Markets stats
+-   [ ] List last prices for each token
 -   [ ] Click on buy and sell button to auto-fill
 -   [ ] Adding graphs like Trading View
 -   [ ] Create a costumized front page
 -   [ ] Report data to the most known crypto data aggregators (In progress)
--   [ ] List last prices for each token
 -   [ ] Theme switcher
 -   [ ] Connect to 0x mesh
+-   [ ] [i18n](https://github.com/i18next/react-i18next)
+-   [ ] Add [tour](https://github.com/elrumordelaluz/reactour)
 
 ## Planned Wallets Support
 

@@ -235,9 +235,6 @@ class MarketsList extends React.Component<Props, State> {
     };
 
     public render = () => {
-        const { currencyPair, baseToken } = this.props;
-
-
         const content = (
             <>
                 <MarketsFilters>
@@ -252,7 +249,6 @@ class MarketsList extends React.Component<Props, State> {
             <MarketListCard title="Markets">{content}</MarketListCard>
         );
     };
-
 
     private readonly _getTokensFilterTabs = () => {
         return (

@@ -1,4 +1,6 @@
-import { CurrencyPair, Market, Token } from './types';
+import { CurrencyPair, Market, Token, Fill } from './types';
+import { convertDateToUTCTimestamp } from './time_utils';
+import { BigNumber } from '0x.js';
 
 export const filterMarketsByTokenSymbol = (markets: Market[], tokenSymbol: string): Market[] => {
     return markets.filter(
@@ -26,3 +28,81 @@ export const marketToString = (currencyPair: CurrencyPair): string => {
 export const marketToStringFromTokens = (base: Token, quote: Token): string => {
     return `${base.symbol.toUpperCase()}-${quote.symbol.toUpperCase()}`;
 };
+
+/**
+ * Export current market as string
+ */
+export const getLastPrice = (fills: Fill[]): string | null => {
+    if (fills.length) {
+        return fills[0].price;
+    } else {
+        return null;
+    }
+};
+
+/**
+ * Get Today fills at UTC time
+ */
+export const getTodayFillsUTC = (fills: Fill[]): Fill[] | null => {
+    if (fills.length) {
+        const startOfDay = new Date();
+        startOfDay.setHours(0, 0, 0, 0);
+        const startOfDayUtc = convertDateToUTCTimestamp(startOfDay);
+        return fills.filter(f => (convertDateToUTCTimestamp(f.timestamp) > startOfDayUtc));
+    } else {
+        return null;
+    }
+};
+
+export const getTodayVolumeFromFills = (fills: Fill[]): BigNumber | null => {
+    if (fills.length) {
+        const todayFills = getTodayFillsUTC(fills);
+        if (todayFills && todayFills.length) {
+            return todayFills.map(f => f.amountBase).reduce((p, c) => p.plus(c));
+        } else {
+            return null;
+        }
+    } else {
+        return null;
+    }
+};
+
+export const getTodayHighPriceFromFills = (fills: Fill[]): number | null => {
+    if (fills.length) {
+        const todayFills = getTodayFillsUTC(fills);
+        if (todayFills && todayFills.length) {
+            return Math.max(...todayFills.map(f => Number(f.price)));
+        } else {
+            return null;
+        }
+    } else {
+        return null;
+    }
+};
+
+export const getTodayLowerPriceFromFills = (fills: Fill[]): number | null => {
+    if (fills.length) {
+        const todayFills = getTodayFillsUTC(fills);
+        if (todayFills && todayFills.length) {
+            return Math.min(...todayFills.map(f => Number(f.price)));
+        } else {
+            return null;
+        }
+    } else {
+        return null;
+    }
+};
+
+export const getTodayClosedOrdersFromFills = (fills: Fill[]): number | null => {
+    if (fills.length) {
+        const todayFills = getTodayFillsUTC(fills);
+        if (todayFills && todayFills.length) {
+            return todayFills.length;
+        } else {
+            return null;
+        }
+    } else {
+        return null;
+    }
+};
+
