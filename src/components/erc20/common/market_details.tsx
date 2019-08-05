@@ -4,7 +4,7 @@ import TimeAgo from 'react-timeago';
 import styled from 'styled-components';
 
 import { changeMarket, goToHome } from '../../../store/actions';
-import { getBaseToken, getFills, getQuoteToken, getUserOrders, getWeb3State, getCurrencyPair } from '../../../store/selectors';
+import { getBaseToken, getFills, getQuoteToken, getUserOrders, getWeb3State, getCurrencyPair, getMarketFills, getCurrentMarketTodayHighPrice, getCurrentMarketTodayLowerPrice, getCurrentMarketTodayVolume, getCurrentMarketLastPrice, getCurrentMarketTodayClosedOrders } from '../../../store/selectors';
 import { getCurrencyPairByTokensSymbol } from '../../../util/known_currency_pairs';
 import { isWeth } from '../../../util/known_tokens';
 import { tokenAmountInUnits } from '../../../util/tokens';
@@ -13,6 +13,7 @@ import { Card } from '../../common/card';
 import { EmptyContent } from '../../common/empty_content';
 import { LoadingWrapper } from '../../common/loading';
 import { CustomTD, Table, TH, THead, TR } from '../../common/table';
+import { BigNumber } from '0x.js';
 
 const MarketDetailCard = styled(Card)`
     max-height: 400px;
@@ -25,7 +26,11 @@ interface StateProps {
     quoteToken: Token | null;
     web3State?: Web3State;
     currencyPair: CurrencyPair;
-    fills: Fill[];
+    highPrice: number | null;
+    lowerPrice: number | null;
+    volume: BigNumber | null;
+    closedOrders: number | null;
+    lastPrice: string | null;
 }
 
 interface DispatchProps {
@@ -43,31 +48,28 @@ const ClicableTD = styled(CustomTD)`
     cursor: pointer;
 `;
 
-const statsToRow = (fill: Fill, index: number, _setMarket: any) => {
-    const sideLabel = fill.side === OrderSide.Sell ? 'Sell' : 'Buy';
-    const amountBase = tokenAmountInUnits(fill.amountBase, fill.tokenBase.decimals, fill.tokenBase.displayDecimals);
-    const displayAmountBase = `${amountBase} ${fill.tokenBase.symbol.toUpperCase()}`;
-    const amountQuote = tokenAmountInUnits(fill.amountQuote, fill.tokenQuote.decimals, fill.tokenQuote.displayDecimals);
-    const tokenQuoteSymbol = isWeth(fill.tokenQuote.symbol) ? 'ETH' : fill.tokenQuote.symbol.toUpperCase();
-    const displayAmountQuote = `${amountQuote} ${tokenQuoteSymbol}`;
-    const market = `${fill.tokenBase.symbol.toUpperCase()}/${tokenQuoteSymbol}`;
+interface MarketStats{
+    highPrice: number | null;
+    lowerPrice: number | null;
+    volume: BigNumber | null;
+    closedOrders: number | null;
+    lastPrice: string | null;
+}
 
-    const currencyPair: CurrencyPair = getCurrencyPairByTokensSymbol(fill.tokenBase.symbol, fill.tokenQuote.symbol);
 
-    const price = parseFloat(fill.price.toString()).toFixed(currencyPair.config.pricePrecision);
 
-    const setMarket = () => _setMarket(currencyPair);
+const statsToRow = (marketStats: MarketStats, baseToken: Token) => {
     return (
-        <TR key={index}>
-            <SideTD side={fill.side}>{sideLabel}</SideTD>
-            <ClicableTD styles={{ textAlign: 'right', tabular: true }} onClick={setMarket}>
-                {market}
-            </ClicableTD>
-            <CustomTD styles={{ textAlign: 'right', tabular: true }}>{price}</CustomTD>
-            <CustomTD styles={{ textAlign: 'right', tabular: true }}>{displayAmountBase}</CustomTD>
-            <CustomTD styles={{ textAlign: 'right', tabular: true }}>{displayAmountQuote}</CustomTD>
+        <TR>
+            <CustomTD >{baseToken.name}</CustomTD>
             <CustomTD styles={{ textAlign: 'right', tabular: true }}>
-                <TimeAgo date={fill.timestamp} />;
+                {marketStats.lastPrice || '-'}
+            </CustomTD>
+            <CustomTD styles={{ textAlign: 'right', tabular: true }}>{marketStats.highPrice || '-'}</CustomTD>
+            <CustomTD styles={{ textAlign: 'right', tabular: true }}>{marketStats.lowerPrice || '-'}</CustomTD>
+            <CustomTD styles={{ textAlign: 'right', tabular: true }}>{marketStats.volume || '-'}</CustomTD>
+            <CustomTD styles={{ textAlign: 'right', tabular: true }}>
+                {marketStats.closedOrders || '-'}
             </CustomTD>
         </TR>
     );
@@ -75,26 +77,21 @@ const statsToRow = (fill: Fill, index: number, _setMarket: any) => {
 
 class MarketDetails extends React.Component<Props> {
     public render = () => {
-        const { fills, baseToken, quoteToken, web3State } = this.props;
+        const {  baseToken, quoteToken, web3State } = this.props;
         let content: React.ReactNode;
         switch (web3State) {
             case Web3State.Locked:
             case Web3State.NotInstalled:
             case Web3State.Loading: {
-                content = <EmptyContent alignAbsoluteCenter={true} text="There are no stats to show" />;
+                content = <EmptyContent alignAbsoluteCenter={true} text="There are no market details to show" />;
                 break;
             }
             default: {
                 if (web3State !== Web3State.Error && (!baseToken || !quoteToken)) {
                     content = <LoadingWrapper minHeight="120px" />;
-                } else if (!fills.length || !baseToken || !quoteToken) {
-                    content = <EmptyContent alignAbsoluteCenter={true} text="There are no stats to show" />;
+                } else if (!baseToken || !quoteToken) {
+                    content = <EmptyContent alignAbsoluteCenter={true} text="There are no market details to show" />;
                 } else {
-                    const _setMarket: any = (currencyPair: CurrencyPair) => {
-                        this.props.changeMarket(currencyPair);
-                        this.props.goToHome();
-                    };
-
                     content = (
                         <Table isResponsive={true}>
                             <THead>
@@ -107,7 +104,7 @@ class MarketDetails extends React.Component<Props> {
                                     <TH styles={{ textAlign: 'right' }}>Orders Closed</TH>
                                 </TR>
                             </THead>
-                            <tbody>{statsToRow(fill, index, _setMarket)}</tbody>
+                            <tbody>{statsToRow({...this.props}, baseToken)}</tbody>
                         </Table>
                     );
                 }
@@ -115,7 +112,7 @@ class MarketDetails extends React.Component<Props> {
             }
         }
 
-        return <MarketDetailCard title="Market Pair">{content}</MarketDetailCard>;
+        return <MarketDetailCard title="Market Stats">{content}</MarketDetailCard>;
     };
 }
 
@@ -125,8 +122,12 @@ const mapStateToProps = (state: StoreState): StateProps => {
         orders: getUserOrders(state),
         quoteToken: getQuoteToken(state),
         web3State: getWeb3State(state),
-        fills: getFills(state),
         currencyPair: getCurrencyPair(state),
+        highPrice: getCurrentMarketTodayHighPrice(state),
+        lowerPrice: getCurrentMarketTodayLowerPrice(state),
+        volume: getCurrentMarketTodayVolume(state),
+        closedOrders: getCurrentMarketTodayClosedOrders(state),
+        lastPrice: getCurrentMarketLastPrice(state),
     };
 };
 const mapDispatchToProps = (dispatch: any): DispatchProps => {

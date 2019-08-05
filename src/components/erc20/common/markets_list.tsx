@@ -2,7 +2,7 @@ import React, { HTMLAttributes } from 'react';
 import { connect } from 'react-redux';
 import styled from 'styled-components';
 
-import { UI_DECIMALS_DISPLAYED_PRICE_ETH, UI_DECIMALS_DISPLAYED_SPREAD_PERCENT } from '../../../common/constants';
+import {  UI_DECIMALS_DISPLAYED_SPREAD_PERCENT } from '../../../common/constants';
 import { marketFilters } from '../../../common/markets';
 import { changeMarket, goToHome } from '../../../store/actions';
 import { getBaseToken, getCurrencyPair, getMarkets } from '../../../store/selectors';
@@ -13,7 +13,6 @@ import { CurrencyPair, Filter, Market, StoreState, Token } from '../../../util/t
 import { Card } from '../../common/card';
 import { CardBase } from '../../common/card_base';
 import { Dropdown } from '../../common/dropdown';
-import { ChevronDownIcon } from '../../common/icons/chevron_down_icon';
 import { MagnifierIcon } from '../../common/icons/magnifier_icon';
 import { TokenIcon } from '../../common/icons/token_icon';
 import { CustomTDFirst, CustomTDLast, Table, TBody, THead, THFirst, THLast, TR } from '../../common/table';
@@ -49,27 +48,7 @@ interface MarketRowProps {
 
 const rowHeight = '48px';
 
-const MarketsDropdownWrapper = styled(Dropdown)``;
 
-const MarketsDropdownHeader = styled.div`
-    align-items: center;
-    display: flex;
-`;
-
-const MarketsDropdownHeaderText = styled.span`
-    color: ${props => props.theme.componentsTheme.textColorCommon};
-    font-size: 18px;
-    font-weight: 600;
-    line-height: 26px;
-    margin-right: 10px;
-`;
-
-const MarketsCard = styled(CardBase)`
-    box-shadow: ${props => props.theme.componentsTheme.boxShadow};
-    max-height: 100%;
-    max-width: 100%;
-    width: 401px;
-`;
 
 const MarketListCard = styled(Card)`
     max-height: 400px;
@@ -86,13 +65,7 @@ const MarketsFilters = styled.div`
     padding: 8px 8px 8px ${themeDimensions.horizontalPadding};
 `;
 
-const MarketsFiltersLabel = styled.h2`
-    color: ${props => props.theme.componentsTheme.textColorCommon};
-    font-size: 16px;
-    font-weight: 600;
-    line-height: normal;
-    margin: 0 auto 0 0;
-`;
+
 
 const TokenFiltersTabs = styled.div`
     align-items: center;

@@ -13,8 +13,12 @@ import {
     Token,
     TokenBalance,
     Web3State,
+    Fill,
+    CurrencyPair,
+    MarketFill,
 } from '../util/types';
 import { mergeByPrice } from '../util/ui_orders';
+import { marketToString, getLastPrice, getTodayVolumeFromFills, getTodayHighPriceFromFills, getTodayLowerPriceFromFills, getTodayClosedOrdersFromFills } from '../util/markets';
 
 export const getEthAccount = (state: StoreState) => state.blockchain.ethAccount;
 export const getTokenBalances = (state: StoreState) => state.blockchain.tokenBalances;
@@ -57,6 +61,52 @@ export const getRouterLocationSearch = (state: StoreState) => state.router.locat
 export const getCurrentMarketPlace = createSelector(
     getCurrentRoutePath,
     (currentRoute: string) => (currentRoute.includes(ERC20_APP_BASE_PATH) ? MARKETPLACES.ERC20 : MARKETPLACES.ERC721),
+);
+
+export const getCurrentMarketFills = createSelector(
+    getMarketFills,
+    getCurrencyPair,
+    (marketFills: MarketFill, currencyPair: CurrencyPair) => {
+        const pair =  marketToString(currencyPair);
+        return marketFills[pair];
+    },
+);
+
+
+export const getCurrentMarketLastPrice = createSelector(
+    getCurrentMarketFills,
+    (marketFills: Fill[]) => {
+        return getLastPrice(marketFills);
+    },
+);
+
+export const getCurrentMarketTodayVolume = createSelector(
+    getCurrentMarketFills,
+    (marketFills: Fill[]) => {
+        return getTodayVolumeFromFills(marketFills);
+    },
+);
+
+
+export const getCurrentMarketTodayHighPrice = createSelector(
+    getCurrentMarketFills,
+    (marketFills: Fill[]) => {
+        return getTodayHighPriceFromFills(marketFills);
+    },
+);
+
+export const getCurrentMarketTodayLowerPrice = createSelector(
+    getCurrentMarketFills,
+    (marketFills: Fill[]) => {
+        return getTodayLowerPriceFromFills(marketFills);
+    },
+);
+
+export const getCurrentMarketTodayClosedOrders = createSelector(
+    getCurrentMarketFills,
+    (marketFills: Fill[]) => {
+        return getTodayClosedOrdersFromFills(marketFills);
+    },
 );
 
 const searchToken = ({ tokenBalances, tokenToFind, wethTokenBalance }: SearchTokenBalanceObject) => {
