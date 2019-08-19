@@ -9,9 +9,10 @@ import { getMarketPriceEther, getMarketPriceQuote, getMarketPriceTokens } from '
 import { getRelayer } from '../../services/relayer';
 import { getKnownTokens } from '../../util/known_tokens';
 import { getLogger } from '../../util/logger';
-import { CurrencyPair, Market, StoreState, ThunkCreator, Token, TokenBalance, TokenPrice } from '../../util/types';
+import { marketToString } from '../../util/markets';
+import { CurrencyPair, Fill, Market, StoreState, ThunkCreator, Token, TokenBalance, TokenPrice } from '../../util/types';
 import { getOrderbookAndUserOrders } from '../actions';
-import { getWethTokenBalance } from '../selectors';
+import { getMarketFills, getWethTokenBalance } from '../selectors';
 
 const logger = getLogger('Market::Actions');
 
@@ -81,6 +82,8 @@ export const changeMarket: ThunkCreator = (currencyPair: CurrencyPair) => {
             }),
         );
         dispatch(setCurrencyPair(currencyPair));
+
+
         // tslint:disable-next-line:no-floating-promises
         dispatch(getOrderbookAndUserOrders());
         // if quote token changed, update quote price

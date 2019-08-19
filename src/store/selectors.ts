@@ -20,6 +20,7 @@ import {
 import { mergeByPrice } from '../util/ui_orders';
 import { marketToString, getLastPrice, getTodayVolumeFromFills, getTodayHighPriceFromFills, getTodayLowerPriceFromFills, getTodayClosedOrdersFromFills } from '../util/markets';
 
+
 export const getEthAccount = (state: StoreState) => state.blockchain.ethAccount;
 export const getTokenBalances = (state: StoreState) => state.blockchain.tokenBalances;
 export const getWeb3State = (state: StoreState) => state.blockchain.web3State;
@@ -68,7 +69,7 @@ export const getCurrentMarketFills = createSelector(
     getCurrencyPair,
     (marketFills: MarketFill, currencyPair: CurrencyPair) => {
         const pair =  marketToString(currencyPair);
-        return marketFills[pair];
+        return marketFills[pair] ? marketFills[pair] : [];
     },
 );
 

@@ -40,7 +40,7 @@ interface DispatchProps {
 
 type Props = StateProps & DispatchProps;
 
-const SideTD = styled(CustomTD)<{ side: OrderSide }>`
+const SideTD = styled(CustomTD) <{ side: OrderSide }>`
     color: ${props =>
         props.side === OrderSide.Buy ? props.theme.componentsTheme.green : props.theme.componentsTheme.red};
 `;
@@ -48,7 +48,7 @@ const ClicableTD = styled(CustomTD)`
     cursor: pointer;
 `;
 
-interface MarketStats{
+interface MarketStats {
     highPrice: number | null;
     lowerPrice: number | null;
     volume: BigNumber | null;
@@ -59,6 +59,7 @@ interface MarketStats{
 
 
 const statsToRow = (marketStats: MarketStats, baseToken: Token) => {
+    
     return (
         <TR>
             <CustomTD >{baseToken.name}</CustomTD>
@@ -67,7 +68,7 @@ const statsToRow = (marketStats: MarketStats, baseToken: Token) => {
             </CustomTD>
             <CustomTD styles={{ textAlign: 'right', tabular: true }}>{marketStats.highPrice || '-'}</CustomTD>
             <CustomTD styles={{ textAlign: 'right', tabular: true }}>{marketStats.lowerPrice || '-'}</CustomTD>
-            <CustomTD styles={{ textAlign: 'right', tabular: true }}>{marketStats.volume || '-'}</CustomTD>
+            <CustomTD styles={{ textAlign: 'right', tabular: true }}>{ (marketStats.volume && marketStats.volume.toString()) || '-'}</CustomTD>
             <CustomTD styles={{ textAlign: 'right', tabular: true }}>
                 {marketStats.closedOrders || '-'}
             </CustomTD>
@@ -77,7 +78,7 @@ const statsToRow = (marketStats: MarketStats, baseToken: Token) => {
 
 class MarketDetails extends React.Component<Props> {
     public render = () => {
-        const {  baseToken, quoteToken, web3State } = this.props;
+        const { baseToken, quoteToken, web3State } = this.props;
         let content: React.ReactNode;
         switch (web3State) {
             case Web3State.Locked:
@@ -92,6 +93,14 @@ class MarketDetails extends React.Component<Props> {
                 } else if (!baseToken || !quoteToken) {
                     content = <EmptyContent alignAbsoluteCenter={true} text="There are no market details to show" />;
                 } else {
+                    const { highPrice, lowerPrice, volume, closedOrders, lastPrice } = this.props;
+                    const marketStats = {
+                        highPrice,
+                        lowerPrice,
+                        volume,
+                        closedOrders,
+                        lastPrice,
+                    };
                     content = (
                         <Table isResponsive={true}>
                             <THead>
@@ -104,7 +113,7 @@ class MarketDetails extends React.Component<Props> {
                                     <TH styles={{ textAlign: 'right' }}>Orders Closed</TH>
                                 </TR>
                             </THead>
-                            <tbody>{statsToRow({...this.props}, baseToken)}</tbody>
+                            <tbody>{statsToRow(marketStats, baseToken)}</tbody>
                         </Table>
                     );
                 }
@@ -142,4 +151,4 @@ const MarketDetailsContainer = connect(
     mapDispatchToProps,
 )(MarketDetails);
 
-export { MarketDetails,  MarketDetailsContainer };
+export { MarketDetails, MarketDetailsContainer };

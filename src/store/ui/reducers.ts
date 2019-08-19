@@ -4,6 +4,7 @@ import { Step, StepsModalState, UIState } from '../../util/types';
 import * as actions from '../actions';
 import { RootAction } from '../reducers';
 
+
 const initialStepsModalState: StepsModalState = {
     doneSteps: [],
     currentStep: null,
@@ -138,11 +139,17 @@ export function ui(state: UIState = initialUIState, action: RootAction): UIState
                 ...marketFills,
                 ...newMarketsFills,
             };*/
-
+            console.log(action.payload);
+            console.log(marketFills);
+            console.log({
+                ...state,
+                marketFills: {  ...marketFills, ...action.payload },
+            })
             if (Object.keys(action.payload)) {
+                console.log("updated market fills");
                 return {
                     ...state,
-                    marketFills: { ...action.payload, ...marketFills },
+                    marketFills: { ...marketFills, ...action.payload },
                 };
             } else {
                 return state;

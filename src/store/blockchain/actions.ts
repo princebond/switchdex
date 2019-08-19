@@ -13,6 +13,7 @@ import { deleteWeb3Wrapper, isMetamaskInstalled } from '../../services/web3_wrap
 import { buildFill } from '../../util/fills';
 import { getKnownTokens, isWeth } from '../../util/known_tokens';
 import { getLogger } from '../../util/logger';
+import { marketToString } from '../../util/markets';
 import { buildOrderFilledNotification } from '../../util/notifications';
 import { buildDutchAuctionCollectibleOrder, buildSellCollectibleOrder } from '../../util/orders';
 import { getTransactionOptions } from '../../util/transactions';
@@ -61,6 +62,8 @@ import {
     setUserFills,
     setUserMarketFills,
 } from '../ui/actions';
+
+
 
 
 const logger = getLogger('Blockchain::Actions');
@@ -380,6 +383,8 @@ export const setConnectedDexFills: ThunkCreator<Promise<any>> = (ethAccount: str
         dispatch(setUserMarketFills(localStorage.getMarketFills(userAccount)));
 
         const state = getState();
+        const currencyPair = getCurrencyPair(state);
+        const market = marketToString(currencyPair);
         const web3Wrapper = await getWeb3Wrapper();
         const contractWrappers = await getContractWrappers();
 
@@ -400,12 +405,14 @@ export const setConnectedDexFills: ThunkCreator<Promise<any>> = (ethAccount: str
             toBlock,
             ethAccount,
             fillEventCallback: async fillEvent => {
+                console.log("fill Event received");
                 if (!knownTokens.isValidFillEvent(fillEvent)) {
                     return;
                 }
                 const timestamp = await web3Wrapper.getBlockTimestampAsync(fillEvent.blockNumber || blockNumber);
                 const fill = buildFill(fillEvent, knownTokens, markets);
-
+                console.log(fill);
+                console.log("fill Event");
                 dispatch(
                     addFills([
                         {
@@ -424,6 +431,9 @@ export const setConnectedDexFills: ThunkCreator<Promise<any>> = (ethAccount: str
                         ],
                     }),
                 );
+               
+
+
             },
             pastFillEventsCallback: async fillEvents => {
                 const validFillEvents = fillEvents.filter(knownTokens.isValidFillEvent);
@@ -440,7 +450,6 @@ export const setConnectedDexFills: ThunkCreator<Promise<any>> = (ethAccount: str
                         };
                     }),
                 );
-                    console.log(fills);
                 dispatch(addFills(fills));
                 const marketsFill: MarketFill = {};
                 fills.forEach(f => {
@@ -450,6 +459,7 @@ export const setConnectedDexFills: ThunkCreator<Promise<any>> = (ethAccount: str
                         marketsFill[f.market] = [f];
                     }
                 });
+                console.log(marketsFill);
                 dispatch(addMarketFills(marketsFill));
             },
         });

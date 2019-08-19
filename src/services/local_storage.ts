@@ -171,7 +171,7 @@ export class LocalStorage {
             );
             // Limit number of fills
             if (newFills[NETWORK_ID].markets[account][m].length > FILLS_LIMIT) {
-                newFills[NETWORK_ID].market[account][m].length = FILLS_LIMIT;
+                newFills[NETWORK_ID].markets[account][m].length = FILLS_LIMIT;
             }
         });
 

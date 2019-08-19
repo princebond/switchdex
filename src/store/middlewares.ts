@@ -55,6 +55,7 @@ export const localStorageMiddleware: Middleware = ({ getState }: MiddlewareAPI) 
                     markets[f.market] = [f];
                 }
             });
+            localStorage.saveMarketFills(markets, ethAccount);
             /*  Object.keys(markets).forEach(m => {
                localStorage.saveMarketFills(markets[m], ethAccount, m);
                localStorage.saveMarketFills(markets[m].filter(f  => f.takerAddress === userAccount || f.makerAddress === userAccount), userAccount, m);
