@@ -9,10 +9,9 @@ import { getMarketPriceEther, getMarketPriceQuote, getMarketPriceTokens } from '
 import { getRelayer } from '../../services/relayer';
 import { getKnownTokens } from '../../util/known_tokens';
 import { getLogger } from '../../util/logger';
-import { marketToString } from '../../util/markets';
-import { CurrencyPair, Fill, Market, StoreState, ThunkCreator, Token, TokenBalance, TokenPrice } from '../../util/types';
+import { CurrencyPair,  Market, StoreState, ThunkCreator, Token, TokenBalance, TokenPrice } from '../../util/types';
 import { getOrderbookAndUserOrders } from '../actions';
-import { getMarketFills, getWethTokenBalance } from '../selectors';
+import { getWethTokenBalance } from '../selectors';
 
 const logger = getLogger('Market::Actions');
 
@@ -82,7 +81,6 @@ export const changeMarket: ThunkCreator = (currencyPair: CurrencyPair) => {
             }),
         );
         dispatch(setCurrencyPair(currencyPair));
-
 
         // tslint:disable-next-line:no-floating-promises
         dispatch(getOrderbookAndUserOrders());

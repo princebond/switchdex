@@ -5,16 +5,16 @@ import styled from 'styled-components';
 import {  UI_DECIMALS_DISPLAYED_SPREAD_PERCENT } from '../../../common/constants';
 import { marketFilters } from '../../../common/markets';
 import { changeMarket, goToHome } from '../../../store/actions';
-import { getBaseToken, getCurrencyPair, getMarkets } from '../../../store/selectors';
+import { getBaseToken, getCurrencyPair, getMarkets, getQuoteToken, getWeb3State } from '../../../store/selectors';
 import { themeDimensions } from '../../../themes/commons';
 import { getKnownTokens } from '../../../util/known_tokens';
 import { filterMarketsByString, filterMarketsByTokenSymbol } from '../../../util/markets';
-import { CurrencyPair, Filter, Market, StoreState, Token } from '../../../util/types';
+import { CurrencyPair, Filter, Market, StoreState, Token, Web3State } from '../../../util/types';
 import { Card } from '../../common/card';
-import { CardBase } from '../../common/card_base';
-import { Dropdown } from '../../common/dropdown';
+import { EmptyContent } from '../../common/empty_content';
 import { MagnifierIcon } from '../../common/icons/magnifier_icon';
 import { TokenIcon } from '../../common/icons/token_icon';
+import { LoadingWrapper } from '../../common/loading';
 import { CustomTDFirst, CustomTDLast, Table, TBody, THead, THFirst, THLast, TR } from '../../common/table';
 
 interface PropsDivElement extends HTMLAttributes<HTMLDivElement> {}
@@ -28,6 +28,8 @@ interface PropsToken {
     baseToken: Token | null;
     currencyPair: CurrencyPair;
     markets: Market[] | null;
+    web3State?: Web3State;
+    quoteToken: Token | null;
 }
 
 type Props = PropsDivElement & PropsToken & DispatchProps;
@@ -48,13 +50,10 @@ interface MarketRowProps {
 
 const rowHeight = '48px';
 
-
-
 const MarketListCard = styled(Card)`
     max-height: 400px;
     overflow: auto;
 `;
-
 
 const MarketsFilters = styled.div`
     align-items: center;
@@ -64,8 +63,6 @@ const MarketsFilters = styled.div`
     min-height: ${rowHeight};
     padding: 8px 8px 8px ${themeDimensions.horizontalPadding};
 `;
-
-
 
 const TokenFiltersTabs = styled.div`
     align-items: center;
@@ -199,8 +196,6 @@ const TokenLabel = styled.div`
     margin: 0 0 0 12px;
 `;
 
-
-
 class MarketsList extends React.Component<Props, State> {
     public readonly state: State = {
         selectedFilter: marketFilters[0],
@@ -208,16 +203,37 @@ class MarketsList extends React.Component<Props, State> {
     };
 
     public render = () => {
-        const content = (
-            <>
-                <MarketsFilters>
-                 {/*  <MarketsFiltersLabel>Markets</MarketsFiltersLabel>*/}
-                    {this._getTokensFilterTabs()}
-                    {this._getSearchField()}
-                </MarketsFilters>
-                <TableWrapper>{this._getMarkets()}</TableWrapper>
-            </>
-        );
+        const { baseToken, quoteToken, web3State } = this.props;
+        let content: React.ReactNode;
+        switch (web3State) {
+            case Web3State.Locked:
+            case Web3State.NotInstalled:
+            case Web3State.Loading: {
+                content = <EmptyContent alignAbsoluteCenter={true} text="There are no market details to show" />;
+                break;
+            }
+            default: {
+                if (web3State !== Web3State.Error && (!baseToken || !quoteToken)) {
+                    content = <LoadingWrapper minHeight="120px" />;
+                } else if (!baseToken || !quoteToken) {
+                    content = <EmptyContent alignAbsoluteCenter={true} text="There are no market details to show" />;
+                } else {
+
+                    content = (
+                        <>
+                        <MarketsFilters>
+                         {/*  <MarketsFiltersLabel>Markets</MarketsFiltersLabel>*/}
+                            {this._getTokensFilterTabs()}
+                            {this._getSearchField()}
+                        </MarketsFilters>
+                        <TableWrapper>{this._getMarkets()}</TableWrapper>
+                    </>
+                    );
+                }
+                break;
+            }
+        }
+
         return (
             <MarketListCard title="Markets">{content}</MarketListCard>
         );
@@ -362,6 +378,8 @@ const mapStateToProps = (state: StoreState): PropsToken => {
         baseToken: getBaseToken(state),
         currencyPair: getCurrencyPair(state),
         markets: getMarkets(state),
+        quoteToken: getQuoteToken(state),
+        web3State: getWeb3State(state),
     };
 };
 

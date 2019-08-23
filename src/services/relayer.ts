@@ -4,9 +4,7 @@ import { RateLimit } from 'async-sema';
 
 import { RELAYER_URL } from '../common/constants';
 import { tokenAmountInUnitsToBigNumber } from '../util/tokens';
-import { Token, MarketData } from '../util/types';
-
-
+import { MarketData, Token } from '../util/types';
 
 export class Relayer {
     private readonly _client: HttpClient;
@@ -85,8 +83,8 @@ export class Relayer {
         if (bids.records.length) {
             const lowestPriceBid = bids.records[0];
             const { makerAssetAmount, takerAssetAmount } = lowestPriceBid.order;
-            const takerAssetAmountInUnits = tokenAmountInUnitsToBigNumber(takerAssetAmount, quoteToken.decimals);
-            const makerAssetAmountInUnits = tokenAmountInUnitsToBigNumber(makerAssetAmount, baseToken.decimals);
+            const takerAssetAmountInUnits = tokenAmountInUnitsToBigNumber(takerAssetAmount, baseToken.decimals);
+            const makerAssetAmountInUnits = tokenAmountInUnitsToBigNumber(makerAssetAmount, quoteToken.decimals);
             marketData.bestBid =  makerAssetAmountInUnits.div(takerAssetAmountInUnits);
         }
         if (marketData.bestAsk && marketData.bestBid) {

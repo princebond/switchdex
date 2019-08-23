@@ -63,9 +63,6 @@ import {
     setUserMarketFills,
 } from '../ui/actions';
 
-
-
-
 const logger = getLogger('Blockchain::Actions');
 
 export const convertBalanceStateAsync = createAsyncAction(
@@ -370,6 +367,7 @@ export const setConnectedUserNotifications: ThunkCreator<Promise<any>> = (ethAcc
     };
 };
 
+let fillEventsDexSubscription: string | null = null;
 export const setConnectedDexFills: ThunkCreator<Promise<any>> = (ethAccount: string, userAccount: string) => {
     return async (dispatch, getState, { getContractWrappers, getWeb3Wrapper }) => {
         const knownTokens = getKnownTokens();
@@ -405,14 +403,11 @@ export const setConnectedDexFills: ThunkCreator<Promise<any>> = (ethAccount: str
             toBlock,
             ethAccount,
             fillEventCallback: async fillEvent => {
-                console.log("fill Event received");
                 if (!knownTokens.isValidFillEvent(fillEvent)) {
                     return;
                 }
                 const timestamp = await web3Wrapper.getBlockTimestampAsync(fillEvent.blockNumber || blockNumber);
                 const fill = buildFill(fillEvent, knownTokens, markets);
-                console.log(fill);
-                console.log("fill Event");
                 dispatch(
                     addFills([
                         {
@@ -431,9 +426,6 @@ export const setConnectedDexFills: ThunkCreator<Promise<any>> = (ethAccount: str
                         ],
                     }),
                 );
-               
-
-
             },
             pastFillEventsCallback: async fillEvents => {
                 const validFillEvents = fillEvents.filter(knownTokens.isValidFillEvent);
@@ -459,15 +451,14 @@ export const setConnectedDexFills: ThunkCreator<Promise<any>> = (ethAccount: str
                         marketsFill[f.market] = [f];
                     }
                 });
-                console.log(marketsFill);
                 dispatch(addMarketFills(marketsFill));
             },
         });
 
-        if (fillEventsSubscription) {
-            contractWrappers.exchange.unsubscribe(fillEventsSubscription);
+        if (fillEventsDexSubscription) {
+            contractWrappers.exchange.unsubscribe(fillEventsDexSubscription);
         }
-        fillEventsSubscription = subscription;
+        fillEventsDexSubscription = subscription;
 
         localStorage.saveLastBlockChecked(blockNumber, ethAccount);
     };

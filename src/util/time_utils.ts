@@ -32,4 +32,4 @@ export const getEndDateStringFromTimeInSeconds = (timeInSeconds: BigNumber) => {
 
 export const convertDateToUTCTimestamp = (date: Date): number => {
     return date.getTime() - date.getTimezoneOffset() * 60000;
-}
+};

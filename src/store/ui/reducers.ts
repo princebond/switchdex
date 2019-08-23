@@ -1,9 +1,8 @@
 import { getType } from 'typesafe-actions';
 
-import { Step, StepsModalState, UIState } from '../../util/types';
+import { MarketFill, Step, StepsModalState, UIState } from '../../util/types';
 import * as actions from '../actions';
 import { RootAction } from '../reducers';
-
 
 const initialStepsModalState: StepsModalState = {
     doneSteps: [],
@@ -121,35 +120,30 @@ export function ui(state: UIState = initialUIState, action: RootAction): UIState
         }
         case getType(actions.addMarketFills): {
             const marketFills = state.marketFills;
-            // filter to see if have any
-            /* Object.keys(action.payload).filter( m => {
-                if (marketFills[m] && marketFills[m].length) {
-                   newMarketsFills[m] = newMarketsFills[m].filter(fill => {
-                        const doesAlreadyExist = marketFills[m]
-                            .some(f => f.id === fill.id);
-                        return !doesAlreadyExist;
-                    });
-                   if (!newMarketsFills[m].length) {
-                        delete newMarketsFills[m];
+            const mf: MarketFill = {};
+
+            Object.keys(action.payload).forEach(m => {
+                if (action.payload[m].length) {
+                    if (marketFills[m] && marketFills[m].length) {
+                        const newFills = action.payload[m].filter(fill => {
+                            const doesAlreadyExist = marketFills[m].some(f => f.id === fill.id);
+                            return !doesAlreadyExist;
+                        });
+                        if (newFills.length) {
+                            mf[m] = [...newFills, ...marketFills[m]];
+                        } else {
+                            mf[m] = [...marketFills[m]];
+                        }
+                    } else {
+                        mf[m] = action.payload[m];
                     }
                 }
             });
 
-            const markets: MarketFill = {
-                ...marketFills,
-                ...newMarketsFills,
-            };*/
-            console.log(action.payload);
-            console.log(marketFills);
-            console.log({
-                ...state,
-                marketFills: {  ...marketFills, ...action.payload },
-            })
             if (Object.keys(action.payload)) {
-                console.log("updated market fills");
                 return {
                     ...state,
-                    marketFills: { ...marketFills, ...action.payload },
+                    marketFills: mf,
                 };
             } else {
                 return state;

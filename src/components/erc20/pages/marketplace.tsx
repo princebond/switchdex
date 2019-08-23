@@ -19,10 +19,10 @@ class Marketplace extends React.PureComponent {
         return (
             <>
             <Content>
-               <ColumnWide> 
+               <ColumnWide>
                     <MarketsListContainer />
                 </ColumnWide>
-                <ColumnWide> 
+                <ColumnWide>
                   <MarketDetailsContainer/>
                 </ColumnWide>
                 <CheckWalletStateModalContainer />

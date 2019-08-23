@@ -106,4 +106,3 @@ export const getTodayClosedOrdersFromFills = (fills: Fill[]): number | null => {
         return null;
     }
 };
-

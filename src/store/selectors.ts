@@ -3,8 +3,12 @@ import { createSelector } from 'reselect';
 
 import { ERC20_APP_BASE_PATH } from '../common/constants';
 import { isWeth } from '../util/known_tokens';
+import { getLastPrice, getTodayClosedOrdersFromFills, getTodayHighPriceFromFills, getTodayLowerPriceFromFills, getTodayVolumeFromFills, marketToString } from '../util/markets';
 import {
     Collectible,
+    CurrencyPair,
+    Fill,
+    MarketFill,
     MARKETPLACES,
     OrderBook,
     OrderSide,
@@ -13,13 +17,8 @@ import {
     Token,
     TokenBalance,
     Web3State,
-    Fill,
-    CurrencyPair,
-    MarketFill,
 } from '../util/types';
 import { mergeByPrice } from '../util/ui_orders';
-import { marketToString, getLastPrice, getTodayVolumeFromFills, getTodayHighPriceFromFills, getTodayLowerPriceFromFills, getTodayClosedOrdersFromFills } from '../util/markets';
-
 
 export const getEthAccount = (state: StoreState) => state.blockchain.ethAccount;
 export const getTokenBalances = (state: StoreState) => state.blockchain.tokenBalances;
@@ -73,7 +72,6 @@ export const getCurrentMarketFills = createSelector(
     },
 );
 
-
 export const getCurrentMarketLastPrice = createSelector(
     getCurrentMarketFills,
     (marketFills: Fill[]) => {
@@ -87,7 +85,6 @@ export const getCurrentMarketTodayVolume = createSelector(
         return getTodayVolumeFromFills(marketFills);
     },
 );
-
 
 export const getCurrentMarketTodayHighPrice = createSelector(
     getCurrentMarketFills,

@@ -1,19 +1,17 @@
+import { BigNumber } from '0x.js';
 import React from 'react';
 import { connect } from 'react-redux';
-import TimeAgo from 'react-timeago';
 import styled from 'styled-components';
 
 import { changeMarket, goToHome } from '../../../store/actions';
-import { getBaseToken, getFills, getQuoteToken, getUserOrders, getWeb3State, getCurrencyPair, getMarketFills, getCurrentMarketTodayHighPrice, getCurrentMarketTodayLowerPrice, getCurrentMarketTodayVolume, getCurrentMarketLastPrice, getCurrentMarketTodayClosedOrders } from '../../../store/selectors';
-import { getCurrencyPairByTokensSymbol } from '../../../util/known_currency_pairs';
-import { isWeth } from '../../../util/known_tokens';
+import { getBaseToken, getCurrencyPair, getCurrentMarketLastPrice, getCurrentMarketTodayClosedOrders, getCurrentMarketTodayHighPrice, getCurrentMarketTodayLowerPrice, getCurrentMarketTodayVolume, getQuoteToken, getUserOrders, getWeb3State } from '../../../store/selectors';
+import { marketToString } from '../../../util/markets';
 import { tokenAmountInUnits } from '../../../util/tokens';
-import { CurrencyPair, Fill, OrderSide, StoreState, Token, UIOrder, Web3State } from '../../../util/types';
+import { CurrencyPair, StoreState, Token, UIOrder, Web3State } from '../../../util/types';
 import { Card } from '../../common/card';
 import { EmptyContent } from '../../common/empty_content';
 import { LoadingWrapper } from '../../common/loading';
 import { CustomTD, Table, TH, THead, TR } from '../../common/table';
-import { BigNumber } from '0x.js';
 
 const MarketDetailCard = styled(Card)`
     max-height: 400px;
@@ -40,14 +38,6 @@ interface DispatchProps {
 
 type Props = StateProps & DispatchProps;
 
-const SideTD = styled(CustomTD) <{ side: OrderSide }>`
-    color: ${props =>
-        props.side === OrderSide.Buy ? props.theme.componentsTheme.green : props.theme.componentsTheme.red};
-`;
-const ClicableTD = styled(CustomTD)`
-    cursor: pointer;
-`;
-
 interface MarketStats {
     highPrice: number | null;
     lowerPrice: number | null;
@@ -56,10 +46,8 @@ interface MarketStats {
     lastPrice: string | null;
 }
 
-
-
 const statsToRow = (marketStats: MarketStats, baseToken: Token) => {
-    
+
     return (
         <TR>
             <CustomTD >{baseToken.name}</CustomTD>
@@ -68,7 +56,7 @@ const statsToRow = (marketStats: MarketStats, baseToken: Token) => {
             </CustomTD>
             <CustomTD styles={{ textAlign: 'right', tabular: true }}>{marketStats.highPrice || '-'}</CustomTD>
             <CustomTD styles={{ textAlign: 'right', tabular: true }}>{marketStats.lowerPrice || '-'}</CustomTD>
-            <CustomTD styles={{ textAlign: 'right', tabular: true }}>{ (marketStats.volume && marketStats.volume.toString()) || '-'}</CustomTD>
+            <CustomTD styles={{ textAlign: 'right', tabular: true }}>{(marketStats.volume && `${tokenAmountInUnits(marketStats.volume, baseToken.decimals, baseToken.displayDecimals).toString()} ${baseToken.symbol.toUpperCase()}`) || '-'} </CustomTD>
             <CustomTD styles={{ textAlign: 'right', tabular: true }}>
                 {marketStats.closedOrders || '-'}
             </CustomTD>
@@ -78,7 +66,7 @@ const statsToRow = (marketStats: MarketStats, baseToken: Token) => {
 
 class MarketDetails extends React.Component<Props> {
     public render = () => {
-        const { baseToken, quoteToken, web3State } = this.props;
+        const { baseToken, quoteToken, web3State, currencyPair } = this.props;
         let content: React.ReactNode;
         switch (web3State) {
             case Web3State.Locked:
@@ -120,8 +108,9 @@ class MarketDetails extends React.Component<Props> {
                 break;
             }
         }
+        const title = `Market Stats: ${marketToString(currencyPair)}`;
 
-        return <MarketDetailCard title="Market Stats">{content}</MarketDetailCard>;
+        return <MarketDetailCard title={title}>{content}</MarketDetailCard>;
     };
 }
 
