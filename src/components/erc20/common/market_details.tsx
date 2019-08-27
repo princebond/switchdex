@@ -4,10 +4,20 @@ import { connect } from 'react-redux';
 import styled from 'styled-components';
 
 import { changeMarket, goToHome } from '../../../store/actions';
-import { getBaseToken, getCurrencyPair, getCurrentMarketLastPrice, getCurrentMarketTodayClosedOrders, getCurrentMarketTodayHighPrice, getCurrentMarketTodayLowerPrice, getCurrentMarketTodayVolume, getQuoteToken, getUserOrders, getWeb3State } from '../../../store/selectors';
+import {
+    getBaseToken,
+    getCurrencyPair,
+    getCurrentMarketLastPrice,
+    getCurrentMarketTodayClosedOrders,
+    getCurrentMarketTodayHighPrice,
+    getCurrentMarketTodayLowerPrice,
+    getCurrentMarketTodayVolume,
+    getQuoteToken,
+    getWeb3State,
+} from '../../../store/selectors';
 import { marketToString } from '../../../util/markets';
 import { tokenAmountInUnits } from '../../../util/tokens';
-import { CurrencyPair, StoreState, Token, UIOrder, Web3State } from '../../../util/types';
+import { CurrencyPair, StoreState, Token, Web3State } from '../../../util/types';
 import { Card } from '../../common/card';
 import { EmptyContent } from '../../common/empty_content';
 import { LoadingWrapper } from '../../common/loading';
@@ -20,7 +30,6 @@ const MarketDetailCard = styled(Card)`
 
 interface StateProps {
     baseToken: Token | null;
-    orders: UIOrder[];
     quoteToken: Token | null;
     web3State?: Web3State;
     currencyPair: CurrencyPair;
@@ -47,19 +56,22 @@ interface MarketStats {
 }
 
 const statsToRow = (marketStats: MarketStats, baseToken: Token) => {
-
     return (
         <TR>
-            <CustomTD >{baseToken.name}</CustomTD>
-            <CustomTD styles={{ textAlign: 'right', tabular: true }}>
-                {marketStats.lastPrice || '-'}
-            </CustomTD>
+            <CustomTD>{baseToken.name}</CustomTD>
+            <CustomTD styles={{ textAlign: 'right', tabular: true }}>{marketStats.lastPrice || '-'}</CustomTD>
             <CustomTD styles={{ textAlign: 'right', tabular: true }}>{marketStats.highPrice || '-'}</CustomTD>
             <CustomTD styles={{ textAlign: 'right', tabular: true }}>{marketStats.lowerPrice || '-'}</CustomTD>
-            <CustomTD styles={{ textAlign: 'right', tabular: true }}>{(marketStats.volume && `${tokenAmountInUnits(marketStats.volume, baseToken.decimals, baseToken.displayDecimals).toString()} ${baseToken.symbol.toUpperCase()}`) || '-'} </CustomTD>
             <CustomTD styles={{ textAlign: 'right', tabular: true }}>
-                {marketStats.closedOrders || '-'}
+                {(marketStats.volume &&
+                    `${tokenAmountInUnits(
+                        marketStats.volume,
+                        baseToken.decimals,
+                        baseToken.displayDecimals,
+                    ).toString()} ${baseToken.symbol.toUpperCase()}`) ||
+                    '-'}{' '}
             </CustomTD>
+            <CustomTD styles={{ textAlign: 'right', tabular: true }}>{marketStats.closedOrders || '-'}</CustomTD>
         </TR>
     );
 };
@@ -117,7 +129,6 @@ class MarketDetails extends React.Component<Props> {
 const mapStateToProps = (state: StoreState): StateProps => {
     return {
         baseToken: getBaseToken(state),
-        orders: getUserOrders(state),
         quoteToken: getQuoteToken(state),
         web3State: getWeb3State(state),
         currencyPair: getCurrencyPair(state),

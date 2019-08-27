@@ -391,7 +391,7 @@ export const setConnectedDexFills: ThunkCreator<Promise<any>> = (ethAccount: str
         const lastBlockChecked = localStorage.getLastBlockChecked(ethAccount);
 
         const fromBlock = Math.max(blockNumber - START_BLOCK_LIMIT, 1);
-           // lastBlockChecked !== null ? lastBlockChecked + 1 : Math.max(blockNumber - START_BLOCK_LIMIT, 1);
+        // lastBlockChecked !== null ? lastBlockChecked + 1 : Math.max(blockNumber - START_BLOCK_LIMIT, 1);
 
         const toBlock = blockNumber;
 

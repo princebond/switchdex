@@ -77,7 +77,7 @@ export class Relayer {
             const { makerAssetAmount, takerAssetAmount } = lowestPriceAsk.order;
             const takerAssetAmountInUnits = tokenAmountInUnitsToBigNumber(takerAssetAmount, quoteToken.decimals);
             const makerAssetAmountInUnits = tokenAmountInUnitsToBigNumber(makerAssetAmount, baseToken.decimals);
-            marketData.bestAsk =  takerAssetAmountInUnits.div(makerAssetAmountInUnits);
+            marketData.bestAsk = takerAssetAmountInUnits.div(makerAssetAmountInUnits);
         }
 
         if (bids.records.length) {
@@ -85,14 +85,14 @@ export class Relayer {
             const { makerAssetAmount, takerAssetAmount } = lowestPriceBid.order;
             const takerAssetAmountInUnits = tokenAmountInUnitsToBigNumber(takerAssetAmount, baseToken.decimals);
             const makerAssetAmountInUnits = tokenAmountInUnitsToBigNumber(makerAssetAmount, quoteToken.decimals);
-            marketData.bestBid =  makerAssetAmountInUnits.div(takerAssetAmountInUnits);
+            marketData.bestBid = makerAssetAmountInUnits.div(takerAssetAmountInUnits);
         }
         if (marketData.bestAsk && marketData.bestBid) {
             const spread = marketData.bestAsk.minus(marketData.bestBid).dividedBy(marketData.bestAsk);
             marketData.spreadInPercentage = spread.multipliedBy(100);
         }
 
-        return  marketData;
+        return marketData;
     }
 
     public async getSellCollectibleOrdersAsync(

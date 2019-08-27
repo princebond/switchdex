@@ -2,7 +2,7 @@ import React, { HTMLAttributes } from 'react';
 import { connect } from 'react-redux';
 import styled from 'styled-components';
 
-import {  UI_DECIMALS_DISPLAYED_SPREAD_PERCENT } from '../../../common/constants';
+import { UI_DECIMALS_DISPLAYED_SPREAD_PERCENT } from '../../../common/constants';
 import { marketFilters } from '../../../common/markets';
 import { changeMarket, goToHome } from '../../../store/actions';
 import { getBaseToken, getCurrencyPair, getMarkets, getQuoteToken, getWeb3State } from '../../../store/selectors';
@@ -218,25 +218,22 @@ class MarketsList extends React.Component<Props, State> {
                 } else if (!baseToken || !quoteToken) {
                     content = <EmptyContent alignAbsoluteCenter={true} text="There are no market details to show" />;
                 } else {
-
                     content = (
                         <>
-                        <MarketsFilters>
-                         {/*  <MarketsFiltersLabel>Markets</MarketsFiltersLabel>*/}
-                            {this._getTokensFilterTabs()}
-                            {this._getSearchField()}
-                        </MarketsFilters>
-                        <TableWrapper>{this._getMarkets()}</TableWrapper>
-                    </>
+                            <MarketsFilters>
+                                {/*  <MarketsFiltersLabel>Markets</MarketsFiltersLabel>*/}
+                                {this._getTokensFilterTabs()}
+                                {this._getSearchField()}
+                            </MarketsFilters>
+                            <TableWrapper>{this._getMarkets()}</TableWrapper>
+                        </>
                     );
                 }
                 break;
             }
         }
 
-        return (
-            <MarketListCard title="Markets">{content}</MarketListCard>
-        );
+        return <MarketListCard title="Markets">{content}</MarketListCard>;
     };
 
     private readonly _getTokensFilterTabs = () => {

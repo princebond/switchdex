@@ -3,7 +3,14 @@ import { createSelector } from 'reselect';
 
 import { ERC20_APP_BASE_PATH } from '../common/constants';
 import { isWeth } from '../util/known_tokens';
-import { getLastPrice, getTodayClosedOrdersFromFills, getTodayHighPriceFromFills, getTodayLowerPriceFromFills, getTodayVolumeFromFills, marketToString } from '../util/markets';
+import {
+    getLastPrice,
+    getTodayClosedOrdersFromFills,
+    getTodayHighPriceFromFills,
+    getTodayLowerPriceFromFills,
+    getTodayVolumeFromFills,
+    marketToString,
+} from '../util/markets';
 import {
     Collectible,
     CurrencyPair,
@@ -67,7 +74,7 @@ export const getCurrentMarketFills = createSelector(
     getMarketFills,
     getCurrencyPair,
     (marketFills: MarketFill, currencyPair: CurrencyPair) => {
-        const pair =  marketToString(currencyPair);
+        const pair = marketToString(currencyPair);
         return marketFills[pair] ? marketFills[pair] : [];
     },
 );

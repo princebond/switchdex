@@ -49,7 +49,7 @@ export const getTodayFillsUTC = (fills: Fill[]): Fill[] | null => {
         const startOfDay = new Date();
         startOfDay.setHours(0, 0, 0, 0);
         const startOfDayUtc = convertDateToUTCTimestamp(startOfDay);
-        return fills.filter(f => (convertDateToUTCTimestamp(f.timestamp) > startOfDayUtc));
+        return fills.filter(f => convertDateToUTCTimestamp(f.timestamp) > startOfDayUtc);
     } else {
         return null;
     }

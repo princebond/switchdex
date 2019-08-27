@@ -213,6 +213,8 @@ export interface UIOrder {
     filled: BigNumber | null;
     price: BigNumber;
     status: OrderStatus | null;
+    makerFillableAmountInTakerAsset: BigNumber;
+    remainingTakerAssetFillAmount: BigNumber;
 }
 
 export interface OrderBookItem {
@@ -290,7 +292,7 @@ export interface MarketFill {
 }
 
 export interface MarketData {
-    bestAsk: null| BigNumber;
+    bestAsk: null | BigNumber;
     bestBid: null | BigNumber;
     spreadInPercentage: null | BigNumber;
 }
