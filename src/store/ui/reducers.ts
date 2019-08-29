@@ -129,11 +129,7 @@ export function ui(state: UIState = initialUIState, action: RootAction): UIState
                             const doesAlreadyExist = marketFills[m].some(f => f.id === fill.id);
                             return !doesAlreadyExist;
                         });
-                        if (newFills.length) {
-                            mf[m] = [...newFills, ...marketFills[m]];
-                        } else {
-                            mf[m] = [...marketFills[m]];
-                        }
+                        newFills.length ? (mf[m] = [...newFills, ...marketFills[m]]) : (mf[m] = [...marketFills[m]]);
                     } else {
                         mf[m] = action.payload[m];
                     }

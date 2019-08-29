@@ -4,24 +4,23 @@ import TimeAgo from 'react-timeago';
 import styled from 'styled-components';
 
 import { changeMarket, goToHome } from '../../../store/actions';
-import { getBaseToken, getFills, getQuoteToken, getUserOrders, getWeb3State } from '../../../store/selectors';
+import { getBaseToken, getFills, getQuoteToken, getWeb3State } from '../../../store/selectors';
 import { getCurrencyPairByTokensSymbol } from '../../../util/known_currency_pairs';
 import { isWeth } from '../../../util/known_tokens';
 import { tokenAmountInUnits } from '../../../util/tokens';
-import { CurrencyPair, Fill, OrderSide, StoreState, Token, UIOrder, Web3State } from '../../../util/types';
+import { CurrencyPair, Fill, OrderSide, StoreState, Token, Web3State } from '../../../util/types';
 import { Card } from '../../common/card';
 import { EmptyContent } from '../../common/empty_content';
 import { LoadingWrapper } from '../../common/loading';
 import { CustomTD, Table, TH, THead, TR } from '../../common/table';
 
 const DexTradesList = styled(Card)`
-    max-height: 200px;
+    max-height: 480px;
     overflow: auto;
 `;
 
 interface StateProps {
     baseToken: Token | null;
-    orders: UIOrder[];
     quoteToken: Token | null;
     web3State?: Web3State;
     fills: Fill[];
@@ -38,7 +37,7 @@ const SideTD = styled(CustomTD)<{ side: OrderSide }>`
     color: ${props =>
         props.side === OrderSide.Buy ? props.theme.componentsTheme.green : props.theme.componentsTheme.red};
 `;
-const ClicableTD = styled(CustomTD)`
+export const ClicableTD = styled(CustomTD)`
     cursor: pointer;
 `;
 
@@ -121,7 +120,6 @@ class OrderFills extends React.Component<Props> {
 const mapStateToProps = (state: StoreState): StateProps => {
     return {
         baseToken: getBaseToken(state),
-        orders: getUserOrders(state),
         quoteToken: getQuoteToken(state),
         web3State: getWeb3State(state),
         fills: getFills(state),

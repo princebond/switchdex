@@ -3,26 +3,25 @@ import { connect } from 'react-redux';
 import TimeAgo from 'react-timeago';
 import styled from 'styled-components';
 
-import { UI_DECIMALS_DISPLAYED_ORDER_SIZE, UI_DECIMALS_DISPLAYED_PRICE_ETH } from '../../../common/constants';
 import { changeMarket, goToHome } from '../../../store/actions';
-import { getBaseToken, getMarketFills, getQuoteToken, getUserOrders, getWeb3State } from '../../../store/selectors';
+import { getBaseToken, getMarketFills, getQuoteToken, getWeb3State } from '../../../store/selectors';
+import { getCurrencyPairByTokensSymbol } from '../../../util/known_currency_pairs';
 import { isWeth } from '../../../util/known_tokens';
 import { marketToStringFromTokens } from '../../../util/markets';
 import { tokenAmountInUnits } from '../../../util/tokens';
-import { CurrencyPair, Fill, MarketFill, OrderSide, StoreState, Token, UIOrder, Web3State } from '../../../util/types';
+import { CurrencyPair, Fill, MarketFill, OrderSide, StoreState, Token, Web3State } from '../../../util/types';
 import { Card } from '../../common/card';
 import { EmptyContent } from '../../common/empty_content';
 import { LoadingWrapper } from '../../common/loading';
 import { CustomTD, Table, TH, THead, TR } from '../../common/table';
 
 const MarketTradesList = styled(Card)`
-    max-height: 200px;
+    max-height: 300px;
     overflow: auto;
 `;
 
 interface StateProps {
     baseToken: Token | null;
-    orders: UIOrder[];
     quoteToken: Token | null;
     web3State?: Web3State;
     marketFills: MarketFill;
@@ -35,19 +34,22 @@ interface DispatchProps {
 
 type Props = StateProps & DispatchProps;
 
-const SideTD = styled(CustomTD)<{ side: OrderSide }>`
+export const SideTD = styled(CustomTD)<{ side: OrderSide }>`
     color: ${props =>
         props.side === OrderSide.Buy ? props.theme.componentsTheme.green : props.theme.componentsTheme.red};
 `;
 
 const fillToRow = (fill: Fill, index: number) => {
     const sideLabel = fill.side === OrderSide.Sell ? 'Sell' : 'Buy';
-    const amountBase = tokenAmountInUnits(fill.amountBase, fill.tokenBase.decimals, UI_DECIMALS_DISPLAYED_ORDER_SIZE);
+    const amountBase = tokenAmountInUnits(fill.amountBase, fill.tokenBase.decimals, fill.tokenBase.displayDecimals);
     const displayAmountBase = `${amountBase} ${fill.tokenBase.symbol.toUpperCase()}`;
-    const amountQuote = tokenAmountInUnits(fill.amountQuote, fill.tokenQuote.decimals, 3);
+    const amountQuote = tokenAmountInUnits(fill.amountQuote, fill.tokenQuote.decimals, fill.tokenQuote.displayDecimals);
     const tokenQuoteSymbol = isWeth(fill.tokenQuote.symbol) ? 'ETH' : fill.tokenQuote.symbol.toUpperCase();
     const displayAmountQuote = `${amountQuote} ${tokenQuoteSymbol}`;
-    const price = parseFloat(fill.price.toString()).toFixed(UI_DECIMALS_DISPLAYED_PRICE_ETH);
+
+    const currencyPair: CurrencyPair = getCurrencyPairByTokensSymbol(fill.tokenBase.symbol, fill.tokenQuote.symbol);
+
+    const price = parseFloat(fill.price.toString()).toFixed(currencyPair.config.pricePrecision);
 
     return (
         <TR key={index}>
@@ -104,14 +106,17 @@ class MarketFills extends React.Component<Props> {
             }
         }
 
-        return <MarketTradesList title="Market History">{content}</MarketTradesList>;
+        return (
+            <MarketTradesList title="Market History" minHeightBody={'190px'}>
+                {content}
+            </MarketTradesList>
+        );
     };
 }
 
 const mapStateToProps = (state: StoreState): StateProps => {
     return {
         baseToken: getBaseToken(state),
-        orders: getUserOrders(state),
         quoteToken: getQuoteToken(state),
         web3State: getWeb3State(state),
         marketFills: getMarketFills(state),

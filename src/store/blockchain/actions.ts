@@ -13,7 +13,6 @@ import { deleteWeb3Wrapper, isMetamaskInstalled } from '../../services/web3_wrap
 import { buildFill } from '../../util/fills';
 import { getKnownTokens, isWeth } from '../../util/known_tokens';
 import { getLogger } from '../../util/logger';
-import { marketToString } from '../../util/markets';
 import { buildOrderFilledNotification } from '../../util/notifications';
 import { buildDutchAuctionCollectibleOrder, buildSellCollectibleOrder } from '../../util/orders';
 import { getTransactionOptions } from '../../util/transactions';
@@ -381,16 +380,15 @@ export const setConnectedDexFills: ThunkCreator<Promise<any>> = (ethAccount: str
         dispatch(setUserMarketFills(localStorage.getMarketFills(userAccount)));
 
         const state = getState();
-        const currencyPair = getCurrencyPair(state);
-        const market = marketToString(currencyPair);
         const web3Wrapper = await getWeb3Wrapper();
         const contractWrappers = await getContractWrappers();
 
         const blockNumber = await web3Wrapper.getBlockNumberAsync();
 
         const lastBlockChecked = localStorage.getLastBlockChecked(ethAccount);
-
-        const fromBlock = Math.max(blockNumber - START_BLOCK_LIMIT, 1);
+        const fromBlock =
+            lastBlockChecked !== null ? lastBlockChecked + 1 : Math.max(blockNumber - START_BLOCK_LIMIT, 1);
+        // const fromBlock = Math.max(blockNumber - START_BLOCK_LIMIT, 1);
         // lastBlockChecked !== null ? lastBlockChecked + 1 : Math.max(blockNumber - START_BLOCK_LIMIT, 1);
 
         const toBlock = blockNumber;

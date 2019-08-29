@@ -353,15 +353,15 @@ class WalletTokenBalances extends React.PureComponent<Props, State> {
 
             return (
                 <TR>
-                    <CustomTD styles={{ borderBottom: true, textAlign: 'right', tabular: true }}></CustomTD>
+                    <CustomTD styles={{ borderBottom: true, textAlign: 'right', tabular: true }} />
                     <CustomTDTokenName styles={{ borderBottom: true }}>TOTAL HOLDINGS</CustomTDTokenName>
-                    <CustomTD styles={{ borderBottom: true, textAlign: 'right', tabular: true }}></CustomTD>
-                    <CustomTD styles={{ borderBottom: true, textAlign: 'right', tabular: true }}></CustomTD>
+                    <CustomTD styles={{ borderBottom: true, textAlign: 'right', tabular: true }} />
+                    <CustomTD styles={{ borderBottom: true, textAlign: 'right', tabular: true }} />
                     <CustomTD styles={{ borderBottom: true, textAlign: 'right', tabular: true }}>
                         {`${totalHoldingsValue.toFixed(3)}$`}
                     </CustomTD>
-                    <CustomTD styles={{ borderBottom: true, textAlign: 'right', tabular: true }}></CustomTD>
-                    <CustomTD styles={{ borderBottom: true, textAlign: 'right', tabular: true }}></CustomTD>
+                    <CustomTD styles={{ borderBottom: true, textAlign: 'right', tabular: true }} />
+                    <CustomTD styles={{ borderBottom: true, textAlign: 'right', tabular: true }} />
                     <CustomTD styles={{ borderBottom: true, textAlign: 'left' }}>Prices by Coingecko</CustomTD>
                 </TR>
             );

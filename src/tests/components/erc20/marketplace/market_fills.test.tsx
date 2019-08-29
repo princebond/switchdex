@@ -7,25 +7,25 @@ import { shallow, ShallowWrapper } from 'enzyme';
 import React from 'react';
 
 import { CustomTD } from '../../../../components/common/table';
-import { MarketDetails } from '../../../../components/erc20/common/market_details';
+import { MarketFills, SideTD } from '../../../../components/erc20/marketplace/market_fills';
 import { buildFill } from '../../../../util/fills';
-import { getKnownTokens } from '../../../../util/known_tokens';
-import {
-    getLastPrice,
-    getTodayClosedOrdersFromFills,
-    getTodayHighPriceFromFills,
-    getTodayLowerPriceFromFills,
-    getTodayVolumeFromFills,
-} from '../../../../util/markets';
+import { getKnownTokens, isWeth } from '../../../../util/known_tokens';
+import { marketToString } from '../../../../util/markets';
 import { addressFactory, getCurrencyPairFromTokens } from '../../../../util/test-utils';
 import { tokenAmountInUnits } from '../../../../util/tokens';
-import { Market } from '../../../../util/types';
+import { Market, MarketFill } from '../../../../util/types';
 
-describe('MarketDetails', () => {
+describe('MarketFills', () => {
     const getTextCustomTDFromWrapper = (wrapper: ShallowWrapper, element = 0): string =>
         wrapper
             .find(CustomTD)
             .at(element)
+            .text();
+
+    const getTextSideFromWrapper = (wrapper: ShallowWrapper): string =>
+        wrapper
+            .find(SideTD)
+            .at(0)
             .text();
 
     const marketData = {
@@ -72,7 +72,7 @@ describe('MarketDetails', () => {
         },
     ];
 
-    it('Display all market details data related to base token and associated fill', () => {
+    it('Display all market fill row from fill', () => {
         // given
         const knownTokens = getKnownTokens();
         const zrxToken = knownTokens.getTokenBySymbol('zrx');
@@ -107,39 +107,36 @@ describe('MarketDetails', () => {
         // when
         const fill = buildFill(log, knownTokens, markets);
 
+        const market = marketToString(currencyPairFromTokens);
+
+        const marketFill: MarketFill = {};
+        marketFill[market] = [fill];
+
         // when
         const wrapper = shallow(
-            <MarketDetails
+            <MarketFills
                 baseToken={baseToken}
                 quoteToken={quoteToken}
-                currencyPair={currencyPairFromTokens}
-                highPrice={getTodayHighPriceFromFills([fill])}
-                lowerPrice={getTodayLowerPriceFromFills([fill])}
-                closedOrders={getTodayClosedOrdersFromFills([fill])}
-                volume={getTodayVolumeFromFills([fill])}
-                lastPrice={getLastPrice([fill])}
+                marketFills={marketFill}
                 changeMarket={changeMarket}
                 goToHome={goToHome}
             />,
         );
-
-        const baseTokenName = getTextCustomTDFromWrapper(wrapper);
-        expect(baseTokenName).toEqual(zrxToken.name);
-        const lastPriceText = getTextCustomTDFromWrapper(wrapper, 1);
-        expect(lastPriceText).toEqual(fill.price);
-        const highPriceText = getTextCustomTDFromWrapper(wrapper, 2);
-        expect(highPriceText).toEqual(fill.price);
-        const lowerPriceText = getTextCustomTDFromWrapper(wrapper, 3);
-        expect(lowerPriceText).toEqual(fill.price);
-        /* const volumeText = getTextCustomTDFromWrapper(wrapper, 4);
-        expect(`${volumeText}  `).toEqual(
-            `${tokenAmountInUnits(
-                fill.amountBase,
-                zrxToken.decimals,
-                zrxToken.displayDecimals,
-            ).toString()} ${zrxToken.symbol.toUpperCase()}`,
-        );*/
-        const closedOrders = getTextCustomTDFromWrapper(wrapper, 5);
-        expect(closedOrders).toEqual('1');
+        const sideText = getTextSideFromWrapper(wrapper);
+        expect(sideText).toEqual('Buy');
+        const price = getTextCustomTDFromWrapper(wrapper);
+        expect(price).toEqual(parseFloat(fill.price.toString()).toFixed(5));
+        const amountBaseText = getTextCustomTDFromWrapper(wrapper, 1);
+        const amountBase = tokenAmountInUnits(fill.amountBase, fill.tokenBase.decimals, fill.tokenBase.displayDecimals);
+        expect(amountBaseText).toEqual(`${amountBase} ${fill.tokenBase.symbol.toUpperCase()}`);
+        const amountQuoteText = getTextCustomTDFromWrapper(wrapper, 2);
+        const amountQuote = tokenAmountInUnits(
+            fill.amountQuote,
+            fill.tokenQuote.decimals,
+            fill.tokenQuote.displayDecimals,
+        );
+        const tokenQuoteSymbol = isWeth(fill.tokenQuote.symbol) ? 'ETH' : fill.tokenQuote.symbol.toUpperCase();
+        const displayAmountQuote = `${amountQuote} ${tokenQuoteSymbol}`;
+        expect(amountQuoteText).toEqual(displayAmountQuote);
     });
 });

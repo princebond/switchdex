@@ -122,7 +122,11 @@ class MarketDetails extends React.Component<Props> {
         }
         const title = `Market Stats: ${marketToString(currencyPair)}`;
 
-        return <MarketDetailCard title={title}>{content}</MarketDetailCard>;
+        return (
+            <MarketDetailCard title={title} minHeightBody={'90px'}>
+                {content}
+            </MarketDetailCard>
+        );
     };
 }
 

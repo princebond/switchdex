@@ -24,6 +24,7 @@ class Marketplace extends React.PureComponent {
                     </ColumnWide>
                     <ColumnWide>
                         <MarketDetailsContainer />
+                        <MarketFillsContainer />
                     </ColumnWide>
                     <CheckWalletStateModalContainer />
                 </Content>
@@ -37,7 +38,6 @@ class Marketplace extends React.PureComponent {
                     </ColumnNarrow>
                     <ColumnWide>
                         <OrderHistoryContainer />
-                        <MarketFillsContainer />
                         <OrderFillsContainer />
                         {/*<GoogleADS client={'ca-pub-8425903251487932'} slot={'3929149992'}  format={'auto'} responsive={'auto'}/>
                     <GoogleADS client={'ca-pub-8425903251487932'} slot={'2421724683'}  format={'auto'} responsive={'auto'}/>
