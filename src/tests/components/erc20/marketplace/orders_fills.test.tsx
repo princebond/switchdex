@@ -10,8 +10,8 @@ import { CustomTD } from '../../../../components/common/table';
 import { ClicableTD, OrderFills } from '../../../../components/erc20/marketplace/order_fills';
 import { buildFill } from '../../../../util/fills';
 import { getKnownTokens, isWeth } from '../../../../util/known_tokens';
-import { marketToString } from '../../../../util/markets';
-import { addressFactory, getCurrencyPairFromTokens } from '../../../../util/test-utils';
+// import { marketToString } from '../../../../util/markets';
+import { addressFactory } from '../../../../util/test-utils';
 import { tokenAmountInUnits } from '../../../../util/tokens';
 import { Market } from '../../../../util/types';
 
@@ -82,7 +82,7 @@ describe('OrderFills', () => {
         const quoteToken = wethToken;
         const baseTokenAssetData = assetDataUtils.encodeERC20AssetData(zrxToken.address);
         const quoteTokenAssetData = assetDataUtils.encodeERC20AssetData(wethToken.address);
-        const currencyPairFromTokens = getCurrencyPairFromTokens(baseToken, quoteToken);
+        // const currencyPairFromTokens = getCurrencyPairFromTokens(baseToken, quoteToken);
         // given
         const args: ExchangeFillEventArgs = {
             feeRecipientAddress: addressFactory.build().address,

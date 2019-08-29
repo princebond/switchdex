@@ -18,7 +18,7 @@ import {
     getTodayVolumeFromFills,
 } from '../../../../util/markets';
 import { addressFactory, getCurrencyPairFromTokens } from '../../../../util/test-utils';
-import { tokenAmountInUnits } from '../../../../util/tokens';
+// import { tokenAmountInUnits } from '../../../../util/tokens';
 import { Market } from '../../../../util/types';
 
 describe('MarketDetails', () => {
