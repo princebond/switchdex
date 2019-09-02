@@ -53,9 +53,9 @@ This is a detailed list of planned features to add to this DEX (includes VeriDex
 -   [x] Display median price
 -   [x] Add notifications
 -   [x] List descriptions for each project
--   [ ] List Market Trades
--   [ ] List Markets stats
--   [ ] List last prices for each token
+-   [x] List Market Trades
+-   [x] List Markets stats
+-   [x] List last prices for each token
 -   [ ] Click on buy and sell button to auto-fill
 -   [ ] Adding graphs like Trading View
 -   [ ] Create a costumized front page
