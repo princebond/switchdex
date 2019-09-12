@@ -8,7 +8,7 @@ import { configSchema, schemas } from './configSchema';
 export class Config {
     private static _instance: Config;
     private readonly _validator: Validator;
-    private readonly _config: ConfigFile;
+    private _config: ConfigFile;
     public static getInstance(): Config {
         if (!Config._instance) {
             Config._instance = new Config();
@@ -18,6 +18,13 @@ export class Config {
     public static getConfig(): ConfigFile {
         return this.getInstance()._config;
     }
+    public static setConfig(config: ConfigFile): void {
+        if (!Config._instance) {
+            Config._instance = new Config();
+        }
+        Config._instance._setConfig(config);
+    }
+
     constructor() {
         this._validator = new Validator();
         for (const schema of schemas) {
@@ -25,5 +32,10 @@ export class Config {
         }
         this._validator.validate(configFile, configSchema, { throwError: true });
         this._config = configFile;
+    }
+
+    public _setConfig(config: ConfigFile): void {
+        this._validator.validate(configFile, configSchema, { throwError: true });
+        this._config = config;
     }
 }

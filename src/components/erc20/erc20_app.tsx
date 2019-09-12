@@ -12,6 +12,7 @@ import { ToolbarContentContainer } from './common/toolbar_content';
 import { Marketplace } from './pages/marketplace';
 import { MyWallet } from './pages/my_wallet';
 import { TokensListPage } from './pages/tokens_list';
+import { WizardPage } from './pages/wizard';
 
 const toolbar = <ToolbarContentContainer />;
 
@@ -26,6 +27,7 @@ export const Erc20App = () => {
                     <Route exact={true} path={`${ERC20_APP_BASE_PATH}/`} component={Marketplace} />
                     <Route exact={true} path={`${ERC20_APP_BASE_PATH}/my-wallet`} component={MyWallet} />
                     <Route exact={true} path={`${ERC20_APP_BASE_PATH}/listed-tokens`} component={TokensListPage} />
+                    <Route exact={true} path={`${ERC20_APP_BASE_PATH}/dex-wizard`} component={WizardPage} />
                 </Switch>
             </GeneralLayout>
         </ThemeProvider>
