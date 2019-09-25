@@ -10,10 +10,11 @@ import { CheckboxInput } from '../../common/final_form/check_box_input';
 import { MultiCheckboxInput } from '../../common/final_form/multi_checkbox_input';
 import { MultiSelectInput } from '../../common/final_form/multi_select_input';
 import { NumberInput } from '../../common/final_form/number_input';
-import { RadioInput } from '../../common/final_form/radio_';
 import { SelectInput } from '../../common/final_form/select_input';
 import { TextAreaInput } from '../../common/final_form/text_area_input';
 import { TextInput } from '../../common/final_form/text_input';
+
+import { GeneralWizardForm } from './wizard_form/general_form';
 
 const onSubmit = async (values: any) => {
     window.alert(JSON.stringify(values, undefined, 2));
@@ -65,6 +66,7 @@ class WizardForm extends React.PureComponent {
                     // tslint:disable-next-line: jsx-no-lambda boolean-naming
                     render={({ handleSubmit, form, submitting, pristine, values }) => (
                         <form onSubmit={handleSubmit}>
+                            <GeneralWizardForm name="general" label="test" />
                             <LabelContainer>
                                 <Label>First Name</Label>
                             </LabelContainer>
