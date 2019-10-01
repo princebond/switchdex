@@ -3,7 +3,7 @@ import React from 'react';
 import { connect } from 'react-redux';
 import styled, { withTheme } from 'styled-components';
 
-import { RELAYER_URL } from '../../common/constants';
+import { RELAYER_URL, NETWORK_ID } from '../../common/constants';
 import { startToggleTokenLockSteps, startTranferTokenSteps } from '../../store/actions';
 import {
     getEthAccount,
@@ -373,7 +373,7 @@ class WalletTokenBalances extends React.PureComponent<Props, State> {
                             <ZeroXInstantWidget
                                 orderSource={RELAYER_URL}
                                 tokenAddress={token.address}
-                                networkId={3}
+                                networkId={NETWORK_ID}
                                 walletDisplayName={wallet}
                             />
                         </ButtonsContainer>
