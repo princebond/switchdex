@@ -142,7 +142,7 @@ exports[`WalletTokenBalances should properly show locked and unlocked tokens 1`]
             className="sc-cSHVUG fNRZMA"
           >
             <span
-              className="sc-ksYbfQ bNIZkW"
+              className="sc-ksYbfQ gUQsdX"
             >
               <button
                 className="sc-bdVaJa iPzAIi"
@@ -151,7 +151,7 @@ exports[`WalletTokenBalances should properly show locked and unlocked tokens 1`]
                 Send
               </button>
               <button
-                className="sc-eqIVtm dFOcZA sc-bdVaJa dIEgVQ"
+                className="sc-eqIVtm hoECiG sc-bdVaJa dIEgVQ"
                 onClick={[Function]}
               >
                 Buy
@@ -245,7 +245,7 @@ exports[`WalletTokenBalances should properly show locked and unlocked tokens 1`]
             className="sc-cSHVUG fNRZMA"
           >
             <span
-              className="sc-ksYbfQ bNIZkW"
+              className="sc-ksYbfQ gUQsdX"
             >
               <button
                 className="sc-bdVaJa iPzAIi"
@@ -254,7 +254,7 @@ exports[`WalletTokenBalances should properly show locked and unlocked tokens 1`]
                 Send
               </button>
               <button
-                className="sc-dxgOiQ dBOrLb sc-bdVaJa dIEgVQ"
+                className="sc-dxgOiQ fYoekb sc-bdVaJa dIEgVQ"
                 onClick={[Function]}
               >
                 Buy
@@ -348,7 +348,7 @@ exports[`WalletTokenBalances should properly show locked and unlocked tokens 1`]
             className="sc-cSHVUG fNRZMA"
           >
             <span
-              className="sc-ksYbfQ bNIZkW"
+              className="sc-ksYbfQ gUQsdX"
             >
               <button
                 className="sc-bdVaJa iPzAIi"
@@ -357,7 +357,7 @@ exports[`WalletTokenBalances should properly show locked and unlocked tokens 1`]
                 Send
               </button>
               <button
-                className="sc-dxgOiQ dBOrLb sc-bdVaJa dIEgVQ"
+                className="sc-dxgOiQ fYoekb sc-bdVaJa dIEgVQ"
                 onClick={[Function]}
               >
                 Buy
@@ -451,7 +451,7 @@ exports[`WalletTokenBalances should properly show locked and unlocked tokens 1`]
             className="sc-cSHVUG fNRZMA"
           >
             <span
-              className="sc-ksYbfQ bNIZkW"
+              className="sc-ksYbfQ gUQsdX"
             >
               <button
                 className="sc-bdVaJa iPzAIi"
@@ -460,7 +460,7 @@ exports[`WalletTokenBalances should properly show locked and unlocked tokens 1`]
                 Send
               </button>
               <button
-                className="sc-dxgOiQ dBOrLb sc-bdVaJa dIEgVQ"
+                className="sc-dxgOiQ fYoekb sc-bdVaJa dIEgVQ"
                 onClick={[Function]}
               >
                 Buy

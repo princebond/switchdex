@@ -3,7 +3,7 @@ import React from 'react';
 import { connect } from 'react-redux';
 import styled, { withTheme } from 'styled-components';
 
-import { RELAYER_URL, NETWORK_ID } from '../../common/constants';
+import { NETWORK_ID, RELAYER_URL } from '../../common/constants';
 import { startToggleTokenLockSteps, startTranferTokenSteps } from '../../store/actions';
 import {
     getEthAccount,
