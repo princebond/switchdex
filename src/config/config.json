@@ -68,6 +68,24 @@
                 "pricePrecision": 7,
                 "minAmount": 10000
             }
+        },
+        {
+            "base": "zrx",
+            "quote": "weth",
+            "config": {
+                "basePrecision": 0,
+                "pricePrecision": 7,
+                "minAmount": 10000
+            }
+        },
+        {
+            "base": "zrx",
+            "quote": "vsf",
+            "config": {
+                "basePrecision": 0,
+                "pricePrecision": 7,
+                "minAmount": 10000
+            }
         }
     ],
     "marketFilters": [

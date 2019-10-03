@@ -15,6 +15,7 @@ import {
     getQuoteToken,
     getWeb3State,
 } from '../../../store/selectors';
+
 import { marketToString } from '../../../util/markets';
 import { tokenAmountInUnits } from '../../../util/tokens';
 import { CurrencyPair, StoreState, Token, Web3State } from '../../../util/types';
@@ -22,10 +23,12 @@ import { Card } from '../../common/card';
 import { EmptyContent } from '../../common/empty_content';
 import { LoadingWrapper } from '../../common/loading';
 import { CustomTD, Table, TH, THead, TR } from '../../common/table';
+import { TVChartContainer } from '../marketplace/tv_chart';
 
 const MarketDetailCard = styled(Card)`
-    max-height: 400px;
+    min-height: 500px;
     overflow: auto;
+    margin-top: 5px;
 `;
 
 interface StateProps {
@@ -102,19 +105,22 @@ class MarketDetails extends React.Component<Props> {
                         lastPrice,
                     };
                     content = (
-                        <Table isResponsive={true}>
-                            <THead>
-                                <TR>
-                                    <TH>Project</TH>
-                                    <TH styles={{ textAlign: 'right' }}>Last Price</TH>
-                                    <TH styles={{ textAlign: 'right' }}>Max Price 24H</TH>
-                                    <TH styles={{ textAlign: 'right' }}>Min Price 24H</TH>
-                                    <TH styles={{ textAlign: 'right' }}>Volume 24H</TH>
-                                    <TH styles={{ textAlign: 'right' }}>Orders Closed</TH>
-                                </TR>
-                            </THead>
-                            <tbody>{statsToRow(marketStats, baseToken)}</tbody>
-                        </Table>
+                        <>
+                            <Table isResponsive={true}>
+                                <THead>
+                                    <TR>
+                                        <TH>Project</TH>
+                                        <TH styles={{ textAlign: 'right' }}>Last Price</TH>
+                                        <TH styles={{ textAlign: 'right' }}>Max Price 24H</TH>
+                                        <TH styles={{ textAlign: 'right' }}>Min Price 24H</TH>
+                                        <TH styles={{ textAlign: 'right' }}>Volume 24H</TH>
+                                        <TH styles={{ textAlign: 'right' }}>Orders Closed</TH>
+                                    </TR>
+                                </THead>
+                                <tbody>{statsToRow(marketStats, baseToken)}</tbody>
+                            </Table>
+                            <TVChartContainer symbol={marketToString(currencyPair)} />
+                        </>
                     );
                 }
                 break;

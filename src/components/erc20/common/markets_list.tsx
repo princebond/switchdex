@@ -6,7 +6,7 @@ import { UI_DECIMALS_DISPLAYED_SPREAD_PERCENT } from '../../../common/constants'
 import { marketFilters } from '../../../common/markets';
 import { changeMarket, goToHome } from '../../../store/actions';
 import { getBaseToken, getCurrencyPair, getMarkets, getQuoteToken, getWeb3State } from '../../../store/selectors';
-import { themeDimensions } from '../../../themes/commons';
+import { themeBreakPoints, themeDimensions } from '../../../themes/commons';
 import { getKnownTokens } from '../../../util/known_tokens';
 import { filterMarketsByString, filterMarketsByTokenSymbol } from '../../../util/markets';
 import { CurrencyPair, Filter, Market, StoreState, Token, Web3State } from '../../../util/types';
@@ -51,8 +51,10 @@ interface MarketRowProps {
 const rowHeight = '48px';
 
 const MarketListCard = styled(Card)`
-    max-height: 400px;
+    max-height: 500px;
+    min-height: 500px;
     overflow: auto;
+    margin-top: 5px;
 `;
 
 const MarketsFilters = styled.div`
@@ -186,6 +188,10 @@ const TokenIconAndLabel = styled.div`
     align-items: center;
     display: flex;
     justify-content: flex-start;
+    @media (max-width: ${themeBreakPoints.md}) {
+        flex-wrap: wrap;
+        justify-content: center;
+    }
 `;
 
 const TokenLabel = styled.div`
