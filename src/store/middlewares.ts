@@ -3,7 +3,6 @@ import { getType } from 'typesafe-actions';
 
 import { FEE_RECIPIENT } from '../common/constants';
 import { LocalStorage } from '../services/local_storage';
-import { Fill } from '../util/types';
 
 import * as actions from './actions';
 import {
@@ -47,7 +46,7 @@ export const localStorageMiddleware: Middleware = ({ getState }: MiddlewareAPI) 
             const userAccount = getEthAccount(state);
             const userFills = fills.filter(f => f.takerAddress === userAccount || f.makerAddress === userAccount);
             localStorage.saveFills(userFills, userAccount);
-            const markets: { [key: string]: Fill[] } = {};
+            /*const markets: { [key: string]: Fill[] } = {};
             fills.forEach(f => {
                 if (markets[f.market]) {
                     markets[f.market].push(f);
@@ -55,7 +54,7 @@ export const localStorageMiddleware: Middleware = ({ getState }: MiddlewareAPI) 
                     markets[f.market] = [f];
                 }
             });
-            localStorage.saveMarketFills(markets, ethAccount);
+            localStorage.saveMarketFills(markets, ethAccount);*/
             /*  Object.keys(markets).forEach(m => {
                localStorage.saveMarketFills(markets[m], ethAccount, m);
                localStorage.saveMarketFills(markets[m].filter(f  => f.takerAddress === userAccount || f.makerAddress === userAccount), userAccount, m);

@@ -16,7 +16,7 @@ import { LoadingWrapper } from '../../common/loading';
 import { CustomTD, Table, TH, THead, TR } from '../../common/table';
 
 const MarketTradesList = styled(Card)`
-    max-height: 300px;
+    max-height: 220px;
     overflow: auto;
 `;
 

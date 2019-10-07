@@ -68,11 +68,11 @@ export const getTodayVolumeFromFills = (fills: Fill[]): BigNumber | null => {
     }
 };
 
-export const getTodayHighPriceFromFills = (fills: Fill[]): number | null => {
+export const getTodayHighPriceFromFills = (fills: Fill[]): number | null | BigNumber => {
     if (fills && fills.length) {
         const todayFills = getTodayFillsUTC(fills);
         if (todayFills && todayFills.length) {
-            return Math.max(...todayFills.map(f => Number(f.price)));
+            return new BigNumber(Math.max(...todayFills.map(f => Number(f.price))));
         } else {
             return null;
         }
@@ -81,11 +81,11 @@ export const getTodayHighPriceFromFills = (fills: Fill[]): number | null => {
     }
 };
 
-export const getTodayLowerPriceFromFills = (fills: Fill[]): number | null => {
+export const getTodayLowerPriceFromFills = (fills: Fill[]): number | null | BigNumber => {
     if (fills && fills.length) {
         const todayFills = getTodayFillsUTC(fills);
         if (todayFills && todayFills.length) {
-            return Math.min(...todayFills.map(f => Number(f.price)));
+            return new BigNumber(Math.min(...todayFills.map(f => Number(f.price))));
         } else {
             return null;
         }

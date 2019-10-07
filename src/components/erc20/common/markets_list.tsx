@@ -51,8 +51,8 @@ interface MarketRowProps {
 const rowHeight = '48px';
 
 const MarketListCard = styled(Card)`
-    max-height: 500px;
-    min-height: 500px;
+    min-height: 520px;
+    max-height: 600px;
     overflow: auto;
     margin-top: 5px;
 `;

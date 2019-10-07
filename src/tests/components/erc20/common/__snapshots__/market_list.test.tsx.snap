@@ -2,7 +2,7 @@
 
 exports[`MarketsList Renders market list 1`] = `
 <div
-  className="sc-kpOJdX jLjGAA sc-bwzfXH cfOWoU sc-bdVaJa fJeBhq"
+  className="sc-kpOJdX dBWysO sc-bwzfXH cfOWoU sc-bdVaJa fJeBhq"
 >
   <div
     className="sc-htpNat fMPtTX"
@@ -121,7 +121,7 @@ exports[`MarketsList Renders market list 1`] = `
 
 exports[`MarketsList Should not render markets list if the user does not have metamask 1`] = `
 <div
-  className="sc-kpOJdX jLjGAA sc-bwzfXH cfOWoU sc-bdVaJa fJeBhq"
+  className="sc-kpOJdX dBWysO sc-bwzfXH cfOWoU sc-bdVaJa fJeBhq"
 >
   <div
     className="sc-htpNat fMPtTX"
@@ -146,7 +146,7 @@ exports[`MarketsList Should not render markets list if the user does not have me
 
 exports[`MarketsList Should not render markets list if the user rejected the metamask permissions 1`] = `
 <div
-  className="sc-kpOJdX jLjGAA sc-bwzfXH cfOWoU sc-bdVaJa fJeBhq"
+  className="sc-kpOJdX dBWysO sc-bwzfXH cfOWoU sc-bdVaJa fJeBhq"
 >
   <div
     className="sc-htpNat fMPtTX"

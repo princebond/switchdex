@@ -122,8 +122,8 @@ export function ui(state: UIState = initialUIState, action: RootAction): UIState
             const marketFills = state.marketFills;
             const mf: MarketFill = {};
 
-            Object.keys(action.payload).forEach(m => {
-                if (action.payload[m].length) {
+            Object.keys({ ...(action.payload || {}), ...marketFills }).forEach(m => {
+                if (action.payload && Object.keys(action.payload).length > 0 && Array.isArray(action.payload[m])) {
                     if (marketFills[m] && marketFills[m].length) {
                         const newFills = action.payload[m].filter(fill => {
                             const doesAlreadyExist = marketFills[m].some(f => f.id === fill.id);
@@ -133,10 +133,14 @@ export function ui(state: UIState = initialUIState, action: RootAction): UIState
                     } else {
                         mf[m] = action.payload[m];
                     }
+                } else {
+                    if (marketFills[m] && marketFills[m].length) {
+                        mf[m] = [...marketFills[m]];
+                    }
                 }
             });
 
-            if (Object.keys(action.payload)) {
+            if (action.payload && Object.keys(action.payload).length > 0) {
                 return {
                     ...state,
                     marketFills: mf,

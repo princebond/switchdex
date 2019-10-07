@@ -142,13 +142,13 @@ describe('marketStats', () => {
         const fill1 = createFill();
         const fill2 = createFill(new BigNumber(10), new BigNumber(1));
         const higherPrice = getTodayHighPriceFromFills([fill1, fill2]);
-        expect(String(higherPrice)).toBe(fill1.price);
+        expect(higherPrice && higherPrice.toString()).toBe(fill1.price);
     });
     it('get today Lower Price from fills', async () => {
         const fill1 = createFill();
         const fill2 = createFill(new BigNumber(10), new BigNumber(1));
         const lowerPrice = getTodayLowerPriceFromFills([fill1, fill2]);
-        expect(String(lowerPrice)).toBe(fill2.price);
+        expect(lowerPrice && lowerPrice.toString()).toBe(fill2.price);
     });
     it('get today closed orders', async () => {
         const fill1 = createFill();

@@ -15,7 +15,6 @@ import {
     getQuoteToken,
     getWeb3State,
 } from '../../../store/selectors';
-
 import { marketToString } from '../../../util/markets';
 import { tokenAmountInUnits } from '../../../util/tokens';
 import { CurrencyPair, StoreState, Token, Web3State } from '../../../util/types';
@@ -26,9 +25,14 @@ import { CustomTD, Table, TH, THead, TR } from '../../common/table';
 import { TVChartContainer } from '../marketplace/tv_chart';
 
 const MarketDetailCard = styled(Card)`
-    min-height: 500px;
+    max-height: 600px;
+    min-height: 520px;
     overflow: auto;
     margin-top: 5px;
+`;
+
+const StyledHr = styled.hr`
+    border-color: ${props => props.theme.componentsTheme.dropdownBorderColor};
 `;
 
 interface StateProps {
@@ -36,8 +40,8 @@ interface StateProps {
     quoteToken: Token | null;
     web3State?: Web3State;
     currencyPair: CurrencyPair;
-    highPrice: number | null;
-    lowerPrice: number | null;
+    highPrice: BigNumber | number | null;
+    lowerPrice: BigNumber | number | null;
     volume: BigNumber | null;
     closedOrders: number | null;
     lastPrice: string | null;
@@ -51,8 +55,8 @@ interface DispatchProps {
 type Props = StateProps & DispatchProps;
 
 interface MarketStats {
-    highPrice: number | null;
-    lowerPrice: number | null;
+    highPrice: BigNumber | null | number;
+    lowerPrice: BigNumber | null | number;
     volume: BigNumber | null;
     closedOrders: number | null;
     lastPrice: string | null;
@@ -63,8 +67,12 @@ const statsToRow = (marketStats: MarketStats, baseToken: Token) => {
         <TR>
             <CustomTD>{baseToken.name}</CustomTD>
             <CustomTD styles={{ textAlign: 'right', tabular: true }}>{marketStats.lastPrice || '-'}</CustomTD>
-            <CustomTD styles={{ textAlign: 'right', tabular: true }}>{marketStats.highPrice || '-'}</CustomTD>
-            <CustomTD styles={{ textAlign: 'right', tabular: true }}>{marketStats.lowerPrice || '-'}</CustomTD>
+            <CustomTD styles={{ textAlign: 'right', tabular: true }}>
+                {(marketStats.highPrice && marketStats.highPrice.toString()) || '-'}
+            </CustomTD>
+            <CustomTD styles={{ textAlign: 'right', tabular: true }}>
+                {(marketStats.lowerPrice && marketStats.lowerPrice.toString()) || '-'}
+            </CustomTD>
             <CustomTD styles={{ textAlign: 'right', tabular: true }}>
                 {(marketStats.volume &&
                     `${tokenAmountInUnits(
@@ -119,6 +127,7 @@ class MarketDetails extends React.Component<Props> {
                                 </THead>
                                 <tbody>{statsToRow(marketStats, baseToken)}</tbody>
                             </Table>
+                            <StyledHr />
                             <TVChartContainer symbol={marketToString(currencyPair)} />
                         </>
                     );

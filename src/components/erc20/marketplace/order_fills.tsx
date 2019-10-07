@@ -15,7 +15,7 @@ import { LoadingWrapper } from '../../common/loading';
 import { CustomTD, Table, TH, THead, TR } from '../../common/table';
 
 const DexTradesList = styled(Card)`
-    max-height: 480px;
+    max-height: 220px;
     overflow: auto;
 `;
 
