@@ -13,6 +13,7 @@
         "@types/recharts": "^1.1.16",
         "async-retry": "^1.2.3",
         "async-sema": "^3.0.0",
+        "bowser": "^2.7.0",
         "connected-react-router": "^6.2.2",
         "fortmatic": "^0.8.1",
         "history": "^4.7.2",
