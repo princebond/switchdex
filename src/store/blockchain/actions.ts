@@ -267,12 +267,14 @@ export const updateTokenBalances: ThunkCreator<Promise<any>> = (txHash?: string)
         const ethAccount = getEthAccount(state);
         const knownTokens = getKnownTokens();
         const wethToken = knownTokens.getWethToken();
+        const web3Wrapper = await getWeb3Wrapper();
+        if (txHash) {
+            await web3Wrapper.awaitTransactionSuccessAsync(txHash);
+        }
         const allTokenBalances = await tokensToTokenBalances([...knownTokens.getTokens(), wethToken], ethAccount);
         const wethBalance = allTokenBalances.find(b => b.token.symbol === wethToken.symbol);
         const tokenBalances = allTokenBalances.filter(b => b.token.symbol !== wethToken.symbol);
         dispatch(setTokenBalances(tokenBalances));
-
-        const web3Wrapper = await getWeb3Wrapper();
         const ethBalance = await web3Wrapper.getBalanceInWeiAsync(ethAccount);
         if (wethBalance) {
             dispatch(setWethBalance(wethBalance.balance));
