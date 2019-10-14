@@ -106,6 +106,7 @@ export const FILLS_LIMIT: number = Number.parseInt(process.env.REACT_APP_FILLS_L
 
 export const PROVIDER_TYPE_TO_NAME: { [key in ProviderType]: string } = {
     [ProviderType.Cipher]: 'Cipher',
+    [ProviderType.EnjinWallet]: 'Enjin Wallet',
     [ProviderType.MetaMask]: 'MetaMask',
     [ProviderType.Mist]: 'Mist',
     [ProviderType.CoinbaseWallet]: 'Coinbase Wallet',

@@ -15,7 +15,7 @@ export const envUtil = {
         return browser.getPlatformType(true) === 'mobile';
     },
     getOperatingSystem(): string {
-       return browser.getOSName(true);
+        return browser.getOSName(true);
     },
     getProviderType(provider: ZeroExProvider): ProviderType | undefined {
         const anyProvider = provider as any;
@@ -29,10 +29,22 @@ export const envUtil = {
             return ProviderType.MetaMask;
         } else if ((window as any).SOFA !== undefined) {
             return ProviderType.CoinbaseWallet;
+        } else if ((window as any).enjin !== undefined) {
+            return ProviderType.EnjinWallet;
         } else if ((window as any).__CIPHER__ !== undefined) {
             return ProviderType.Cipher;
         } else if (envUtil.getBrowser() === 'opera' && !anyProvider.isMetaMask) {
             return ProviderType.Opera;
+        }
+        return;
+    },
+    getProviderTypeFromWindow(): ProviderType | undefined {
+        if ((window as any).SOFA !== undefined) {
+            return ProviderType.CoinbaseWallet;
+        } else if ((window as any).enjin !== undefined) {
+            return ProviderType.EnjinWallet;
+        } else if ((window as any).__CIPHER__ !== undefined) {
+            return ProviderType.Cipher;
         }
         return;
     },

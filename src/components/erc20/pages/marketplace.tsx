@@ -2,6 +2,7 @@ import React from 'react';
 import styled from 'styled-components';
 
 import { themeBreakPoints } from '../../../themes/commons';
+import { FiatOnRampModalContainer } from '../../account/fiat_modal';
 import { CheckWalletStateModalContainer } from '../../common/check_wallet_state_modal_container';
 import { ColumnNarrow } from '../../common/column_narrow';
 import { ColumnWide } from '../../common/column_wide';
@@ -33,7 +34,6 @@ class Marketplace extends React.PureComponent {
                     <ColumnWideDouble>
                         <MarketDetailsContainer />
                     </ColumnWideDouble>
-                    <CheckWalletStateModalContainer />
                 </Content>
                 <Content>
                     <ColumnNarrow>
@@ -52,6 +52,7 @@ class Marketplace extends React.PureComponent {
         <GoogleADS client={'ca-pub-8425903251487932'} slot={'7055050362'}  format={'auto'} responsive={'auto'}/> */}
                     </ColumnWide>
                     <CheckWalletStateModalContainer />
+                    <FiatOnRampModalContainer />
                 </Content>
             </>
         );
