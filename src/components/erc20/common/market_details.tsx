@@ -68,16 +68,20 @@ interface MarketStats {
     lastPrice: string | null;
 }
 
-const statsToRow = (marketStats: MarketStats, baseToken: Token) => {
+const statsToRow = (marketStats: MarketStats, baseToken: Token, currencyPair: CurrencyPair) => {
+    const lastPrice = marketStats.lastPrice
+        ? new BigNumber(marketStats.lastPrice).toFixed(currencyPair.config.pricePrecision)
+        : '-';
+
     return (
         <TR>
             <CustomTD>{baseToken.name}</CustomTD>
-            <CustomTD styles={{ textAlign: 'right', tabular: true }}>{marketStats.lastPrice || '-'}</CustomTD>
+            <CustomTD styles={{ textAlign: 'right', tabular: true }}>{lastPrice}</CustomTD>
             <CustomTD styles={{ textAlign: 'right', tabular: true }}>
-                {(marketStats.highPrice && marketStats.highPrice.toString()) || '-'}
+                {(marketStats.highPrice && marketStats.highPrice.toFixed(currencyPair.config.pricePrecision)) || '-'}
             </CustomTD>
             <CustomTD styles={{ textAlign: 'right', tabular: true }}>
-                {(marketStats.lowerPrice && marketStats.lowerPrice.toString()) || '-'}
+                {(marketStats.lowerPrice && marketStats.lowerPrice.toFixed(currencyPair.config.pricePrecision)) || '-'}
             </CustomTD>
             <CustomTD styles={{ textAlign: 'right', tabular: true }}>
                 {(marketStats.volume &&

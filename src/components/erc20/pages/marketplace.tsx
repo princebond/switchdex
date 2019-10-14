@@ -1,6 +1,7 @@
 import React from 'react';
 import styled from 'styled-components';
 
+
 import { themeBreakPoints } from '../../../themes/commons';
 import { FiatOnRampModalContainer } from '../../account/fiat_modal';
 import { CheckWalletStateModalContainer } from '../../common/check_wallet_state_modal_container';
@@ -23,11 +24,17 @@ const ColumnWideDouble = styled.div`
     }
 `;
 
+const ContentDoubleHeight = styled(Content)`
+    @media (min-width: ${themeBreakPoints.xl}) {
+        height: calc(200% - ${themeDimensions.footerHeight});
+    }
+`;
+
 class Marketplace extends React.PureComponent {
     public render = () => {
         return (
             <>
-                <Content>
+                <ContentDoubleHeight>
                     <ColumnWide>
                         <MarketsListContainer />
                     </ColumnWide>
