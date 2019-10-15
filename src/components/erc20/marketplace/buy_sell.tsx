@@ -367,7 +367,7 @@ class BuySell extends React.Component<Props, State> {
         const { makerFee, takerFee } = await this.props.onFetchTakerAndMakerFee(makerAmount, price, this.state.tab);
         if (this.state.orderType === OrderType.Limit) {
             if (IS_ORDER_LIMIT_MATCHING) {
-                const result = await this.props.onSubmitLimitOrderMatching(makerAmount, price, orderSide, makerFee);
+                const result = await this.props.onSubmitLimitOrderMatching(makerAmount, price, orderSide, takerFee);
                 if (result === 0) {
                     await this.props.onSubmitLimitOrder(makerAmount, price, orderSide, makerFee);
                 }

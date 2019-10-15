@@ -179,7 +179,7 @@ export const submitLimitMatchingOrder: ThunkCreator = (amount: BigNumber, price:
         const isBuy = side === OrderSide.Buy;
         const allOrders = isBuy ? getOpenSellOrders(state) : getOpenBuyOrders(state);
 
-        const { orders, amounts, canBeFilled, remainingAmount } = buildMarketLimitMatchingOrders(
+        const { orders, amounts, canBeFilled, remainingAmount, amountFill } = buildMarketLimitMatchingOrders(
             {
                 amount,
                 price,
@@ -194,9 +194,9 @@ export const submitLimitMatchingOrder: ThunkCreator = (amount: BigNumber, price:
 
             // Check if the order is fillable using the forwarder
             const ethBalance = getEthBalance(state) as BigNumber;
-            const amountRequired = amounts.reduce((total: BigNumber, currentValue: BigNumber) => {
-                return total.plus(currentValue);
-            }, new BigNumber(0));
+            console.log(ethBalance.toString());
+            console.log(amountFill.toString());
+            console.log(amount.toString());
 
             let ethAmountRequired = amounts.reduce((total: BigNumber, currentValue: BigNumber) => {
                 return total.plus(currentValue);
@@ -209,11 +209,14 @@ export const submitLimitMatchingOrder: ThunkCreator = (amount: BigNumber, price:
             const isEthBalanceEnough = ethBalance.isGreaterThan(ethAmountRequired);
             const isMarketBuyForwarder = isBuy && isWeth(quoteToken.symbol) && isEthBalanceEnough;
 
-            let txHash;
+            let txHash = '';
             if (isMarketBuyForwarder) {
+                try{
+                    console.log(amount.toString());
+                    console.log(ethAmountRequired.toString());
                 txHash = await contractWrappers.forwarder.marketBuyOrdersWithEthAsync(
                     orders,
-                    amountRequired,
+                    amount,
                     ethAccount,
                     ethAmountRequired,
                     [],
@@ -221,18 +224,21 @@ export const submitLimitMatchingOrder: ThunkCreator = (amount: BigNumber, price:
                     FEE_RECIPIENT,
                     getTransactionOptions(gasPrice),
                 );
+                }catch(e){
+                    console.log(e);
+                }
             } else {
                 if (isBuy) {
                     txHash = await contractWrappers.exchange.marketBuyOrdersAsync(
                         orders,
-                        amountRequired,
+                        amount,
                         ethAccount,
                         getTransactionOptions(gasPrice),
                     );
                 } else {
                     txHash = await contractWrappers.exchange.marketSellOrdersAsync(
                         orders,
-                        amountRequired,
+                        amount,
                         ethAccount,
                         getTransactionOptions(gasPrice),
                     );
@@ -258,6 +264,7 @@ export const submitLimitMatchingOrder: ThunkCreator = (amount: BigNumber, price:
                 ]),
             );
             const amountInReturn = sumTakerAssetFillableOrders(side, orders, amounts);
+           // const amountInReturn = amountFill.multipliedBy(price);
             return { txHash, amountInReturn };
         } else {
             return { remainingAmount };
@@ -283,7 +290,7 @@ export const submitMarketOrder: ThunkCreator<Promise<{ txHash: string; amountInR
             },
             side,
         );
-
+        
         if (canBeFilled) {
             const baseToken = getBaseToken(state) as Token;
             const quoteToken = getQuoteToken(state) as Token;
@@ -296,7 +303,7 @@ export const submitMarketOrder: ThunkCreator<Promise<{ txHash: string; amountInR
             }, new BigNumber(0));
 
             ethAmountRequired = ethAmountRequired.plus(
-                ethAmountRequired.times(new BigNumber(AFFILIATE_FEE_PERCENTAGE)),
+                ethAmountRequired.times(new BigNumber(AFFILIATE_FEE_PERCENTAGE)).toFixed(0),
             );
 
             const isEthBalanceEnough = ethBalance.isGreaterThan(ethAmountRequired);
