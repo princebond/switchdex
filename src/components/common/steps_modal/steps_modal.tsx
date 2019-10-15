@@ -19,6 +19,7 @@ import { ToggleTokenLockStepContainer } from './toggle_token_lock_step';
 import { TransferTokenStepContainer } from './transfer_token_step';
 import { UnlockCollectiblesStepContainer } from './unlock_collectibles_step';
 import { WrapEthStepContainer } from './wrap_eth_step';
+import { BuySellTokenMatchingStepContainer } from './buy_sell_token_matching_step';
 
 interface StateProps {
     currentStep: Step | null;
@@ -76,9 +77,13 @@ class StepsModal extends React.Component<Props> {
                     {currentStep && currentStep.kind === StepKind.BuySellLimit && (
                         <SignOrderStepContainer key={stepIndex} buildStepsProgress={buildStepsProgress} />
                     )}
+                    {currentStep && currentStep.kind === StepKind.BuySellLimitMatching && (
+                        <BuySellTokenMatchingStepContainer key={stepIndex} buildStepsProgress={buildStepsProgress} />
+                    )}
                     {currentStep && currentStep.kind === StepKind.BuySellMarket && (
                         <BuySellTokenStepContainer key={stepIndex} buildStepsProgress={buildStepsProgress} />
                     )}
+
                     {currentStep &&
                         (currentStep.kind === StepKind.SellCollectible ||
                             currentStep.kind === StepKind.BuyCollectible) && (

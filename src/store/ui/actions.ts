@@ -6,13 +6,14 @@ import { InsufficientOrdersAmountException } from '../../exceptions/insufficient
 import { InsufficientTokenBalanceException } from '../../exceptions/insufficient_token_balance_exception';
 import { SignedOrderException } from '../../exceptions/signed_order_exception';
 import { isWeth } from '../../util/known_tokens';
-import { buildLimitOrder, buildMarketOrders, isDutchAuction } from '../../util/orders';
+import { buildLimitOrder, buildMarketOrders, isDutchAuction, buildMarketLimitMatchingOrders } from '../../util/orders';
 import {
     createBasicBuyCollectibleSteps,
     createBuySellLimitSteps,
     createBuySellMarketSteps,
     createDutchBuyCollectibleSteps,
     createSellCollectibleSteps,
+    createBuySellLimitMatchingSteps,
 } from '../../util/steps_modals_generation';
 import {
     Collectible,
@@ -245,6 +246,54 @@ export const startBuySellLimitSteps: ThunkCreator = (
 
         dispatch(setStepsModalCurrentStep(buySellLimitFlow[0]));
         dispatch(setStepsModalPendingSteps(buySellLimitFlow.slice(1)));
+        dispatch(setStepsModalDoneSteps([]));
+    };
+};
+
+export const startBuySellLimitMatchingSteps: ThunkCreator = (
+    amount: BigNumber,
+    price: BigNumber,
+    side: OrderSide,
+    takerFee: BigNumber,
+) => {
+    return async (dispatch, getState) => {
+        const state = getState();
+        const baseToken = selectors.getBaseToken(state) as Token;
+        const quoteToken = selectors.getQuoteToken(state) as Token;
+        const tokenBalances = selectors.getTokenBalances(state) as TokenBalance[];
+        const wethTokenBalance = selectors.getWethTokenBalance(state) as TokenBalance;
+        const ethBalance = selectors.getEthBalance(state);
+        const allOrders =
+            side === OrderSide.Buy ? selectors.getOpenSellOrders(state) : selectors.getOpenBuyOrders(state);
+        const { orders, amounts, canBeFilled } = buildMarketLimitMatchingOrders(
+            {
+                amount,
+                price,
+                orders: allOrders,
+            },
+            side,
+        );
+        if (orders.length === 0) {
+            return 0;
+        }
+        const amountRequired = amounts.reduce((total: BigNumber, currentValue: BigNumber) => {
+            return total.plus(currentValue);
+        }, new BigNumber(0));
+
+        const buySellLimitMatchingFlow: Step[] = createBuySellLimitMatchingSteps(
+            baseToken,
+            quoteToken,
+            tokenBalances,
+            wethTokenBalance,
+            ethBalance,
+            amountRequired,
+            side,
+            price,
+            takerFee,
+        );
+
+        dispatch(setStepsModalCurrentStep(buySellLimitMatchingFlow[0]));
+        dispatch(setStepsModalPendingSteps(buySellLimitMatchingFlow.slice(1)));
         dispatch(setStepsModalDoneSteps([]));
     };
 };
