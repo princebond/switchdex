@@ -76,6 +76,7 @@ export const createBuySellLimitMatchingSteps = (
     amount: BigNumber,
     side: OrderSide,
     price: BigNumber,
+    price_avg: BigNumber,
     takerFee: BigNumber,
 ): Step[] => {
     const buySellLimitMatchingFlow: Step[] = [];
@@ -119,6 +120,7 @@ export const createBuySellLimitMatchingSteps = (
         amount,
         side,
         price,
+        price_avg,
         token: baseToken,
     });
     return buySellLimitMatchingFlow;

@@ -177,6 +177,7 @@ export interface StepBuySellLimitMatching {
     kind: StepKind.BuySellLimitMatching;
     amount: BigNumber;
     price: BigNumber;
+    price_avg: BigNumber;
     side: OrderSide;
     token: Token;
 }
@@ -505,4 +506,5 @@ export enum ProviderType {
     TrustWallet = 'TRUST_WALLET',
     Opera = 'OPERA',
     Fallback = 'FALLBACK',
+// tslint:disable-next-line: max-file-line-count
 }

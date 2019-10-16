@@ -3,11 +3,17 @@ import React from 'react';
 import { connect } from 'react-redux';
 
 import { getWeb3Wrapper } from '../../../services/web3_wrapper';
-import { getOrderbookAndUserOrders, submitMarketOrder, submitLimitMatchingOrder } from '../../../store/actions';
-import { getEstimatedTxTimeMs, getQuoteToken, getStepsModalCurrentStep, getWallet } from '../../../store/selectors';
+import { getOrderbookAndUserOrders, submitLimitMatchingOrder } from '../../../store/actions';
+import {
+    getCurrencyPair,
+    getEstimatedTxTimeMs,
+    getQuoteToken,
+    getStepsModalCurrentStep,
+    getWallet,
+} from '../../../store/selectors';
 import { addMarketBuySellNotification } from '../../../store/ui/actions';
 import { tokenAmountInUnits, tokenSymbolToDisplayString } from '../../../util/tokens';
-import { OrderSide, StepBuySellMarket, StoreState, Token, Wallet, StepBuySellLimitMatching } from '../../../util/types';
+import { CurrencyPair, OrderSide, StepBuySellLimitMatching, StoreState, Token, Wallet } from '../../../util/types';
 
 import { BaseStepModal } from './base_step_modal';
 import { StepItem } from './steps_progress';
@@ -20,6 +26,7 @@ interface StateProps {
     step: StepBuySellLimitMatching;
     quoteToken: Token;
     wallet: Wallet;
+    currencyPair: CurrencyPair;
 }
 
 interface DispatchProps {
@@ -44,7 +51,7 @@ class BuySellTokenMatchingStep extends React.Component<Props, State> {
     };
 
     public render = () => {
-        const { buildStepsProgress, estimatedTxTimeMs, step, wallet } = this.props;
+        const { buildStepsProgress, estimatedTxTimeMs, step, wallet, currencyPair, quoteToken } = this.props;
         const { token } = step;
         const tokenSymbol = tokenSymbolToDisplayString(token.symbol);
 
@@ -55,12 +62,22 @@ class BuySellTokenMatchingStep extends React.Component<Props, State> {
             step.token.displayDecimals,
         ).toString()} ${tokenSymbol}`;
 
+        const quoteSymbol = tokenSymbolToDisplayString(quoteToken.symbol);
+
+        const priceDisplay = step.price_avg.toFixed(currencyPair.config.pricePrecision);
+
         const title = 'Order setup';
 
-        const confirmCaption = `Confirm on ${wallet} to ${isBuy ? 'buy' : 'sell'} ${amountOfTokenString}.`;
-        const loadingCaption = `Processing ${isBuy ? 'buy' : 'sale'} of ${amountOfTokenString}.`;
+        const confirmCaption = `Confirm on ${wallet} to ${
+            isBuy ? 'buy' : 'sell'
+        } ${amountOfTokenString} with price ${priceDisplay} ${quoteSymbol}.`;
+        const loadingCaption = `Processing ${
+            isBuy ? 'buy' : 'sale'
+        } of ${amountOfTokenString} with price ${priceDisplay} ${quoteSymbol}.`;
         const doneCaption = `${isBuy ? 'Buy' : 'Sell'} Order Complete!`;
-        const errorCaption = `${isBuy ? 'buying' : 'selling'} ${amountOfTokenString}.`;
+        const errorCaption = `${
+            isBuy ? 'buying' : 'selling'
+        } ${amountOfTokenString} with price ${priceDisplay} ${quoteSymbol}.`;
         const loadingFooterCaption = `Waiting for confirmation....`;
         const doneFooterCaption = `${isBuy ? amountOfTokenString : this._getAmountOfQuoteTokenString()} received`;
 
@@ -120,6 +137,7 @@ const mapStateToProps = (state: StoreState): StateProps => {
         step: getStepsModalCurrentStep(state) as StepBuySellLimitMatching,
         quoteToken: getQuoteToken(state) as Token,
         wallet: getWallet(state) as Wallet,
+        currencyPair: getCurrencyPair(state),
     };
 };
 

@@ -6,15 +6,16 @@ import { InsufficientOrdersAmountException } from '../../exceptions/insufficient
 import { InsufficientTokenBalanceException } from '../../exceptions/insufficient_token_balance_exception';
 import { SignedOrderException } from '../../exceptions/signed_order_exception';
 import { isWeth } from '../../util/known_tokens';
-import { buildLimitOrder, buildMarketOrders, isDutchAuction, buildMarketLimitMatchingOrders } from '../../util/orders';
+import { buildLimitOrder, buildMarketLimitMatchingOrders, buildMarketOrders, isDutchAuction } from '../../util/orders';
 import {
     createBasicBuyCollectibleSteps,
+    createBuySellLimitMatchingSteps,
     createBuySellLimitSteps,
     createBuySellMarketSteps,
     createDutchBuyCollectibleSteps,
     createSellCollectibleSteps,
-    createBuySellLimitMatchingSteps,
 } from '../../util/steps_modals_generation';
+import { tokenAmountInUnitsToBigNumber } from '../../util/tokens';
 import {
     Collectible,
     Fill,
@@ -263,9 +264,13 @@ export const startBuySellLimitMatchingSteps: ThunkCreator = (
         const tokenBalances = selectors.getTokenBalances(state) as TokenBalance[];
         const wethTokenBalance = selectors.getWethTokenBalance(state) as TokenBalance;
         const ethBalance = selectors.getEthBalance(state);
+        const totalEthBalance = selectors.getTotalEthBalance(state);
+        const quoteTokenBalance = selectors.getQuoteTokenBalance(state);
+        const baseTokenBalance = selectors.getBaseTokenBalance(state);
+
         const allOrders =
             side === OrderSide.Buy ? selectors.getOpenSellOrders(state) : selectors.getOpenBuyOrders(state);
-        const { orders, amounts, canBeFilled } = buildMarketLimitMatchingOrders(
+        const { orders, amounts, amountFill, amountsMaker } = buildMarketLimitMatchingOrders(
             {
                 amount,
                 price,
@@ -273,12 +278,49 @@ export const startBuySellLimitMatchingSteps: ThunkCreator = (
             },
             side,
         );
+
         if (orders.length === 0) {
             return 0;
         }
-        const amountRequired = amounts.reduce((total: BigNumber, currentValue: BigNumber) => {
+        const totalFilledAmount = amounts.reduce((total: BigNumber, currentValue: BigNumber) => {
             return total.plus(currentValue);
         }, new BigNumber(0));
+
+        let price_avg;
+        if (side === OrderSide.Buy) {
+            const takerFilledAmount = tokenAmountInUnitsToBigNumber(totalFilledAmount, quoteToken.decimals);
+            const makerFilledAmount = tokenAmountInUnitsToBigNumber(amountFill, baseToken.decimals);
+            price_avg = takerFilledAmount.div(makerFilledAmount);
+        } else {
+            const totalMakerAmount = amountsMaker.reduce((total: BigNumber, currentValue: BigNumber) => {
+                return total.plus(currentValue);
+            }, new BigNumber(0));
+
+            const makerFilledAmount = tokenAmountInUnitsToBigNumber(totalMakerAmount, quoteToken.decimals);
+            const takerFilledAmount = tokenAmountInUnitsToBigNumber(amountFill, baseToken.decimals);
+
+            price_avg = makerFilledAmount.div(takerFilledAmount);
+        }
+
+        if (side === OrderSide.Sell) {
+            // When selling, user should have enough BASE Token
+            if (baseTokenBalance && baseTokenBalance.balance.isLessThan(totalFilledAmount)) {
+                throw new InsufficientTokenBalanceException(baseToken.symbol);
+            }
+        } else {
+            // When buying and
+            // if quote token is weth, should have enough ETH + WETH balance, or
+            // if quote token is not weth, should have enough quote token balance
+            const isEthAndWethNotEnoughBalance =
+                isWeth(quoteToken.symbol) && totalEthBalance.isLessThan(totalFilledAmount);
+            const isOtherQuoteTokenAndNotEnoughBalance =
+                !isWeth(quoteToken.symbol) &&
+                quoteTokenBalance &&
+                quoteTokenBalance.balance.isLessThan(totalFilledAmount);
+            if (isEthAndWethNotEnoughBalance || isOtherQuoteTokenAndNotEnoughBalance) {
+                throw new InsufficientTokenBalanceException(quoteToken.symbol);
+            }
+        }
 
         const buySellLimitMatchingFlow: Step[] = createBuySellLimitMatchingSteps(
             baseToken,
@@ -286,9 +328,10 @@ export const startBuySellLimitMatchingSteps: ThunkCreator = (
             tokenBalances,
             wethTokenBalance,
             ethBalance,
-            amountRequired,
+            amountFill,
             side,
             price,
+            price_avg,
             takerFee,
         );
 
@@ -460,4 +503,5 @@ export const addTransferTokenNotification: ThunkCreator = (
             ]),
         );
     };
+// tslint:disable-next-line: max-file-line-count
 };

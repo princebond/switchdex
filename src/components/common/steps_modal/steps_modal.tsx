@@ -11,6 +11,7 @@ import { Step, StepKind, StoreState } from '../../../util/types';
 import { CloseModalButton } from '../icons/close_modal_button';
 
 import { BuySellCollectibleStepContainer } from './buy_sell_collectible_step';
+import { BuySellTokenMatchingStepContainer } from './buy_sell_token_matching_step';
 import { BuySellTokenStepContainer } from './buy_sell_token_step';
 import { SignOrderStepContainer } from './sign_order_step';
 import { ModalContent } from './steps_common';
@@ -19,7 +20,6 @@ import { ToggleTokenLockStepContainer } from './toggle_token_lock_step';
 import { TransferTokenStepContainer } from './transfer_token_step';
 import { UnlockCollectiblesStepContainer } from './unlock_collectibles_step';
 import { WrapEthStepContainer } from './wrap_eth_step';
-import { BuySellTokenMatchingStepContainer } from './buy_sell_token_matching_step';
 
 interface StateProps {
     currentStep: Step | null;

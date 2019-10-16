@@ -16,9 +16,9 @@ import { isWeth } from '../../util/known_tokens';
 import { getLogger } from '../../util/logger';
 import {
     buildLimitOrder,
+    buildMarketLimitMatchingOrders,
     buildMarketOrders,
     sumTakerAssetFillableOrders,
-    buildMarketLimitMatchingOrders,
 } from '../../util/orders';
 import { getTransactionOptions } from '../../util/transactions';
 import { NotificationKind, OrderSide, RelayerState, ThunkCreator, Token, UIOrder, Web3State } from '../../util/types';
@@ -179,7 +179,7 @@ export const submitLimitMatchingOrder: ThunkCreator = (amount: BigNumber, price:
         const isBuy = side === OrderSide.Buy;
         const allOrders = isBuy ? getOpenSellOrders(state) : getOpenBuyOrders(state);
 
-        const { orders, amounts, canBeFilled, remainingAmount, amountFill } = buildMarketLimitMatchingOrders(
+        const { orders, amounts, remainingAmount } = buildMarketLimitMatchingOrders(
             {
                 amount,
                 price,
@@ -194,16 +194,12 @@ export const submitLimitMatchingOrder: ThunkCreator = (amount: BigNumber, price:
 
             // Check if the order is fillable using the forwarder
             const ethBalance = getEthBalance(state) as BigNumber;
-            console.log(ethBalance.toString());
-            console.log(amountFill.toString());
-            console.log(amount.toString());
-
             let ethAmountRequired = amounts.reduce((total: BigNumber, currentValue: BigNumber) => {
                 return total.plus(currentValue);
             }, new BigNumber(0));
 
             ethAmountRequired = ethAmountRequired.plus(
-                ethAmountRequired.times(new BigNumber(AFFILIATE_FEE_PERCENTAGE)),
+                ethAmountRequired.times(new BigNumber(AFFILIATE_FEE_PERCENTAGE)).toFixed(0),
             );
 
             const isEthBalanceEnough = ethBalance.isGreaterThan(ethAmountRequired);
@@ -211,9 +207,6 @@ export const submitLimitMatchingOrder: ThunkCreator = (amount: BigNumber, price:
 
             let txHash = '';
             if (isMarketBuyForwarder) {
-                try{
-                    console.log(amount.toString());
-                    console.log(ethAmountRequired.toString());
                 txHash = await contractWrappers.forwarder.marketBuyOrdersWithEthAsync(
                     orders,
                     amount,
@@ -224,9 +217,6 @@ export const submitLimitMatchingOrder: ThunkCreator = (amount: BigNumber, price:
                     FEE_RECIPIENT,
                     getTransactionOptions(gasPrice),
                 );
-                }catch(e){
-                    console.log(e);
-                }
             } else {
                 if (isBuy) {
                     txHash = await contractWrappers.exchange.marketBuyOrdersAsync(
@@ -264,7 +254,6 @@ export const submitLimitMatchingOrder: ThunkCreator = (amount: BigNumber, price:
                 ]),
             );
             const amountInReturn = sumTakerAssetFillableOrders(side, orders, amounts);
-           // const amountInReturn = amountFill.multipliedBy(price);
             return { txHash, amountInReturn };
         } else {
             return { remainingAmount };
@@ -290,7 +279,7 @@ export const submitMarketOrder: ThunkCreator<Promise<{ txHash: string; amountInR
             },
             side,
         );
-        
+
         if (canBeFilled) {
             const baseToken = getBaseToken(state) as Token;
             const quoteToken = getQuoteToken(state) as Token;
@@ -310,6 +299,7 @@ export const submitMarketOrder: ThunkCreator<Promise<{ txHash: string; amountInR
             const isMarketBuyForwarder = isBuy && isWeth(quoteToken.symbol) && isEthBalanceEnough;
 
             let txHash;
+
             if (isMarketBuyForwarder) {
                 txHash = await contractWrappers.forwarder.marketBuyOrdersWithEthAsync(
                     orders,

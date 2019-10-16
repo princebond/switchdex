@@ -197,7 +197,14 @@ export const buildMarketOrders = (
 export const buildMarketLimitMatchingOrders = (
     params: BuildMarketLimitMatchingOrderParams,
     side: OrderSide,
-): { orders: SignedOrder[]; amounts: BigNumber[]; canBeFilled: boolean; remainingAmount: BigNumber; amountFill: BigNumber } => {
+): {
+    orders: SignedOrder[];
+    amounts: BigNumber[];
+    amountsMaker: BigNumber[];
+    canBeFilled: boolean;
+    remainingAmount: BigNumber;
+    amountFill: BigNumber;
+} => {
     const { amount, orders, price } = params;
 
     // sort orders from best to worse
@@ -217,10 +224,18 @@ export const buildMarketLimitMatchingOrders = (
         }
     });
     if (filteredOrders.length === 0) {
-        return { orders: [], amounts: [new BigNumber(0)], canBeFilled: false, remainingAmount: amount, amountFill: new BigNumber(0) };
+        return {
+            orders: [],
+            amounts: [new BigNumber(0)],
+            canBeFilled: false,
+            remainingAmount: amount,
+            amountsMaker: [new BigNumber(0)],
+            amountFill: new BigNumber(0),
+        };
     }
     const ordersToFill: SignedOrder[] = [];
     const amounts: BigNumber[] = [];
+    const amountsMaker: BigNumber[] = [];
     let filledAmount = new BigNumber(0);
     for (let i = 0; i < filteredOrders.length && filledAmount.isLessThan(amount); i++) {
         const order = filteredOrders[i];
@@ -243,13 +258,25 @@ export const buildMarketLimitMatchingOrders = (
             const takerTokenDecimals = getKnownTokens().getTokenByAssetData(order.rawOrder.takerAssetData).decimals;
             const buyAmount = tokenAmountInUnitsToBigNumber(amounts[i], makerTokenDecimals);
             amounts[i] = unitsInTokenAmount(buyAmount.multipliedBy(order.price).toString(), takerTokenDecimals);
+        } else {
+            const makerTokenDecimals = getKnownTokens().getTokenByAssetData(order.rawOrder.makerAssetData).decimals;
+            const takerTokenDecimals = getKnownTokens().getTokenByAssetData(order.rawOrder.takerAssetData).decimals;
+            const buyAmount = tokenAmountInUnitsToBigNumber(amounts[i], takerTokenDecimals);
+            amountsMaker[i] = unitsInTokenAmount(buyAmount.multipliedBy(order.price).toString(), makerTokenDecimals);
         }
     }
     const canBeFilled = filledAmount.eq(amount);
     const remainingAmount = amount.minus(filledAmount);
 
     const roundedAmounts = amounts.map(a => a.integerValue(BigNumber.ROUND_CEIL));
-    return { orders: ordersToFill, amounts: roundedAmounts, canBeFilled, remainingAmount, amountFill: filledAmount };
+    return {
+        orders: ordersToFill,
+        amounts: roundedAmounts,
+        canBeFilled,
+        remainingAmount,
+        amountFill: filledAmount,
+        amountsMaker,
+    };
 };
 
 export const sumTakerAssetFillableOrders = (
