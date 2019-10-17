@@ -503,5 +503,5 @@ export const addTransferTokenNotification: ThunkCreator = (
             ]),
         );
     };
-// tslint:disable-next-line: max-file-line-count
+    // tslint:disable-next-line: max-file-line-count
 };
