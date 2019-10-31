@@ -117,29 +117,60 @@ export const resetWallet = createAction('blockchain/Wallet_reset', resolve => {
     return () => resolve();
 });
 
-export const toggleTokenLock: ThunkCreator<Promise<any>> = (token: Token, isUnlocked: boolean, address?: string) => {
+export const toggleTokenLock: ThunkCreator<Promise<any>> = (
+    token: Token,
+    isUnlocked: boolean,
+    address?: string,
+    isProxy: boolean = true,
+) => {
     return async (dispatch, getState, { getContractWrappers, getWeb3Wrapper }) => {
         const state = getState();
-        const ethAccount = address || getEthAccount(state);
+        const ethAccount = getEthAccount(state);
         const gasPrice = getGasPriceInWei(state);
-
         const contractWrappers = await getContractWrappers();
         const web3Wrapper = await getWeb3Wrapper();
 
         let tx: string;
         if (isUnlocked) {
-            tx = await contractWrappers.erc20Token.setProxyAllowanceAsync(
-                token.address,
-                ethAccount,
-                new BigNumber('0'),
-                getTransactionOptions(gasPrice),
-            );
+            if (isProxy) {
+                tx = await contractWrappers.erc20Token.setProxyAllowanceAsync(
+                    token.address,
+                    ethAccount,
+                    new BigNumber('0'),
+                    getTransactionOptions(gasPrice),
+                );
+            } else {
+                if (address) {
+                    tx = await contractWrappers.erc20Token.setAllowanceAsync(
+                        token.address,
+                        ethAccount,
+                        address,
+                        new BigNumber('0'),
+                        getTransactionOptions(gasPrice),
+                    );
+                } else {
+                    throw Error('No available path to lock token, missing address parameter');
+                }
+            }
         } else {
-            tx = await contractWrappers.erc20Token.setUnlimitedProxyAllowanceAsync(
-                token.address,
-                ethAccount,
-                getTransactionOptions(gasPrice),
-            );
+            if (isProxy) {
+                tx = await contractWrappers.erc20Token.setUnlimitedProxyAllowanceAsync(
+                    token.address,
+                    ethAccount,
+                    getTransactionOptions(gasPrice),
+                );
+            } else {
+                if (address) {
+                    tx = await contractWrappers.erc20Token.setUnlimitedAllowanceAsync(
+                        token.address,
+                        ethAccount,
+                        address,
+                        getTransactionOptions(gasPrice),
+                    );
+                } else {
+                    throw Error('No available path to unlock token, missing address parameter');
+                }
+            }
         }
 
         web3Wrapper.awaitTransactionSuccessAsync(tx).then(() => {
@@ -665,9 +696,9 @@ export const unlockCollectible: ThunkCreator<Promise<string>> = (collectible: Co
     };
 };
 
-export const unlockToken: ThunkCreator = (token: Token) => {
+export const unlockToken: ThunkCreator = (token: Token, address?: string, isProxy?: boolean) => {
     return async dispatch => {
-        return dispatch(toggleTokenLock(token, false));
+        return dispatch(toggleTokenLock(token, false, address, isProxy));
     };
 };
 

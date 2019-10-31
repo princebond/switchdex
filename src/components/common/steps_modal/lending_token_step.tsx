@@ -99,8 +99,10 @@ class LendingTokenStep extends React.Component<Props, State> {
             } else {
                 this.props.notifyUnLendingToken(txHash, amount, token, Promise.resolve());
             }
-            this.props.updateITokenBalance(iToken);
-            this.props.updateTokenBalance(token);
+            setTimeout(() => {
+                this.props.updateITokenBalance(iToken);
+                this.props.updateTokenBalance(token);
+            }, 1000);
         } catch (err) {
             onError(err);
         }

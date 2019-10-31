@@ -27,7 +27,7 @@ export const getAllITokens = async (ethAccount: string): Promise<[iTokenData[], 
         tokens = await (await getTokenizedRegistryContractWrapper({})).getTokens.callAsync(
             new BigNumber(0),
             new BigNumber(10),
-            new BigNumber(1),
+            new BigNumber(0),
         );
     } catch (e) {
         // tslint:disable-next-line:no-console
@@ -36,7 +36,7 @@ export const getAllITokens = async (ethAccount: string): Promise<[iTokenData[], 
     const iTokens: iTokenData[] = [];
     const known_tokens = getKnownTokens();
 
-    for (const tk of tokens) {
+    for (const tk of tokens.filter(t => t.tokenType.isEqualTo(1))) {
         try {
             const contractWrappers = await getContractWrappers();
             const tkContract = await getITokenContractWrapper(tk.token, { from: ethAccount });

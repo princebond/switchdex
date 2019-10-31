@@ -22,6 +22,10 @@ export const setITokenBalance = createAction('bzx/ITOKEN_BALANCE_set', resolve =
     return (token: iTokenData) => resolve(token);
 });
 
+export const setITokenBalances = createAction('bzx/ITOKEN_BALANCES_set', resolve => {
+    return (token: iTokenData[]) => resolve(token);
+});
+
 export const initBZX: ThunkCreator<Promise<any>> = () => {
     return async (dispatch, getState) => {
         const state = getState();
@@ -59,7 +63,6 @@ export const lendingToken: ThunkCreator<Promise<any>> = (
         });
         const web3Wrapper = await getWeb3Wrapper();
         let txHash: string;
-
         if (isEth) {
             txHash = await iContractWrappers.mintWithEther.sendTransactionAsync(ethAccount.toLowerCase(), {
                 from: ethAccount.toLowerCase(),
@@ -108,7 +111,7 @@ export const unLendingToken: ThunkCreator<Promise<any>> = (
         const gasPrice = getGasPriceInWei(state);
         const iContractWrappers = await getITokenContractWrapper(iToken.address, {
             from: ethAccount.toLowerCase(),
-            gas: '2000000',
+            gas: '2500000',
         });
         const web3Wrapper = await getWeb3Wrapper();
         let txHash: string;

@@ -17,6 +17,8 @@ export function bzx(state: BZXState = initialBZXState, action: RootAction): BZXS
                 ...state,
                 ...action.payload,
             };
+        case getType(actions.setITokenBalances):
+            return { ...state, iTokensData: action.payload };
         case getType(actions.setBZXLoadingState):
             return { ...state, bzxLoadingState: action.payload };
         case getType(actions.setITokenBalance):

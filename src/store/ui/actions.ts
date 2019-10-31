@@ -353,6 +353,7 @@ export const startLendingTokenSteps: ThunkCreator = (
     return async (dispatch, getState) => {
         const state = getState();
         const ethBalance = selectors.getEthBalance(state);
+        const wethBalance = selectors.getWethBalance(state);
         const totalEthBalance = selectors.getTotalEthBalance(state);
         const isEthAndWethNotEnoughBalance = isEth && totalEthBalance.isLessThan(amount);
 
@@ -360,7 +361,7 @@ export const startLendingTokenSteps: ThunkCreator = (
             throw new InsufficientTokenBalanceException(token.symbol);
         }
 
-        const lendingTokenFlow: Step[] = createLendingTokenSteps(iToken, token, ethBalance, amount, isEth);
+        const lendingTokenFlow: Step[] = createLendingTokenSteps(iToken, token, wethBalance, ethBalance, amount, isEth);
 
         dispatch(setStepsModalCurrentStep(lendingTokenFlow[0]));
         dispatch(setStepsModalPendingSteps(lendingTokenFlow.slice(1)));
@@ -570,7 +571,6 @@ export const addLendingTokenNotification: ThunkCreator = (
                     kind: NotificationKind.LendingComplete,
                     amount,
                     token,
-                    address,
                     tx,
                     timestamp: new Date(),
                 },
@@ -595,7 +595,6 @@ export const addUnLendingTokenNotification: ThunkCreator = (
                     kind: NotificationKind.UnLendingComplete,
                     amount,
                     token,
-                    address,
                     tx,
                     timestamp: new Date(),
                 },

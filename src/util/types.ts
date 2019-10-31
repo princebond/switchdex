@@ -152,7 +152,7 @@ export interface StepWrapEth {
     kind: StepKind.WrapEth;
     currentWethBalance: BigNumber;
     newWethBalance: BigNumber;
-    context: 'order' | 'standalone';
+    context: 'order' | 'standalone' | 'lending';
 }
 
 export interface StepToggleTokenLock {

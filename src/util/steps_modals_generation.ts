@@ -257,15 +257,23 @@ export const createLendingTokenSteps = (
     iToken: iTokenData,
     token: Token,
     // tokenBalances: TokenBalance[],
-    // wethTokenBalance: TokenBalance,
+    wethTokenBalance: BigNumber,
     ethBalance: BigNumber,
     amount: BigNumber,
     isEth: boolean,
 ): Step[] => {
     const lendingTokenFlow: Step[] = [];
-
     if (isEth) {
-        if (amount.comparedTo(ethBalance)) {
+        if (amount.isGreaterThan(ethBalance)) {
+            const newWethBalance = wethTokenBalance.minus(amount.minus(ethBalance));
+            const currentWethBalance = wethTokenBalance;
+            const wrapEthStep: StepWrapEth = {
+                kind: StepKind.WrapEth,
+                currentWethBalance,
+                newWethBalance,
+                context: 'standalone',
+            };
+            lendingTokenFlow.push(wrapEthStep);
             // unwrapp eth here
         }
     } else {

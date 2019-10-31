@@ -24,7 +24,7 @@ interface StateProps {
 
 interface DispatchProps {
     onLockToken: (token: Token) => Promise<any>;
-    onUnlockToken: (token: Token, address?: string) => Promise<any>;
+    onUnlockToken: (token: Token, address?: string, isProxy?: boolean) => Promise<any>;
     advanceStep: () => void;
 }
 
@@ -97,7 +97,7 @@ class ToggleTokenLockStep extends React.Component<Props> {
             const web3Wrapper = await getWeb3Wrapper();
             const txHash =
                 step.context === 'lending'
-                    ? await toggleToken(step.token, step.address)
+                    ? await toggleToken(step.token, step.address, false)
                     : await toggleToken(step.token);
             onLoading();
 
@@ -124,7 +124,8 @@ const ToggleTokenLockStepContainer = connect(
     (dispatch: any) => {
         return {
             onLockToken: (token: Token) => dispatch(lockToken(token)),
-            onUnlockToken: (token: Token) => dispatch(unlockToken(token)),
+            onUnlockToken: (token: Token, address?: string, isProxy?: boolean) =>
+                dispatch(unlockToken(token, address, isProxy)),
             advanceStep: () => dispatch(stepsModalAdvanceStep()),
         };
     },
