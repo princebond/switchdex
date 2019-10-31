@@ -9,6 +9,7 @@ import { getOrderBook, getOrderbookAndUserOrders } from './relayer/actions';
 import { getCurrencyPair, getCurrentMarketPlace } from './selectors';
 
 export * from './blockchain/actions';
+export * from './bzx/actions';
 export * from './market/actions';
 export * from './relayer/actions';
 export * from './router/actions';

@@ -90,6 +90,10 @@ export const setTokenBalances = createAction('blockchain/TOKEN_BALANCES_set', re
     return (tokenBalances: TokenBalance[]) => resolve(tokenBalances);
 });
 
+export const setTokenBalance = createAction('blockchain/TOKEN_BALANCE_set', resolve => {
+    return (tokenBalances: TokenBalance) => resolve(tokenBalances);
+});
+
 export const setEthBalance = createAction('blockchain/ETH_BALANCE_set', resolve => {
     return (ethBalance: BigNumber) => resolve(ethBalance);
 });
@@ -113,10 +117,10 @@ export const resetWallet = createAction('blockchain/Wallet_reset', resolve => {
     return () => resolve();
 });
 
-export const toggleTokenLock: ThunkCreator<Promise<any>> = (token: Token, isUnlocked: boolean) => {
+export const toggleTokenLock: ThunkCreator<Promise<any>> = (token: Token, isUnlocked: boolean, address?: string) => {
     return async (dispatch, getState, { getContractWrappers, getWeb3Wrapper }) => {
         const state = getState();
-        const ethAccount = getEthAccount(state);
+        const ethAccount = address || getEthAccount(state);
         const gasPrice = getGasPriceInWei(state);
 
         const contractWrappers = await getContractWrappers();
@@ -281,6 +285,28 @@ export const updateTokenBalances: ThunkCreator<Promise<any>> = (txHash?: string)
         if (wethBalance) {
             dispatch(setWethBalance(wethBalance.balance));
         }
+        dispatch(setEthBalance(ethBalance));
+        return ethBalance;
+    };
+};
+
+export const updateTokenBalance: ThunkCreator<Promise<any>> = (token: Token) => {
+    return async (dispatch, getState, { getWeb3Wrapper }) => {
+        const state = getState();
+        const ethAccount = getEthAccount(state);
+        const knownTokens = getKnownTokens();
+        const wethToken = knownTokens.getWethToken();
+        const tokenBalance = await tokensToTokenBalances([token], ethAccount);
+        const wethBalance = tokenBalance.find(b => b.token.symbol === wethToken.symbol);
+        if (wethBalance) {
+            dispatch(setWethBalance(wethBalance.balance));
+        } else {
+            dispatch(setTokenBalance(tokenBalance[0]));
+        }
+
+        const web3Wrapper = await getWeb3Wrapper();
+        const ethBalance = await web3Wrapper.getBalanceInWeiAsync(ethAccount);
+
         dispatch(setEthBalance(ethBalance));
         return ethBalance;
     };

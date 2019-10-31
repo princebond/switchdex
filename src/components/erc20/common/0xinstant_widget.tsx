@@ -49,6 +49,8 @@ interface Props {
     shouldDisableAnalyticsTracking?: boolean;
     onSuccess?: any;
     onClose?: any;
+    buttonVariant?: ButtonVariant;
+    btnName?: string;
 }
 
 const BuyButton = styled(Button)`
@@ -69,7 +71,14 @@ export class ZeroXInstantWidget extends React.Component<Props, State> {
     };
 
     public render = () => {
-        const { orderSource, networkId = 1, tokenAddress, walletDisplayName = Wallet.Metamask } = this.props;
+        const {
+            orderSource,
+            networkId = 1,
+            tokenAddress,
+            walletDisplayName = Wallet.Metamask,
+            buttonVariant = ButtonVariant.Buy,
+            btnName = 'Buy',
+        } = this.props;
 
         const openZeroXinstantModal = async () => {
             const knownTokens = getKnownTokens();
@@ -106,8 +115,8 @@ export class ZeroXInstantWidget extends React.Component<Props, State> {
         return (
             <>
                 {this.state.scriptReady ? (
-                    <BuyButton onClick={openZeroXinstantModal} variant={ButtonVariant.Buy}>
-                        Buy
+                    <BuyButton onClick={openZeroXinstantModal} variant={buttonVariant}>
+                        {btnName}
                     </BuyButton>
                 ) : (
                     ''

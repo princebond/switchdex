@@ -67,6 +67,9 @@ export const getSelectedCollectible = (state: StoreState) => state.collectibles.
 export const getCurrentRoutePath = (state: StoreState) => state.router.location.pathname;
 export const getRouterLocationSearch = (state: StoreState) => state.router.location.search;
 export const getAccountMarketStats = (state: StoreState) => state.relayer.accountMarketStats;
+export const getITokensData = (state: StoreState) => state.bzx.iTokensData;
+export const getBZXiTokensList = (state: StoreState) => state.bzx.TokensList;
+export const getBZXLoadingState = (state: StoreState) => state.bzx.bzxLoadingState;
 
 export const getCurrentMarketPlace = createSelector(
     getCurrentRoutePath,

@@ -28,6 +28,13 @@ export function blockchain(state: BlockchainState = initialBlockchainState, acti
             return { ...state, web3State: action.payload };
         case getType(actions.setTokenBalances):
             return { ...state, tokenBalances: action.payload };
+        case getType(actions.setTokenBalance):
+            const tokenBalances = state.tokenBalances;
+            const tokenBalance = action.payload;
+            const index = tokenBalances.findIndex(t => t.token.address === tokenBalance.token.address);
+            tokenBalances[index] = tokenBalance;
+            return { ...state, tokenBalances };
+
         case getType(actions.setWethTokenBalance):
             return { ...state, wethTokenBalance: action.payload };
         case getType(actions.setGasInfo):
