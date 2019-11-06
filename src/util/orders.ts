@@ -309,3 +309,15 @@ export const isDutchAuction = (order: SignedOrder) => {
         return false;
     }
 };
+
+export const serializeOrder = (o: any): SignedOrder => {
+    return {
+        ...o,
+        makerFee: new BigNumber(o.makerFee),
+        takerFee: new BigNumber(o.takerFee),
+        makerAssetAmount: new BigNumber(o.makerAssetAmount),
+        takerAssetAmount: new BigNumber(o.takerAssetAmount),
+        salt: new BigNumber(o.salt),
+        expirationTimeSeconds: new BigNumber(o.expirationTimeSeconds),
+    };
+};
