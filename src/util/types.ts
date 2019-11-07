@@ -75,6 +75,7 @@ export interface TokenIEO {
         medium_url?: string;
     };
     feePercentage?: string;
+    endDate?: string | number;
 }
 
 export interface TokenPrice {

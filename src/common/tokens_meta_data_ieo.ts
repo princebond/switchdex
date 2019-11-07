@@ -28,6 +28,7 @@ export interface TokenIEOMetaData {
         medium_url?: string;
     };
     feePercentage?: string;
+    endDate?: number | string;
 }
 
 export const KNOWN_TOKENS_IEO_META_DATA: TokenIEOMetaData[] = ConfigIEO.getConfig().tokens;

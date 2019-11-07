@@ -31,6 +31,7 @@ import {
     ThunkCreator,
     Token,
     TokenBalance,
+    TokenIEO,
 } from '../../util/types';
 import * as selectors from '../selectors';
 
@@ -489,10 +490,10 @@ export const createSignedOrder: ThunkCreator = (amount: BigNumber, price: BigNum
 };
 
 export const createSignedOrderIEO: ThunkCreator = (amount: BigNumber, price: BigNumber, side: OrderSide) => {
-    return async (dispatch, getState, { getContractWrappers, getWeb3Wrapper }) => {
+    return async (_dispatch, getState, { getContractWrappers, getWeb3Wrapper }) => {
         const state = getState();
         const ethAccount = selectors.getEthAccount(state);
-        const baseToken = selectors.getBaseTokenIEO(state) as Token;
+        const baseToken = selectors.getBaseTokenIEO(state) as TokenIEO;
         const wethTokenBalance = selectors.getWethTokenBalance(state) as TokenBalance;
         if (!wethTokenBalance) {
             return;
@@ -512,6 +513,7 @@ export const createSignedOrderIEO: ThunkCreator = (amount: BigNumber, price: Big
                     exchangeAddress: contractWrappers.exchange.address,
                 },
                 side,
+                baseToken.endDate,
             );
 
             const provider = new MetamaskSubprovider(web3Wrapper.getProvider());

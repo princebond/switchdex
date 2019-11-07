@@ -42,6 +42,7 @@ export const mapTokensIEOMetaDataToTokenByNetworkId = (tokensMetaData: TokenIEOM
                         medium_url: (tokenMetaData.social && tokenMetaData.social.medium_url) || undefined,
                     },
                     feePercentage: tokenMetaData.feePercentage || undefined,
+                    endDate: tokenMetaData.endDate || undefined,
                 };
             },
         );
