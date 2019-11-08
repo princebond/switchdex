@@ -24,6 +24,7 @@ export const createBuySellLimitSteps = (
     price: BigNumber,
     side: OrderSide,
     makerFee: BigNumber,
+    is_ieo?: boolean,
 ): Step[] => {
     const buySellLimitFlow: Step[] = [];
     let unlockBaseOrQuoteTokenStep;
@@ -63,6 +64,7 @@ export const createBuySellLimitSteps = (
         price,
         side,
         token: baseToken,
+        is_ieo,
     });
 
     return buySellLimitFlow;

@@ -5,7 +5,7 @@ import { getAllITokens, getToken } from '../../services/bzx';
 import { getLogger } from '../../util/logger';
 import { getTransactionOptions } from '../../util/transactions';
 import { BZXLoadingState, BZXState, iTokenData, NotificationKind, ThunkCreator, Token } from '../../util/types';
-import { addNotifications } from '../actions';
+import { addNotifications, updateTokenBalances } from '../actions';
 import { getEthAccount, getGasPriceInWei } from '../selectors';
 
 const logger = getLogger('BZX::Actions');
@@ -33,6 +33,7 @@ export const initBZX: ThunkCreator<Promise<any>> = () => {
         dispatch(setBZXLoadingState(BZXLoadingState.Loading));
         try {
             const [iTokens, tokens] = await getAllITokens(ethAccount);
+            await dispatch(updateTokenBalances());
             dispatch(
                 initializeBZXData({
                     TokensList: tokens,
@@ -43,6 +44,24 @@ export const initBZX: ThunkCreator<Promise<any>> = () => {
         } catch (error) {
             logger.error('There was an error when initializing bzx smartcontracts', error);
             dispatch(setBZXLoadingState(BZXLoadingState.Error));
+        }
+    };
+};
+
+export const fetchBZX: ThunkCreator<Promise<any>> = () => {
+    return async (dispatch, getState) => {
+        const state = getState();
+        const ethAccount = getEthAccount(state);
+        try {
+            const [iTokens, tokens] = await getAllITokens(ethAccount);
+            dispatch(
+                initializeBZXData({
+                    TokensList: tokens,
+                    iTokensData: iTokens,
+                }),
+            );
+        } catch (error) {
+            logger.error('There was an error when fetching bzx smartcontracts', error);
         }
     };
 };

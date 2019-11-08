@@ -13,6 +13,7 @@ import {
     getITokensData,
     getTokenBalances,
     getTokensPrice,
+    getTotalEthBalance,
     getWallet,
     getWeb3State,
     getWethTokenBalance,
@@ -20,6 +21,7 @@ import {
 import { Theme, themeBreakPoints } from '../../themes/commons';
 import { computeProfit } from '../../util/bzx/bzx_utils';
 import { isWethToken } from '../../util/known_tokens';
+import { isMobile } from '../../util/screen';
 import { getEtherscanLinkForToken, tokenAmountInUnits } from '../../util/tokens';
 import {
     ButtonVariant,
@@ -34,6 +36,7 @@ import {
 } from '../../util/types';
 import { Button } from '../common/button';
 import { Card } from '../common/card';
+import { withWindowWidth } from '../common/hoc/withWindowWidth';
 import { TokenIcon } from '../common/icons/token_icon';
 import { LoadingWrapper } from '../common/loading';
 import { CustomTD, Table, TH, THead, THLast, TR } from '../common/table';
@@ -43,6 +46,7 @@ import { LendingTokenModal } from './wallet_lending_token_modal';
 
 interface StateProps {
     ethBalance: BigNumber;
+    ethTotalBalance: BigNumber;
     tokenBalances: TokenBalance[];
     iTokensData: iTokenData[];
     web3State: Web3State;
@@ -55,6 +59,7 @@ interface StateProps {
 }
 interface OwnProps {
     theme: Theme;
+    windowWidth: number;
 }
 
 interface DispatchProps {
@@ -110,7 +115,6 @@ const TokenEtherscanLink = styled.a`
 const TokenName = styled.span`
     font-weight: 700;
     @media (max-width: ${themeBreakPoints.sm}) {
-        display: block;
     }
 `;
 const TokenNameSeparator = styled.span`
@@ -138,6 +142,15 @@ const ButtonStyled = styled(Button)`
     margin-left: 5px;
 `;
 
+const PStyled = styled.p`
+    color: ${props => props.theme.componentsTheme.textColorCommon};
+`;
+
+const CustomTDMobile = styled(CustomTD)`
+    max-width: 30px;
+    display: block;
+`;
+
 const WalletLendingBalances: React.FC<Props> = props => {
     const [isEthState, setIsEthState] = useState(false);
     const [isModalOpenState, setIsModalOpenState] = useState(false);
@@ -148,6 +161,7 @@ const WalletLendingBalances: React.FC<Props> = props => {
 
     const {
         ethBalance,
+        ethTotalBalance,
         tokenBalances,
         web3State,
         wethTokenBalance,
@@ -159,6 +173,7 @@ const WalletLendingBalances: React.FC<Props> = props => {
         initBZXFetching,
         iTokensData,
         bzxLoadingState,
+        windowWidth,
     } = props;
 
     useEffect(() => {
@@ -171,6 +186,7 @@ const WalletLendingBalances: React.FC<Props> = props => {
     const openFiatOnRamp = () => {
         onClickOpenFiatOnRampModal(true);
     };
+    const isMobileView = isMobile(windowWidth);
 
     const tokensRows = () =>
         iTokensData.map((tokenD, index) => {
@@ -178,9 +194,10 @@ const WalletLendingBalances: React.FC<Props> = props => {
             const { symbol } = token;
             const isEthToken = isWethToken(token);
             const tokenBalance = tokenBalances.find(tb => tb.token.symbol === symbol) as Required<TokenBalance>;
+
             const tokB = isEthToken
-                ? (wethTokenBalance && wethTokenBalance.balance.plus(ethBalance)) || new BigNumber(0)
-                : tokenBalance.balance;
+                ? ethTotalBalance || new BigNumber(0)
+                : (tokenBalance && tokenBalance.balance) || new BigNumber(0);
 
             const formattedLendBalance = tokenAmountInUnits(balance, token.decimals, token.displayDecimals);
             const formattedBalance = tokenAmountInUnits(tokB, token.decimals, token.displayDecimals);
@@ -236,46 +253,106 @@ const WalletLendingBalances: React.FC<Props> = props => {
                     buttonVariant={ButtonVariant.Primary}
                 />
             );
+            if (isMobileView) {
+                return (
+                    <tbody key={symbol}>
+                        <TR>
+                            <TH>Token</TH>
+                            <CustomTDTokenName styles={{ textAlign: 'center' }}>
+                                <TokenEtherscanLink href={getEtherscanLinkForToken(token)} target={'_blank'}>
+                                    <TokenNameSeparator>{` - `}</TokenNameSeparator>
+                                    {`${tokenName}`}
+                                </TokenEtherscanLink>
+                            </CustomTDTokenName>
+                        </TR>
+                        <TR>
+                            <TH>Interest APR</TH>
+                            <CustomTD styles={{ textAlign: 'center' }}>
+                                {supplyInterestRate.dividedBy('1e18').toFixed(5)} %
+                            </CustomTD>
+                        </TR>
+                        <TR>
+                            <TH>Balance</TH>
+                            <CustomTD styles={{ textAlign: 'center' }}>{usdBalance}</CustomTD>
+                        </TR>
+                        <TR>
+                            <TH>Lend Balance</TH>
+                            <CustomTD styles={{ textAlign: 'center' }}>{usdLendBalance}</CustomTD>
+                        </TR>
+                        <TR>
+                            <TH>Profit</TH>
+                            <CustomTD styles={{ textAlign: 'center' }}>{usdProfit}</CustomTD>
+                        </TR>
+                        <TR>
+                            <TH styles={{ borderBottom: true, textAlign: 'left' }}> Actions</TH>
+                            <CustomTDMobile styles={{ borderBottom: true, textAlign: 'left' }}>
+                                <ButtonsContainer>
+                                    {buyButton}
+                                    <ButtonStyled
+                                        onClick={openLendingModal}
+                                        variant={ButtonVariant.Buy}
+                                        disabled={tokB.isEqualTo(0)}
+                                    >
+                                        LEND
+                                    </ButtonStyled>
 
-            return (
-                <TR key={symbol}>
-                    <TokenTD>
-                        <TokenIconStyled symbol={token.symbol} primaryColor={token.primaryColor} icon={token.icon} />
-                    </TokenTD>
-                    <CustomTDTokenName styles={{ borderBottom: true }}>
-                        <TokenEtherscanLink href={getEtherscanLinkForToken(token)} target={'_blank'}>
-                            <TokenName>{tokenSymbol}</TokenName> <TokenNameSeparator>{` - `}</TokenNameSeparator>
-                            {`${tokenName}`}
-                        </TokenEtherscanLink>
-                    </CustomTDTokenName>
-                    <CustomTD styles={{ borderBottom: true, textAlign: 'right' }}>
-                        {supplyInterestRate.dividedBy('1e18').toFixed(5)} %
-                    </CustomTD>
-                    <CustomTD styles={{ borderBottom: true, textAlign: 'right' }}>{usdBalance}</CustomTD>
-                    <CustomTD styles={{ borderBottom: true, textAlign: 'right' }}>{usdLendBalance}</CustomTD>
-                    <CustomTD styles={{ borderBottom: true, textAlign: 'right' }}>{usdProfit}</CustomTD>
-                    <CustomTD styles={{ borderBottom: true, textAlign: 'center' }}>
-                        <ButtonsContainer>
-                            {buyButton}
-                            <ButtonStyled
-                                onClick={openLendingModal}
-                                variant={ButtonVariant.Buy}
-                                disabled={tokB.isEqualTo(0)}
-                            >
-                                LEND
-                            </ButtonStyled>
+                                    <ButtonStyled
+                                        onClick={openUnLendingModal}
+                                        variant={ButtonVariant.Sell}
+                                        disabled={balance.isEqualTo(0)}
+                                    >
+                                        UNLEND
+                                    </ButtonStyled>
+                                </ButtonsContainer>
+                            </CustomTDMobile>
+                        </TR>
+                    </tbody>
+                );
+            } else {
+                return (
+                    <TR key={symbol}>
+                        <TokenTD>
+                            <TokenIconStyled
+                                symbol={token.symbol}
+                                primaryColor={token.primaryColor}
+                                icon={token.icon}
+                            />
+                        </TokenTD>
+                        <CustomTDTokenName styles={{ borderBottom: true }}>
+                            <TokenEtherscanLink href={getEtherscanLinkForToken(token)} target={'_blank'}>
+                                <TokenName>{tokenSymbol}</TokenName> <TokenNameSeparator>{` - `}</TokenNameSeparator>
+                                {`${tokenName}`}
+                            </TokenEtherscanLink>
+                        </CustomTDTokenName>
+                        <CustomTD styles={{ borderBottom: true, textAlign: 'right' }}>
+                            {supplyInterestRate.dividedBy('1e18').toFixed(5)} %
+                        </CustomTD>
+                        <CustomTD styles={{ borderBottom: true, textAlign: 'right' }}>{usdBalance}</CustomTD>
+                        <CustomTD styles={{ borderBottom: true, textAlign: 'right' }}>{usdLendBalance}</CustomTD>
+                        <CustomTD styles={{ borderBottom: true, textAlign: 'right' }}>{usdProfit}</CustomTD>
+                        <CustomTD styles={{ borderBottom: true, textAlign: 'center' }}>
+                            <ButtonsContainer>
+                                {buyButton}
+                                <ButtonStyled
+                                    onClick={openLendingModal}
+                                    variant={ButtonVariant.Buy}
+                                    disabled={tokB.isEqualTo(0)}
+                                >
+                                    LEND
+                                </ButtonStyled>
 
-                            <ButtonStyled
-                                onClick={openUnLendingModal}
-                                variant={ButtonVariant.Sell}
-                                disabled={balance.isEqualTo(0)}
-                            >
-                                UNLEND
-                            </ButtonStyled>
-                        </ButtonsContainer>
-                    </CustomTD>
-                </TR>
-            );
+                                <ButtonStyled
+                                    onClick={openUnLendingModal}
+                                    variant={ButtonVariant.Sell}
+                                    disabled={balance.isEqualTo(0)}
+                                >
+                                    UNLEND
+                                </ButtonStyled>
+                            </ButtonsContainer>
+                        </CustomTD>
+                    </TR>
+                );
+            }
         });
     const totalHoldingsRow = () => {
         const availableLendingTokensAddress = iTokensData.map(t => t.token.address);
@@ -344,24 +421,48 @@ const WalletLendingBalances: React.FC<Props> = props => {
                         return p.plus(c);
                     })) ||
             new BigNumber(0);
-
-        return (
-            <TR>
-                <CustomTD styles={{ borderBottom: true, textAlign: 'right', tabular: true }} />
-                <CustomTDTokenName styles={{ borderBottom: true }}>TOTAL</CustomTDTokenName>
-                <CustomTD styles={{ borderBottom: true, textAlign: 'right', tabular: true }} />
-                <CustomTD styles={{ borderBottom: true, textAlign: 'right', tabular: true }}>
-                    {`${totalHoldingsValue.toFixed(3)}$`}
-                </CustomTD>
-                <CustomTD styles={{ borderBottom: true, textAlign: 'right', tabular: true }}>
-                    {`${totalLendingHoldingsValue.toFixed(5)}$`}
-                </CustomTD>
-                <CustomTD styles={{ borderBottom: true, textAlign: 'right', tabular: true }}>
-                    {`${totalProfitsValue.toFixed(5)}$`}
-                </CustomTD>
-                <CustomTD styles={{ borderBottom: true, textAlign: 'center' }}>Prices by Coingecko</CustomTD>
-            </TR>
-        );
+        if (isMobileView) {
+            return (
+                <tbody>
+                    <TR>
+                        <TH>Total Balances</TH>
+                        <CustomTD styles={{ borderBottom: true, textAlign: 'center', tabular: true }}>
+                            {`${totalHoldingsValue.toFixed(3)}$`}
+                        </CustomTD>
+                    </TR>
+                    <TR>
+                        <TH>Total Lend Balances</TH>
+                        <CustomTD styles={{ borderBottom: true, textAlign: 'center', tabular: true }}>
+                            {`${totalLendingHoldingsValue.toFixed(5)}$`}
+                        </CustomTD>
+                    </TR>
+                    <TR>
+                        <TH>Total Profits</TH>
+                        <CustomTD styles={{ borderBottom: true, textAlign: 'center', tabular: true }}>
+                            {`${totalProfitsValue.toFixed(5)}$`}
+                        </CustomTD>
+                    </TR>
+                </tbody>
+            );
+        } else {
+            return (
+                <TR>
+                    <CustomTD styles={{ borderBottom: true, textAlign: 'right', tabular: true }} />
+                    <CustomTDTokenName styles={{ borderBottom: true }}>TOTAL</CustomTDTokenName>
+                    <CustomTD styles={{ borderBottom: true, textAlign: 'right', tabular: true }} />
+                    <CustomTD styles={{ borderBottom: true, textAlign: 'right', tabular: true }}>
+                        {`${totalHoldingsValue.toFixed(3)}$`}
+                    </CustomTD>
+                    <CustomTD styles={{ borderBottom: true, textAlign: 'right', tabular: true }}>
+                        {`${totalLendingHoldingsValue.toFixed(5)}$`}
+                    </CustomTD>
+                    <CustomTD styles={{ borderBottom: true, textAlign: 'right', tabular: true }}>
+                        {`${totalProfitsValue.toFixed(5)}$`}
+                    </CustomTD>
+                    <CustomTD styles={{ borderBottom: true, textAlign: 'center' }}>Prices by Coingecko</CustomTD>
+                </TR>
+            );
+        }
     };
 
     let content: React.ReactNode;
@@ -395,51 +496,79 @@ const WalletLendingBalances: React.FC<Props> = props => {
 
         const wethPlusEthBalance = (wethTokenBalance && wethTokenBalance.balance.plus(ethBalance)) || new BigNumber(0);
 
-        content = (
-            <>
-                <Table isResponsive={true}>
-                    <THead>
-                        <TR>
-                            <THStyled>Token</THStyled>
-                            <THStyled>{}</THStyled>
-                            <THStyled styles={{ textAlign: 'right' }}>Interest APR</THStyled>
-                            <THStyled styles={{ textAlign: 'right' }}>Balance</THStyled>
-                            <THStyled styles={{ textAlign: 'right' }}>Lend Balance</THStyled>
-                            <THStyled styles={{ textAlign: 'right' }}>Profit</THStyled>
-                            <THLast styles={{ textAlign: 'center' }}>Actions</THLast>
-                        </TR>
-                    </THead>
-                    <TBody>
-                        {/*totalEthRow*/}
+        if (isMobileView) {
+            content = (
+                <>
+                    <Table isResponsive={true}>
                         {tokensRows()}
                         {totalHoldingsRow()}
-                    </TBody>
-                </Table>
-                {isModalOpenState && (
-                    <LendingTokenModal
-                        isOpen={isModalOpenState}
-                        tokenBalance={tokenBalanceState}
-                        isSubmitting={isSubmittingState}
-                        onSubmit={handleSubmit}
-                        iToken={iTokenDataState}
-                        style={theme.modalTheme}
-                        closeModal={closeModal}
-                        ethBalance={wethPlusEthBalance}
-                        isEth={isEthState}
-                        wethToken={wethToken}
-                        isLending={isLendingState}
-                    />
-                )}
-            </>
-        );
+                    </Table>
+                    {isModalOpenState && (
+                        <LendingTokenModal
+                            isOpen={isModalOpenState}
+                            tokenBalance={tokenBalanceState}
+                            isSubmitting={isSubmittingState}
+                            onSubmit={handleSubmit}
+                            iToken={iTokenDataState}
+                            style={theme.modalTheme}
+                            closeModal={closeModal}
+                            ethBalance={wethPlusEthBalance}
+                            isEth={isEthState}
+                            wethToken={wethToken}
+                            isLending={isLendingState}
+                        />
+                    )}
+                    <PStyled>Prices by Coingecko </PStyled>
+                </>
+            );
+        } else {
+            content = (
+                <>
+                    <Table isResponsive={true}>
+                        <THead>
+                            <TR>
+                                <THStyled>Token</THStyled>
+                                <THStyled>{}</THStyled>
+                                <THStyled styles={{ textAlign: 'right' }}>Interest APR</THStyled>
+                                <THStyled styles={{ textAlign: 'right' }}>Balance</THStyled>
+                                <THStyled styles={{ textAlign: 'right' }}>Lend Balance</THStyled>
+                                <THStyled styles={{ textAlign: 'right' }}>Profit</THStyled>
+                                <THLast styles={{ textAlign: 'center' }}>Actions</THLast>
+                            </TR>
+                        </THead>
+                        <TBody>
+                            {/*totalEthRow*/}
+                            {tokensRows()}
+                            {totalHoldingsRow()}
+                        </TBody>
+                    </Table>
+                    {isModalOpenState && (
+                        <LendingTokenModal
+                            isOpen={isModalOpenState}
+                            tokenBalance={tokenBalanceState}
+                            isSubmitting={isSubmittingState}
+                            onSubmit={handleSubmit}
+                            iToken={iTokenDataState}
+                            style={theme.modalTheme}
+                            closeModal={closeModal}
+                            ethBalance={wethPlusEthBalance}
+                            isEth={isEthState}
+                            wethToken={wethToken}
+                            isLending={isLendingState}
+                        />
+                    )}
+                </>
+            );
+        }
     }
 
-    return <Card title="Lend">{content}</Card>;
+    return <Card title="LEND">{content}</Card>;
 };
 
 const mapStateToProps = (state: StoreState): StateProps => {
     return {
         ethBalance: getEthBalance(state),
+        ethTotalBalance: getTotalEthBalance(state),
         iTokensData: getITokensData(state),
         tokenBalances: getTokenBalances(state),
         web3State: getWeb3State(state),
@@ -459,10 +588,12 @@ const mapDispatchToProps = {
 };
 
 const WalletLendingBalancesContainer = withTheme(
-    connect(
-        mapStateToProps,
-        mapDispatchToProps,
-    )(WalletLendingBalances),
+    withWindowWidth(
+        connect(
+            mapStateToProps,
+            mapDispatchToProps,
+        )(WalletLendingBalances),
+    ),
 );
 
 // tslint:disable-next-line: max-file-line-count
