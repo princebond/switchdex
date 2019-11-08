@@ -5,6 +5,7 @@ import { ActionCreator, AnyAction } from 'redux';
 import { ThunkAction } from 'redux-thunk';
 
 import { TokenMetaData } from '../common/tokens_meta_data';
+import { TokenIEOMetaData } from '../common/tokens_meta_data_ieo';
 import { ExtraArgument } from '../store/index';
 import { ThemeModalStyle, ThemeProperties } from '../themes/commons';
 
@@ -13,6 +14,8 @@ export interface TabItem {
     onClick: any;
     text: string;
 }
+
+export type Maybe<T> = T | undefined;
 
 export enum Network {
     Mainnet = 1,
@@ -42,6 +45,39 @@ export interface Token {
     price_usd_24h_change?: BigNumber | null;
 }
 
+export interface TokenIEO {
+    address: string;
+    decimals: number;
+    name: string;
+    symbol: string;
+    primaryColor: string;
+    id?: string;
+    c_id?: string; // coingecko id
+    icon?: string;
+    displayDecimals: number;
+    minAmount?: number;
+    maxAmount?: number;
+    precision?: number;
+    website?: string;
+    description?: string;
+    verisafe_sticker?: string;
+    price_usd?: BigNumber | null;
+    price_usd_24h_change?: BigNumber | null;
+    owners: string[];
+    social: {
+        facebook_url?: string;
+        reddit_url?: string;
+        twitter_url?: string;
+        telegram_url?: string;
+        discord_url?: string;
+        bitcointalk_url?: string;
+        youtube_url?: string;
+        medium_url?: string;
+    };
+    feePercentage?: string;
+    endDate?: string | number;
+}
+
 export interface TokenPrice {
     c_id: string; // coingecko id
     price_usd: BigNumber;
@@ -52,6 +88,12 @@ export interface TokenBalance {
     balance: BigNumber;
     isUnlocked: boolean;
     token: Token;
+}
+
+export interface TokenBalanceIEO {
+    balance: BigNumber;
+    isUnlocked: boolean;
+    token: TokenIEO;
 }
 
 export interface SearchTokenBalanceObject {
@@ -70,6 +112,12 @@ export enum Web3State {
     Locked = 'Locked',
 }
 
+export enum BZXLoadingState {
+    Done = 'Done',
+    Error = 'Error',
+    Loading = 'Loading',
+}
+
 export interface BlockchainState {
     readonly ethAccount: string;
     readonly wallet: Wallet | null;
@@ -79,19 +127,36 @@ export interface BlockchainState {
     readonly wethTokenBalance: TokenBalance | null;
     readonly gasInfo: GasInfo;
     readonly convertBalanceState: ConvertBalanceState;
+    readonly tokenBaseIEO: TokenIEO | null;
+    readonly tokenBaseBalanceIEO: TokenBalanceIEO | null;
+    readonly tokenBalancesIEO: TokenBalanceIEO[];
+}
+
+export interface BZXState {
+    readonly iTokensData: iTokenData[];
+    readonly TokensList: TokenMetadataBZX[];
+    readonly bzxLoadingState: BZXLoadingState;
 }
 
 export interface RelayerState {
     readonly orders: UIOrder[];
     readonly userOrders: UIOrder[];
+    readonly userIEOOrders?: UIOrder[];
+    readonly ieoOrders?: SignedOrder[];
+    readonly accountMarketStats?: AccountMarketStat[];
 }
 
 export interface UIState {
     readonly notifications: Notification[];
     readonly fills: Fill[];
+    readonly marketFills: MarketFill;
+    readonly userMarketFills: MarketFill;
+    readonly userFills: Fill[];
     readonly hasUnreadNotifications: boolean;
     readonly stepsModal: StepsModalState;
     readonly orderPriceSelected: BigNumber | null;
+    readonly sidebarOpen: boolean;
+    readonly openFiatOnRampModal: boolean;
 }
 
 export interface MarketState {
@@ -111,13 +176,17 @@ export interface StoreState {
     readonly ui: UIState;
     readonly market: MarketState;
     readonly collectibles: CollectiblesState;
+    readonly bzx: BZXState;
 }
 
 export enum StepKind {
     WrapEth = 'WrapEth',
     ToggleTokenLock = 'ToggleTokenLock',
     TransferToken = 'TransferToken',
+    LendingToken = 'LendingToken',
+    UnLendingToken = 'UnLendingToken',
     BuySellLimit = 'BuySellLimit',
+    BuySellLimitMatching = 'BuySellLimitMatching',
     BuySellMarket = 'BuySellMarket',
     UnlockCollectibles = 'UnlockCollectibles',
     SellCollectible = 'SellCollectible',
@@ -128,14 +197,15 @@ export interface StepWrapEth {
     kind: StepKind.WrapEth;
     currentWethBalance: BigNumber;
     newWethBalance: BigNumber;
-    context: 'order' | 'standalone';
+    context: 'order' | 'standalone' | 'lending';
 }
 
 export interface StepToggleTokenLock {
     kind: StepKind.ToggleTokenLock;
     token: Token;
     isUnlocked: boolean;
-    context: 'order' | 'standalone';
+    context: 'order' | 'standalone' | 'lending';
+    address?: string;
 }
 
 export interface StepUnlockCollectibles {
@@ -150,6 +220,7 @@ export interface StepBuySellLimitOrder {
     price: BigNumber;
     side: OrderSide;
     token: Token;
+    is_ieo?: boolean;
 }
 
 export interface StepTransferToken {
@@ -160,9 +231,36 @@ export interface StepTransferToken {
     isEth: boolean;
 }
 
+export interface StepLendingToken {
+    kind: StepKind.LendingToken;
+    amount: BigNumber;
+    token: Token;
+    iToken: iTokenData;
+    isEth: boolean;
+    isLending: boolean;
+}
+
+export interface StepUnLendingToken {
+    kind: StepKind.UnLendingToken;
+    amount: BigNumber;
+    token: Token;
+    iToken: iTokenData;
+    isEth: boolean;
+    isLending: boolean;
+}
+
 export interface StepBuySellMarket {
     kind: StepKind.BuySellMarket;
     amount: BigNumber;
+    side: OrderSide;
+    token: Token;
+}
+
+export interface StepBuySellLimitMatching {
+    kind: StepKind.BuySellLimitMatching;
+    amount: BigNumber;
+    price: BigNumber;
+    price_avg: BigNumber;
     side: OrderSide;
     token: Token;
 }
@@ -190,7 +288,10 @@ export type Step =
     | StepSellCollectible
     | StepBuyCollectible
     | StepUnlockCollectibles
-    | StepTransferToken;
+    | StepBuySellLimitMatching
+    | StepTransferToken
+    | StepLendingToken
+    | StepUnLendingToken;
 
 export interface StepsModalState {
     readonly doneSteps: Step[];
@@ -257,6 +358,9 @@ export interface CurrencyPairMetaData {
 export interface Market {
     currencyPair: CurrencyPair;
     price: BigNumber | null;
+    spreadInPercentage: BigNumber | null;
+    bestAsk: BigNumber | null;
+    bestBid: BigNumber | null;
 }
 
 export enum NotificationKind {
@@ -265,6 +369,8 @@ export enum NotificationKind {
     Limit = 'Limit',
     OrderFilled = 'OrderFilled',
     TokenTransferred = 'TokenTransferred',
+    LendingComplete = 'LendingComplete',
+    UnLendingComplete = 'UnLendingComplete',
 }
 
 export interface Fill {
@@ -276,6 +382,19 @@ export interface Fill {
     side: OrderSide;
     price: string;
     timestamp: Date;
+    makerAddress: string;
+    takerAddress: string;
+    market: string;
+}
+
+export interface MarketFill {
+    [market: string]: Fill[];
+}
+
+export interface MarketData {
+    bestAsk: null | BigNumber;
+    bestBid: null | BigNumber;
+    spreadInPercentage: null | BigNumber;
 }
 
 interface BaseNotification {
@@ -322,12 +441,26 @@ export interface OrderFilledNotification extends BaseNotification {
     side: OrderSide;
 }
 
+interface LendingTokenNotification extends TransactionNotification {
+    kind: NotificationKind.LendingComplete;
+    amount: BigNumber;
+    token: Token;
+}
+
+interface UnLendingTokenNotification extends TransactionNotification {
+    kind: NotificationKind.UnLendingComplete;
+    amount: BigNumber;
+    token: Token;
+}
+
 export type Notification =
     | CancelOrderNotification
     | MarketNotification
     | LimitNotification
     | OrderFilledNotification
-    | TransferTokenNotification;
+    | TransferTokenNotification
+    | LendingTokenNotification
+    | UnLendingTokenNotification;
 
 export enum OrderType {
     Limit = 'Limit',
@@ -348,6 +481,8 @@ export enum ModalDisplay {
 export enum MARKETPLACES {
     ERC20 = 'ERC20',
     ERC721 = 'ERC721',
+    LaunchPad = 'LAUNCHPAD',
+    Margin = 'MARGIN',
 }
 
 export enum Wallet {
@@ -357,6 +492,10 @@ export enum Wallet {
     Torus = 'Torus',
     Fortmatic = 'Fortmatic',
     WalletConnect = 'WalletConnect',
+    Coinbase = 'Coinbase Wallet',
+    Enjin = 'Enjin Wallet',
+    Cipher = 'Cipher Wallet',
+    Trust = 'Trust Wallet',
 }
 
 export interface Collectible {
@@ -425,6 +564,16 @@ export interface PartialTheme {
 export interface GeneralConfig {
     title?: string;
     icon?: string;
+    social?: {
+        facebook_url?: string;
+        reddit_url?: string;
+        twitter_url?: string;
+        telegram_url?: string;
+        discord_url?: string;
+        bitcointalk_url?: string;
+        youtube_url?: string;
+        medium_url?: string;
+    };
 }
 
 interface WalletsConfig {
@@ -441,4 +590,83 @@ export interface ConfigFile {
     wallets?: WalletsConfig;
     theme?: PartialTheme;
     general?: GeneralConfig;
+}
+
+export interface ConfigFileIEO {
+    tokens: TokenIEOMetaData[];
+}
+
+export enum Browser {
+    Chrome = 'CHROME',
+    Firefox = 'FIREFOX',
+    Opera = 'OPERA',
+    Safari = 'SAFARI',
+    Edge = 'EDGE',
+    Other = 'OTHER',
+}
+
+export enum OperatingSystem {
+    Android = 'ANDROID',
+    iOS = 'IOS', // tslint:disable-line:enum-naming
+    Mac = 'MAC',
+    Windows = 'WINDOWS',
+    WindowsPhone = 'WINDOWS_PHONE',
+    Linux = 'LINUX',
+    Other = 'OTHER',
+}
+
+export enum ProviderType {
+    Parity = 'PARITY',
+    MetaMask = 'META_MASK',
+    Mist = 'MIST',
+    CoinbaseWallet = 'COINBASE_WALLET',
+    EnjinWallet = 'ENJIN_WALLET',
+    Cipher = 'CIPHER',
+    TrustWallet = 'TRUST_WALLET',
+    Opera = 'OPERA',
+    Fallback = 'FALLBACK',
+    // tslint:disable-next-line: max-file-line-count
+}
+
+export interface AccountMarketStat {
+    pair: string;
+    address: string;
+    totalAmountQuote: string;
+    totalAmountBase: string;
+    totalMakerFeePaid?: string;
+    totalTakerFeePaid?: string;
+    totalClosedOrders: number;
+    // tslint:disable-next-line: max-file-line-count
+}
+
+enum TokenTypeBZX {
+    No,
+    IToken,
+    PToken,
+}
+
+export interface TokenMetadataBZX {
+    token: string;
+    asset: string;
+    name: string;
+    symbol: string;
+    type: TokenTypeBZX;
+    index: number;
+}
+
+// tslint:disable-next-line: class-name
+export interface iTokenData {
+    token: Token;
+    address: string;
+    name: string;
+    symbol: string;
+    price: BigNumber;
+    checkpointPrice: BigNumber;
+    avgBorrowInterestRate: BigNumber;
+    totalReservedSupply: BigNumber;
+    marketLiquidity: BigNumber;
+    balance: BigNumber;
+    supplyInterestRate: BigNumber;
+    isUnlocked: boolean;
+    // tslint:disable-next-line: max-file-line-count
 }

@@ -3,9 +3,11 @@ import CopyToClipboard from 'react-copy-to-clipboard';
 import { connect } from 'react-redux';
 import styled from 'styled-components';
 
-import { logoutWallet } from '../../../store/actions';
+import { goToHomeLaunchpad, logoutWallet, goToHomeMarginLend } from '../../../store/actions';
 import { getEthAccount } from '../../../store/selectors';
+import { connectToExplorer, viewOnFabrx } from '../../../util/external_services';
 import { truncateAddress } from '../../../util/number_utils';
+import { viewAddressOnEtherscan } from '../../../util/transaction_link';
 import { StoreState } from '../../../util/types';
 import { WalletConnectionStatusContainer } from '../../account/wallet_connection_status';
 import { CardBase } from '../../common/card_base';
@@ -18,13 +20,11 @@ interface StateProps {
 }
 interface DispatchProps {
     onLogoutWallet: () => any;
+    onGoToHomeLaunchpad: () => any;
+    onGoToHomeMarginLend: () => any;
 }
 
 type Props = StateProps & OwnProps & DispatchProps;
-
-const connectToExplorer = () => {
-    window.open('https://0xtracker.com/search?q=0x5265bde27f57e738be6c1f6ab3544e82cdc92a8f');
-};
 
 const DropdownItems = styled(CardBase)`
     box-shadow: ${props => props.theme.componentsTheme.boxShadow};
@@ -33,17 +33,15 @@ const DropdownItems = styled(CardBase)`
 
 class WalletConnectionContent extends React.PureComponent<Props> {
     public render = () => {
-        const { ethAccount, onLogoutWallet, ...restProps } = this.props;
+        const { ethAccount, onLogoutWallet, onGoToHomeLaunchpad, onGoToHomeMarginLend, ...restProps } = this.props;
         const ethAccountText = ethAccount ? `${truncateAddress(ethAccount)}` : 'Not connected';
 
-        const viewOnEtherscan = () => {
-            window.open(`https://etherscan.io/address/${ethAccount}`);
+        const openFabrx = () => {
+            viewOnFabrx(ethAccount);
         };
 
-        const viewOnFabrx = () => {
-            window.open(
-                `https://dash.fabrx.io/thread/partner/VeriDex&a3bccf&1127661506559188992--K_DyiHA0_400x400--jpg&ETH&${ethAccount}/`,
-            );
+        const viewAccountExplorer = () => {
+            viewAddressOnEtherscan(ethAccount);
         };
 
         const content = (
@@ -51,9 +49,11 @@ class WalletConnectionContent extends React.PureComponent<Props> {
                 <CopyToClipboard text={ethAccount ? ethAccount : ''}>
                     <DropdownTextItem text="Copy Address to Clipboard" />
                 </CopyToClipboard>
-                <DropdownTextItem onClick={viewOnEtherscan} text="View Address on Etherscan" />
+                <DropdownTextItem onClick={viewAccountExplorer} text="View Address on Etherscan" />
                 <DropdownTextItem onClick={connectToExplorer} text="Track DEX volume" />
-                <DropdownTextItem onClick={viewOnFabrx} text="Set Alerts" />
+                <DropdownTextItem onClick={openFabrx} text="Set Alerts" />
+                <DropdownTextItem onClick={onGoToHomeLaunchpad} text="Launchpad" />
+                <DropdownTextItem onClick={onGoToHomeMarginLend} text="Lend" />
                 <DropdownTextItem onClick={onLogoutWallet} text="Logout Wallet" />
             </DropdownItems>
         );
@@ -77,6 +77,8 @@ const mapStateToProps = (state: StoreState): StateProps => {
 const mapDispatchToProps = (dispatch: any): DispatchProps => {
     return {
         onLogoutWallet: () => dispatch(logoutWallet()),
+        onGoToHomeLaunchpad: () => dispatch(goToHomeLaunchpad()),
+        onGoToHomeMarginLend: () => dispatch(goToHomeMarginLend()),
     };
 };
 

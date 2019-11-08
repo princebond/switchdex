@@ -3,8 +3,9 @@ import { HttpClient, OrderConfigRequest, OrderConfigResponse, SignedOrder } from
 import { RateLimit } from 'async-sema';
 
 import { RELAYER_URL } from '../common/constants';
+import { serializeOrder } from '../util/orders';
 import { tokenAmountInUnitsToBigNumber } from '../util/tokens';
-import { Token } from '../util/types';
+import { AccountMarketStat, MarketData, Token } from '../util/types';
 
 export class Relayer {
     private readonly _client: HttpClient;
@@ -59,6 +60,41 @@ export class Relayer {
         }
 
         return null;
+    }
+
+    public async getCurrencyPairMarketDataAsync(baseToken: Token, quoteToken: Token): Promise<MarketData> {
+        await this._rateLimit();
+        const { asks, bids } = await this._client.getOrderbookAsync({
+            baseAssetData: assetDataUtils.encodeERC20AssetData(baseToken.address),
+            quoteAssetData: assetDataUtils.encodeERC20AssetData(quoteToken.address),
+        });
+        const marketData: MarketData = {
+            bestAsk: null,
+            bestBid: null,
+            spreadInPercentage: null,
+        };
+
+        if (asks.records.length) {
+            const lowestPriceAsk = asks.records[0];
+            const { makerAssetAmount, takerAssetAmount } = lowestPriceAsk.order;
+            const takerAssetAmountInUnits = tokenAmountInUnitsToBigNumber(takerAssetAmount, quoteToken.decimals);
+            const makerAssetAmountInUnits = tokenAmountInUnitsToBigNumber(makerAssetAmount, baseToken.decimals);
+            marketData.bestAsk = takerAssetAmountInUnits.div(makerAssetAmountInUnits);
+        }
+
+        if (bids.records.length) {
+            const lowestPriceBid = bids.records[0];
+            const { makerAssetAmount, takerAssetAmount } = lowestPriceBid.order;
+            const takerAssetAmountInUnits = tokenAmountInUnitsToBigNumber(takerAssetAmount, baseToken.decimals);
+            const makerAssetAmountInUnits = tokenAmountInUnitsToBigNumber(makerAssetAmount, quoteToken.decimals);
+            marketData.bestBid = makerAssetAmountInUnits.div(takerAssetAmountInUnits);
+        }
+        if (marketData.bestAsk && marketData.bestBid) {
+            const spread = marketData.bestAsk.minus(marketData.bestBid).dividedBy(marketData.bestAsk);
+            marketData.spreadInPercentage = spread.multipliedBy(100);
+        }
+
+        return marketData;
     }
 
     public async getSellCollectibleOrdersAsync(
@@ -124,4 +160,83 @@ export const getRelayer = (): Relayer => {
     }
 
     return relayer;
+};
+
+export const getAccountMarketStatsFromRelayer = async (
+    pair: string,
+    from: number,
+    to: number,
+): Promise<AccountMarketStat[]> => {
+    const headers = new Headers({
+        'content-type': 'application/json',
+    });
+
+    const init: RequestInit = {
+        method: 'GET',
+        headers,
+    };
+    const response = await fetch(`${RELAYER_URL}/markets/${pair}/accounts/stats?from=${from}&to=${to}`, init);
+    if (response.ok) {
+        return (await response.json()) as AccountMarketStat[];
+    } else {
+        return [];
+    }
+};
+
+export const postIEOSignedOrder = async (order: SignedOrder): Promise<void> => {
+    const headers = new Headers({
+        'content-type': 'application/json',
+    });
+
+    const init: RequestInit = {
+        method: 'POST',
+        headers,
+        body: JSON.stringify(order),
+    };
+    const response = await fetch(`${RELAYER_URL}/ieo_order`, init);
+    if (response.ok) {
+        return;
+    }
+};
+
+export const getUserIEOSignedOrders = async (
+    makerAddress: string,
+    baseToken: Token,
+    quoteToken: Token,
+): Promise<SignedOrder[]> => {
+    const headers = new Headers({
+        'content-type': 'application/json',
+    });
+    const init: RequestInit = {
+        method: 'GET',
+        headers,
+    };
+    const baseAssetData = assetDataUtils.encodeERC20AssetData(baseToken.address);
+    const quoteAssetData = assetDataUtils.encodeERC20AssetData(quoteToken.address);
+
+    const response = await fetch(
+        `${RELAYER_URL}/ieo_orders?makerAssetData=${baseAssetData}&takerAssetData=${quoteAssetData}&makerAddress=${makerAddress}`,
+        init,
+    );
+    if (response.ok) {
+        return (await response.json()).records.map((r: any) => r.order).map(serializeOrder) as SignedOrder[];
+    } else {
+        return [];
+    }
+};
+
+export const getAllIEOSignedOrders = async (): Promise<SignedOrder[]> => {
+    const headers = new Headers({
+        'content-type': 'application/json',
+    });
+    const init: RequestInit = {
+        method: 'GET',
+        headers,
+    };
+    const response = await fetch(`${RELAYER_URL}/ieo_orders`, init);
+    if (response.ok) {
+        return (await response.json()).records.map((r: any) => r.order) as SignedOrder[];
+    } else {
+        return [];
+    }
 };

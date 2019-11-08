@@ -10,6 +10,10 @@ export const getExpirationTimeOrdersFromConfig = () => {
     );
 };
 
+export const getExpirationTimeFromDate = (timestamp: number | string) => {
+    return new BigNumber(Math.floor(new Date(timestamp).valueOf() / 1000));
+};
+
 export const todayInSeconds = () => {
     return Math.floor(Date.now() / 1000);
 };
@@ -28,4 +32,8 @@ export const convertTimeInSecondsToDaysAndHours = (timeInSeconds: BigNumber) => 
 export const getEndDateStringFromTimeInSeconds = (timeInSeconds: BigNumber) => {
     const currentDate = new Date(timeInSeconds.toNumber() * 1000);
     return currentDate.toLocaleString('en-us');
+};
+
+export const convertDateToUTCTimestamp = (date: Date): number => {
+    return date.getTime() - date.getTimezoneOffset() * 60000;
 };

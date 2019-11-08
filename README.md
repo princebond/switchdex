@@ -46,22 +46,34 @@ This is a detailed list of planned features to add to this DEX (includes VeriDex
 -   [x] List Dex Trades
 -   [x] Add troll box using ChatBro
 -   [x] Fully configuration of orderbook and sell and buy cards
--   [x] Support multiple wallets, like Portis, Torus etc please see list of planned wallets below
+-   [x] Support multiple wallets, like Portis, Torus etc please see list of planned wallets below,
 -   [x] Add mobile support
 -   [x] Support to transfer tokens
 -   [x] Display prices and total holdings on wallet
 -   [x] Display median price
 -   [x] Add notifications
 -   [x] List descriptions for each project
--   [ ] List Market Trades
--   [ ] List Markets stats
+-   [x] List Market Trades
+-   [x] List Markets stats
+-   [x] List last prices for each token
+-   [x] Add Fiat on Ramp
+-   [x] Add 0x Instant to easy buy of assets
+-   [x] Adding graphs like Trading View
+-   [x] Support for mobile dapp browswers like Enjin and Coinbase
+-   [x] Mobile friendly
+-   [x] Connect to 0x mesh
+-   [x] Adding Account market stats
 -   [ ] Click on buy and sell button to auto-fill
--   [ ] Adding graphs like Trading View
 -   [ ] Create a costumized front page
+-   [ ] Order Matching on the Frontend when doing limit orders
+-   [ ] Page for trading competitions
 -   [ ] Report data to the most known crypto data aggregators (In progress)
--   [ ] List last prices for each token
 -   [ ] Theme switcher
--   [ ] Connect to 0x mesh
+-   [ ] [i18n](https://github.com/i18next/react-i18next)
+-   [ ] Add [tour](https://github.com/elrumordelaluz/reactour)
+-   [ ] Add crypto price calculator
+-   [ ] Add Swap interface
+-   [ ] Add Token factory
 
 ## Planned Wallets Support
 
@@ -70,6 +82,10 @@ This is a detailed list of planned features to add to this DEX (includes VeriDex
 -   [x] [Portis](https://developers.portis.io/)
 -   [x] [Fortmatic](https://developers.fortmatic.com/)
 -   [ ] [WalletConnect](https://docs.walletconnect.org/)
+-   [x] [EnjinWallet](https://enjin.io/products/wallet)
+-   [x] [CoinbaseWallet](https://wallet.coinbase.com/)
+-   [x] [TrustWallet](https://trustwallet.com)
+-   [x] [CipherBrowser](https://www.cipherbrowser.com/)
 
 ### Using VeriDex relayer
 

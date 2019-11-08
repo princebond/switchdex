@@ -1,9 +1,12 @@
+// tslint:disable-next-line: no-implicit-dependencies
+import { providerUtils } from '@0x/utils';
 import { Web3Wrapper } from '@0x/web3-wrapper';
 import Portis from '@portis/web3';
 // @ts-ignore - no typings
 import Fortmatic from 'fortmatic';
 
 import { FORTMATIC_APP_ID, NETWORK_ID, NETWORK_NAME, PORTIS_APP_ID } from '../common/constants';
+import { providerFactory } from '../util/provider_factory';
 import { sleep } from '../util/sleep';
 import { Wallet } from '../util/types';
 
@@ -31,6 +34,18 @@ export const initializeWeb3Wrapper = async (wallet: Wallet): Promise<Web3Wrapper
             break;
         case Wallet.Fortmatic:
             web3Wrapper = await initFortmatic();
+            break;
+        case Wallet.Enjin:
+            web3Wrapper = await initEnjin();
+            break;
+        case Wallet.Coinbase:
+            web3Wrapper = await initCoinbase();
+            break;
+        case Wallet.Trust:
+            web3Wrapper = await initProviderWallet(wallet);
+            break;
+        case Wallet.Cipher:
+            web3Wrapper = await initProviderWallet(wallet);
             break;
         default:
             break;
@@ -70,6 +85,82 @@ export const initMetamask = async (): Promise<Web3Wrapper | null> => {
     } else {
         localStorage.resetWalletConnected();
         //  The user does not have metamask installed
+        return null;
+    }
+};
+// TODO: Refactor this to initProviderWallet
+export const initEnjin = async (): Promise<Web3Wrapper | null> => {
+    // @ts-ignore
+    const { enjin } = window;
+    if (enjin) {
+        try {
+            web3Wrapper = new Web3Wrapper(enjin);
+            const isPrivacyModeEnabled = (enjin as any).enable !== undefined;
+
+            if (isPrivacyModeEnabled) {
+                await enjin.enable();
+            }
+            localStorage.saveWalletConnected(Wallet.Enjin);
+
+            return web3Wrapper;
+        } catch (error) {
+            // The user denied account access
+            return null;
+        }
+    } else {
+        localStorage.resetWalletConnected();
+        //  The user does not have metamask installed
+        return null;
+    }
+};
+// TODO: Refactor this to initProviderWallet
+export const initCoinbase = async (): Promise<Web3Wrapper | null> => {
+    const { web3 } = window;
+    if (web3) {
+        const provider = providerUtils.standardizeOrThrow(web3.currentProvider);
+        if (provider) {
+            try {
+                web3Wrapper = new Web3Wrapper(provider);
+                const isPrivacyModeEnabled = (web3 as any).enable !== undefined;
+                if (isPrivacyModeEnabled) {
+                    await web3.enable();
+                }
+
+                localStorage.saveWalletConnected(Wallet.Coinbase);
+
+                return web3Wrapper;
+            } catch (error) {
+                // The user denied account access
+                return null;
+            }
+        } else {
+            localStorage.resetWalletConnected();
+            return null;
+        }
+    } else {
+        localStorage.resetWalletConnected();
+        //  The user does not have metamask installed
+        return null;
+    }
+};
+
+const initProviderWallet = async (wallet: Wallet): Promise<Web3Wrapper | null> => {
+    const provider = providerFactory.getInjectedProviderIfExists();
+
+    if (provider) {
+        try {
+            web3Wrapper = new Web3Wrapper(provider);
+            if (provider.enable !== undefined) {
+                await provider.enable();
+            }
+            localStorage.saveWalletConnected(wallet);
+            return web3Wrapper;
+        } catch (error) {
+            // The user denied account access
+            return null;
+        }
+    } else {
+        localStorage.resetWalletConnected();
         return null;
     }
 };

@@ -1,7 +1,16 @@
 {
     "general": {
         "title": "VeriDex",
-        "icon": "assets/icons/vsf.svg"
+        "icon": "assets/icons/vsf.svg",
+        "social": {
+            "telegram_url": "https://t.me/VeriSafe",
+            "twitter_url": "https://twitter.com/VeriSafeProject",
+            "facebook_url": "https://www.facebook.com/VeriSafe.io/",
+            "discord_url": "https://discord.gg/cGMJemv",
+            "reddit_url": "https://reddit.com/r/verisafe",
+            "bitcointalk_url": "https://bitcointalk.org/index.php?topic=5140352",
+            "statedapps_url": "https://www.stateofthedapps.com/dapps/veridex"
+        }
     },
     "tokens": [
         {
@@ -12,9 +21,11 @@
             "icon": "assets/icons/vsf.svg",
             "addresses": {
                 "1": "0xac9ce326e95f51b5005e9fe1dd8085a01f18450c",
-                "3": "0xba3a79d758f19efe588247388754b8e4d6edda81"
+                "3": "0xba3a79d758f19efe588247388754b8e4d6edda81",
+                "42": "0xBA3a79D758f19eFe588247388754b8e4d6EddA81"
             },
             "id": "verisafe",
+            "c_id": "verisafe",
             "displayDecimals": 0,
             "description": "The transparent ecossystem that crypto needs!",
             "website": "https://www.verisafe.io"
@@ -32,8 +43,9 @@
                 "50": "0x0b1ba0af832d7c05fd64161e0db78e85978e8082"
             },
             "decimals": 18,
-            "displayDecimals": 2,
+            "displayDecimals": 3,
             "id": "ethereum",
+            "c_id": "ethereum",
             "website": "https://weth.io",
             "description": "wETH is 'wrapped ETH'"
         },
@@ -44,6 +56,7 @@
             "icon": "assets/icons/zrx.svg",
             "addresses": {
                 "1": "0xE41d2489571d322189246DaFA5ebDe1F4699F498",
+                "3": "0xff67881f8d12f372d91baae9752eb3631ff0ed00",
                 "4": "0x8080c7e4b81ecf23aa6f877cfbfd9b0c228c6ffa",
                 "5": "0xff67881f8d12f372d91baae9752eb3631ff0ed00",
                 "42": "0x2002d3812f58e35f0ea1ffbf80a75a38c32175fa",
@@ -51,8 +64,42 @@
             },
             "decimals": 18,
             "displayDecimals": 2,
+            "c_id": "0x",
             "website": "https://0x.org",
             "description": "0x is an open protocol that enables the peer-to-peer exchange of assets on the Ethereum blockchain."
+        },
+        {
+            "decimals": 9,
+            "symbol": "dgx",
+            "name": "DigixDao",
+            "icon": "assets/icons/dgx.svg",
+            "primaryColor": "#E1AA3E",
+            "addresses": {
+                "1": "0xE0B7927c4aF23765Cb51314A0E0521A9645F0E2A",
+                "3": "0xc4895a5aafa2708d6bc1294e20ec839aad156b1d",
+                "4": "0xc40a46ca4bc8e6057ed571e39cf400f3f935e4d5",
+                "42": "0xA4f468c9c692eb6B4b8b06270dAe7A2CfeedcDe9",
+                "50": "0xcdb594a32b1cc3479d8746279712c39d18a07fc0"
+            },
+            "c_id": "digixdao",
+            "website": "https://digix.global/dgd/"
+        },
+        {
+            "decimals": 18,
+            "symbol": "dai",
+            "name": "Dai",
+            "icon": "assets/icons/dai.svg",
+            "primaryColor": "#DEA349",
+            "addresses": {
+                "1": "0x89d24a6b4ccb1b6faa2625fe562bdd9a23260359",
+                "3": "0xad6d458402f60fd3bd25163575031acdce07538d",
+                "4": "0x6f2d6ff85efca691aad23d549771160a12f0a0fc",
+                "42": "0xc4375b7de8af5a38a93548eb8453a498222c4ff2",
+                "50": ""
+            },
+            "website": "https://makerdao.com/en/dai/",
+            "description": "Dai is an asset-backed, hard currency for the 21st century.",
+            "c_id": "dai"
         }
     ],
     "pairs": [
@@ -61,19 +108,46 @@
             "quote": "weth",
             "config": {
                 "basePrecision": 0,
+                "pricePrecision": 8,
+                "minAmount": 10000
+            }
+        },
+        {
+            "base": "zrx",
+            "quote": "weth",
+            "config": {
+                "basePrecision": 0,
                 "pricePrecision": 7,
                 "minAmount": 10000
+            }
+        },
+        {
+            "base": "dgx",
+            "quote": "weth",
+            "config": {
+                "basePrecision": 0,
+                "pricePrecision": 7,
+                "minAmount": 1
+            }
+        },
+        {
+            "base": "zrx",
+            "quote": "vsf",
+            "config": {
+                "basePrecision": 0,
+                "pricePrecision": 7,
+                "minAmount": 10
             }
         }
     ],
     "marketFilters": [
         {
-            "text": "VSF",
-            "value": "vsf"
-        },
-        {
             "text": "ETH",
             "value": "weth"
+        },
+        {
+            "text": "VSF",
+            "value": "vsf"
         }
     ]
 }

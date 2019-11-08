@@ -1,8 +1,11 @@
 import { BigNumber } from '0x.js';
 
-import { Network } from '../util/types';
+import { Network, ProviderType } from '../util/types';
 
 export const ERC20_APP_BASE_PATH = '/erc20';
+export const LAUNCHPAD_APP_BASE_PATH = '/launchpad';
+export const MARGIN_APP_BASE_PATH = '/margin';
+
 export const ERC721_APP_BASE_PATH = '/erc721';
 export const DEFAULT_BASE_PATH = process.env.REACT_APP_DEFAULT_BASE_PATH || ERC20_APP_BASE_PATH;
 
@@ -18,8 +21,14 @@ export const ZERO_ADDRESS = '0x0000000000000000000000000000000000000000';
 
 export const FEE_RECIPIENT = process.env.REACT_APP_FEE_RECIPIENT || ZERO_ADDRESS;
 export const AFFILIATE_FEE_PERCENTAGE: number = process.env.REACT_APP_AFFILIATE_FEE_PERCENTAGE
-    ? Number.parseInt(process.env.REACT_APP_AFFILIATE_FEE_PERCENTAGE as string, 10)
+    ? Number(process.env.REACT_APP_AFFILIATE_FEE_PERCENTAGE)
     : 0;
+
+export const INSTANT_FEE_PERCENTAGE: number = process.env.REACT_APP_INSTANT_FEE_PERCENTAGE
+    ? Number(process.env.REACT_APP_INSTANT_FEE_PERCENTAGE)
+    : 0;
+
+export const IS_ORDER_LIMIT_MATCHING: boolean = process.env.REACT_APP_MATCH_LIMIT_ORDERS === 'true' ? true : false;
 
 export const ETH_DECIMALS = 18;
 export const MAX_AMOUNT_TOKENS_IN_UNITS = 100000000000000000000000000000000000;
@@ -38,6 +47,8 @@ export const METAMASK_CHROME_EXTENSION_DOWNLOAD_URL =
 export const PORTIS_APP_ID = process.env.REACT_APP_PORTIS_APP_ID;
 export const FORTMATIC_APP_ID = process.env.REACT_APP_FORTMATIC_APP_ID;
 
+export const COINDIRECT_MERCHANT_ID = process.env.REACT_APP_COINDIRECT_MERCHANT_ID || '';
+
 // Default value is enabled, 0 is disabled
 export const UI_UPDATE_CHECK_INTERVAL: number = process.env.REACT_APP_UI_UPDATE_CHECK_INTERVAL
     ? Number.parseInt(process.env.REACT_APP_UI_UPDATE_CHECK_INTERVAL as string, 10)
@@ -55,8 +66,8 @@ export const UPDATE_TOKENS_PRICE_INTERVAL: number = process.env.REACT_APP_UPDATE
 
 // Default value is enabled, 0 is disabled
 export const UPDATE_ERC20_MARKETS: number = process.env.REACT_APP_UPDATE_ERC20_MARKETS_INTERVAL
-    ? Number.parseInt(process.env.REACT_APP_UPDATE_ETHER_PRICE_INTERVAL as string, 10)
-    : 3600000;
+    ? Number.parseInt(process.env.REACT_APP_UPDATE_ERC20_MARKETS_INTERVAL as string, 10)
+    : 60000;
 
 export const NOTIFICATIONS_LIMIT: number =
     Number.parseInt(process.env.REACT_APP_NOTIFICATIONS_LIMIT as string, 10) || 20;
@@ -97,3 +108,15 @@ export const NETWORK_ID: number = Number.parseInt(process.env.REACT_APP_NETWORK_
 export const NETWORK_NAME: string = Network[NETWORK_ID];
 
 export const FILLS_LIMIT: number = Number.parseInt(process.env.REACT_APP_FILLS_LIMIT as string, 10) || 50;
+
+export const PROVIDER_TYPE_TO_NAME: { [key in ProviderType]: string } = {
+    [ProviderType.Cipher]: 'Cipher',
+    [ProviderType.EnjinWallet]: 'Enjin Wallet',
+    [ProviderType.MetaMask]: 'MetaMask',
+    [ProviderType.Mist]: 'Mist',
+    [ProviderType.CoinbaseWallet]: 'Coinbase Wallet',
+    [ProviderType.Parity]: 'Parity',
+    [ProviderType.TrustWallet]: 'Trust Wallet',
+    [ProviderType.Opera]: 'Opera Wallet',
+    [ProviderType.Fallback]: 'Fallback',
+};

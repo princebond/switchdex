@@ -1,10 +1,10 @@
 import { BigNumber } from '0x.js';
 import React from 'react';
 import { connect } from 'react-redux';
-import styled from 'styled-components';
+import styled, { withTheme } from 'styled-components';
 
 import { METAMASK_EXTENSION_URL } from '../../../common/constants';
-import { initWallet, setWeb3State } from '../../../store/actions';
+import { initWallet, openFiatOnRampModal, setWeb3State } from '../../../store/actions';
 import {
     getBaseToken,
     getBaseTokenBalance,
@@ -16,6 +16,7 @@ import {
     getWallet,
     getWeb3State,
 } from '../../../store/selectors';
+import { Theme } from '../../../themes/commons';
 import { errorsWallet } from '../../../util/error_messages';
 import { isWeth } from '../../../util/known_tokens';
 import { tokenAmountInUnits, tokenSymbolToDisplayString } from '../../../util/tokens';
@@ -147,13 +148,17 @@ interface DispatchProps {
     onConnectWallet: () => any;
     onConnectingWallet: () => any;
     onChooseWallet: () => any;
+    onClickOpenFiatOnRampModal: () => any;
 }
 
-type Props = StateProps & DispatchProps;
+interface OwnProps {
+    theme: Theme;
+}
+
+type Props = StateProps & DispatchProps & OwnProps;
 
 interface State {
-    quoteBalance: BigNumber;
-    baseBalance: BigNumber;
+    modalBuyEthIsOpen: boolean;
 }
 
 const simplifiedTextBoxBig = () => {
@@ -209,6 +214,10 @@ const openMetamaskExtensionUrl = () => {
 };
 
 class WalletBalance extends React.Component<Props, State> {
+    public readonly state: State = {
+        modalBuyEthIsOpen: false,
+    };
+
     public render = () => {
         const { web3State, wallet } = this.props;
         const walletContent = this._getWalletContent();
@@ -232,6 +241,7 @@ class WalletBalance extends React.Component<Props, State> {
             totalEthBalance,
             onConnectingWallet,
             wallet,
+            onClickOpenFiatOnRampModal,
         } = this.props;
 
         if (quoteToken && baseTokenBalance && quoteTokenBalance) {
@@ -250,6 +260,11 @@ class WalletBalance extends React.Component<Props, State> {
                 <TooltipStyled description="Showing ETH + wETH balance" iconType={IconType.Fill} />
             ) : null;
             const quoteTokenLabel = isWeth(quoteToken.symbol) ? 'ETH' : tokenSymbolToDisplayString(currencyPair.quote);
+
+            const openFiatOnRamp = () => {
+                onClickOpenFiatOnRampModal();
+            };
+
             content = (
                 <>
                     <LabelWrapper>
@@ -263,6 +278,9 @@ class WalletBalance extends React.Component<Props, State> {
                         </Label>
                         <Value>{quoteBalanceString}</Value>
                     </LabelWrapper>
+                    <ButtonStyled onClick={openFiatOnRamp} variant={ButtonVariant.Buy}>
+                        Buy ETH
+                    </ButtonStyled>
                 </>
             );
         }
@@ -391,12 +409,15 @@ const mapDispatchToProps = (dispatch: any) => {
         onChooseWallet: () => dispatch(setWeb3State(Web3State.Connect)),
         onConnectingWallet: () => dispatch(setWeb3State(Web3State.Connecting)),
         onConnectWallet: () => dispatch(initWallet()),
+        onClickOpenFiatOnRampModal: () => dispatch(openFiatOnRampModal(true)),
     };
 };
 
-const WalletBalanceContainer = connect(
-    mapStateToProps,
-    mapDispatchToProps,
-)(WalletBalance);
+const WalletBalanceContainer = withTheme(
+    connect(
+        mapStateToProps,
+        mapDispatchToProps,
+    )(WalletBalance),
+);
 
 export { WalletBalance, WalletBalanceContainer };

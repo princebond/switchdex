@@ -63,7 +63,7 @@ const OrderbookCard = styled(Card)`
     display: flex;
     flex-direction: column;
     flex-grow: 1;
-    max-height: 100%;
+    max-height: 700px;
 
     > div:first-child {
         flex-grow: 0;
@@ -279,6 +279,8 @@ class OrderBookTable extends React.Component<Props> {
         let content: React.ReactNode;
 
         if (web3State !== Web3State.Error && (!baseToken || !quoteToken)) {
+            content = <CenteredLoading />;
+        } else if (web3State === Web3State.Loading) {
             content = <CenteredLoading />;
         } else if ((!buyOrders.length && !sellOrders.length) || !baseToken || !quoteToken) {
             content = <EmptyContent alignAbsoluteCenter={true} text="There are no orders to show" />;
