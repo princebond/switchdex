@@ -1,17 +1,63 @@
 import React, { HTMLAttributes } from 'react';
+import { Link } from 'react-router-dom';
 import styled from 'styled-components';
 
-import { GIT_COMMIT } from '../../common/constants';
-import { themeDimensions } from '../../themes/commons';
+import { Config } from '../../common/config';
+import { ERC20_APP_BASE_PATH, GIT_COMMIT } from '../../common/constants';
+import { themeBreakPoints, themeDimensions } from '../../themes/commons';
+
+import { SocialIcon } from './icons/social_icon';
 
 interface Props extends HTMLAttributes<HTMLDivElement> {}
 
 const FooterWrapper = styled.div`
     align-items: center;
+    justify-content: center;
+`;
+
+const LinksContainer = styled.div`
+    align-items: center;
+    display: flex;
+    justify-content: center;
+    padding: 0 ${themeDimensions.horizontalPadding} ${themeDimensions.verticalPadding};
+
+    @media (max-width: ${themeBreakPoints.md}) {
+        flex-direction: column;
+        height: 100%;
+    }
+
+    .break {
+        flex-basis: 100%;
+        width: 0px;
+        height: 0px;
+        overflow: hidden;
+    }
+`;
+
+const SocialsContainer = styled.div`
+    align-items: center;
     display: flex;
     height: ${themeDimensions.footerHeight};
     justify-content: center;
     padding: 0 ${themeDimensions.horizontalPadding} ${themeDimensions.verticalPadding};
+`;
+
+const HrefStyled = styled.a`
+    color: white;
+    text-decoration: none;
+    padding-left: 5px;
+    @media (max-width: ${themeBreakPoints.md}) {
+        padding-left: 2px;
+    }
+`;
+
+const LinkStyled = styled(Link)`
+    color: white;
+    text-decoration: none;
+    padding-left: 5px;
+    @media (max-width: ${themeBreakPoints.md}) {
+        padding-left: 2px;
+    }
 `;
 
 const poweredBySVG = () => {
@@ -82,11 +128,51 @@ const poweredBySVG = () => {
 };
 
 export const Footer: React.FC<Props> = props => {
+    const config = Config.getConfig();
+    let socialButtons;
+    if (config.general && config.general.social) {
+        const social_urls_keys = Object.keys(config.general.social);
+        const social_urls = config.general.social;
+        socialButtons = () => {
+            return social_urls_keys.map(s => (
+                // @ts-ignore
+                <SocialIcon key={s} icon={s.split('_')[0]} url={social_urls[s]} />
+            ));
+        };
+    }
+
     return (
         <FooterWrapper title={GIT_COMMIT} {...props}>
-            <a href="https://0x.org/" target="_blank" rel="noopener noreferrer">
-                {poweredBySVG()}
-            </a>
+            <LinksContainer>
+                <LinkStyled to={`${ERC20_APP_BASE_PATH}/listed-tokens`}>Tokens</LinkStyled>
+                <HrefStyled
+                    href="https://www.verisafe.io/terms-and-conditions"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="link"
+                >
+                    Terms and Conditions
+                </HrefStyled>
+                <HrefStyled href="https://0x.org/" target="_blank" rel="noopener noreferrer">
+                    {poweredBySVG()}
+                </HrefStyled>
+                <br className="break" />
+
+                <HrefStyled href="https://www.verisafe.io/privacy-policy" target="_blank" rel="noopener noreferrer">
+                    Privay Policy
+                </HrefStyled>
+                <HrefStyled
+                    href="https://steemit.com/veridex/@joaocampos/tutorial-to-use-veridex-at-dex-verisafe-io-https-dex-verisafe-io"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                >
+                    Tutorial
+                </HrefStyled>
+                <HrefStyled href="https://my.verisafe.io/help-support/" target="_blank" rel="noopener noreferrer">
+                    Listings
+                </HrefStyled>
+            </LinksContainer>
+            {socialButtons && <SocialsContainer>{socialButtons()}</SocialsContainer>}
         </FooterWrapper>
     );
 };

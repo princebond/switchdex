@@ -25,3 +25,13 @@ yarn-error.log*
 
 #Webstorm
 .idea
+#Firebase Deployment files
+.firebaserc
+/.firebase
+
+#Trading View library
+src/charting_library
+src/datafeeds
+src/config/files
+public/charting_library
+public/datafeeds

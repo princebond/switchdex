@@ -1,6 +1,6 @@
 import { BigNumber } from '@0x/utils';
 
-import { Network } from '../util/types';
+import { Network, ProviderType } from '../util/types';
 
 export const ERC20_APP_BASE_PATH = '/erc20';
 export const ERC721_APP_BASE_PATH = '/erc721';
@@ -10,7 +10,9 @@ export const RELAYER_URL = process.env.REACT_APP_RELAYER_URL || 'http://localhos
 export const RELAYER_WS_URL = process.env.REACT_APP_RELAYER_WS_URL || 'ws://localhost:3001/';
 
 export const TX_DEFAULTS = {
-    gas: 1000000,
+    gasLimit: 1000000,
+    gasTransferToken: 21000,
+    shouldValidate: true,
 };
 
 export const ZERO_ADDRESS = '0x0000000000000000000000000000000000000000';
@@ -19,10 +21,18 @@ export const UNLIMITED_ALLOWANCE_IN_BASE_UNITS = new BigNumber(2).pow(256).minus
 export const ZERO = new BigNumber(0);
 
 export const FEE_RECIPIENT = process.env.REACT_APP_FEE_RECIPIENT || ZERO_ADDRESS;
+export const AFFILIATE_FEE_PERCENTAGE: number = process.env.REACT_APP_AFFILIATE_FEE_PERCENTAGE
+    ? Number(process.env.REACT_APP_AFFILIATE_FEE_PERCENTAGE)
+    : 0;
 
-export const FEE_PERCENTAGE = new BigNumber(process.env.REACT_APP_FEE_PERCENTAGE || ZERO);
+export const INSTANT_FEE_PERCENTAGE: number = process.env.REACT_APP_INSTANT_FEE_PERCENTAGE
+    ? Number(process.env.REACT_APP_INSTANT_FEE_PERCENTAGE)
+    : 0;
+
+export const IS_ORDER_LIMIT_MATCHING: boolean = process.env.REACT_APP_MATCH_LIMIT_ORDERS === 'true' ? true : false;
 
 export const ETH_DECIMALS = 18;
+export const MAX_AMOUNT_TOKENS_IN_UNITS = 100000000000000000000000000000000000;
 
 export const PROTOCOL_FEE_MULTIPLIER = 150000;
 
@@ -31,13 +41,18 @@ export const RELAYER_RPS = 5;
 export const UI_DECIMALS_DISPLAYED_ON_STEP_MODALS = 3;
 export const UI_DECIMALS_DISPLAYED_SPREAD_PERCENT = 2;
 export const UI_DECIMALS_DISPLAYED_DEFAULT_PRECISION = 2;
-export const UI_DECIMALS_DISPLAYED_ORDER_SIZE = 4;
+export const UI_DECIMALS_DISPLAYED_ORDER_SIZE = 0;
 export const UI_DECIMALS_DISPLAYED_PRICE_ETH = 7;
-export const UI_GENERAL_TITLE = 'Launch Kit';
+export const UI_GENERAL_TITLE = 'VeriDex';
 
 export const METAMASK_EXTENSION_URL = 'https://metamask.io/';
 export const METAMASK_CHROME_EXTENSION_DOWNLOAD_URL =
     'https://chrome.google.com/webstore/detail/metamask/nkbihfbeogaeaoehlefnkodbefgpgknn';
+
+export const PORTIS_APP_ID = process.env.REACT_APP_PORTIS_APP_ID;
+export const FORTMATIC_APP_ID = process.env.REACT_APP_FORTMATIC_APP_ID;
+
+export const COINDIRECT_MERCHANT_ID = process.env.REACT_APP_COINDIRECT_MERCHANT_ID || '';
 
 // Default value is enabled, 0 is disabled
 export const UI_UPDATE_CHECK_INTERVAL: number = process.env.REACT_APP_UI_UPDATE_CHECK_INTERVAL
@@ -46,6 +61,16 @@ export const UI_UPDATE_CHECK_INTERVAL: number = process.env.REACT_APP_UI_UPDATE_
 
 // Default value is enabled, 0 is disabled
 export const UPDATE_ETHER_PRICE_INTERVAL: number = process.env.REACT_APP_UPDATE_ETHER_PRICE_INTERVAL
+    ? Number.parseInt(process.env.REACT_APP_UPDATE_ETHER_PRICE_INTERVAL as string, 10)
+    : 3600000;
+
+// Default value is enabled, 0 is disabled
+export const UPDATE_TOKENS_PRICE_INTERVAL: number = process.env.REACT_APP_UPDATE_TOKENS_PRICE_INTERVAL
+    ? Number.parseInt(process.env.REACT_APP_UPDATE_ETHER_PRICE_INTERVAL as string, 10)
+    : 3600000;
+
+// Default value is enabled, 0 is disabled
+export const UPDATE_ERC20_MARKETS: number = process.env.REACT_APP_UPDATE_ERC20_MARKETS_INTERVAL
     ? Number.parseInt(process.env.REACT_APP_UPDATE_ETHER_PRICE_INTERVAL as string, 10)
     : 3600000;
 
@@ -64,7 +89,7 @@ export const GIT_COMMIT: string = process.env.REACT_APP_GIT_COMMIT || '';
 
 export const START_BLOCK_LIMIT: number = Number.parseInt(process.env.REACT_APP_START_BLOCK_LIMIT as string, 10) || 1000;
 
-export const LOGGER_ID: string = process.env.REACT_APP_LOGGER_ID || '0x-launch-kit-frontend';
+export const LOGGER_ID: string = process.env.REACT_APP_LOGGER_ID || 'veridex';
 
 export const ERC20_THEME_NAME: string = process.env.REACT_APP_ERC20_THEME_NAME || 'DARK_THEME';
 
@@ -92,3 +117,17 @@ export const CHAIN_ID: number = process.env.REACT_APP_CHAIN_ID
     : NETWORK_ID;
 
 export const NETWORK_NAME: string = Network[NETWORK_ID];
+
+export const FILLS_LIMIT: number = Number.parseInt(process.env.REACT_APP_FILLS_LIMIT as string, 10) || 50;
+
+export const PROVIDER_TYPE_TO_NAME: { [key in ProviderType]: string } = {
+    [ProviderType.Cipher]: 'Cipher',
+    [ProviderType.EnjinWallet]: 'Enjin Wallet',
+    [ProviderType.MetaMask]: 'MetaMask',
+    [ProviderType.Mist]: 'Mist',
+    [ProviderType.CoinbaseWallet]: 'Coinbase Wallet',
+    [ProviderType.Parity]: 'Parity',
+    [ProviderType.TrustWallet]: 'Trust Wallet',
+    [ProviderType.Opera]: 'Opera Wallet',
+    [ProviderType.Fallback]: 'Fallback',
+};

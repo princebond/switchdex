@@ -9,16 +9,20 @@ import { InsufficientOrdersAmountException } from '../../exceptions/insufficient
 import { InsufficientTokenBalanceException } from '../../exceptions/insufficient_token_balance_exception';
 import { SignedOrderException } from '../../exceptions/signed_order_exception';
 import { isWeth } from '../../util/known_tokens';
-import { buildLimitOrder, buildMarketOrders, isDutchAuction } from '../../util/orders';
+import { buildLimitOrder, buildMarketLimitMatchingOrders, buildMarketOrders, isDutchAuction } from '../../util/orders';
 import {
     createBasicBuyCollectibleSteps,
+    createBuySellLimitMatchingSteps,
     createBuySellLimitSteps,
     createBuySellMarketSteps,
     createDutchBuyCollectibleSteps,
     createSellCollectibleSteps,
 } from '../../util/steps_modals_generation';
+import { tokenAmountInUnitsToBigNumber } from '../../util/tokens';
 import {
     Collectible,
+    Fill,
+    MarketFill,
     Notification,
     NotificationKind,
     OrderFeeData,
@@ -26,6 +30,7 @@ import {
     Step,
     StepKind,
     StepToggleTokenLock,
+    StepTransferToken,
     StepWrapEth,
     ThunkCreator,
     Token,
@@ -43,6 +48,38 @@ export const addNotifications = createAction('ui/NOTIFICATIONS_add', resolve => 
 
 export const setNotifications = createAction('ui/NOTIFICATIONS_set', resolve => {
     return (notifications: Notification[]) => resolve(notifications);
+});
+
+export const addFills = createAction('ui/FILLS_add', resolve => {
+    return (newFills: Fill[]) => resolve(newFills);
+});
+
+export const setFills = createAction('ui/FILLS_set', resolve => {
+    return (fills: Fill[]) => resolve(fills);
+});
+
+export const addMarketFills = createAction('ui/FILLS_MARKET_add', resolve => {
+    return (newMarketFills: MarketFill) => resolve(newMarketFills);
+});
+
+export const setMarketFills = createAction('ui/FILLS_MARKET_set', resolve => {
+    return (marketFills: MarketFill) => resolve(marketFills);
+});
+
+export const addUserMarketFills = createAction('ui/FILLS_USER_MARKET_add', resolve => {
+    return (newUserMarketFills: Fill[]) => resolve(newUserMarketFills);
+});
+
+export const setUserMarketFills = createAction('ui/FILLS_USER_MARKET_set', resolve => {
+    return (newUserMarketFills: MarketFill) => resolve(newUserMarketFills);
+});
+
+export const setUserFills = createAction('ui/FILLS_USER_set', resolve => {
+    return (userFills: Fill[]) => resolve(userFills);
+});
+
+export const addUserFills = createAction('ui/FILLS_USER_add', resolve => {
+    return (userFills: Fill[]) => resolve(userFills);
 });
 
 export const setOrderPriceSelected = createAction('ui/ORDER_PRICE_SELECTED_set', resolve => {
@@ -64,6 +101,18 @@ export const setStepsModalCurrentStep = createAction('ui/steps_modal/CURRENT_STE
 export const stepsModalAdvanceStep = createAction('ui/steps_modal/advance_step');
 
 export const stepsModalReset = createAction('ui/steps_modal/reset');
+
+export const setModalTransfer = createAction('ui/TRANSFER_MODAL_set', resolve => {
+    return (isOpen: boolean) => resolve(isOpen);
+});
+
+export const openSideBar = createAction('ui/OPEN_SIDEBAR_set', resolve => {
+    return (isOpen: boolean) => resolve(isOpen);
+});
+
+export const openFiatOnRampModal = createAction('ui/OPEN_FIAT_ON_RAMP_set', resolve => {
+    return (isOpen: boolean) => resolve(isOpen);
+});
 
 export const startToggleTokenLockSteps: ThunkCreator = (token: Token, isUnlocked: boolean) => {
     return async dispatch => {
@@ -88,6 +137,27 @@ export const startWrapEtherSteps: ThunkCreator = (newWethBalance: BigNumber) => 
         };
 
         dispatch(setStepsModalCurrentStep(wrapEthStep));
+        dispatch(setStepsModalPendingSteps([]));
+        dispatch(setStepsModalDoneSteps([]));
+    };
+};
+
+export const startTranferTokenSteps: ThunkCreator = (
+    amount: BigNumber,
+    token: Token,
+    address: string,
+    isEth: boolean,
+) => {
+    return async dispatch => {
+        const transferTokenStep: StepTransferToken = {
+            kind: StepKind.TransferToken,
+            amount,
+            token,
+            address,
+            isEth,
+        };
+
+        dispatch(setStepsModalCurrentStep(transferTokenStep));
         dispatch(setStepsModalPendingSteps([]));
         dispatch(setStepsModalDoneSteps([]));
     };
@@ -184,6 +254,96 @@ export const startBuySellLimitSteps: ThunkCreator = (
 
         dispatch(setStepsModalCurrentStep(buySellLimitFlow[0]));
         dispatch(setStepsModalPendingSteps(buySellLimitFlow.slice(1)));
+        dispatch(setStepsModalDoneSteps([]));
+    };
+};
+
+export const startBuySellLimitMatchingSteps: ThunkCreator = (
+    amount: BigNumber,
+    price: BigNumber,
+    side: OrderSide,
+    takerFee: BigNumber,
+) => {
+    return async (dispatch, getState) => {
+        const state = getState();
+        const baseToken = selectors.getBaseToken(state) as Token;
+        const quoteToken = selectors.getQuoteToken(state) as Token;
+        const tokenBalances = selectors.getTokenBalances(state) as TokenBalance[];
+        const wethTokenBalance = selectors.getWethTokenBalance(state) as TokenBalance;
+        const ethBalance = selectors.getEthBalance(state);
+        const totalEthBalance = selectors.getTotalEthBalance(state);
+        const quoteTokenBalance = selectors.getQuoteTokenBalance(state);
+        const baseTokenBalance = selectors.getBaseTokenBalance(state);
+
+        const allOrders =
+            side === OrderSide.Buy ? selectors.getOpenSellOrders(state) : selectors.getOpenBuyOrders(state);
+        const { orders, amounts, amountFill, amountsMaker } = buildMarketLimitMatchingOrders(
+            {
+                amount,
+                price,
+                orders: allOrders,
+            },
+            side,
+        );
+
+        if (orders.length === 0) {
+            return 0;
+        }
+        const totalFilledAmount = amounts.reduce((total: BigNumber, currentValue: BigNumber) => {
+            return total.plus(currentValue);
+        }, new BigNumber(0));
+
+        let price_avg;
+        if (side === OrderSide.Buy) {
+            const takerFilledAmount = tokenAmountInUnitsToBigNumber(totalFilledAmount, quoteToken.decimals);
+            const makerFilledAmount = tokenAmountInUnitsToBigNumber(amountFill, baseToken.decimals);
+            price_avg = takerFilledAmount.div(makerFilledAmount);
+        } else {
+            const totalMakerAmount = amountsMaker.reduce((total: BigNumber, currentValue: BigNumber) => {
+                return total.plus(currentValue);
+            }, new BigNumber(0));
+
+            const makerFilledAmount = tokenAmountInUnitsToBigNumber(totalMakerAmount, quoteToken.decimals);
+            const takerFilledAmount = tokenAmountInUnitsToBigNumber(amountFill, baseToken.decimals);
+
+            price_avg = makerFilledAmount.div(takerFilledAmount);
+        }
+
+        if (side === OrderSide.Sell) {
+            // When selling, user should have enough BASE Token
+            if (baseTokenBalance && baseTokenBalance.balance.isLessThan(totalFilledAmount)) {
+                throw new InsufficientTokenBalanceException(baseToken.symbol);
+            }
+        } else {
+            // When buying and
+            // if quote token is weth, should have enough ETH + WETH balance, or
+            // if quote token is not weth, should have enough quote token balance
+            const isEthAndWethNotEnoughBalance =
+                isWeth(quoteToken.symbol) && totalEthBalance.isLessThan(totalFilledAmount);
+            const isOtherQuoteTokenAndNotEnoughBalance =
+                !isWeth(quoteToken.symbol) &&
+                quoteTokenBalance &&
+                quoteTokenBalance.balance.isLessThan(totalFilledAmount);
+            if (isEthAndWethNotEnoughBalance || isOtherQuoteTokenAndNotEnoughBalance) {
+                throw new InsufficientTokenBalanceException(quoteToken.symbol);
+            }
+        }
+
+        const buySellLimitMatchingFlow: Step[] = createBuySellLimitMatchingSteps(
+            baseToken,
+            quoteToken,
+            tokenBalances,
+            wethTokenBalance,
+            ethBalance,
+            amountFill,
+            side,
+            price,
+            price_avg,
+            takerFee,
+        );
+
+        dispatch(setStepsModalCurrentStep(buySellLimitMatchingFlow[0]));
+        dispatch(setStepsModalPendingSteps(buySellLimitMatchingFlow.slice(1)));
         dispatch(setStepsModalDoneSteps([]));
     };
 };
@@ -331,4 +491,29 @@ export const addMarketBuySellNotification: ThunkCreator = (
             ]),
         );
     };
+};
+
+export const addTransferTokenNotification: ThunkCreator = (
+    id: string,
+    amount: BigNumber,
+    token: Token,
+    address: string,
+    tx: Promise<any>,
+) => {
+    return async dispatch => {
+        dispatch(
+            addNotifications([
+                {
+                    id,
+                    kind: NotificationKind.TokenTransferred,
+                    amount,
+                    token,
+                    address,
+                    tx,
+                    timestamp: new Date(),
+                },
+            ]),
+        );
+    };
+    // tslint:disable-next-line: max-file-line-count
 };

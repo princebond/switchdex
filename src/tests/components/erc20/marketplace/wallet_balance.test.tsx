@@ -9,7 +9,7 @@ import React from 'react';
 import { WalletBalance } from '../../../../components/erc20/marketplace/wallet_balance';
 import * as tokenServices from '../../../../services/tokens';
 import { addressFactory, tokenBalanceFactory, tokenFactory } from '../../../../util/test-utils';
-import { Web3State } from '../../../../util/types';
+import { Wallet, Web3State } from '../../../../util/types';
 import { mountWithTheme } from '../../../util/test_with_theme';
 
 describe('WalletBalance', () => {
@@ -35,11 +35,21 @@ describe('WalletBalance', () => {
         const resultExpected1 = 'Click to Connect MetaMask';
         const ethAccount = addressFactory.build().address;
         const onConnectWalletFn = jest.fn();
+        const onOpenFiatOnRampFn = jest.fn();
+        const onChooseWallet = jest.fn();
+        const onConnectingWallet = jest.fn();
         const baseToken = tokenFactory.build();
         const quoteToken = tokenFactory.build();
         const currencyPair = {
             base: baseToken.symbol,
             quote: quoteToken.symbol,
+            config: {
+                basePrecision: 8,
+                pricePrecision: 8,
+                quotePrecision: 8,
+                minAmount: 0,
+                maxAmount: 1000000,
+            },
         };
 
         const baseTokenBalance = tokenBalanceFactory.build();
@@ -50,6 +60,9 @@ describe('WalletBalance', () => {
             <WalletBalance
                 web3State={Web3State.Locked}
                 onConnectWallet={onConnectWalletFn}
+                onClickOpenFiatOnRampModal={onOpenFiatOnRampFn}
+                onConnectingWallet={onConnectingWallet}
+                onChooseWallet={onChooseWallet}
                 baseToken={baseToken}
                 quoteToken={quoteToken}
                 currencyPair={currencyPair}
@@ -57,6 +70,7 @@ describe('WalletBalance', () => {
                 baseTokenBalance={baseTokenBalance}
                 quoteTokenBalance={quoteTokenBalance}
                 totalEthBalance={new BigNumber(2)}
+                wallet={Wallet.Metamask}
             />,
         );
 
@@ -64,17 +78,125 @@ describe('WalletBalance', () => {
         const result = wrapper.text();
         expect(result).toContain(resultExpected1);
     });
+    it('should display a message if the user needs to connect wallet', async () => {
+        // given
+        const resultExpected1 = 'Connect Your Wallet';
+        const ethAccount = addressFactory.build().address;
+        const onConnectWalletFn = jest.fn();
+        const onOpenFiatOnRampFn = jest.fn();
+        const onChooseWallet = jest.fn();
+        const onConnectingWallet = jest.fn();
+        const baseToken = tokenFactory.build();
+        const quoteToken = tokenFactory.build();
+        const currencyPair = {
+            base: baseToken.symbol,
+            quote: quoteToken.symbol,
+            config: {
+                basePrecision: 8,
+                pricePrecision: 8,
+                quotePrecision: 8,
+                minAmount: 0,
+                maxAmount: 1000000,
+            },
+        };
+
+        const baseTokenBalance = tokenBalanceFactory.build();
+        const quoteTokenBalance = tokenBalanceFactory.build();
+
+        // when
+        const wrapper = mountWithTheme(
+            <WalletBalance
+                web3State={Web3State.Connect}
+                onConnectWallet={onConnectWalletFn}
+                onClickOpenFiatOnRampModal={onOpenFiatOnRampFn}
+                onConnectingWallet={onConnectingWallet}
+                onChooseWallet={onChooseWallet}
+                baseToken={baseToken}
+                quoteToken={quoteToken}
+                currencyPair={currencyPair}
+                ethAccount={ethAccount}
+                baseTokenBalance={baseTokenBalance}
+                quoteTokenBalance={quoteTokenBalance}
+                totalEthBalance={new BigNumber(2)}
+                wallet={Wallet.Metamask}
+            />,
+        );
+
+        // then
+        const result = wrapper.text();
+        expect(result).toContain(resultExpected1);
+    });
+
+    it('should display a message if user is connecting a wallet', async () => {
+        // given
+        const resultExpected1 = 'Connecting Your Wallet';
+        const ethAccount = addressFactory.build().address;
+        const onConnectWalletFn = jest.fn();
+        const onOpenFiatOnRampFn = jest.fn();
+        const onChooseWallet = jest.fn();
+        const onConnectingWallet = jest.fn();
+        const baseToken = tokenFactory.build();
+        const quoteToken = tokenFactory.build();
+        const currencyPair = {
+            base: baseToken.symbol,
+            quote: quoteToken.symbol,
+            config: {
+                basePrecision: 8,
+                pricePrecision: 8,
+                quotePrecision: 8,
+                minAmount: 0,
+                maxAmount: 1000000,
+            },
+        };
+
+        const baseTokenBalance = tokenBalanceFactory.build();
+        const quoteTokenBalance = tokenBalanceFactory.build();
+
+        // when
+        const wrapper = mountWithTheme(
+            <WalletBalance
+                web3State={Web3State.Connecting}
+                onConnectWallet={onConnectWalletFn}
+                onClickOpenFiatOnRampModal={onOpenFiatOnRampFn}
+                onConnectingWallet={onConnectingWallet}
+                onChooseWallet={onChooseWallet}
+                baseToken={baseToken}
+                quoteToken={quoteToken}
+                currencyPair={currencyPair}
+                ethAccount={ethAccount}
+                baseTokenBalance={baseTokenBalance}
+                quoteTokenBalance={quoteTokenBalance}
+                totalEthBalance={new BigNumber(2)}
+                wallet={Wallet.Metamask}
+            />,
+        );
+
+        // then
+        const result = wrapper.text();
+        expect(result).toContain(resultExpected1);
+    });
+
     it('should display a message if the user did not have metamask installed', async () => {
         // given
         const resultExpected1 = 'No wallet found';
         const resultExpected2 = 'Get Chrome Extension';
         const ethAccount = addressFactory.build().address;
         const onConnectWalletFn = jest.fn();
+        const onOpenFiatOnRampFn = jest.fn();
+        const onChooseWallet = jest.fn();
+        const onConnectingWallet = jest.fn();
         const baseToken = tokenFactory.build();
         const quoteToken = tokenFactory.build();
         const currencyPair = {
             base: baseToken.symbol,
             quote: quoteToken.symbol,
+            config: {
+                basePrecision: 8,
+                pricePrecision: 8,
+                quotePrecision: 8,
+                minAmount: 0,
+                maxAmount: 1000000,
+            },
         };
 
         const baseTokenBalance = tokenBalanceFactory.build();
@@ -84,6 +206,9 @@ describe('WalletBalance', () => {
             <WalletBalance
                 web3State={Web3State.NotInstalled}
                 onConnectWallet={onConnectWalletFn}
+                onClickOpenFiatOnRampModal={onOpenFiatOnRampFn}
+                onConnectingWallet={onConnectingWallet}
+                onChooseWallet={onChooseWallet}
                 baseToken={baseToken}
                 quoteToken={quoteToken}
                 currencyPair={currencyPair}
@@ -91,6 +216,7 @@ describe('WalletBalance', () => {
                 baseTokenBalance={baseTokenBalance}
                 quoteTokenBalance={quoteTokenBalance}
                 totalEthBalance={new BigNumber(2)}
+                wallet={Wallet.Metamask}
             />,
         );
 
@@ -106,6 +232,13 @@ describe('WalletBalance', () => {
         const currencyPair = {
             base: 'weth',
             quote: 'zrx',
+            config: {
+                basePrecision: 8,
+                pricePrecision: 8,
+                quotePrecision: 8,
+                minAmount: 0,
+                maxAmount: 1000000,
+            },
         };
         const ethAccount = 'This is a test';
 
@@ -113,6 +246,9 @@ describe('WalletBalance', () => {
         const resultExpected2 = 'ZRX';
         const amountExpected = '2.0';
         const onConnectWalletFn = jest.fn();
+        const onOpenFiatOnRampFn = jest.fn();
+        const onChooseWallet = jest.fn();
+        const onConnectingWallet = jest.fn();
 
         const baseTokenBalance = tokenBalanceFactory.build();
         const quoteTokenBalance = tokenBalanceFactory.build();
@@ -122,6 +258,9 @@ describe('WalletBalance', () => {
             <WalletBalance
                 web3State={Web3State.Done}
                 onConnectWallet={onConnectWalletFn}
+                onClickOpenFiatOnRampModal={onOpenFiatOnRampFn}
+                onConnectingWallet={onConnectingWallet}
+                onChooseWallet={onChooseWallet}
                 baseToken={baseToken}
                 currencyPair={currencyPair}
                 ethAccount={ethAccount}
@@ -129,6 +268,7 @@ describe('WalletBalance', () => {
                 baseTokenBalance={baseTokenBalance}
                 quoteTokenBalance={quoteTokenBalance}
                 totalEthBalance={new BigNumber(2)}
+                wallet={Wallet.Metamask}
             />,
         );
 

@@ -2,7 +2,6 @@ import React, { HTMLAttributes } from 'react';
 import { connect } from 'react-redux';
 import styled from 'styled-components';
 
-import { UI_DECIMALS_DISPLAYED_PRICE_ETH } from '../../../common/constants';
 import { marketFilters } from '../../../common/markets';
 import { changeMarket, goToHome } from '../../../store/actions';
 import { getBaseToken, getCurrencyPair, getMarkets } from '../../../store/selectors';
@@ -390,8 +389,8 @@ class MarketsDropdown extends React.Component<Props, State> {
     };
 
     private readonly _getPrice: any = (market: Market) => {
-        if (market.price) {
-            return market.price.toFixed(UI_DECIMALS_DISPLAYED_PRICE_ETH);
+        if (market.bestAsk) {
+            return market.bestAsk.toFixed(market.currencyPair.config.pricePrecision);
         }
 
         return '-';

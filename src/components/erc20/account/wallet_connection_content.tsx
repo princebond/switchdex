@@ -3,8 +3,11 @@ import CopyToClipboard from 'react-copy-to-clipboard';
 import { connect } from 'react-redux';
 import styled from 'styled-components';
 
+import { logoutWallet } from '../../../store/actions';
 import { getEthAccount } from '../../../store/selectors';
+import { connectToExplorer, viewOnFabrx } from '../../../util/external_services';
 import { truncateAddress } from '../../../util/number_utils';
+import { viewAddressOnEtherscan } from '../../../util/transaction_link';
 import { StoreState } from '../../../util/types';
 import { WalletConnectionStatusContainer } from '../../account/wallet_connection_status';
 import { CardBase } from '../../common/card_base';
@@ -15,16 +18,11 @@ interface OwnProps extends HTMLAttributes<HTMLSpanElement> {}
 interface StateProps {
     ethAccount: string;
 }
+interface DispatchProps {
+    onLogoutWallet: () => any;
+}
 
-type Props = StateProps & OwnProps;
-
-const connectToWallet = () => {
-    alert('connect to another wallet');
-};
-
-const goToURL = () => {
-    alert('go to url');
-};
+type Props = StateProps & OwnProps & DispatchProps;
 
 const DropdownItems = styled(CardBase)`
     box-shadow: ${props => props.theme.componentsTheme.boxShadow};
@@ -33,16 +31,26 @@ const DropdownItems = styled(CardBase)`
 
 class WalletConnectionContent extends React.PureComponent<Props> {
     public render = () => {
-        const { ethAccount, ...restProps } = this.props;
+        const { ethAccount, onLogoutWallet, ...restProps } = this.props;
         const ethAccountText = ethAccount ? `${truncateAddress(ethAccount)}` : 'Not connected';
+
+        const openFabrx = () => {
+            viewOnFabrx(ethAccount);
+        };
+
+        const viewAccountExplorer = () => {
+            viewAddressOnEtherscan(ethAccount);
+        };
 
         const content = (
             <DropdownItems>
                 <CopyToClipboard text={ethAccount ? ethAccount : ''}>
                     <DropdownTextItem text="Copy Address to Clipboard" />
                 </CopyToClipboard>
-                <DropdownTextItem onClick={connectToWallet} text="Connect a different Wallet" />
-                <DropdownTextItem onClick={goToURL} text="Manage Account" />
+                <DropdownTextItem onClick={viewAccountExplorer} text="View Address on Etherscan" />
+                <DropdownTextItem onClick={connectToExplorer} text="Track DEX volume" />
+                <DropdownTextItem onClick={openFabrx} text="Set Alerts" />
+                <DropdownTextItem onClick={onLogoutWallet} text="Logout Wallet" />
             </DropdownItems>
         );
 
@@ -62,10 +70,15 @@ const mapStateToProps = (state: StoreState): StateProps => {
         ethAccount: getEthAccount(state),
     };
 };
+const mapDispatchToProps = (dispatch: any): DispatchProps => {
+    return {
+        onLogoutWallet: () => dispatch(logoutWallet()),
+    };
+};
 
 const WalletConnectionContentContainer = connect(
     mapStateToProps,
-    {},
+    mapDispatchToProps,
 )(WalletConnectionContent);
 
 export { WalletConnectionContent, WalletConnectionContentContainer };

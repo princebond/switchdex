@@ -3,13 +3,18 @@ import React from 'react';
 import { connect } from 'react-redux';
 import styled from 'styled-components';
 
-import { ZERO } from '../../../common/constants';
-import { initWallet, startBuySellLimitSteps, startBuySellMarketSteps } from '../../../store/actions';
+import { IS_ORDER_LIMIT_MATCHING, ZERO } from '../../../common/constants';
+import {
+    initWallet,
+    startBuySellLimitMatchingSteps,
+    startBuySellLimitSteps,
+    startBuySellMarketSteps,
+} from '../../../store/actions';
 import { fetchTakerAndMakerFee } from '../../../store/relayer/actions';
 import { getCurrencyPair, getOrderPriceSelected, getWeb3State } from '../../../store/selectors';
 import { themeDimensions } from '../../../themes/commons';
 import { getKnownTokens } from '../../../util/known_tokens';
-import { tokenSymbolToDisplayString } from '../../../util/tokens';
+import { tokenSymbolToDisplayString, unitsInTokenAmount } from '../../../util/tokens';
 import {
     ButtonIcons,
     ButtonVariant,
@@ -35,13 +40,14 @@ interface StateProps {
 }
 
 interface DispatchProps {
-    onSubmitLimitOrder: (
+    onSubmitLimitOrder: (amount: BigNumber, price: BigNumber, side: OrderSide,  orderFeeData: OrderFeeData) => Promise<any>;
+    onSubmitLimitOrderMatching: (
         amount: BigNumber,
         price: BigNumber,
         side: OrderSide,
         orderFeeData: OrderFeeData,
     ) => Promise<any>;
-    onSubmitMarketOrder: (amount: BigNumber, side: OrderSide, orderFeeData: OrderFeeData) => Promise<any>;
+    onSubmitMarketOrder: (amount: BigNumber, side: OrderSide,  orderFeeData: OrderFeeData) => Promise<any>;
     onConnectWallet: () => any;
     onFetchTakerAndMakerFee: (amount: BigNumber, price: BigNumber, side: OrderSide) => Promise<OrderFeeData>;
 }
@@ -121,6 +127,14 @@ const LabelContainer = styled.div`
 const Label = styled.label<{ color?: string }>`
     color: ${props => props.color || props.theme.componentsTheme.textColorCommon};
     font-size: 14px;
+    font-weight: 500;
+    line-height: normal;
+    margin: 0;
+`;
+
+const MinLabel = styled.label<{ color?: string }>`
+    color: ${props => props.color || props.theme.componentsTheme.textColorCommon};
+    font-size: 10px;
     font-weight: 500;
     line-height: normal;
     margin: 0;
@@ -214,17 +228,29 @@ class BuySell extends React.Component<Props, State> {
                 text: 'Limit',
             },
         ];
+        const decimals = getKnownTokens().getTokenBySymbol(currencyPair.base).decimals;
+        // Configs
+        const pricePrecision = currencyPair.config.pricePrecision;
+        const minAmount = currencyPair.config.minAmount;
+        const minAmountUnits = unitsInTokenAmount(String(currencyPair.config.minAmount), decimals);
 
-        const isMakerAmountEmpty = makerAmount === null || makerAmount.isZero();
+        const basePrecision = currencyPair.config.basePrecision;
+        const stepAmount = new BigNumber(1).div(new BigNumber(10).pow(basePrecision));
+        const stepAmountUnits = unitsInTokenAmount(String(stepAmount), decimals);
+
+        const amount = makerAmount || minAmountUnits;
+        const isMakerAmountEmpty = amount === null || amount.isZero();
+        const isMakerAmountMin = amount === null || amount.isLessThan(minAmountUnits);
+
         const isPriceEmpty = price === null || price.isZero();
-
-        const orderTypeLimitIsEmpty = orderType === OrderType.Limit && (isMakerAmountEmpty || isPriceEmpty);
-        const orderTypeMarketIsEmpty = orderType === OrderType.Market && isMakerAmountEmpty;
+        const isPriceMin =
+            price === null || price.isLessThan(new BigNumber(1).div(new BigNumber(10).pow(pricePrecision)));
+        const isOrderTypeLimitIsEmpty =
+            orderType === OrderType.Limit && (isMakerAmountEmpty || isPriceEmpty || isPriceMin);
+        const isOrderTypeMarketIsEmpty = orderType === OrderType.Market && (isMakerAmountEmpty || isMakerAmountMin);
 
         const btnPrefix = tab === OrderSide.Buy ? 'Buy ' : 'Sell ';
         const btnText = error && error.btnMsg ? 'Error' : btnPrefix + tokenSymbolToDisplayString(currencyPair.base);
-
-        const decimals = getKnownTokens().getTokenBySymbol(currencyPair.base).decimals;
 
         return (
             <>
@@ -247,7 +273,9 @@ class BuySell extends React.Component<Props, State> {
                     </TabsContainer>
                     <Content>
                         <LabelContainer>
-                            <Label>Amount</Label>
+                            <Label>
+                                Amount <MinLabel>(Min: {minAmount})</MinLabel>
+                            </Label>
                             <InnerTabs tabs={buySellInnerTabs} />
                         </LabelContainer>
                         <FieldContainer>
@@ -255,8 +283,10 @@ class BuySell extends React.Component<Props, State> {
                                 decimals={decimals}
                                 min={ZERO}
                                 onChange={this.updateMakerAmount}
-                                value={makerAmount}
-                                placeholder={'0.00'}
+                                value={amount}
+                                step={stepAmountUnits}
+                                placeholder={new BigNumber(minAmount).toString()}
+                                valueFixedDecimals={basePrecision}
                             />
                             <BigInputNumberTokenLabel tokenSymbol={currencyPair.base} />
                         </FieldContainer>
@@ -271,7 +301,11 @@ class BuySell extends React.Component<Props, State> {
                                         min={ZERO}
                                         onChange={this.updatePrice}
                                         value={price}
-                                        placeholder={'0.00'}
+                                        step={new BigNumber(1).div(new BigNumber(10).pow(pricePrecision))}
+                                        placeholder={new BigNumber(1)
+                                            .div(new BigNumber(10).pow(pricePrecision))
+                                            .toString()}
+                                        valueFixedDecimals={pricePrecision}
                                     />
                                     <BigInputNumberTokenLabel tokenSymbol={currencyPair.quote} />
                                 </FieldContainer>
@@ -280,12 +314,14 @@ class BuySell extends React.Component<Props, State> {
                         <OrderDetailsContainer
                             orderType={orderType}
                             orderSide={tab}
-                            tokenAmount={makerAmount || ZERO}
-                            tokenPrice={price || ZERO}
+                            tokenAmount={amount}
+                            tokenPrice={price || new BigNumber(0)}
                             currencyPair={currencyPair}
                         />
                         <Button
-                            disabled={web3State !== Web3State.Done || orderTypeLimitIsEmpty || orderTypeMarketIsEmpty}
+                            disabled={
+                                web3State !== Web3State.Done || isOrderTypeLimitIsEmpty || isOrderTypeMarketIsEmpty
+                            }
                             icon={error && error.btnMsg ? ButtonIcons.Warning : undefined}
                             onClick={this.submit}
                             variant={
@@ -320,13 +356,25 @@ class BuySell extends React.Component<Props, State> {
     };
 
     public submit = async () => {
+        const { currencyPair } = this.props;
+        const minAmount = currencyPair.config.minAmount;
+        const decimals = getKnownTokens().getTokenBySymbol(currencyPair.base).decimals;
+        const minAmountUnits = unitsInTokenAmount(String(minAmount), decimals);
+
         const orderSide = this.state.tab;
-        const makerAmount = this.state.makerAmount || ZERO;
-        const price = this.state.price || ZERO;
+        const makerAmount = this.state.makerAmount || minAmountUnits;
+        const price = this.state.price || new BigNumber(0);
 
         const orderFeeData = await this.props.onFetchTakerAndMakerFee(makerAmount, price, this.state.tab);
         if (this.state.orderType === OrderType.Limit) {
-            await this.props.onSubmitLimitOrder(makerAmount, price, orderSide, orderFeeData);
+            if (IS_ORDER_LIMIT_MATCHING) {
+                const result = await this.props.onSubmitLimitOrderMatching(makerAmount, price, orderSide, orderFeeData);
+                if (result === 0) {
+                    await this.props.onSubmitLimitOrder(makerAmount, price, orderSide, orderFeeData);
+                }
+            } else {
+                await this.props.onSubmitLimitOrder(makerAmount, price, orderSide, orderFeeData);
+            }
         } else {
             try {
                 await this.props.onSubmitMarketOrder(makerAmount, orderSide, orderFeeData);
@@ -395,6 +443,8 @@ const mapDispatchToProps = (dispatch: any): DispatchProps => {
     return {
         onSubmitLimitOrder: (amount: BigNumber, price: BigNumber, side: OrderSide, orderFeeData: OrderFeeData) =>
             dispatch(startBuySellLimitSteps(amount, price, side, orderFeeData)),
+        onSubmitLimitOrderMatching: (amount: BigNumber, price: BigNumber, side: OrderSide, orderFeeData: OrderFeeData) =>
+            dispatch(startBuySellLimitMatchingSteps(amount, price, side, orderFeeData)),
         onSubmitMarketOrder: (amount: BigNumber, side: OrderSide, orderFeeData: OrderFeeData) =>
             dispatch(startBuySellMarketSteps(amount, side, orderFeeData)),
         onConnectWallet: () => dispatch(initWallet()),

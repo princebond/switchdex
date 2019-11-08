@@ -1,29 +1,60 @@
 import { BigNumber } from '@0x/utils';
 import React from 'react';
 import { connect } from 'react-redux';
-import styled from 'styled-components';
+import styled, { withTheme } from 'styled-components';
 
-import { startToggleTokenLockSteps } from '../../store/actions';
-import { getEthBalance, getTokenBalances, getWeb3State, getWethTokenBalance } from '../../store/selectors';
-import { tokenAmountInUnits } from '../../util/tokens';
-import { StoreState, Token, TokenBalance, Web3State } from '../../util/types';
+import { NETWORK_ID, RELAYER_URL } from '../../common/constants';
+import { openFiatOnRampModal, startToggleTokenLockSteps, startTranferTokenSteps } from '../../store/actions';
+import {
+    getEthAccount,
+    getEthBalance,
+    getEthInUsd,
+    getTokenBalances,
+    getTokensPrice,
+    getWallet,
+    getWeb3State,
+    getWethTokenBalance,
+} from '../../store/selectors';
+import { Theme, themeBreakPoints } from '../../themes/commons';
+import { getEtherscanLinkForToken, getEtherscanLinkForTokenAndAddress, tokenAmountInUnits } from '../../util/tokens';
+import { ButtonVariant, StoreState, Token, TokenBalance, TokenPrice, Wallet, Web3State } from '../../util/types';
+import { Button } from '../common/button';
 import { Card } from '../common/card';
 import { TokenIcon } from '../common/icons/token_icon';
 import { LoadingWrapper } from '../common/loading';
 import { CustomTD, Table, TH, THead, THLast, TR } from '../common/table';
+import { ZeroXInstantWidget } from '../erc20/common/0xinstant_widget';
+
+import { TransferTokenModal } from './wallet_transfer_token_modal';
 
 interface StateProps {
     ethBalance: BigNumber;
     tokenBalances: TokenBalance[];
     web3State: Web3State;
     wethTokenBalance: TokenBalance | null;
+    ethAccount: string;
+    ethUsd: BigNumber | null;
+    tokensPrice: TokenPrice[] | null;
+    wallet: Wallet | null;
+}
+interface OwnProps {
+    theme: Theme;
 }
 
 interface DispatchProps {
     onStartToggleTokenLockSteps: (token: Token, isUnlocked: boolean) => void;
+    onSubmitTransferToken: (amount: BigNumber, token: Token, address: string, isEth: boolean) => Promise<any>;
+    onClickOpenFiatOnRampModal: (isOpen: boolean) => void;
 }
 
-type Props = StateProps & DispatchProps;
+type Props = StateProps & DispatchProps & OwnProps;
+
+interface State {
+    modalIsOpen: boolean;
+    isSubmitting: boolean;
+    tokenBalanceSelected: TokenBalance | null;
+    isEth: boolean;
+}
 
 const THStyled = styled(TH)`
     &:first-child {
@@ -38,12 +69,42 @@ const TokenTD = styled(CustomTD)`
     width: 40px;
 `;
 
+const BuyETHButton = styled(Button)`
+    margin-left: 5px;
+`;
+
 const TokenIconStyled = styled(TokenIcon)`
     margin: 0 auto 0 0;
 `;
 
 const CustomTDTokenName = styled(CustomTD)`
     white-space: nowrap;
+`;
+
+const TokenEtherscanLink = styled.a`
+    align-items: center;
+    color: ${props => props.theme.componentsTheme.myWalletLinkColor};
+    display: flex;
+    font-size: 16px;
+    font-weight: 500;
+    text-decoration: none;
+
+    &:hover {
+        text-decoration: underline;
+    }
+    @media (max-width: ${themeBreakPoints.sm}) {
+        display: inline;
+    }
+`;
+
+const QuantityEtherscanLink = styled.a`
+    align-items: center;
+    color: ${props => props.theme.componentsTheme.myWalletLinkColor};
+    text-decoration: none;
+
+    &:hover {
+        text-decoration: underline;
+    }
 `;
 
 const CustomTDLockIcon = styled(CustomTD)`
@@ -60,13 +121,45 @@ const CustomTDLockIcon = styled(CustomTD)`
     }
 `;
 
+const CustomTDPriceChange = styled(CustomTD)`
+    .lockedIcon {
+        path {
+            fill: ${props => props.theme.componentsTheme.iconLockedColor};
+        }
+    }
+
+    .unlockedIcon {
+        path {
+            fill: ${props => props.theme.componentsTheme.iconUnlockedColor};
+        }
+    }
+`;
+
 const TokenName = styled.span`
     font-weight: 700;
+    @media (max-width: ${themeBreakPoints.sm}) {
+        display: block;
+    }
+`;
+const TokenNameSeparator = styled.span`
+    @media (max-width: ${themeBreakPoints.sm}) {
+        display: none;
+    }
 `;
 
 const TBody = styled.tbody`
     > tr:last-child > td {
         border-bottom: none;
+    }
+`;
+
+const ButtonsContainer = styled.span`
+    display: flex;
+    justify-content: flex-start;
+    align-items: flex-start;
+    @media (min-width: ${themeBreakPoints.xs}) {
+        flex-wrap: wrap;
+        display: -webkit-inline-box;
     }
 `;
 
@@ -120,9 +213,41 @@ const LockCell = ({ isUnlocked, onClick }: LockCellProps) => {
     );
 };
 
-class WalletTokenBalances extends React.PureComponent<Props> {
+interface PriceChangeProps {
+    price_usd_24h_change: BigNumber;
+}
+const PriceChangeCell = ({ price_usd_24h_change }: PriceChangeProps) => {
+    return (
+        <CustomTDPriceChange
+            styles={{ borderBottom: true, textAlign: 'right', color: price_usd_24h_change.gte(0) ? 'green' : 'red' }}
+        >
+            {price_usd_24h_change.toFormat(2)} %
+        </CustomTDPriceChange>
+    );
+};
+
+class WalletTokenBalances extends React.PureComponent<Props, State> {
+    public readonly state: State = {
+        modalIsOpen: false,
+        isSubmitting: false,
+        tokenBalanceSelected: null,
+        isEth: false,
+    };
+
     public render = () => {
-        const { ethBalance, tokenBalances, onStartToggleTokenLockSteps, web3State, wethTokenBalance } = this.props;
+        const {
+            ethBalance,
+            tokenBalances,
+            onStartToggleTokenLockSteps,
+            web3State,
+            wethTokenBalance,
+            ethAccount,
+            theme,
+            tokensPrice,
+            ethUsd,
+            wallet,
+            onClickOpenFiatOnRampModal,
+        } = this.props;
 
         if (!wethTokenBalance) {
             return null;
@@ -132,6 +257,17 @@ class WalletTokenBalances extends React.PureComponent<Props> {
         const totalEth = wethTokenBalance.balance.plus(ethBalance);
         const formattedTotalEthBalance = tokenAmountInUnits(totalEth, wethToken.decimals, wethToken.displayDecimals);
         const onTotalEthClick = () => onStartToggleTokenLockSteps(wethTokenBalance.token, wethTokenBalance.isUnlocked);
+        const ethPrice = tokensPrice && tokensPrice.find(t => t.c_id === 'ethereum');
+        const openTransferEthModal = () => {
+            this.setState({
+                modalIsOpen: true,
+                isEth: true,
+            });
+        };
+
+        const openFiatOnRamp = () => {
+            onClickOpenFiatOnRampModal(true);
+        };
 
         const totalEthRow = (
             <TR>
@@ -148,13 +284,32 @@ class WalletTokenBalances extends React.PureComponent<Props> {
                 <CustomTD styles={{ borderBottom: true, textAlign: 'right', tabular: true }}>
                     {formattedTotalEthBalance}
                 </CustomTD>
-                <CustomTD styles={{ borderBottom: true, textAlign: 'right', tabular: true }}>-</CustomTD>
-                <CustomTD styles={{ borderBottom: true, textAlign: 'right', tabular: true }}>-</CustomTD>
+                <CustomTD styles={{ borderBottom: true, textAlign: 'right', tabular: true }}>
+                    {ethUsd ? `${ethUsd.toString()}$` : '-'}
+                </CustomTD>
+                <CustomTD styles={{ borderBottom: true, textAlign: 'right', tabular: true }}>
+                    {ethUsd ? `${ethUsd.multipliedBy(new BigNumber(formattedTotalEthBalance)).toFixed(3)}$` : '-'}
+                </CustomTD>
+                {ethPrice ? (
+                    <PriceChangeCell price_usd_24h_change={ethPrice.price_usd_24h_change} />
+                ) : (
+                    <CustomTD styles={{ borderBottom: true, textAlign: 'right' }}>-</CustomTD>
+                )}
                 <LockCell
                     isUnlocked={wethTokenBalance.isUnlocked}
                     onClick={onTotalEthClick}
                     styles={{ borderBottom: true, textAlign: 'center' }}
                 />
+                <CustomTD styles={{ borderBottom: true, textAlign: 'left' }}>
+                    <ButtonsContainer>
+                        <Button onClick={openTransferEthModal} variant={ButtonVariant.Primary}>
+                            Send
+                        </Button>
+                        <BuyETHButton onClick={openFiatOnRamp} variant={ButtonVariant.Buy}>
+                            Buy
+                        </BuyETHButton>
+                    </ButtonsContainer>
+                </CustomTD>
             </TR>
         );
 
@@ -163,6 +318,14 @@ class WalletTokenBalances extends React.PureComponent<Props> {
             const { symbol } = token;
             const formattedBalance = tokenAmountInUnits(balance, token.decimals, token.displayDecimals);
             const onClick = () => onStartToggleTokenLockSteps(token, isUnlocked);
+            const openTransferModal = () => {
+                this.setState({
+                    modalIsOpen: true,
+                    tokenBalanceSelected: tokenBalance,
+                    isEth: false,
+                });
+            };
+            const tokenPrice = tokensPrice && tokensPrice.find(t => t.c_id === token.c_id);
 
             return (
                 <TR key={symbol}>
@@ -170,45 +333,158 @@ class WalletTokenBalances extends React.PureComponent<Props> {
                         <TokenIconStyled symbol={token.symbol} primaryColor={token.primaryColor} icon={token.icon} />
                     </TokenTD>
                     <CustomTDTokenName styles={{ borderBottom: true }}>
-                        <TokenName>{token.symbol.toUpperCase()}</TokenName> {`- ${token.name}`}
+                        <TokenEtherscanLink href={getEtherscanLinkForToken(token)} target={'_blank'}>
+                            <TokenName>{token.symbol.toUpperCase()}</TokenName>{' '}
+                            <TokenNameSeparator>{` - `}</TokenNameSeparator>
+                            {`${token.name}`}
+                        </TokenEtherscanLink>
                     </CustomTDTokenName>
-                    <CustomTD styles={{ borderBottom: true, textAlign: 'right' }}>{formattedBalance}</CustomTD>
-                    <CustomTD styles={{ borderBottom: true, textAlign: 'right' }}>-</CustomTD>
-                    <CustomTD styles={{ borderBottom: true, textAlign: 'right' }}>-</CustomTD>
+                    <CustomTD styles={{ borderBottom: true, textAlign: 'right' }}>
+                        <QuantityEtherscanLink
+                            href={getEtherscanLinkForTokenAndAddress(token, ethAccount)}
+                            target={'_blank'}
+                        >
+                            {formattedBalance}
+                        </QuantityEtherscanLink>
+                    </CustomTD>
+                    <CustomTD styles={{ borderBottom: true, textAlign: 'right' }}>
+                        {tokenPrice ? `${tokenPrice.price_usd.toString()}$` : '-'}
+                    </CustomTD>
+                    <CustomTD styles={{ borderBottom: true, textAlign: 'right' }}>
+                        {tokenPrice
+                            ? `${tokenPrice.price_usd.multipliedBy(new BigNumber(formattedBalance)).toFixed(3)}$`
+                            : '-'}
+                    </CustomTD>
+                    {tokenPrice ? (
+                        <PriceChangeCell price_usd_24h_change={tokenPrice.price_usd_24h_change} />
+                    ) : (
+                        <CustomTD styles={{ borderBottom: true, textAlign: 'right' }}>-</CustomTD>
+                    )}
                     <LockCell
                         isUnlocked={isUnlocked}
                         onClick={onClick}
                         styles={{ borderBottom: true, textAlign: 'center' }}
                     />
+                    <CustomTD styles={{ borderBottom: true, textAlign: 'left' }}>
+                        <ButtonsContainer>
+                            <Button onClick={openTransferModal} variant={ButtonVariant.Primary}>
+                                Send
+                            </Button>
+                            <ZeroXInstantWidget
+                                orderSource={RELAYER_URL}
+                                tokenAddress={token.address}
+                                networkId={NETWORK_ID}
+                                walletDisplayName={wallet}
+                            />
+                        </ButtonsContainer>
+                    </CustomTD>
                 </TR>
             );
         });
+        const totalHoldingsRow = () => {
+            const totalHoldingsValue: BigNumber =
+                (tokenBalances.length &&
+                    tokenBalances
+                        .filter(tb => tb.token.c_id !== null)
+                        .map(tb => {
+                            const tokenPrice = tokensPrice && tokensPrice.find(tp => tp.c_id === tb.token.c_id);
+                            if (tokenPrice) {
+                                const { token, balance } = tb;
+                                const formattedBalance = new BigNumber(
+                                    tokenAmountInUnits(balance, token.decimals, token.displayDecimals),
+                                );
+                                return formattedBalance.multipliedBy(tokenPrice.price_usd);
+                            } else {
+                                return new BigNumber(0);
+                            }
+                        })
+                        .reduce((p, c) => {
+                            return p.plus(c);
+                        })) ||
+                new BigNumber(0);
+
+            return (
+                <TR>
+                    <CustomTD styles={{ borderBottom: true, textAlign: 'right', tabular: true }} />
+                    <CustomTDTokenName styles={{ borderBottom: true }}>TOTAL HOLDINGS</CustomTDTokenName>
+                    <CustomTD styles={{ borderBottom: true, textAlign: 'right', tabular: true }} />
+                    <CustomTD styles={{ borderBottom: true, textAlign: 'right', tabular: true }} />
+                    <CustomTD styles={{ borderBottom: true, textAlign: 'right', tabular: true }}>
+                        {`${totalHoldingsValue.toFixed(3)}$`}
+                    </CustomTD>
+                    <CustomTD styles={{ borderBottom: true, textAlign: 'right', tabular: true }} />
+                    <CustomTD styles={{ borderBottom: true, textAlign: 'right', tabular: true }} />
+                    <CustomTD styles={{ borderBottom: true, textAlign: 'left' }}>Prices by Coingecko</CustomTD>
+                </TR>
+            );
+        };
 
         let content: React.ReactNode;
         if (web3State === Web3State.Loading) {
             content = <LoadingWrapper />;
         } else {
             content = (
-                <Table isResponsive={true}>
-                    <THead>
-                        <TR>
-                            <THStyled>Token</THStyled>
-                            <THStyled>{}</THStyled>
-                            <THStyled styles={{ textAlign: 'right' }}>Available Qty.</THStyled>
-                            <THStyled styles={{ textAlign: 'right' }}>Price (USD)</THStyled>
-                            <THStyled styles={{ textAlign: 'right' }}>% Change</THStyled>
-                            <THLast styles={{ textAlign: 'center' }}>Locked?</THLast>
-                        </TR>
-                    </THead>
-                    <TBody>
-                        {totalEthRow}
-                        {tokensRows}
-                    </TBody>
-                </Table>
+                <>
+                    <Table isResponsive={true}>
+                        <THead>
+                            <TR>
+                                <THStyled>Token</THStyled>
+                                <THStyled>{}</THStyled>
+                                <THStyled styles={{ textAlign: 'right' }}>Available Qty.</THStyled>
+                                <THStyled styles={{ textAlign: 'right' }}>Price (USD)</THStyled>
+                                <THStyled styles={{ textAlign: 'right' }}>Value (USD)</THStyled>
+                                <THStyled styles={{ textAlign: 'right' }}>% Change</THStyled>
+                                <THLast styles={{ textAlign: 'center' }}>Locked?</THLast>
+                                <THLast styles={{ textAlign: 'center' }}>Actions</THLast>
+                            </TR>
+                        </THead>
+                        <TBody>
+                            {totalEthRow}
+                            {tokensRows}
+                            {totalHoldingsRow()}
+                        </TBody>
+                    </Table>
+                    <TransferTokenModal
+                        isOpen={this.state.modalIsOpen}
+                        tokenBalance={this.state.tokenBalanceSelected as TokenBalance}
+                        isSubmitting={this.state.isSubmitting}
+                        onSubmit={this.handleSubmit}
+                        style={theme.modalTheme}
+                        closeModal={this.closeModal}
+                        ethBalance={ethBalance}
+                        isEth={this.state.isEth}
+                        wethToken={wethToken}
+                    />
+                </>
             );
         }
 
         return <Card title="Token Balances">{content}</Card>;
+    };
+    public closeModal = () => {
+        this.setState({
+            modalIsOpen: false,
+        });
+    };
+
+    public openModal = () => {
+        this.setState({
+            modalIsOpen: true,
+        });
+    };
+
+    public handleSubmit = async (amount: BigNumber, token: Token, address: string, isEth: boolean) => {
+        this.setState({
+            isSubmitting: true,
+        });
+        try {
+            await this.props.onSubmitTransferToken(amount, token, address, isEth);
+        } finally {
+            this.setState({
+                isSubmitting: false,
+            });
+            this.closeModal();
+        }
     };
 }
 
@@ -218,15 +494,24 @@ const mapStateToProps = (state: StoreState): StateProps => {
         tokenBalances: getTokenBalances(state),
         web3State: getWeb3State(state),
         wethTokenBalance: getWethTokenBalance(state),
+        ethAccount: getEthAccount(state),
+        ethUsd: getEthInUsd(state),
+        tokensPrice: getTokensPrice(state),
+        wallet: getWallet(state),
     };
 };
 const mapDispatchToProps = {
     onStartToggleTokenLockSteps: startToggleTokenLockSteps,
+    onSubmitTransferToken: startTranferTokenSteps,
+    onClickOpenFiatOnRampModal: openFiatOnRampModal,
 };
 
-const WalletTokenBalancesContainer = connect(
-    mapStateToProps,
-    mapDispatchToProps,
-)(WalletTokenBalances);
+const WalletTokenBalancesContainer = withTheme(
+    connect(
+        mapStateToProps,
+        mapDispatchToProps,
+    )(WalletTokenBalances),
+);
 
+// tslint:disable-next-line: max-file-line-count
 export { WalletTokenBalances, WalletTokenBalancesContainer };

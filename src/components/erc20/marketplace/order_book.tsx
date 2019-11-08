@@ -3,14 +3,10 @@ import React from 'react';
 import { connect } from 'react-redux';
 import styled, { withTheme } from 'styled-components';
 
-import {
-    UI_DECIMALS_DISPLAYED_ORDER_SIZE,
-    UI_DECIMALS_DISPLAYED_PRICE_ETH,
-    UI_DECIMALS_DISPLAYED_SPREAD_PERCENT,
-    ZERO,
-} from '../../../common/constants';
+import { UI_DECIMALS_DISPLAYED_PRICE_ETH, UI_DECIMALS_DISPLAYED_SPREAD_PERCENT, ZERO, UI_DECIMALS_DISPLAYED_ORDER_SIZE } from '../../../common/constants';
 import {
     getBaseToken,
+    getCurrencyPair,
     getOrderBook,
     getQuoteToken,
     getSpread,
@@ -21,7 +17,16 @@ import {
 import { setOrderPriceSelected } from '../../../store/ui/actions';
 import { Theme, themeBreakPoints } from '../../../themes/commons';
 import { tokenAmountInUnits } from '../../../util/tokens';
-import { OrderBook, OrderBookItem, OrderSide, StoreState, Token, UIOrder, Web3State } from '../../../util/types';
+import {
+    CurrencyPair,
+    OrderBook,
+    OrderBookItem,
+    OrderSide,
+    StoreState,
+    Token,
+    UIOrder,
+    Web3State,
+} from '../../../util/types';
 import { Card } from '../../common/card';
 import { EmptyContent } from '../../common/empty_content';
 import { LoadingWrapper } from '../../common/loading';
@@ -45,6 +50,7 @@ interface StateProps {
     web3State?: Web3State;
     absoluteSpread: BigNumber;
     percentageSpread: BigNumber;
+    currencyPair: CurrencyPair;
 }
 
 interface OwnProps {
@@ -57,7 +63,7 @@ const OrderbookCard = styled(Card)`
     display: flex;
     flex-direction: column;
     flex-grow: 1;
-    max-height: 100%;
+    max-height: 700px;
 
     > div:first-child {
         flex-grow: 0;
@@ -144,6 +150,7 @@ interface OrderToRowPropsOwn {
     priceColor: string;
     mySizeOrders: OrderBookItem[];
     web3State?: Web3State;
+    currencyPair: CurrencyPair;
 }
 
 interface OrderToRowDispatchProps {
@@ -170,8 +177,11 @@ class OrderToRow extends React.Component<OrderToRowProps> {
     };
 
     public render = () => {
-        const { order, index, baseToken, priceColor, mySizeOrders = [], web3State } = this.props;
-        const size = tokenAmountInUnits(order.size, baseToken.decimals, UI_DECIMALS_DISPLAYED_ORDER_SIZE);
+        const { order, index, baseToken, priceColor, mySizeOrders = [], web3State, currencyPair } = this.props;
+        const basePrecision = currencyPair.config.basePrecision;
+        const pricePrecision = currencyPair.config.pricePrecision;
+
+        const size = tokenAmountInUnits(order.size, baseToken.decimals, basePrecision);
         const price = order.price.toString();
 
         const mySize = mySizeOrders.reduce((sumSize, mySizeItem) => {
@@ -181,8 +191,8 @@ class OrderToRow extends React.Component<OrderToRowProps> {
             return sumSize;
         }, ZERO);
 
-        const mySizeConverted = tokenAmountInUnits(mySize, baseToken.decimals, UI_DECIMALS_DISPLAYED_ORDER_SIZE);
-        const isMySizeEmpty = mySize.eq(ZERO);
+        const mySizeConverted = tokenAmountInUnits(mySize, baseToken.decimals, basePrecision);
+        const isMySizeEmpty = mySize.eq(new BigNumber(0));
         const displayColor = isMySizeEmpty ? '#dedede' : undefined;
         const mySizeRow =
             web3State !== Web3State.Locked && web3State !== Web3State.NotInstalled ? (
@@ -200,10 +210,14 @@ class OrderToRow extends React.Component<OrderToRowProps> {
                 onClick={() => this._setOrderPriceSelected(order.price)}
             >
                 <CustomTD as="div" styles={{ tabular: true, textAlign: 'right' }}>
-                    <ShowNumberWithColors isHover={this.state.isHover} num={new BigNumber(size)} />
+                    <ShowNumberWithColors
+                        isHover={this.state.isHover}
+                        num={new BigNumber(size)}
+                        precision={basePrecision}
+                    />
                 </CustomTD>
                 <CustomTD as="div" styles={{ tabular: true, textAlign: 'right', color: priceColor }}>
-                    {parseFloat(price).toFixed(UI_DECIMALS_DISPLAYED_PRICE_ETH)}
+                    {parseFloat(price).toFixed(pricePrecision)}
                 </CustomTD>
                 {mySizeRow}
             </GridRowInner>
@@ -241,7 +255,16 @@ class OrderBookTable extends React.Component<Props> {
     }
 
     public render = () => {
-        const { orderBook, baseToken, quoteToken, web3State, theme, absoluteSpread, percentageSpread } = this.props;
+        const {
+            orderBook,
+            baseToken,
+            quoteToken,
+            web3State,
+            theme,
+            absoluteSpread,
+            percentageSpread,
+            currencyPair,
+        } = this.props;
         const { sellOrders, buyOrders, mySizeOrders } = orderBook;
         const mySizeSellArray = mySizeOrders.filter((order: { side: OrderSide }) => {
             return order.side === OrderSide.Sell;
@@ -256,6 +279,8 @@ class OrderBookTable extends React.Component<Props> {
         let content: React.ReactNode;
 
         if (web3State !== Web3State.Error && (!baseToken || !quoteToken)) {
+            content = <CenteredLoading />;
+        } else if (web3State === Web3State.Loading) {
             content = <CenteredLoading />;
         } else if ((!buyOrders.length && !sellOrders.length) || !baseToken || !quoteToken) {
             content = <EmptyContent alignAbsoluteCenter={true} text="There are no orders to show" />;
@@ -299,6 +324,7 @@ class OrderBookTable extends React.Component<Props> {
                                         priceColor={getColor(order)}
                                         mySizeOrders={mySizeSellArray}
                                         web3State={web3State}
+                                        currencyPair={currencyPair}
                                     />
                                 ))}
                             </TopItems>
@@ -324,6 +350,7 @@ class OrderBookTable extends React.Component<Props> {
                                         priceColor={getColor(order)}
                                         mySizeOrders={mySizeBuyArray}
                                         web3State={web3State}
+                                        currencyPair={currencyPair}
                                     />
                                 ))}
                             </BottomItems>
@@ -416,6 +443,7 @@ const mapStateToProps = (state: StoreState): StateProps => {
         web3State: getWeb3State(state),
         absoluteSpread: getSpread(state),
         percentageSpread: getSpreadInPercentage(state),
+        currencyPair: getCurrencyPair(state),
     };
 };
 

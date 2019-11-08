@@ -20,6 +20,13 @@ describe('buildOrderFilledNotification', () => {
     // ZRX/WETH
     const baseTokenAssetData = assetDataUtils.encodeERC20AssetData(zrxToken.address);
     const quoteTokenAssetData = assetDataUtils.encodeERC20AssetData(wethToken.address);
+    const config = {
+        basePrecision: 8,
+        pricePrecision: 8,
+        quotePrecision: 8,
+        minAmount: 0,
+        maxAmount: 1000000,
+    };
 
     const markets = [
         {
@@ -27,6 +34,7 @@ describe('buildOrderFilledNotification', () => {
             currencyPair: {
                 base: 'zrx',
                 quote: 'weth',
+                config,
             },
         },
         {
@@ -34,6 +42,7 @@ describe('buildOrderFilledNotification', () => {
             currencyPair: {
                 base: 'mkr',
                 quote: 'weth',
+                config,
             },
         },
         {
@@ -41,6 +50,7 @@ describe('buildOrderFilledNotification', () => {
             currencyPair: {
                 base: 'zrx',
                 quote: 'mkr',
+                config,
             },
         },
     ];

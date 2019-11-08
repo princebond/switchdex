@@ -15,8 +15,11 @@ export interface TabItem {
     text: string;
 }
 
+export type Maybe<T> = T | undefined;
+
 export enum Network {
     Mainnet = 1,
+    Ropsten = 3,
     Rinkeby = 4,
     Kovan = 42,
     Ganache = 50,
@@ -28,8 +31,24 @@ export interface Token {
     name: string;
     symbol: string;
     primaryColor: string;
+    id?: string;
+    c_id?: string; // coingecko id
     icon?: string;
     displayDecimals: number;
+    minAmount?: number;
+    maxAmount?: number;
+    precision?: number;
+    website?: string;
+    description?: string;
+    verisafe_sticker?: string;
+    price_usd?: BigNumber | null;
+    price_usd_24h_change?: BigNumber | null;
+}
+
+export interface TokenPrice {
+    c_id: string; // coingecko id
+    price_usd: BigNumber;
+    price_usd_24h_change: BigNumber;
 }
 
 export interface TokenBalance {
@@ -56,11 +75,14 @@ export enum Web3State {
     Error = 'Error',
     Loading = 'Loading',
     NotInstalled = 'NotInstalled',
+    Connect = 'Connect',
+    Connecting = 'Connecting',
     Locked = 'Locked',
 }
 
 export interface BlockchainState {
     readonly ethAccount: string;
+    readonly wallet: Wallet | null;
     readonly web3State: Web3State;
     readonly tokenBalances: TokenBalance[];
     readonly ethBalance: BigNumber;
@@ -72,13 +94,20 @@ export interface BlockchainState {
 export interface RelayerState {
     readonly orders: UIOrder[];
     readonly userOrders: UIOrder[];
+    readonly accountMarketStats?: AccountMarketStat[];
 }
 
 export interface UIState {
     readonly notifications: Notification[];
+    readonly fills: Fill[];
+    readonly marketFills: MarketFill;
+    readonly userMarketFills: MarketFill;
+    readonly userFills: Fill[];
     readonly hasUnreadNotifications: boolean;
     readonly stepsModal: StepsModalState;
     readonly orderPriceSelected: BigNumber | null;
+    readonly sidebarOpen: boolean;
+    readonly openFiatOnRampModal: boolean;
 }
 
 export interface MarketState {
@@ -86,7 +115,9 @@ export interface MarketState {
     readonly baseToken: Token | null;
     readonly quoteToken: Token | null;
     readonly ethInUsd: BigNumber | null;
+    readonly quoteInUsd?: BigNumber | null;
     readonly markets: Market[] | null;
+    readonly tokensPrice: TokenPrice[] | null;
 }
 
 export interface StoreState {
@@ -101,7 +132,9 @@ export interface StoreState {
 export enum StepKind {
     WrapEth = 'WrapEth',
     ToggleTokenLock = 'ToggleTokenLock',
+    TransferToken = 'TransferToken',
     BuySellLimit = 'BuySellLimit',
+    BuySellLimitMatching = 'BuySellLimitMatching',
     BuySellMarket = 'BuySellMarket',
     UnlockCollectibles = 'UnlockCollectibles',
     SellCollectible = 'SellCollectible',
@@ -136,9 +169,26 @@ export interface StepBuySellLimitOrder {
     token: Token;
 }
 
+export interface StepTransferToken {
+    kind: StepKind.TransferToken;
+    amount: BigNumber;
+    address: string;
+    token: Token;
+    isEth: boolean;
+}
+
 export interface StepBuySellMarket {
     kind: StepKind.BuySellMarket;
     amount: BigNumber;
+    side: OrderSide;
+    token: Token;
+}
+
+export interface StepBuySellLimitMatching {
+    kind: StepKind.BuySellLimitMatching;
+    amount: BigNumber;
+    price: BigNumber;
+    price_avg: BigNumber;
     side: OrderSide;
     token: Token;
 }
@@ -165,7 +215,9 @@ export type Step =
     | StepBuySellMarket
     | StepSellCollectible
     | StepBuyCollectible
-    | StepUnlockCollectibles;
+    | StepUnlockCollectibles
+    | StepBuySellLimitMatching
+    | StepTransferToken;
 
 export interface StepsModalState {
     readonly doneSteps: Step[];
@@ -207,11 +259,32 @@ export interface OrderBook {
 export interface CurrencyPair {
     base: string;
     quote: string;
+    config: {
+        basePrecision: number;
+        pricePrecision: number;
+        minAmount: number;
+        maxAmount: number;
+        quotePrecision: number;
+    };
+}
+export interface CurrencyPairMetaData {
+    base: string;
+    quote: string;
+    config?: {
+        basePrecision?: number;
+        pricePrecision?: number;
+        minAmount?: number;
+        maxAmount?: number;
+        quotePrecision?: number;
+    };
 }
 
 export interface Market {
     currencyPair: CurrencyPair;
     price: BigNumber | null;
+    spreadInPercentage: BigNumber | null;
+    bestAsk: BigNumber | null;
+    bestBid: BigNumber | null;
 }
 
 export enum NotificationKind {
@@ -219,6 +292,31 @@ export enum NotificationKind {
     Market = 'Market',
     Limit = 'Limit',
     OrderFilled = 'OrderFilled',
+    TokenTransferred = 'TokenTransferred',
+}
+
+export interface Fill {
+    id: string;
+    amountQuote: BigNumber;
+    amountBase: BigNumber;
+    tokenQuote: Token;
+    tokenBase: Token;
+    side: OrderSide;
+    price: string;
+    timestamp: Date;
+    makerAddress: string;
+    takerAddress: string;
+    market: string;
+}
+
+export interface MarketFill {
+    [market: string]: Fill[];
+}
+
+export interface MarketData {
+    bestAsk: null | BigNumber;
+    bestBid: null | BigNumber;
+    spreadInPercentage: null | BigNumber;
 }
 
 interface BaseNotification {
@@ -244,6 +342,13 @@ interface MarketNotification extends TransactionNotification {
     side: OrderSide;
 }
 
+interface TransferTokenNotification extends TransactionNotification {
+    kind: NotificationKind.TokenTransferred;
+    amount: BigNumber;
+    token: Token;
+    address: string;
+}
+
 interface LimitNotification extends BaseNotification {
     kind: NotificationKind.Limit;
     amount: BigNumber;
@@ -258,7 +363,12 @@ export interface OrderFilledNotification extends BaseNotification {
     side: OrderSide;
 }
 
-export type Notification = CancelOrderNotification | MarketNotification | LimitNotification | OrderFilledNotification;
+export type Notification =
+    | CancelOrderNotification
+    | MarketNotification
+    | LimitNotification
+    | OrderFilledNotification
+    | TransferTokenNotification;
 
 export enum OrderType {
     Limit = 'Limit',
@@ -273,11 +383,25 @@ export interface GasInfo {
 export enum ModalDisplay {
     InstallMetamask = 'INSTALL_METAMASK',
     EnablePermissions = 'ACCEPT_PERMISSIONS',
+    ConnectWallet = 'CONNECT_WALLET',
 }
 
 export enum MARKETPLACES {
     ERC20 = 'ERC20',
     ERC721 = 'ERC721',
+}
+
+export enum Wallet {
+    Network = 'Network',
+    Metamask = 'Metamask',
+    Portis = 'Portis',
+    Torus = 'Torus',
+    Fortmatic = 'Fortmatic',
+    WalletConnect = 'WalletConnect',
+    Coinbase = 'Coinbase Wallet',
+    Enjin = 'Enjin Wallet',
+    Cipher = 'Cipher Wallet',
+    Trust = 'Trust Wallet',
 }
 
 export interface Collectible {
@@ -324,6 +448,9 @@ export enum ButtonVariant {
     Secondary = 'secondary',
     Sell = 'sell',
     Tertiary = 'tertiary',
+    Portis = 'portis',
+    Torus = 'torus',
+    Fortmatic = 'fortmatic',
 }
 
 export enum ButtonIcons {
@@ -343,12 +470,73 @@ export interface PartialTheme {
 export interface GeneralConfig {
     title?: string;
     icon?: string;
+    social?: {
+        facebook_url?: string;
+        reddit_url?: string;
+        twitter_url?: string;
+        telegram_url?: string;
+        discord_url?: string;
+        bitcointalk_url?: string;
+        youtube_url?: string;
+        medium_url?: string;
+    };
+}
+
+interface WalletsConfig {
+    metamask: boolean;
+    fortmatic: boolean;
+    portis: boolean;
+    torus: boolean;
 }
 
 export interface ConfigFile {
     tokens: TokenMetaData[];
-    pairs: CurrencyPair[];
+    pairs: CurrencyPairMetaData[];
     marketFilters?: Filter[];
+    wallets?: WalletsConfig;
     theme?: PartialTheme;
     general?: GeneralConfig;
+}
+
+export enum Browser {
+    Chrome = 'CHROME',
+    Firefox = 'FIREFOX',
+    Opera = 'OPERA',
+    Safari = 'SAFARI',
+    Edge = 'EDGE',
+    Other = 'OTHER',
+}
+
+export enum OperatingSystem {
+    Android = 'ANDROID',
+    iOS = 'IOS', // tslint:disable-line:enum-naming
+    Mac = 'MAC',
+    Windows = 'WINDOWS',
+    WindowsPhone = 'WINDOWS_PHONE',
+    Linux = 'LINUX',
+    Other = 'OTHER',
+}
+
+export enum ProviderType {
+    Parity = 'PARITY',
+    MetaMask = 'META_MASK',
+    Mist = 'MIST',
+    CoinbaseWallet = 'COINBASE_WALLET',
+    EnjinWallet = 'ENJIN_WALLET',
+    Cipher = 'CIPHER',
+    TrustWallet = 'TRUST_WALLET',
+    Opera = 'OPERA',
+    Fallback = 'FALLBACK',
+    // tslint:disable-next-line: max-file-line-count
+}
+
+export interface AccountMarketStat {
+    pair: string;
+    address: string;
+    totalAmountQuote: string;
+    totalAmountBase: string;
+    totalMakerFeePaid?: string;
+    totalTakerFeePaid?: string;
+    totalClosedOrders: number;
+    // tslint:disable-next-line: max-file-line-count
 }

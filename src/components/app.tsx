@@ -2,11 +2,24 @@ import React from 'react';
 import { connect } from 'react-redux';
 import { withRouter } from 'react-router-dom';
 
-import { UI_UPDATE_CHECK_INTERVAL, UPDATE_ETHER_PRICE_INTERVAL } from '../common/constants';
+import {
+    UI_UPDATE_CHECK_INTERVAL,
+    UPDATE_ERC20_MARKETS,
+    UPDATE_ETHER_PRICE_INTERVAL,
+    UPDATE_TOKENS_PRICE_INTERVAL,
+} from '../common/constants';
 import { LocalStorage } from '../services/local_storage';
-import { initializeAppNoMetamaskOrLocked, initWallet, updateMarketPriceEther, updateStore } from '../store/actions';
-import { getWeb3State } from '../store/selectors';
-import { StoreState, Web3State } from '../util/types';
+import {
+    initializeAppWallet,
+    initWallet,
+    updateERC20Markets,
+    updateMarketPriceEther,
+    updateMarketPriceQuote,
+    updateMarketPriceTokens,
+    updateStore,
+} from '../store/actions';
+import { getCurrentMarketPlace, getWeb3State } from '../store/selectors';
+import { MARKETPLACES, StoreState, Wallet, Web3State } from '../util/types';
 
 interface OwnProps {
     children: React.ReactNode;
@@ -14,13 +27,17 @@ interface OwnProps {
 
 interface StateProps {
     web3State: Web3State;
+    MARKETPLACE: MARKETPLACES;
 }
 
 interface DispatchProps {
-    onConnectWallet: () => any;
-    onInitMetamaskState: () => any;
+    onConnectWallet: (wallet: Wallet) => any;
+    onInitWalletState: () => any;
     onUpdateStore: () => any;
     onUpdateMarketPriceEther: () => any;
+    onUpdateMarketPriceQuote: () => any;
+    onUpdateMarketPriceTokens: () => any;
+    onUpdateERC20Markets: () => any;
 }
 
 type Props = OwnProps & DispatchProps & StateProps;
@@ -30,13 +47,16 @@ const localStorage = new LocalStorage(window.localStorage);
 class App extends React.Component<Props> {
     private _updateStoreInterval: number | undefined;
     private _updatePriceEtherInterval: number | undefined;
+    private _updatePriceTokensInterval: number | undefined;
+    private _updateERC20MarketsInterval: number | undefined;
 
     public componentDidMount = () => {
-        const wasWalletConnected = localStorage.getWalletConnected();
-        if (wasWalletConnected) {
-            this.props.onConnectWallet();
+        // this.props.onInitWalletState();
+        const walletConnected = localStorage.getWalletConnected();
+        if (walletConnected !== false && walletConnected !== undefined) {
+            this.props.onConnectWallet(walletConnected as Wallet);
         } else {
-            this.props.onInitMetamaskState();
+            this.props.onInitWalletState();
         }
     };
 
@@ -60,6 +80,7 @@ class App extends React.Component<Props> {
     public render = () => this.props.children;
 
     private readonly _activatePollingUpdates = () => {
+        const { MARKETPLACE } = this.props;
         // Enables realtime updates of the store using polling
         if (UI_UPDATE_CHECK_INTERVAL !== 0 && !this._updateStoreInterval) {
             this._updateStoreInterval = window.setInterval(async () => {
@@ -70,11 +91,31 @@ class App extends React.Component<Props> {
             }, UI_UPDATE_CHECK_INTERVAL);
         }
 
-        // Enables realtime updates of the price ether using polling
+        // Enables realtime updates of the price ether and quote token using polling
         if (!this._updatePriceEtherInterval && UPDATE_ETHER_PRICE_INTERVAL !== 0) {
             this._updatePriceEtherInterval = window.setInterval(async () => {
                 this.props.onUpdateMarketPriceEther();
+                if (MARKETPLACE === MARKETPLACES.ERC20) {
+                    this.props.onUpdateMarketPriceQuote();
+                }
             }, UPDATE_ETHER_PRICE_INTERVAL);
+        }
+
+        // Enables realtime updates of token prices
+        if (
+            !this._updatePriceTokensInterval &&
+            UPDATE_TOKENS_PRICE_INTERVAL !== 0 &&
+            MARKETPLACE === MARKETPLACES.ERC20
+        ) {
+            this._updatePriceTokensInterval = window.setInterval(async () => {
+                this.props.onUpdateMarketPriceTokens();
+            }, UPDATE_TOKENS_PRICE_INTERVAL);
+        }
+        // Enables realtime updates of the token markets
+        if (!this._updateERC20MarketsInterval && UPDATE_ERC20_MARKETS !== 0 && MARKETPLACE === MARKETPLACES.ERC20) {
+            this._updateERC20MarketsInterval = window.setInterval(async () => {
+                this.props.onUpdateERC20Markets();
+            }, UPDATE_ERC20_MARKETS);
         }
     };
 
@@ -88,21 +129,29 @@ class App extends React.Component<Props> {
             clearInterval(this._updatePriceEtherInterval);
             this._updatePriceEtherInterval = undefined;
         }
+        if (this._updatePriceTokensInterval) {
+            clearInterval(this._updatePriceTokensInterval);
+            this._updatePriceTokensInterval = undefined;
+        }
     };
 }
 
 const mapStateToProps = (state: StoreState): StateProps => {
     return {
         web3State: getWeb3State(state),
+        MARKETPLACE: getCurrentMarketPlace(state),
     };
 };
 
 const mapDispatchToProps = (dispatch: any) => {
     return {
-        onInitMetamaskState: () => dispatch(initializeAppNoMetamaskOrLocked()),
+        onInitWalletState: () => dispatch(initializeAppWallet()),
         onUpdateStore: () => dispatch(updateStore()),
         onUpdateMarketPriceEther: () => dispatch(updateMarketPriceEther()),
-        onConnectWallet: () => dispatch(initWallet()),
+        onUpdateMarketPriceQuote: () => dispatch(updateMarketPriceQuote()),
+        onUpdateMarketPriceTokens: () => dispatch(updateMarketPriceTokens()),
+        onUpdateERC20Markets: () => dispatch(updateERC20Markets()),
+        onConnectWallet: (wallet: Wallet) => dispatch(initWallet(wallet)),
     };
 };
 

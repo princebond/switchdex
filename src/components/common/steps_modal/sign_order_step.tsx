@@ -8,9 +8,9 @@ import { InsufficientFeeBalanceException } from '../../../exceptions/insufficien
 import { InsufficientTokenBalanceException } from '../../../exceptions/insufficient_token_balance_exception';
 import { SignatureFailedException } from '../../../exceptions/signature_failed_exception';
 import { createSignedOrder, submitLimitOrder } from '../../../store/actions';
-import { getEstimatedTxTimeMs, getStepsModalCurrentStep } from '../../../store/selectors';
+import { getEstimatedTxTimeMs, getQuoteToken, getStepsModalCurrentStep, getWallet } from '../../../store/selectors';
 import { tokenSymbolToDisplayString } from '../../../util/tokens';
-import { OrderSide, StepBuySellLimitOrder, StoreState } from '../../../util/types';
+import { OrderSide, StepBuySellLimitOrder, StoreState, Token, Wallet } from '../../../util/types';
 
 import { BaseStepModal } from './base_step_modal';
 import { StepItem } from './steps_progress';
@@ -21,6 +21,8 @@ interface OwnProps {
 interface StateProps {
     estimatedTxTimeMs: number;
     step: StepBuySellLimitOrder;
+    wallet: Wallet;
+    quoteToken: Token;
 }
 
 interface DispatchProps {
@@ -39,12 +41,11 @@ class SignOrderStep extends React.Component<Props, State> {
         errorMsg: 'Error signing/submitting order.',
     };
     public render = () => {
-        const { buildStepsProgress, estimatedTxTimeMs, step } = this.props;
+        const { buildStepsProgress, estimatedTxTimeMs, step, wallet } = this.props;
 
         const isBuy = step.side === OrderSide.Buy;
-
         const title = 'Order setup';
-        const confirmCaption = 'Confirm signature on Metamask to submit order to the book.';
+        const confirmCaption = `Confirm signature on ${wallet} to submit order to the book.`;
         const loadingCaption = 'Submitting order.';
         const doneCaption = `${isBuy ? 'Buy' : 'Sell'} order for ${tokenSymbolToDisplayString(
             step.token.symbol,
@@ -66,12 +67,13 @@ class SignOrderStep extends React.Component<Props, State> {
                 runAction={this._getSignedOrder}
                 step={step}
                 title={title}
+                wallet={wallet}
             />
         );
     };
 
     private readonly _getSignedOrder = async ({ onLoading, onDone, onError }: any) => {
-        const { step } = this.props;
+        const { step, quoteToken } = this.props;
         const { amount, price, side } = step;
         try {
             const signedOrder = await this.props.createSignedOrder(amount, price, side);
@@ -82,7 +84,9 @@ class SignOrderStep extends React.Component<Props, State> {
             let errorException = error;
             if (error.message.toLowerCase() === INSUFFICIENT_MAKER_BALANCE_ERR.toLowerCase()) {
                 // Maker balance not enough
-                errorException = new InsufficientTokenBalanceException(step.token.symbol);
+                side === OrderSide.Sell
+                    ? (errorException = new InsufficientTokenBalanceException(step.token.symbol))
+                    : (errorException = new InsufficientTokenBalanceException(quoteToken.symbol));
             } else if (error.message.toString().includes(INSUFFICIENT_FEE_BALANCE)) {
                 // Fee balance not enough
                 errorException = new InsufficientFeeBalanceException();
@@ -105,7 +109,9 @@ class SignOrderStep extends React.Component<Props, State> {
 const mapStateToProps = (state: StoreState): StateProps => {
     return {
         estimatedTxTimeMs: getEstimatedTxTimeMs(state),
+        wallet: getWallet(state) as Wallet,
         step: getStepsModalCurrentStep(state) as StepBuySellLimitOrder,
+        quoteToken: getQuoteToken(state) as Token,
     };
 };
 

@@ -5,38 +5,47 @@ import { MetamaskSubprovider } from '@0x/subproviders';
 import { BigNumber } from '@0x/utils';
 import { createAction, createAsyncAction } from 'typesafe-actions';
 
-import {
-    COLLECTIBLE_ADDRESS,
-    NETWORK_ID,
-    START_BLOCK_LIMIT,
-    UNLIMITED_ALLOWANCE_IN_BASE_UNITS,
-    ZERO,
-} from '../../common/constants';
+import { COLLECTIBLE_ADDRESS, FEE_RECIPIENT, NETWORK_ID, START_BLOCK_LIMIT,  UNLIMITED_ALLOWANCE_IN_BASE_UNITS,
+    ZERO, } from '../../common/constants';
 import { ConvertBalanceMustNotBeEqualException } from '../../exceptions/convert_balance_must_not_be_equal_exception';
 import { SignedOrderException } from '../../exceptions/signed_order_exception';
-import { subscribeToFillEvents } from '../../services/exchange';
+import { subscribeToFillEvents, subscribeToFillEventsByFeeRecipient } from '../../services/exchange';
 import { getGasEstimationInfoAsync } from '../../services/gas_price_estimation';
 import { LocalStorage } from '../../services/local_storage';
 import { tokensToTokenBalances, tokenToTokenBalance } from '../../services/tokens';
-import { isMetamaskInstalled } from '../../services/web3_wrapper';
+import { deleteWeb3Wrapper, isMetamaskInstalled } from '../../services/web3_wrapper';
+import * as serviceWorker from '../../serviceWorker';
+import { envUtil } from '../../util/env';
+import { buildFill } from '../../util/fills';
 import { getKnownTokens, isWeth } from '../../util/known_tokens';
 import { getLogger } from '../../util/logger';
 import { buildOrderFilledNotification } from '../../util/notifications';
 import { buildDutchAuctionCollectibleOrder, buildSellCollectibleOrder } from '../../util/orders';
+import { providerFactory } from '../../util/provider_factory';
 import { getTransactionOptions } from '../../util/transactions';
 import {
     BlockchainState,
     Collectible,
     GasInfo,
+    MarketFill,
     MARKETPLACES,
+    NotificationKind,
     OrderSide,
+    ProviderType,
     ThunkCreator,
     Token,
     TokenBalance,
+    Wallet,
     Web3State,
 } from '../../util/types';
 import { getAllCollectibles } from '../collectibles/actions';
-import { fetchMarkets, setMarketTokens, updateMarketPriceEther } from '../market/actions';
+import {
+    fetchMarkets,
+    setMarketTokens,
+    updateMarketPriceEther,
+    updateMarketPriceQuote,
+    updateMarketPriceTokens,
+} from '../market/actions';
 import { getOrderBook, getOrderbookAndUserOrders, initializeRelayerData } from '../relayer/actions';
 import {
     getCurrencyPair,
@@ -45,10 +54,21 @@ import {
     getGasPriceInWei,
     getMarkets,
     getTokenBalances,
+    getWallet,
     getWethBalance,
     getWethTokenBalance,
 } from '../selectors';
-import { addNotifications, setHasUnreadNotifications, setNotifications } from '../ui/actions';
+import {
+    addFills,
+    addMarketFills,
+    addNotifications,
+    setFills,
+    setHasUnreadNotifications,
+    setMarketFills,
+    setNotifications,
+    setUserFills,
+    setUserMarketFills,
+} from '../ui/actions';
 
 const logger = getLogger('Blockchain::Actions');
 
@@ -89,6 +109,13 @@ export const setWethTokenBalance = createAction('blockchain/WETH_TOKEN_BALANCE_s
 export const setGasInfo = createAction('blockchain/GAS_INFO_set', resolve => {
     return (gasInfo: GasInfo) => resolve(gasInfo);
 });
+export const setWallet = createAction('blockchain/Wallet_set', resolve => {
+    return (wallet: Wallet) => resolve(wallet);
+});
+
+export const resetWallet = createAction('blockchain/Wallet_reset', resolve => {
+    return () => resolve();
+});
 
 export const toggleTokenLock: ThunkCreator<Promise<any>> = (token: Token, isUnlocked: boolean) => {
     return async (dispatch, getState, { getContractWrappers, getWeb3Wrapper }) => {
@@ -116,6 +143,62 @@ export const toggleTokenLock: ThunkCreator<Promise<any>> = (token: Token, isUnlo
         });
 
         return tx;
+    };
+};
+
+export const transferToken: ThunkCreator<Promise<any>> = (
+    token: Token,
+    amount: BigNumber,
+    address: string,
+    isEth: boolean,
+) => {
+    return async (dispatch, getState, { getContractWrappers, getWeb3Wrapper }) => {
+        const state = getState();
+        const ethAccount = getEthAccount(state);
+        const gasPrice = getGasPriceInWei(state);
+
+        const contractWrappers = await getContractWrappers();
+        const web3Wrapper = await getWeb3Wrapper();
+        let txHash;
+        if (isEth) {
+            txHash = await web3Wrapper.sendTransactionAsync({
+                from: ethAccount.toLowerCase(),
+                to: address.toLowerCase(),
+                value: amount,
+                gasPrice: getTransactionOptions(gasPrice).gasPrice,
+            });
+        } else {
+            txHash = await contractWrappers.erc20Token.transferAsync(
+                token.address,
+                ethAccount.toLowerCase(),
+                address.toLowerCase(),
+                amount,
+                getTransactionOptions(gasPrice),
+            );
+        }
+
+        const tx = web3Wrapper.awaitTransactionSuccessAsync(txHash);
+
+        dispatch(
+            addNotifications([
+                {
+                    id: txHash,
+                    kind: NotificationKind.TokenTransferred,
+                    amount,
+                    token,
+                    address,
+                    tx,
+                    timestamp: new Date(),
+                },
+            ]),
+        );
+
+        /*web3Wrapper.awaitTransactionSuccessAsync(tx).then(() => {
+            // tslint:disable-next-line:no-floating-promises
+            dispatch(updateTokenBalancesOnToggleTokenLock(token, isUnlocked));
+        });*/
+
+        return txHash;
     };
 };
 
@@ -184,7 +267,6 @@ export const updateTokenBalances: ThunkCreator<Promise<any>> = (txHash?: string)
         const ethAccount = getEthAccount(state);
         const knownTokens = getKnownTokens();
         const wethToken = knownTokens.getWethToken();
-
         const allTokenBalances = await tokensToTokenBalances([...knownTokens.getTokens(), wethToken], ethAccount);
         const wethBalance = allTokenBalances.find(b => b.token.symbol === wethToken.symbol);
         const tokenBalances = allTokenBalances.filter(b => b.token.symbol !== wethToken.symbol);
@@ -284,7 +366,103 @@ export const setConnectedUserNotifications: ThunkCreator<Promise<any>> = (ethAcc
     };
 };
 
-export const initWallet: ThunkCreator<Promise<any>> = () => {
+let fillEventsDexSubscription: string | null = null;
+export const setConnectedDexFills: ThunkCreator<Promise<any>> = (ethAccount: string, userAccount: string) => {
+    return async (dispatch, getState, { getContractWrappers, getWeb3Wrapper }) => {
+        const knownTokens = getKnownTokens();
+        const localStorage = new LocalStorage(window.localStorage);
+        const storageFills = localStorage.getFills(ethAccount).filter(f => {
+            return knownTokens.isKnownAddress(f.tokenBase.address) && knownTokens.isKnownAddress(f.tokenQuote.address);
+        });
+        dispatch(setFills(storageFills));
+        dispatch(setUserFills(localStorage.getFills(userAccount)));
+        dispatch(setMarketFills(localStorage.getMarketFills(ethAccount)));
+        dispatch(setUserMarketFills(localStorage.getMarketFills(userAccount)));
+
+        const state = getState();
+        const web3Wrapper = await getWeb3Wrapper();
+        const contractWrappers = await getContractWrappers();
+
+        const blockNumber = await web3Wrapper.getBlockNumberAsync();
+
+        const lastBlockChecked = localStorage.getLastBlockChecked(ethAccount);
+        const fromBlock =
+            lastBlockChecked !== null ? lastBlockChecked + 1 : Math.max(blockNumber - START_BLOCK_LIMIT, 1);
+        //   const fromBlock = Math.max(blockNumber - START_BLOCK_LIMIT, 1);
+        // lastBlockChecked !== null ? lastBlockChecked + 1 : Math.max(blockNumber - START_BLOCK_LIMIT, 1);
+
+        const toBlock = blockNumber;
+
+        const markets = getMarkets(state);
+
+        const subscription = subscribeToFillEventsByFeeRecipient({
+            exchange: contractWrappers.exchange,
+            fromBlock,
+            toBlock,
+            ethAccount,
+            fillEventCallback: async fillEvent => {
+                if (!knownTokens.isValidFillEvent(fillEvent)) {
+                    return;
+                }
+                const timestamp = await web3Wrapper.getBlockTimestampAsync(fillEvent.blockNumber || blockNumber);
+                const fill = buildFill(fillEvent, knownTokens, markets);
+                dispatch(
+                    addFills([
+                        {
+                            ...fill,
+                            timestamp: new Date(timestamp * 1000),
+                        },
+                    ]),
+                );
+                dispatch(
+                    addMarketFills({
+                        [fill.market]: [
+                            {
+                                ...fill,
+                                timestamp: new Date(timestamp * 1000),
+                            },
+                        ],
+                    }),
+                );
+            },
+            pastFillEventsCallback: async fillEvents => {
+                const validFillEvents = fillEvents.filter(knownTokens.isValidFillEvent);
+                const fills = await Promise.all(
+                    validFillEvents.map(async fillEvent => {
+                        const timestamp = await web3Wrapper.getBlockTimestampAsync(
+                            fillEvent.blockNumber || blockNumber,
+                        );
+                        const fill = buildFill(fillEvent, knownTokens, markets);
+
+                        return {
+                            ...fill,
+                            timestamp: new Date(timestamp * 1000),
+                        };
+                    }),
+                );
+                dispatch(addFills(fills));
+                const marketsFill: MarketFill = {};
+                fills.forEach(f => {
+                    if (marketsFill[f.market]) {
+                        marketsFill[f.market].push(f);
+                    } else {
+                        marketsFill[f.market] = [f];
+                    }
+                });
+                dispatch(addMarketFills(marketsFill));
+            },
+        });
+
+        if (fillEventsDexSubscription) {
+            contractWrappers.exchange.unsubscribe(fillEventsDexSubscription);
+        }
+        fillEventsDexSubscription = subscription;
+
+        localStorage.saveLastBlockChecked(blockNumber, ethAccount);
+    };
+};
+
+export const chooseWallet: ThunkCreator<Promise<any>> = () => {
     return async (dispatch, getState) => {
         dispatch(setWeb3State(Web3State.Loading));
         const state = getState();
@@ -308,17 +486,42 @@ export const initWallet: ThunkCreator<Promise<any>> = () => {
     };
 };
 
-const initWalletBeginCommon: ThunkCreator<Promise<any>> = () => {
+export const initWallet: ThunkCreator<Promise<any>> = (wallet: Wallet) => {
+    return async (dispatch, getState) => {
+        dispatch(setWeb3State(Web3State.Loading));
+        const state = getState();
+        const currentMarketPlace = getCurrentMarketPlace(state);
+        try {
+            await dispatch(initWalletBeginCommon(wallet));
+
+            if (currentMarketPlace === MARKETPLACES.ERC20) {
+                // tslint:disable-next-line:no-floating-promises
+                dispatch(initWalletERC20());
+            } else {
+                // tslint:disable-next-line:no-floating-promises
+                dispatch(initWalletERC721());
+            }
+        } catch (error) {
+            // Web3Error
+            logger.error('There was an error when initializing the wallet', error);
+            dispatch(setWeb3State(Web3State.Error));
+        }
+    };
+};
+
+const initWalletBeginCommon: ThunkCreator<Promise<any>> = (wallet: Wallet) => {
     return async (dispatch, getState, { initializeWeb3Wrapper }) => {
-        const web3Wrapper = await initializeWeb3Wrapper();
+        const web3Wrapper = await initializeWeb3Wrapper(wallet);
 
         if (web3Wrapper) {
+            dispatch(setWallet(wallet));
             const [ethAccount] = await web3Wrapper.getAvailableAddressesAsync();
             const knownTokens = getKnownTokens();
             const wethToken = knownTokens.getWethToken();
             const wethTokenBalance = await tokenToTokenBalance(wethToken, ethAccount);
             const ethBalance = await web3Wrapper.getBalanceInWeiAsync(ethAccount);
 
+            // tslint:disable-next-line: await-promise
             await dispatch(
                 initializeBlockchainData({
                     ethAccount,
@@ -345,6 +548,8 @@ const initWalletBeginCommon: ThunkCreator<Promise<any>> = () => {
             if (networkId !== NETWORK_ID) {
                 dispatch(setWeb3State(Web3State.Error));
             }
+        } else {
+            dispatch(setWeb3State(Web3State.Connect));
         }
     };
 };
@@ -354,7 +559,8 @@ const initWalletERC20: ThunkCreator<Promise<any>> = () => {
         const web3Wrapper = await getWeb3Wrapper();
         if (!web3Wrapper) {
             // tslint:disable-next-line:no-floating-promises
-            dispatch(initializeAppNoMetamaskOrLocked());
+            dispatch(initializeAppWallet());
+            //  dispatch(initializeAppNoMetamaskOrLocked());
 
             // tslint:disable-next-line:no-floating-promises
             dispatch(getOrderBook());
@@ -376,13 +582,19 @@ const initWalletERC20: ThunkCreator<Promise<any>> = () => {
 
             try {
                 await dispatch(fetchMarkets());
+
+                await dispatch(updateMarketPriceTokens());
                 // For executing this method (setConnectedUserNotifications) is necessary that the setMarkets method is already dispatched, otherwise it wont work (redux-thunk problem), so it's need to be dispatched here
                 // tslint:disable-next-line:no-floating-promises
                 dispatch(setConnectedUserNotifications(ethAccount));
+                // tslint:disable-next-line:no-floating-promises
+                dispatch(setConnectedDexFills(FEE_RECIPIENT, ethAccount));
             } catch (error) {
                 // Relayer error
                 logger.error('The fetch markets from the relayer failed', error);
             }
+            // tslint:disable-next-line:no-floating-promises
+            dispatch(updateMarketPriceQuote());
         }
     };
 };
@@ -524,6 +736,8 @@ export const initializeAppNoMetamaskOrLocked: ThunkCreator = () => {
 
             // tslint:disable-next-line:no-floating-promises
             await dispatch(fetchMarkets());
+            // tslint:disable-next-line: no-floating-promises
+            dispatch(updateMarketPriceQuote());
         } else {
             // tslint:disable-next-line:no-floating-promises
             dispatch(getAllCollectibles());
@@ -531,5 +745,116 @@ export const initializeAppNoMetamaskOrLocked: ThunkCreator = () => {
 
         // tslint:disable-next-line:no-floating-promises
         dispatch(updateMarketPriceEther());
+    };
+};
+
+/**
+ *  Initializes the app with a default state if the user does not have metamask, with permissions rejected
+ *  or if the user did not connected metamask to the dApp. Takes the info from the NETWORK_ID configured in the env vars
+ */
+export const initializeAppWallet: ThunkCreator = () => {
+    return async (dispatch, getState) => {
+        const state = getState();
+
+        // detect if is mobile operate system
+        // Note: need to disable service workers when inside dapp browsers
+        if (envUtil.isMobileOperatingSystem()) {
+            const providerType = envUtil.getProviderTypeFromWindow();
+            switch (providerType) {
+                case ProviderType.CoinbaseWallet:
+                    serviceWorker.unregister();
+                    await dispatch(initWallet(Wallet.Coinbase));
+                    return;
+                case ProviderType.EnjinWallet:
+                    serviceWorker.unregister();
+                    await dispatch(initWallet(Wallet.Enjin));
+                    return;
+                case ProviderType.Cipher:
+                    serviceWorker.unregister();
+                    await dispatch(initWallet(Wallet.Cipher));
+                    return;
+                default:
+                    break;
+            }
+            // check if Trust wallet or other wallet is injected
+            const provider = providerFactory.getInjectedProviderIfExists();
+            if (provider) {
+                const providerT = envUtil.getProviderType(provider);
+                switch (providerT) {
+                    case ProviderType.TrustWallet:
+                        serviceWorker.unregister();
+                        await dispatch(initWallet(Wallet.Trust));
+                        return;
+                    case ProviderType.MetaMask:
+                        serviceWorker.unregister();
+                        await dispatch(initWallet(Wallet.Metamask));
+                        return;
+                    default:
+                        break;
+                }
+            }
+        }
+        const wallet = getWallet(state);
+        if (!wallet) {
+            dispatch(setWeb3State(Web3State.Connecting));
+        }
+
+        const currencyPair = getCurrencyPair(state);
+        const knownTokens = getKnownTokens();
+        const baseToken = knownTokens.getTokenBySymbol(currencyPair.base);
+        const quoteToken = knownTokens.getTokenBySymbol(currencyPair.quote);
+
+        dispatch(
+            initializeRelayerData({
+                orders: [],
+                userOrders: [],
+            }),
+        );
+
+        // tslint:disable-next-line:no-floating-promises
+        dispatch(setMarketTokens({ baseToken, quoteToken }));
+
+        const currentMarketPlace = getCurrentMarketPlace(state);
+        if (currentMarketPlace === MARKETPLACES.ERC20) {
+            // tslint:disable-next-line:no-floating-promises
+            dispatch(getOrderBook());
+
+            // tslint:disable-next-line:no-floating-promises
+            await dispatch(fetchMarkets());
+            // tslint:disable-next-line:no-floating-promises
+            await dispatch(updateMarketPriceTokens());
+            // tslint:disable-next-line: no-floating-promises
+            dispatch(updateMarketPriceQuote());
+        } else {
+            // tslint:disable-next-line:no-floating-promises
+            dispatch(getAllCollectibles());
+        }
+
+        // tslint:disable-next-line:no-floating-promises
+        dispatch(updateMarketPriceEther());
+    };
+};
+
+// delete all wallets instance
+export const logoutWallet: ThunkCreator = () => {
+    return async (dispatch, getState) => {
+        dispatch(setWeb3State(Web3State.Connect));
+        const state = getState();
+        const wallet = getWallet(state);
+        dispatch(resetWallet());
+        deleteWeb3Wrapper();
+        const { location } = window;
+        location.reload();
+        // needs to reload when the wallet is Torus
+        if (wallet === Wallet.Torus) {
+            location.reload();
+        }
+    };
+};
+
+// Lock wallet
+export const lockWallet: ThunkCreator = () => {
+    return async (dispatch, getState) => {
+        dispatch(setWeb3State(Web3State.Locked));
     };
 };

@@ -6,7 +6,7 @@ import styled from 'styled-components';
 
 import { ZERO } from '../../../common/constants';
 import { fetchTakerAndMakerFee } from '../../../store/relayer/actions';
-import { getOpenBuyOrders, getOpenSellOrders } from '../../../store/selectors';
+import { getOpenBuyOrders, getOpenSellOrders, getQuoteInUsd } from '../../../store/selectors';
 import { getKnownTokens } from '../../../util/known_tokens';
 import { buildMarketOrders, sumTakerAssetFillableOrders } from '../../../util/orders';
 import { tokenAmountInUnits, tokenSymbolToDisplayString } from '../../../util/tokens';
@@ -77,6 +77,7 @@ interface OwnProps {
 interface StateProps {
     openSellOrders: UIOrder[];
     openBuyOrders: UIOrder[];
+    qouteInUSD: BigNumber | undefined | null;
 }
 
 interface DispatchProps {
@@ -124,8 +125,10 @@ class OrderDetails extends React.Component<Props, State> {
     public render = () => {
         const fee = this._getFeeStringForRender();
         const cost = this._getCostStringForRender();
-        const { orderSide } = this.props;
-        const costText = orderSide === OrderSide.Sell ? 'Total' : 'Cost';
+        const costText = this._getCostLabelStringForRender();
+        const priceMedianText = this._getMedianPriceStringForRender();
+        const { orderType } = this.props;
+
         return (
             <>
                 <LabelContainer>
@@ -139,6 +142,12 @@ class OrderDetails extends React.Component<Props, State> {
                     <CostLabel>{costText}</CostLabel>
                     <CostValue>{cost}</CostValue>
                 </Row>
+                {orderType === OrderType.Market && (
+                    <Row>
+                        <CostLabel>Median Price:</CostLabel>
+                        <CostValue>{priceMedianText}</CostValue>
+                    </Row>
+                )}
             </>
         );
     };
@@ -214,7 +223,7 @@ class OrderDetails extends React.Component<Props, State> {
 
     private readonly _getCostStringForRender = () => {
         const { canOrderBeFilled } = this.state;
-        const { orderType } = this.props;
+        const { orderType, qouteInUSD } = this.props;
         if (orderType === OrderType.Market && !canOrderBeFilled) {
             return `---`;
         }
@@ -222,8 +231,42 @@ class OrderDetails extends React.Component<Props, State> {
         const { quote } = this.props.currencyPair;
         const quoteToken = getKnownTokens().getTokenBySymbol(quote);
         const { quoteTokenAmount } = this.state;
+        const quoteTokenAmountUnits = tokenAmountInUnits(quoteTokenAmount, quoteToken.decimals);
         const costAmount = tokenAmountInUnits(quoteTokenAmount, quoteToken.decimals, quoteToken.displayDecimals);
-        return `${costAmount} ${tokenSymbolToDisplayString(quote)}`;
+        if (qouteInUSD) {
+            const quotePriceAmountUSD = new BigNumber(quoteTokenAmountUnits).multipliedBy(qouteInUSD);
+            return `${costAmount} ${tokenSymbolToDisplayString(quote)} (${quotePriceAmountUSD.toFixed(2)} $)`;
+        } else {
+            return `${costAmount} ${tokenSymbolToDisplayString(quote)}`;
+        }
+    };
+    private readonly _getMedianPriceStringForRender = () => {
+        const { canOrderBeFilled } = this.state;
+        const { orderType } = this.props;
+        const { tokenAmount } = this.props;
+        if (orderType === OrderType.Market && !canOrderBeFilled) {
+            return `---`;
+        }
+        if (tokenAmount.eq(0)) {
+            return `---`;
+        }
+        const { quote, base, config } = this.props.currencyPair;
+        const { quoteTokenAmount } = this.state;
+        const quoteToken = getKnownTokens().getTokenBySymbol(quote);
+        const baseToken = getKnownTokens().getTokenBySymbol(base);
+        const quoteTokenAmountUnits = new BigNumber(tokenAmountInUnits(quoteTokenAmount, quoteToken.decimals, 18));
+        const baseTokenAmountUnits = new BigNumber(tokenAmountInUnits(tokenAmount, baseToken.decimals, 18));
+        const priceDisplay = quoteTokenAmountUnits.div(baseTokenAmountUnits).toFormat(config.pricePrecision + 1);
+        return `${priceDisplay} ${tokenSymbolToDisplayString(quote)}`;
+    };
+
+    private readonly _getCostLabelStringForRender = () => {
+        const { qouteInUSD, orderSide } = this.props;
+        if (qouteInUSD) {
+            return orderSide === OrderSide.Sell ? 'Total (USD)' : 'Cost (USD)';
+        } else {
+            return orderSide === OrderSide.Sell ? 'Total' : 'Cost';
+        }
     };
 }
 
@@ -231,6 +274,7 @@ const mapStateToProps = (state: StoreState): StateProps => {
     return {
         openSellOrders: getOpenSellOrders(state),
         openBuyOrders: getOpenBuyOrders(state),
+        qouteInUSD: getQuoteInUsd(state),
     };
 };
 

@@ -11,7 +11,7 @@ import {
     submitBuyCollectible,
     submitCollectibleOrder,
 } from '../../../store/actions';
-import { getEstimatedTxTimeMs, getEthAccount, getStepsModalCurrentStep } from '../../../store/selectors';
+import { getEstimatedTxTimeMs, getEthAccount, getStepsModalCurrentStep, getWallet } from '../../../store/selectors';
 import { sleep } from '../../../util/sleep';
 import {
     Collectible,
@@ -20,6 +20,7 @@ import {
     StepKind,
     StepSellCollectible,
     StoreState,
+    Wallet,
 } from '../../../util/types';
 
 import { BaseStepModal } from './base_step_modal';
@@ -33,6 +34,7 @@ interface StateProps {
     estimatedTxTimeMs: number;
     step: StepSellCollectible | StepBuyCollectible;
     ethAccount: string;
+    wallet: Wallet;
 }
 
 interface DispatchProps {
@@ -60,7 +62,7 @@ class BuySellCollectibleStep extends React.Component<Props, State> {
     };
 
     public render = () => {
-        const { buildStepsProgress, estimatedTxTimeMs, step } = this.props;
+        const { buildStepsProgress, estimatedTxTimeMs, step, wallet } = this.props;
         const { collectible } = step;
         const collectibleName = collectible.name;
 
@@ -68,7 +70,7 @@ class BuySellCollectibleStep extends React.Component<Props, State> {
 
         const title = `${isBuy ? 'Buying' : 'Selling'} ${collectibleName}`;
 
-        const confirmCaption = `Confirm on Metamask to submit ${isBuy ? 'purchase' : 'sell'} for ${collectibleName}.`;
+        const confirmCaption = `Confirm on ${wallet} to submit ${isBuy ? 'purchase' : 'sell'} for ${collectibleName}.`;
         const loadingCaption = `Processing ${isBuy ? 'purchase' : 'sale'} of ${collectibleName}.`;
         const doneCaption = isBuy
             ? `Purchase of ${collectibleName} Successful!`
@@ -91,6 +93,7 @@ class BuySellCollectibleStep extends React.Component<Props, State> {
                 estimatedTxTimeMs={estimatedTxTimeMs}
                 runAction={isBuy ? this._confirmOnMetamaskBuy : this._confirmOnMetamaskSell}
                 showPartialProgress={true}
+                wallet={wallet}
             />
         );
     };
@@ -148,6 +151,7 @@ const mapStateToProps = (state: StoreState): StateProps => {
         estimatedTxTimeMs: getEstimatedTxTimeMs(state),
         ethAccount: getEthAccount(state),
         step: getStepsModalCurrentStep(state) as StepSellCollectible | StepBuyCollectible,
+        wallet: getWallet(state) as Wallet,
     };
 };
 

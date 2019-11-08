@@ -25,9 +25,12 @@ describe('OrderDetails', () => {
     const getZeroTotalCost = (): string => {
         return `0.00`;
     };
-    const getExpectedTotalCostText = (amount: number, symbol: string): string => {
-        return `${new BigNumber(amount).toFixed(2)} ${tokenSymbolToDisplayString(symbol)}`;
-    };
+
+    const getExpectedTotalCostText = (amount: number, symbol: string, price: number): string => {
+        return `${new BigNumber(amount).toFixed(3)} ${tokenSymbolToDisplayString(symbol)} (${new BigNumber(amount)
+            .times(price)
+            .toFixed(2)} $)`};
+            
     const getExpectedFeeText = (amount: number): string => {
         return `${new BigNumber(amount).toFixed(2)} ${tokenSymbolToDisplayString('zrx')}`;
     };
@@ -45,6 +48,13 @@ describe('OrderDetails', () => {
     const currencyPair = {
         base: 'zrx',
         quote: 'weth',
+        config: {
+            basePrecision: 8,
+            pricePrecision: 8,
+            quotePrecision: 8,
+            minAmount: 0,
+            maxAmount: 1000000,
+        },
     };
 
     it('Calculates total cost for limit orders', () => {
@@ -52,6 +62,9 @@ describe('OrderDetails', () => {
         const makerAmount = unitsInTokenAmount('13', 18);
         const tokenPrice = new BigNumber(3);
         const fees = async () => ORDER_FEE_DEFAULTS;
+        const qouteInUSD = new BigNumber(1);
+
+
         // when
         const wrapper = shallow(
             <OrderDetails
@@ -60,6 +73,7 @@ describe('OrderDetails', () => {
                 tokenAmount={makerAmount}
                 tokenPrice={tokenPrice}
                 currencyPair={currencyPair}
+                qouteInUSD={qouteInUSD}
                 openBuyOrders={[]}
                 openSellOrders={[]}
                 onFetchTakerAndMakerFee={fees}
@@ -67,7 +81,7 @@ describe('OrderDetails', () => {
         );
 
         const amountText = getAmountTextFromWrapper(wrapper);
-        expect(amountText).toEqual(getExpectedTotalCostText(0, currencyPair.quote));
+        expect(amountText).toEqual(getExpectedTotalCostText(0, currencyPair.quote, 1));
         const feeText = getFeeTextFromWrapper(wrapper);
         expect(feeText).toEqual(getZeroTotalCost());
     });
@@ -76,6 +90,7 @@ describe('OrderDetails', () => {
         // given
         const makerAmount = unitsInTokenAmount('10', 18);
         const tokenPrice = new BigNumber(2);
+        const qouteInUSD = new BigNumber(1);
         const MAKER_FEE = unitsInTokenAmount('3', 18);
         const TAKER_FEE = unitsInTokenAmount('7', 18);
 
@@ -146,6 +161,7 @@ describe('OrderDetails', () => {
                 tokenAmount={makerAmount}
                 tokenPrice={tokenPrice}
                 currencyPair={currencyPair}
+                qouteInUSD={qouteInUSD}
                 openBuyOrders={[]}
                 openSellOrders={[sellOrder1, sellOrder2]}
                 onFetchTakerAndMakerFee={fees}
@@ -162,6 +178,7 @@ describe('OrderDetails', () => {
         // makerAmount = 10
         const makerAmount = unitsInTokenAmount('10', 18);
         const tokenPrice = new BigNumber(10);
+        const qouteInUSD = new BigNumber(1);
         const MAKER_FEE = unitsInTokenAmount('1', 18);
         const TAKER_FEE = unitsInTokenAmount('1', 18);
 
@@ -232,6 +249,7 @@ describe('OrderDetails', () => {
                 tokenAmount={makerAmount}
                 tokenPrice={tokenPrice}
                 currencyPair={currencyPair}
+                qouteInUSD={qouteInUSD}
                 openBuyOrders={[]}
                 openSellOrders={[sellOrder1, sellOrder2]}
                 onFetchTakerAndMakerFee={fees}
@@ -240,12 +258,13 @@ describe('OrderDetails', () => {
 
         // then
         const amountText = getAmountTextFromWrapper(wrapper);
-        expect(amountText).toEqual(getExpectedTotalCostText(17, currencyPair.quote));
+        expect(amountText).toEqual(getExpectedTotalCostText(17, currencyPair.quote, 1));
     });
 
     it('Do not displays a value if the order amount is not fillable on market', () => {
         // given
         const makerAmount = unitsInTokenAmount('50', 18);
+        const qouteInUSD = new BigNumber(1);
         const tokenPrice = new BigNumber(1);
         const MAKER_FEE = unitsInTokenAmount('1', 18);
 
@@ -315,6 +334,7 @@ describe('OrderDetails', () => {
                 orderSide={OrderSide.Buy}
                 tokenAmount={makerAmount}
                 tokenPrice={tokenPrice}
+                qouteInUSD={qouteInUSD}
                 currencyPair={currencyPair}
                 openBuyOrders={[]}
                 openSellOrders={[sellOrder1, sellOrder2]}
