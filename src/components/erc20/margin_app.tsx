@@ -8,9 +8,10 @@ import { MARKETPLACES } from '../../util/types';
 import { AdBlockDetector } from '../common/adblock_detector';
 import { GeneralLayoutContainer } from '../general_layout';
 
+import ToolbarContentContainer from './common/toolbar_content';
 
+const toolbar = <ToolbarContentContainer/>;
 
-const toolbar = React.lazy(() => import('./common/toolbar_content'));
 const LendingPage = React.lazy(() => import('./pages/lending'));
 
 export const MarginApp = () => {

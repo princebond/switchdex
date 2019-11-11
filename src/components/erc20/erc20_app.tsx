@@ -1,4 +1,4 @@
-import React from 'react';
+import React, {lazy, Suspense} from 'react';
 import { Route, Switch } from 'react-router';
 import { ThemeProvider } from 'styled-components';
 
@@ -8,11 +8,21 @@ import { GeneralLayoutContainer } from '../../components/general_layout';
 import { getThemeByMarketplace } from '../../themes/theme_meta_data_utils';
 import { MARKETPLACES } from '../../util/types';
 
-const toolbar = React.lazy(() => import('./common/toolbar_content'));
-const Marketplace = React.lazy(() => import('./pages/marketplace'));
-const MyWallet = React.lazy(() => import('./pages/my_wallet'));
-const TokensListPage = React.lazy(() => import('./pages/tokens_list'));
-const AccountTradingsPage = React.lazy(() => import('./pages/account_trading'));
+// import TokensListPage from './pages/tokens_list';
+import ToolbarContentContainer from './common/toolbar_content';
+
+const toolbar = <ToolbarContentContainer/>;
+
+/*const toolbar = lazy(() => import('./common/toolbar_content'));
+const Marketplace = lazy(() => import('./pages/marketplace'));
+const MyWallet = lazy(() => import('./pages/my_wallet'));
+const TokensListPage = lazy(() => import('./pages/tokens_list'));
+const AccountTradingsPage = lazy(() => import('./pages/account_trading'));*/
+
+const TokensListPage = lazy(() => import('./pages/tokens_list'));
+const MyWallet = lazy(() => import('./pages/my_wallet'));
+const AccountTradingsPage = lazy(() => import('./pages/account_trading'));
+const Marketplace = lazy(() => import('./pages/marketplace'));
 
 const Erc20App = () => {
     const themeColor = getThemeByMarketplace(MARKETPLACES.ERC20);
@@ -21,14 +31,16 @@ const Erc20App = () => {
             <GeneralLayoutContainer toolbar={toolbar}>
                 <AdBlockDetector />
                 <Switch>
-                    <Route exact={true} path={`${ERC20_APP_BASE_PATH}/`} component={Marketplace} />
-                    <Route exact={true} path={`${ERC20_APP_BASE_PATH}/my-wallet`} component={MyWallet} />
-                    <Route exact={true} path={`${ERC20_APP_BASE_PATH}/listed-tokens`} component={TokensListPage} />
-                    <Route
-                        exact={true}
-                        path={`${ERC20_APP_BASE_PATH}/trading-competition`}
-                        component={AccountTradingsPage}
-                    />
+                    <Suspense fallback={<div>Loading...</div>}>
+                        <Route exact={true} path={`${ERC20_APP_BASE_PATH}/`} component={Marketplace} />
+                        <Route exact={true} path={`${ERC20_APP_BASE_PATH}/my-wallet`} component={MyWallet} />
+                        <Route exact={true} path={`${ERC20_APP_BASE_PATH}/listed-tokens`} component={TokensListPage} />
+                        <Route
+                            exact={true}
+                            path={`${ERC20_APP_BASE_PATH}/trading-competition`}
+                            component={AccountTradingsPage}
+                        />
+                    </Suspense>
                 </Switch>
             </GeneralLayoutContainer>
         </ThemeProvider>

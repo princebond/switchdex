@@ -8,7 +8,9 @@ import { MARKETPLACES } from '../../util/types';
 import { AdBlockDetector } from '../common/adblock_detector';
 import { GeneralLayoutContainer } from '../general_layout';
 
-const toolbar = React.lazy(() => import('./common/toolbar_content'));
+import  ToolbarContentContainer  from './common/toolbar_content';
+const toolbar = <ToolbarContentContainer/>;
+
 const IEOPage = React.lazy(() => import('./pages/ieo'));
 const IEOOrdersPage = React.lazy(() => import('./pages/ieo_orders'));
 

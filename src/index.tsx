@@ -1,5 +1,5 @@
 import { ConnectedRouter } from 'connected-react-router';
-import React, { Suspense } from 'react';
+import React, { lazy, Suspense } from 'react';
 import ReactDOM from 'react-dom';
 import ReactGA from 'react-ga';
 import ReactModal from 'react-modal';
@@ -18,6 +18,10 @@ import { AppContainer } from './components/app';
 import './index.css';
 import * as serviceWorker from './serviceWorker';
 import { history, store } from './store';
+/*import Erc20App from './components/erc20/erc20_app';
+import LaunchpadApp from './components/erc20/launchpad_app';
+import MarginApp from './components/erc20/margin_app';*/
+
 
 // Adding analytics
 ReactGA.initialize(process.env.REACT_APP_ANALYTICS || '');
@@ -34,9 +38,9 @@ if (['development'].includes(process.env.NODE_ENV) && !window.localStorage.debug
 }
 const RedirectToHome = () => <Redirect to={DEFAULT_BASE_PATH} />;
 
-const Erc20App = React.lazy(() => import('./components/erc20/erc20_app'));
-const LaunchpadApp = React.lazy(() => import('./components/erc20/launchpad_app'));
-const MarginApp = React.lazy(() => import('./components/erc20/margin_app'));
+const Erc20App = lazy(() => import('./components/erc20/erc20_app'));
+const LaunchpadApp = lazy(() => import('./components/erc20/launchpad_app'));
+const MarginApp = lazy(() => import('./components/erc20/margin_app'));
 
 const Web3WrappedApp = (
     <Provider store={store}>
