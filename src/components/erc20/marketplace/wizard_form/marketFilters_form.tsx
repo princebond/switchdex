@@ -5,10 +5,11 @@ import { Accordion } from '../../../common/accordion';
 import { TextInput } from '../../../common/final_form/text_input';
 
 import { FieldContainer, Label, LabelContainer } from './styles';
+import { AccordionCollapse } from '../../../common/accordion_collapse';
 
 export const MarketFiltersForm = ({ name, label }: { name: string; label: string }) => (
     <>
-      <Accordion title={'Market Filters'}>
+      <AccordionCollapse title={'Market Filters'}>
             <LabelContainer>
                 <Label>Title</Label>
             </LabelContainer>
@@ -21,6 +22,6 @@ export const MarketFiltersForm = ({ name, label }: { name: string; label: string
             <FieldContainer>
                 <Field name={`${name}.icon`} component={TextInput} placeholder={`Icon Url`} />
             </FieldContainer>
-        </Accordion>
+        </AccordionCollapse>
     </>
 );

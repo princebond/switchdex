@@ -8,7 +8,8 @@ import { CurrencyPair, Fill, OrderSide, StoreState, Token, UIOrder, Web3State } 
 import { Card } from '../../common/card';
 import { EmptyContent } from '../../common/empty_content';
 import { LoadingWrapper } from '../../common/loading';
-import { WizardForm } from './wizard_form';
+
+import { WizardFormWithTheme } from './wizard_form';
 
 const WizardCard = styled(Card)`
     max-height: 320px;
@@ -49,7 +50,7 @@ class Wizard extends React.Component<Props> {
                 } else {
                     content = <EmptyContent alignAbsoluteCenter={true} text="There are no trades to show" />;
                 }
-                content = <WizardForm />;
+                content = <WizardFormWithTheme />;
                 break;
             }
         }

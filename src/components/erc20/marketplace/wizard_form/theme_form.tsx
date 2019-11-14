@@ -1,19 +1,23 @@
 import React from 'react';
+import {Collapse} from 'react-collapse';
 import { Field } from 'react-final-form';
 
 import { Accordion } from '../../../common/accordion';
+import { ColorInput } from '../../../common/final_form/color_input';
 import { TextInput } from '../../../common/final_form/text_input';
 
 import { FieldContainer, Label, LabelContainer } from './styles';
+import { ColorButtonInput } from '../../../common/final_form/color_button_input';
+import { AccordionCollapse } from '../../../common/accordion_collapse';
 
 export const ThemeForm = ({ name, label }: { name: string; label: string }) => (
     <>
-      <Accordion title={'Theme'}>
+      <AccordionCollapse title={'Theme'}>
             <LabelContainer>
-                <Label>Title</Label>
+                <Label>Background</Label>
             </LabelContainer>
             <FieldContainer>
-                <Field name={`${name}.title`} component={TextInput} placeholder={`Title`} />
+                <Field name={`${name}.componentsTheme.background`} component={ColorButtonInput} placeholder={`Title`} />
             </FieldContainer>
             <LabelContainer>
                 <Label>Icon URL (SVG)</Label>
@@ -21,6 +25,6 @@ export const ThemeForm = ({ name, label }: { name: string; label: string }) => (
             <FieldContainer>
                 <Field name={`${name}.icon`} component={TextInput} placeholder={`Icon Url`} />
             </FieldContainer>
-        </Accordion>
+        </AccordionCollapse>
     </>
 );

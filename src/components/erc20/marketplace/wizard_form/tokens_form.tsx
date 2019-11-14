@@ -1,54 +1,87 @@
-import React from 'react';
-import { Field } from 'react-final-form';
-import { FieldArray } from 'react-final-form-arrays'
+import React, { useState } from 'react';
+import { Field } from 'react-final-form-html5-validation';
+import { FieldArray, useFieldArray } from 'react-final-form-arrays';
+import styled from 'styled-components';
 
-import { Accordion } from '../../../common/accordion';
+import { themeDimensions } from '../../../../themes/commons';
+import { ButtonVariant } from '../../../../util/types';
+import { AccordionCollapse } from '../../../common/accordion_collapse';
+import { Button } from '../../../common/button';
 import { TextInput } from '../../../common/final_form/text_input';
 
 import { FieldContainer, Label, LabelContainer } from './styles';
-import styled from 'styled-components';
-import { themeDimensions } from '../../../../themes/commons';
+
 
 const LabelToken = styled.label`
       color: ${props => props.theme.componentsTheme.textColorCommon};
-`
+`;
+
+const ButtonsContainer = styled.div`
+    align-items: flex-start;
+    display: flex;
+    margin: 10px;
+`;
+const ButtonContainer = styled.div`
+    padding: 10px;
+`;
+
 
 const StyledToken = styled.div`
- padding-left:20px;
- padding-top:10px;
- border-radius: ${themeDimensions.borderRadius};
- border: 1px solid ${props => props.theme.componentsTheme.cardBorderColor};
+    padding-left:20px;
+    padding-top:10px;
+    border-radius: ${themeDimensions.borderRadius};
+    border: 1px solid ${props => props.theme.componentsTheme.cardBorderColor};
 `
 
-export const TokensForm = () => (
-    <>
-      <Accordion title={'Tokens'}>
-            <FieldArray name="tokens">
-            {({ fields }) =>
-                fields.map((name, index) => (
-                  <StyledToken key={name}>
-                    <LabelToken>Token {index + 1}</LabelToken>
-                    <span
-                      onClick={() => fields.remove(index)}
-                      style={{ cursor: 'pointer' }}
+const StyledFieldContainer = styled(FieldContainer)`
+ display: flex;
+ 
+`
+
+
+export const TokensForm = (props: any) => {
+
+    const onPush = (e: any) => {
+        e.preventDefault();
+        props.push('tokens', undefined);
+    };
+
+    return (<>
+        <AccordionCollapse title={'Tokens'}>
+            <ButtonsContainer>
+                <ButtonContainer>
+                    <Button
+                        onClick={onPush}
+  
+                        variant={ButtonVariant.Buy}
                     >
-                      ❌
-                    </span>
-                    <TokenForm name={name} label={'test'}/>
-                   
-                  </StyledToken>
-                ))
-              }
-          </FieldArray>
-        </Accordion>
+                        Add
+                    </Button>
+                </ButtonContainer>
+            </ButtonsContainer>
+            <FieldArray name="tokens">
+                {({ fields }) =>
+                    fields.map((name, index) => (
+                        <StyledToken key={name}>
+                            <TokenForm name={name} index={index} />
+                        </StyledToken>
+                    ))}
+            </FieldArray>
+        </AccordionCollapse>
     </>
-);
+    );
+}
 
 
 
 
-const TokenForm = ({ name, label }: { name: string; label: string }) => (
-    <>
+const TokenForm = ({ name, index }: { name: string; index: number }) => {
+    const [isEdit, setIsEdit] = useState(false);
+    const fieldArray = useFieldArray('tokens');
+    const { fields } = fieldArray;
+
+    if (isEdit) {
+        return (<>
             <LabelContainer>
                 <Label>Symbol</Label>
             </LabelContainer>
@@ -103,5 +136,34 @@ const TokenForm = ({ name, label }: { name: string; label: string }) => (
             <FieldContainer>
                 <Field name={`${name}.c_id`} component={TextInput} placeholder={`Coingecko id`} />
             </FieldContainer>
-    </>
-);
+        </>);
+    } else {
+        const removeField = () => {
+            fields.remove(index);
+        };
+        const onSetIsEdit = () => {
+            setIsEdit(true);
+        };
+
+        return (
+            <StyledFieldContainer>
+                <Field name={`${name}.name`}>
+                    {(props: any) => (
+                        <LabelContainer>
+                            <Label>{props.input.value || 'Insert Name'}</Label>
+                        </LabelContainer>
+                    )}
+                </Field>
+                <div>
+                    <Label onClick={removeField} style={{ cursor: 'pointer' }}>
+                        ❌
+                    </Label>
+                    <Label onClick={onSetIsEdit} style={{ cursor: 'pointer' }}>
+                        Edit
+                    </Label>
+                </div>
+            </StyledFieldContainer>
+        );
+
+    }
+};
