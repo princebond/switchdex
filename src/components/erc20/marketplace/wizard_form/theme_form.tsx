@@ -13,12 +13,7 @@ import { AccordionCollapse } from '../../../common/accordion_collapse';
 export const ThemeForm = ({ name, label }: { name: string; label: string }) => (
     <>
         <AccordionCollapse title={'Theme'}>
-            <LabelContainer>
-                <Label>Background</Label>
-            </LabelContainer>
-            <FieldContainer>
-                <Field name={`${name}.componentsTheme.background`} component={ColorButtonInput} placeholder={`Title`} />
-            </FieldContainer>
+            <ComponentsTheme name={`${name}.componentsTheme`}   />
             <LabelContainer>
                 <Label>Icon URL (SVG)</Label>
             </LabelContainer>
@@ -28,3 +23,15 @@ export const ThemeForm = ({ name, label }: { name: string; label: string }) => (
         </AccordionCollapse>
     </>
 );
+
+const ComponentsTheme = ({name}: {name: string }) => (
+    <>
+    <LabelContainer>
+        <Label>Background</Label>
+    </LabelContainer>
+    <FieldContainer>
+        <Field name={`${name}.background`} component={ColorButtonInput} placeholder={`Title`} />
+    </FieldContainer>
+
+</>
+)

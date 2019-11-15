@@ -69,6 +69,10 @@ const WizardForm = (props: Props) => {
     const config = Config.getConfig();
     const themeColor = getThemeByMarketplace(MARKETPLACES.ERC20);
     config.theme = themeColor;
+    config.tokens.forEach(t => {
+        // @ts-ignore
+        t.contractAddress = t.addresses['1'];
+    })
 
     const content = (
         <Content>

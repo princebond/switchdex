@@ -1,15 +1,24 @@
 import React, { useState } from 'react';
-import { Field } from 'react-final-form-html5-validation';
 import { FieldArray, useFieldArray } from 'react-final-form-arrays';
+import { Field } from 'react-final-form-html5-validation';
+import { OnChange } from 'react-final-form-listeners';
 import styled from 'styled-components';
 
 import { themeDimensions } from '../../../../themes/commons';
 import { ButtonVariant } from '../../../../util/types';
 import { AccordionCollapse } from '../../../common/accordion_collapse';
 import { Button } from '../../../common/button';
+import { ColorButtonInput } from '../../../common/final_form/color_button_input';
+import { StyledInput } from '../../../common/final_form/styled_input';
 import { TextInput } from '../../../common/final_form/text_input';
 
 import { FieldContainer, Label, LabelContainer } from './styles';
+import { useForm } from 'react-final-form';
+import { getContractWrappers } from '../../../../services/contract_wrappers';
+import { getWeb3Wrapper } from '../../../../services/web3_wrapper';
+
+
+
 
 const LabelToken = styled.label`
     color: ${props => props.theme.componentsTheme.textColorCommon};
@@ -68,6 +77,7 @@ export const TokensForm = (props: any) => {
 const TokenForm = ({ name, index }: { name: string; index: number }) => {
     const [isEdit, setIsEdit] = useState(false);
     const fieldArray = useFieldArray('tokens');
+    const form = useForm();
     const { fields } = fieldArray;
 
     if (isEdit) {
@@ -77,49 +87,63 @@ const TokenForm = ({ name, index }: { name: string; index: number }) => {
                     <Label>Symbol</Label>
                 </LabelContainer>
                 <FieldContainer>
-                    <Field name={`${name}.symbol`} component={TextInput} placeholder={`Title`} />
-                </FieldContainer>
-                <LabelContainer>
-                    <Label>Name</Label>
-                </LabelContainer>
-                <FieldContainer>
-                    <Field name={`${name}.name`} component={TextInput} placeholder={`Icon Url`} />
-                </FieldContainer>
-                <LabelContainer>
-                    <Label>Primary Color</Label>
-                </LabelContainer>
-                <FieldContainer>
-                    <Field name={`${name}.primaryColor`} component={TextInput} placeholder={`Icon Url`} />
-                </FieldContainer>
-                <LabelContainer>
-                    <Label>Icon</Label>
-                </LabelContainer>
-                <FieldContainer>
-                    <Field name={`${name}.icon`} component={TextInput} placeholder={`Icon Url`} />
-                </FieldContainer>
-                <LabelContainer>
-                    <Label>Decimals</Label>
-                </LabelContainer>
-                <FieldContainer>
-                    <Field name={`${name}.decimals`} component={TextInput} placeholder={`Icon Url`} />
+                    <Field name={`${name}.symbol`} component={TextInput} placeholder={`Symbol`}/>
                 </FieldContainer>
                 <LabelContainer>
                     <Label>Contract Address</Label>
                 </LabelContainer>
                 <FieldContainer>
-                    <Field name={`${name}.adresses."1"`} component={TextInput} placeholder={`Address`} />
+                    <Field name={`${name}.contractAddress`} component={TextInput} pattern={'^0x[a-fA-F0-9]{40}'}
+                        patternMismatch={'Not a valid etheureum address'} placeholder={`Address`} required={true} />
+                </FieldContainer>
+                <OnChange name={`${name}.contractAddress`}>
+                    {async ( value: string, previous: string) => {
+                        const contract = (await getContractWrappers()).erc20Token;
+                        const name = web3Wrapper.callAsync()
+                        form.batch(()=> {
+                            form.change(`${name}.name`, 'Erik');
+                            form.change(`${name}.decimals`, 'Rasmussen');
+                            form.change(`${name}.symbol`, 'Rasmussen') ;
+
+                        })
+                    // do something
+                    }}
+                </OnChange>
+                <LabelContainer>
+                    <Label>Name</Label>
+                </LabelContainer>
+                <FieldContainer>
+                    <Field name={`${name}.name`} component={TextInput} placeholder={`Name`}/>
+                </FieldContainer>
+                <LabelContainer>
+                    <Label>Primary Color</Label>
+                </LabelContainer>
+                <FieldContainer>
+                    <Field name={`${name}.primaryColor`} component={ColorButtonInput} placeholder={`Primary Color`} />
+                </FieldContainer>
+                <LabelContainer>
+                    <Label>Icon</Label>
+                </LabelContainer>
+                <FieldContainer>
+                    <Field name={`${name}.icon`}  type={'url'} component={StyledInput} placeholder={`Icon Url`} />
+                </FieldContainer>
+                <LabelContainer>
+                    <Label>Decimals</Label>
+                </LabelContainer>
+                <FieldContainer>
+                    <Field name={`${name}.decimals`} type={'number'} min={0} component={StyledInput} placeholder={`Decimals`} disabled={true}/>
                 </FieldContainer>
                 <LabelContainer>
                     <Label>Display Decimals</Label>
                 </LabelContainer>
                 <FieldContainer>
-                    <Field name={`${name}.displayDecimals`} component={TextInput} placeholder={`Icon Url`} />
+                    <Field name={`${name}.displayDecimals`} type={'number'} min={0} component={StyledInput} placeholder={`Display Decimals`} />
                 </FieldContainer>
                 <LabelContainer>
                     <Label>Website</Label>
                 </LabelContainer>
                 <FieldContainer>
-                    <Field name={`${name}.website`} component={TextInput} placeholder={`Website`} />
+                    <Field name={`${name}.website`} type={'url'} component={StyledInput} placeholder={`Website`} />
                 </FieldContainer>
                 <LabelContainer>
                     <Label>Coingecko Id</Label>
