@@ -28,5 +28,4 @@ const IEOPage = () => (
     </Content>
 );
 
-
-export {IEOPage as default};
+export { IEOPage as default };

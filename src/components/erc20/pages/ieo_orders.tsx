@@ -26,4 +26,4 @@ const IEOOrdersPage = () => (
     </>
 );
 
-export {IEOOrdersPage as default};
+export { IEOOrdersPage as default };

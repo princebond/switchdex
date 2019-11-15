@@ -23,4 +23,4 @@ const AccountTradingsPage = () => (
     </Content>
 );
 
-export {AccountTradingsPage as default}; 
+export { AccountTradingsPage as default };

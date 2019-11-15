@@ -1,4 +1,4 @@
-import React, {lazy, Suspense} from 'react';
+import React, { lazy, Suspense } from 'react';
 import { Route, Switch } from 'react-router';
 import { ThemeProvider } from 'styled-components';
 
@@ -7,17 +7,11 @@ import { AdBlockDetector } from '../../components/common/adblock_detector';
 import { GeneralLayoutContainer } from '../../components/general_layout';
 import { getThemeByMarketplace } from '../../themes/theme_meta_data_utils';
 import { MARKETPLACES } from '../../util/types';
+import { PageLoading } from '../common/page_loading';
 
-// import TokensListPage from './pages/tokens_list';
 import ToolbarContentContainer from './common/toolbar_content';
 
-const toolbar = <ToolbarContentContainer/>;
-
-/*const toolbar = lazy(() => import('./common/toolbar_content'));
-const Marketplace = lazy(() => import('./pages/marketplace'));
-const MyWallet = lazy(() => import('./pages/my_wallet'));
-const TokensListPage = lazy(() => import('./pages/tokens_list'));
-const AccountTradingsPage = lazy(() => import('./pages/account_trading'));*/
+const toolbar = <ToolbarContentContainer />;
 
 const TokensListPage = lazy(() => import('./pages/tokens_list'));
 const MyWallet = lazy(() => import('./pages/my_wallet'));
@@ -31,7 +25,7 @@ const Erc20App = () => {
             <GeneralLayoutContainer toolbar={toolbar}>
                 <AdBlockDetector />
                 <Switch>
-                    <Suspense fallback={<div>Loading...</div>}>
+                    <Suspense fallback={<PageLoading />}>
                         <Route exact={true} path={`${ERC20_APP_BASE_PATH}/`} component={Marketplace} />
                         <Route exact={true} path={`${ERC20_APP_BASE_PATH}/my-wallet`} component={MyWallet} />
                         <Route exact={true} path={`${ERC20_APP_BASE_PATH}/listed-tokens`} component={TokensListPage} />
@@ -47,4 +41,4 @@ const Erc20App = () => {
     );
 };
 
-export {Erc20App as default};
+export { Erc20App as default };

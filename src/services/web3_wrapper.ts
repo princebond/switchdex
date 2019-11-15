@@ -2,8 +2,6 @@
 import { providerUtils } from '@0x/utils';
 import { Web3Wrapper } from '@0x/web3-wrapper';
 
-
-
 import { FORTMATIC_APP_ID, NETWORK_ID, NETWORK_NAME, PORTIS_APP_ID } from '../common/constants';
 import { providerFactory } from '../util/provider_factory';
 import { sleep } from '../util/sleep';
@@ -41,7 +39,7 @@ export const initializeWeb3Wrapper = async (wallet: Wallet): Promise<Web3Wrapper
             web3Wrapper = await initCoinbase();
             break;
         case Wallet.Trust:
-            web3Wrapper = await initProviderWallet(wallet);
+            web3Wrapper = await initTrustWallet(wallet);
             break;
         case Wallet.Cipher:
             web3Wrapper = await initProviderWallet(wallet);
@@ -145,6 +143,27 @@ export const initCoinbase = async (): Promise<Web3Wrapper | null> => {
 
 const initProviderWallet = async (wallet: Wallet): Promise<Web3Wrapper | null> => {
     const provider = providerFactory.getInjectedProviderIfExists();
+
+    if (provider) {
+        try {
+            web3Wrapper = new Web3Wrapper(provider);
+            if (provider.enable !== undefined) {
+                await provider.enable();
+            }
+            localStorage.saveWalletConnected(wallet);
+            return web3Wrapper;
+        } catch (error) {
+            // The user denied account access
+            return null;
+        }
+    } else {
+        localStorage.resetWalletConnected();
+        return null;
+    }
+};
+
+const initTrustWallet = async (wallet: Wallet): Promise<Web3Wrapper | null> => {
+    const provider = window.ethereum;
 
     if (provider) {
         try {

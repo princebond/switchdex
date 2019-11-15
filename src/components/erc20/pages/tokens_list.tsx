@@ -21,4 +21,4 @@ const TokensListPage = () => (
     </Content>
 );
 
-export {TokensListPage as default};
+export { TokensListPage as default };

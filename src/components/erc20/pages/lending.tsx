@@ -26,4 +26,4 @@ const LendingPage = () => (
     </Content>
 );
 
-export {LendingPage as default};
+export { LendingPage as default };
