@@ -21,6 +21,4 @@ const InputStyled = styled.input`
     z-index: 1;
 `;
 
-export const StyledInput: React.FC<Props> = ({ input, meta, ...rest }: Props) => (
-    <InputStyled {...input} {...rest} />
-);
+export const StyledInput: React.FC<Props> = ({ input, meta, ...rest }: Props) => <InputStyled {...input} {...rest} />;

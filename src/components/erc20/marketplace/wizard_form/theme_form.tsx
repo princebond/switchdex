@@ -1,5 +1,5 @@
 import React from 'react';
-import {Collapse} from 'react-collapse';
+import { Collapse } from 'react-collapse';
 import { Field } from 'react-final-form';
 
 import { Accordion } from '../../../common/accordion';
@@ -12,7 +12,7 @@ import { AccordionCollapse } from '../../../common/accordion_collapse';
 
 export const ThemeForm = ({ name, label }: { name: string; label: string }) => (
     <>
-      <AccordionCollapse title={'Theme'}>
+        <AccordionCollapse title={'Theme'}>
             <LabelContainer>
                 <Label>Background</Label>
             </LabelContainer>

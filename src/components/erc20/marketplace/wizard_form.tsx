@@ -1,4 +1,4 @@
-import arrayMutators from 'final-form-arrays'
+import arrayMutators from 'final-form-arrays';
 import React from 'react';
 import { Form } from 'react-final-form';
 import styled, { withTheme } from 'styled-components';
@@ -62,72 +62,70 @@ const FieldContainer = styled.div`
 `;
 
 const PreStyled = styled.pre`
-   color:${props =>  props.theme.componentsTheme.textColorCommon};
-`
+    color: ${props => props.theme.componentsTheme.textColorCommon};
+`;
 
-
-
-const WizardForm  = (props: Props) => {
+const WizardForm = (props: Props) => {
     const config = Config.getConfig();
     const themeColor = getThemeByMarketplace(MARKETPLACES.ERC20);
     config.theme = themeColor;
 
-    const content =  (
-            <Content>
-                <Form
-                    onSubmit={onSubmit}
-                    initialValues={config}
-                    mutators={{
-                        ...arrayMutators,
-                      }}
-                    // tslint:disable-next-line: jsx-no-lambda boolean-naming
-                    render={({
-                        handleSubmit,
-                        form: {
-                          mutators: { push, pop },
-                        }, // injected from final-form-arrays above
-                        // tslint:disable-next-line: boolean-naming
-                        pristine,
-                        form,
-                        // tslint:disable-next-line: boolean-naming
-                        submitting,
-                        values,
-                      }) => (
-                        <form onSubmit={handleSubmit}>
-                            <GeneralWizardForm name="general" label="test" />
-                            <ThemeForm name="theme" label="test"/>
-                            <TokensForm push={push} pop={pop} />
-                            <PairsForm name="pairs" label="test" />
-                            <MarketFiltersForm name="marketFilters" label="test" />
-                            <ButtonsContainer>
-                                <ButtonContainer>
-                                    <Button
-                                        onClick={form.submit}
-                                        disabled={submitting || pristine}
-                                        variant={ButtonVariant.Buy}
-                                    >
-                                        Submit
-                                    </Button>
-                                </ButtonContainer>
-                                <ButtonContainer>
-                                    <Button
-                                        onClick={form.reset}
-                                        disabled={submitting || pristine}
-                                        variant={ButtonVariant.Sell}
-                                    >
-                                        Reset
-                                    </Button>
-                                </ButtonContainer>
-                            </ButtonsContainer>
-                            <PreStyled>{JSON.stringify(values, undefined, 2)}</PreStyled>
-                        </form>
-                    )}
-                />
-            </Content>
-        );
+    const content = (
+        <Content>
+            <Form
+                onSubmit={onSubmit}
+                initialValues={config}
+                mutators={{
+                    ...arrayMutators,
+                }}
+                // tslint:disable-next-line: jsx-no-lambda boolean-naming
+                render={({
+                    handleSubmit,
+                    form: {
+                        mutators: { push, pop },
+                    }, // injected from final-form-arrays above
+                    // tslint:disable-next-line: boolean-naming
+                    pristine,
+                    form,
+                    // tslint:disable-next-line: boolean-naming
+                    submitting,
+                    values,
+                }) => (
+                    <form onSubmit={handleSubmit}>
+                        <GeneralWizardForm name="general" label="test" />
+                        <ThemeForm name="theme" label="test" />
+                        <TokensForm push={push} pop={pop} />
+                        <PairsForm name="pairs" label="test" />
+                        <MarketFiltersForm name="marketFilters" label="test" />
+                        <ButtonsContainer>
+                            <ButtonContainer>
+                                <Button
+                                    onClick={form.submit}
+                                    disabled={submitting || pristine}
+                                    variant={ButtonVariant.Buy}
+                                >
+                                    Submit
+                                </Button>
+                            </ButtonContainer>
+                            <ButtonContainer>
+                                <Button
+                                    onClick={form.reset}
+                                    disabled={submitting || pristine}
+                                    variant={ButtonVariant.Sell}
+                                >
+                                    Reset
+                                </Button>
+                            </ButtonContainer>
+                        </ButtonsContainer>
+                        <PreStyled>{JSON.stringify(values, undefined, 2)}</PreStyled>
+                    </form>
+                )}
+            />
+        </Content>
+    );
 
     return <Card title="DEX Wizard">{content}</Card>;
-}
+};
 
 const WizardFormWithTheme = withTheme(WizardForm);
 

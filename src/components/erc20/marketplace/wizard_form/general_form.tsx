@@ -8,10 +8,9 @@ import { AccordionCollapse } from '../../../common/accordion_collapse';
 import { TextInput } from '../../../common/final_form/text_input';
 
 import { FieldContainer, Label, LabelContainer } from './styles';
-import {  StyledInput } from '../../../common/final_form/styled_input';
+import { StyledInput } from '../../../common/final_form/styled_input';
 
-
-const SocialForm = ({ name}: { name: string }) => (
+const SocialForm = ({ name }: { name: string }) => (
     <>
         <LabelContainer>
             <Label>Telegram Url</Label>
@@ -47,26 +46,36 @@ const SocialForm = ({ name}: { name: string }) => (
             <Label>BitcoinTalk Url</Label>
         </LabelContainer>
         <FieldContainer>
-            <Field name={`${name}.bitcointalk_url`} type={'url'} component={StyledInput} placeholder={`BitcoinTalk Url`} />
+            <Field
+                name={`${name}.bitcointalk_url`}
+                type={'url'}
+                component={StyledInput}
+                placeholder={`BitcoinTalk Url`}
+            />
         </FieldContainer>
         <LabelContainer>
             <Label>State of Dapps Url</Label>
         </LabelContainer>
         <FieldContainer>
-            <Field name={`${name}.statedapps_url`} type={'url'} component={StyledInput} placeholder={`State of Dapps Url`} />
+            <Field
+                name={`${name}.statedapps_url`}
+                type={'url'}
+                component={StyledInput}
+                placeholder={`State of Dapps Url`}
+            />
         </FieldContainer>
     </>
-)  
+);
 
 const StyledSocialForm = styled(AccordionCollapse)`
- padding:20px;
- border-radius: ${themeDimensions.borderRadius};
- border: 1px solid ${props => props.theme.componentsTheme.cardBorderColor};
+    padding: 20px;
+    border-radius: ${themeDimensions.borderRadius};
+    border: 1px solid ${props => props.theme.componentsTheme.cardBorderColor};
 `;
 
 export const GeneralWizardForm = ({ name, label }: { name: string; label: string }) => (
     <>
-      <AccordionCollapse title={'General'}>
+        <AccordionCollapse title={'General'}>
             <LabelContainer>
                 <Label>Title</Label>
             </LabelContainer>
@@ -83,7 +92,13 @@ export const GeneralWizardForm = ({ name, label }: { name: string; label: string
                 <Label>Fee Recipient</Label>
             </LabelContainer>
             <FieldContainer>
-                <Field name={`${name}.fee_recipient`} component={TextInput} placeholder={`Fee Recipient`} pattern={'^0x[a-fA-F0-9]{40}'} patternMismatch={'Not a valid etheureum address'}/>
+                <Field
+                    name={`${name}.fee_recipient`}
+                    component={TextInput}
+                    placeholder={`Fee Recipient`}
+                    pattern={'^0x[a-fA-F0-9]{40}'}
+                    patternMismatch={'Not a valid etheureum address'}
+                />
             </FieldContainer>
             <LabelContainer>
                 <Label>Icon URL (SVG)</Label>
@@ -91,7 +106,9 @@ export const GeneralWizardForm = ({ name, label }: { name: string; label: string
             <FieldContainer>
                 <Field name={`${name}.icon`} type={'url'} component={StyledInput} placeholder={`Icon Url`} />
             </FieldContainer>
-            <StyledSocialForm title={'Social Urls'}><SocialForm  name={`${name}.social`}/> </StyledSocialForm>
+            <StyledSocialForm title={'Social Urls'}>
+                <SocialForm name={`${name}.social`} />{' '}
+            </StyledSocialForm>
         </AccordionCollapse>
     </>
 );

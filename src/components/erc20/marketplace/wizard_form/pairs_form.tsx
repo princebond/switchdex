@@ -9,7 +9,7 @@ import { FieldContainer, Label, LabelContainer } from './styles';
 
 export const PairsForm = ({ name, label }: { name: string; label: string }) => (
     <>
-      <AccordionCollapse title={'Pairs'}>
+        <AccordionCollapse title={'Pairs'}>
             <LabelContainer>
                 <Label>Base</Label>
             </LabelContainer>

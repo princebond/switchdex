@@ -9,7 +9,7 @@ import { AccordionCollapse } from '../../../common/accordion_collapse';
 
 export const MarketFiltersForm = ({ name, label }: { name: string; label: string }) => (
     <>
-      <AccordionCollapse title={'Market Filters'}>
+        <AccordionCollapse title={'Market Filters'}>
             <LabelContainer>
                 <Label>Title</Label>
             </LabelContainer>
