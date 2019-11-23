@@ -13,10 +13,12 @@ const ColumnWideMyWallet = styled(ColumnWide)`
     }
 `;
 
-export const WizardPage = () => (
+const WizardPage = () => (
     <Content>
         <ColumnWideMyWallet>
             <WizardFormWithTheme />
         </ColumnWideMyWallet>
     </Content>
 );
+
+export { WizardPage as default };

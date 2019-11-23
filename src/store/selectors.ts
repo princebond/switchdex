@@ -81,6 +81,9 @@ export const getBZXiTokensList = (state: StoreState) => state.bzx.TokensList;
 export const getBZXLoadingState = (state: StoreState) => state.bzx.bzxLoadingState;
 export const getIEOOrders = (state: StoreState) => state.relayer.ieoOrders;
 export const getUserIEOUIOrders = (state: StoreState) => state.relayer.userIEOOrders;
+export const getERC20Theme = (state: StoreState) => state.ui.erc20Theme;
+export const getGeneralConfig = (state: StoreState) => state.ui.generalConfig;
+export const getConfigData = (state: StoreState) => state.ui.configData;
 
 export const getCurrentMarketPlace = createSelector(
     getCurrentRoutePath,

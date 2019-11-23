@@ -1,12 +1,14 @@
 import arrayMutators from 'final-form-arrays';
 import React from 'react';
 import { Form } from 'react-final-form';
+import { useDispatch, useSelector } from 'react-redux';
 import styled, { withTheme } from 'styled-components';
 
-import { Config } from '../../../common/config';
+import { ConfigTemplate } from '../../../common/config';
+import { startDexConfigSteps } from '../../../store/actions';
+import { getConfigData, getERC20Theme } from '../../../store/selectors';
 import { Theme, themeDimensions } from '../../../themes/commons';
-import { getThemeByMarketplace } from '../../../themes/theme_meta_data_utils';
-import { ButtonVariant, MARKETPLACES } from '../../../util/types';
+import { ButtonVariant, ConfigFile } from '../../../util/types';
 import { Button } from '../../common/button';
 import { Card } from '../../common/card';
 
@@ -22,10 +24,6 @@ interface OwnProps {
 
 type Props = OwnProps;
 
-const onSubmit = async (values: any) => {
-    window.alert(JSON.stringify(values, undefined, 2));
-};
-
 const Content = styled.div`
     display: flex;
     flex-direction: column;
@@ -33,12 +31,6 @@ const Content = styled.div`
     padding: 20px ${themeDimensions.horizontalPadding};
 `;
 
-const LabelContainer = styled.div`
-    align-items: flex-start;
-    display: flex;
-    justify-content: space-between;
-    margin-bottom: 10px;
-`;
 const ButtonsContainer = styled.div`
     align-items: flex-start;
     display: flex;
@@ -48,31 +40,33 @@ const ButtonContainer = styled.div`
     padding: 10px;
 `;
 
-const Label = styled.label<{ color?: string }>`
-    color: ${props => props.color || props.theme.componentsTheme.textColorCommon};
-    font-size: 14px;
-    font-weight: 500;
-    line-height: normal;
-    margin: 0;
-`;
-const FieldContainer = styled.div`
-    height: ${themeDimensions.fieldHeight};
-    margin-bottom: 10px;
-    position: relative;
-`;
-
 const PreStyled = styled.pre`
     color: ${props => props.theme.componentsTheme.textColorCommon};
 `;
 
-const WizardForm = (props: Props) => {
-    const config = Config.getConfig();
-    const themeColor = getThemeByMarketplace(MARKETPLACES.ERC20);
+const WizardForm = (_props: Props) => {
+    const configTemplate = ConfigTemplate.getConfig();
+    const dispatch = useDispatch();
+    const themeColor = useSelector(getERC20Theme);
+    const configData = useSelector(getConfigData);
+    let config: ConfigFile;
+    configData ? (config = configData.config) : (config = configTemplate);
     config.theme = themeColor;
     config.tokens.forEach(t => {
-        // @ts-ignore
-        t.contractAddress = t.addresses['1'];
-    })
+        if (!t.mainnetAddress) {
+            // @ts-ignore
+            t.mainnetAddress = t.addresses['1'];
+        }
+    });
+
+    const onSubmit = (values: any) => {
+        // @TODO remove this workaround
+        values.tokens.forEach((t: any) => {
+            t.addresses = {};
+            t.addresses['1'] = t.mainnetAddress;
+        });
+        dispatch(startDexConfigSteps(values));
+    };
 
     const content = (
         <Content>
@@ -86,7 +80,7 @@ const WizardForm = (props: Props) => {
                 render={({
                     handleSubmit,
                     form: {
-                        mutators: { push, pop },
+                        mutators: { unshift },
                     }, // injected from final-form-arrays above
                     // tslint:disable-next-line: boolean-naming
                     pristine,
@@ -98,9 +92,9 @@ const WizardForm = (props: Props) => {
                     <form onSubmit={handleSubmit}>
                         <GeneralWizardForm name="general" label="test" />
                         <ThemeForm name="theme" label="test" />
-                        <TokensForm push={push} pop={pop} />
-                        <PairsForm name="pairs" label="test" />
-                        <MarketFiltersForm name="marketFilters" label="test" />
+                        <TokensForm unshift={unshift} />
+                        <PairsForm />
+                        <MarketFiltersForm />
                         <ButtonsContainer>
                             <ButtonContainer>
                                 <Button

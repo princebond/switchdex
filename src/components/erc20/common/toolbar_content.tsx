@@ -1,15 +1,15 @@
 import React from 'react';
-import { connect, useDispatch } from 'react-redux';
+import { connect, useDispatch, useSelector } from 'react-redux';
 import ReactSVG from 'react-svg';
 import styled, { withTheme } from 'styled-components';
 
 import { ReactComponent as LogoSvg } from '../../../assets/icons/veridex_logo.svg';
-import { Config } from '../../../common/config';
 import { UI_GENERAL_TITLE } from '../../../common/constants';
 import { Logo } from '../../../components/common/logo';
 import { separatorTopbar, ToolbarContainer } from '../../../components/common/toolbar';
 import { NotificationsDropdownContainer } from '../../../components/notifications/notifications_dropdown';
 import { goToHome, goToWallet, openSideBar } from '../../../store/actions';
+import { getGeneralConfig } from '../../../store/selectors';
 import { Theme, themeBreakPoints } from '../../../themes/commons';
 import { isMobile } from '../../../util/screen';
 import { Button } from '../../common/button';
@@ -83,7 +83,7 @@ const ToolbarContent = (props: Props) => {
         e.preventDefault();
         props.onGoToHome();
     };
-    const generalConfig = Config.getConfig().general;
+    const generalConfig = useSelector(getGeneralConfig);
     const logo = generalConfig && generalConfig.icon ? <ReactSVG src={generalConfig.icon} /> : <LogoSVGStyled />;
     const dispatch = useDispatch();
     const setOpenSideBar = () => {

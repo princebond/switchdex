@@ -1,16 +1,15 @@
 import React, { lazy, Suspense } from 'react';
+import { useSelector } from 'react-redux';
 import { Route, Switch } from 'react-router';
 import { ThemeProvider } from 'styled-components';
 
 import { ERC20_APP_BASE_PATH } from '../../common/constants';
 import { AdBlockDetector } from '../../components/common/adblock_detector';
 import { GeneralLayoutContainer } from '../../components/general_layout';
-import { getThemeByMarketplace } from '../../themes/theme_meta_data_utils';
-import { MARKETPLACES } from '../../util/types';
+import { getERC20Theme } from '../../store/selectors';
 import { PageLoading } from '../common/page_loading';
 
 import ToolbarContentContainer from './common/toolbar_content';
-import { WizardPage } from './pages/wizard';
 
 const toolbar = <ToolbarContentContainer />;
 
@@ -18,9 +17,10 @@ const TokensListPage = lazy(() => import('./pages/tokens_list'));
 const MyWallet = lazy(() => import('./pages/my_wallet'));
 const AccountTradingsPage = lazy(() => import('./pages/account_trading'));
 const Marketplace = lazy(() => import('./pages/marketplace'));
+const WizardPage = lazy(() => import('./pages/wizard'));
 
 const Erc20App = () => {
-    const themeColor = getThemeByMarketplace(MARKETPLACES.ERC20);
+    const themeColor = useSelector(getERC20Theme);
     return (
         <ThemeProvider theme={themeColor}>
             <GeneralLayoutContainer toolbar={toolbar}>

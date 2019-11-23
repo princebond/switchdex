@@ -4,7 +4,7 @@ import queryString from 'query-string';
 import { createAction } from 'typesafe-actions';
 
 import { ERC20_APP_BASE_PATH } from '../../common/constants';
-import { availableMarkets } from '../../common/markets';
+import { getAvailableMarkets } from '../../common/markets';
 import { getMarketPriceEther, getMarketPriceQuote, getMarketPriceTokens } from '../../services/markets';
 import { getRelayer } from '../../services/relayer';
 import { getKnownTokens } from '../../util/known_tokens';
@@ -113,9 +113,8 @@ export const fetchMarkets: ThunkCreator = () => {
     return async dispatch => {
         const knownTokens = getKnownTokens();
         const relayer = getRelayer();
-
         let markets: any[] = await Promise.all(
-            availableMarkets.map(async availableMarket => {
+            getAvailableMarkets().map(async availableMarket => {
                 try {
                     const baseToken = knownTokens.getTokenBySymbol(availableMarket.base);
                     const quoteToken = knownTokens.getTokenBySymbol(availableMarket.quote);

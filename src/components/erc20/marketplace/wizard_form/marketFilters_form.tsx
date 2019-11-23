@@ -1,27 +1,46 @@
 import React from 'react';
 import { Field } from 'react-final-form';
+import { FieldArray } from 'react-final-form-arrays';
+import styled from 'styled-components';
 
-import { Accordion } from '../../../common/accordion';
+import { themeDimensions } from '../../../../themes/commons';
+import { AccordionCollapse } from '../../../common/accordion_collapse';
 import { TextInput } from '../../../common/final_form/text_input';
 
 import { FieldContainer, Label, LabelContainer } from './styles';
-import { AccordionCollapse } from '../../../common/accordion_collapse';
 
-export const MarketFiltersForm = ({ name, label }: { name: string; label: string }) => (
+const StyledFilter = styled.div`
+    padding-left: 20px;
+    padding-top: 10px;
+    border-radius: ${themeDimensions.borderRadius};
+    border: 1px solid ${props => props.theme.componentsTheme.cardBorderColor};
+`;
+
+export const MarketFiltersForm = () => (
     <>
         <AccordionCollapse title={'Market Filters'}>
-            <LabelContainer>
-                <Label>Title</Label>
-            </LabelContainer>
-            <FieldContainer>
-                <Field name={`${name}.title`} component={TextInput} placeholder={`Title`} />
-            </FieldContainer>
-            <LabelContainer>
-                <Label>Icon URL (SVG)</Label>
-            </LabelContainer>
-            <FieldContainer>
-                <Field name={`${name}.icon`} component={TextInput} placeholder={`Icon Url`} />
-            </FieldContainer>
+            <FieldArray name="marketFilters">
+                {({ fields }) =>
+                    fields.map((name, index) => (
+                        <StyledFilter key={name}>
+                            <FilterForm name={name} index={index} />
+                        </StyledFilter>
+                    ))
+                }
+            </FieldArray>
         </AccordionCollapse>
     </>
 );
+
+const FilterForm = ({ name, index }: { name: string; index: number }) => {
+    return (
+        <>
+            <LabelContainer>
+                <Label>Symbol</Label>
+            </LabelContainer>
+            <FieldContainer>
+                <Field name={`${name}.text`} component={TextInput} placeholder={`text`} disabled={true} />
+            </FieldContainer>
+        </>
+    );
+};

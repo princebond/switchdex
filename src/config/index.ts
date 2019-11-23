@@ -4,6 +4,7 @@
 // import configFileProduction from '../config/files/config2.json';
 // Using this due to CI error
 import configFileIEOProduction from './config-ieo.json';
+import configTemplateFile from './config-template.json';
 import configFileTest from './config-test.json';
 // import configFileIEOProduction from './files/config-ieo.json';
 import configFileProduction from './config.json';
@@ -23,4 +24,4 @@ if (process.env.NODE_ENV === 'development') {
 
 configFileIEO = configFileIEOProduction;
 
-export { configFile, configFileIEO };
+export { configFile, configFileIEO, configTemplateFile };

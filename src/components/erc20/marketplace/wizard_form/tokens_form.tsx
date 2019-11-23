@@ -4,25 +4,19 @@ import { Field } from 'react-final-form-html5-validation';
 import { OnChange } from 'react-final-form-listeners';
 import styled from 'styled-components';
 
+import { getERC20ContractWrapper } from '../../../../services/contract_wrappers';
+import { getTokenByAddress } from '../../../../services/tokens';
 import { themeDimensions } from '../../../../themes/commons';
-import { ButtonVariant } from '../../../../util/types';
+import { getKnownTokens } from '../../../../util/known_tokens';
+import { ButtonVariant, Token } from '../../../../util/types';
 import { AccordionCollapse } from '../../../common/accordion_collapse';
 import { Button } from '../../../common/button';
 import { ColorButtonInput } from '../../../common/final_form/color_button_input';
 import { StyledInput } from '../../../common/final_form/styled_input';
 import { TextInput } from '../../../common/final_form/text_input';
+import { TokenIcon } from '../../../common/icons/token_icon';
 
 import { FieldContainer, Label, LabelContainer } from './styles';
-import { useForm } from 'react-final-form';
-import { getContractWrappers } from '../../../../services/contract_wrappers';
-import { getWeb3Wrapper } from '../../../../services/web3_wrapper';
-
-
-
-
-const LabelToken = styled.label`
-    color: ${props => props.theme.componentsTheme.textColorCommon};
-`;
 
 const ButtonsContainer = styled.div`
     align-items: flex-start;
@@ -42,14 +36,18 @@ const StyledToken = styled.div`
 
 const StyledFieldContainer = styled(FieldContainer)`
     display: flex;
+    justify-content: space-between;
+`;
+
+const StyledActions = styled(Label)`
+    padding: 5px;
 `;
 
 export const TokensForm = (props: any) => {
     const onPush = (e: any) => {
         e.preventDefault();
-        props.push('tokens', undefined);
+        props.unshift('tokens', undefined);
     };
-
     return (
         <>
             <AccordionCollapse title={'Tokens'}>
@@ -76,44 +74,104 @@ export const TokensForm = (props: any) => {
 
 const TokenForm = ({ name, index }: { name: string; index: number }) => {
     const [isEdit, setIsEdit] = useState(false);
+    const [isLoadingData, setIsLoadingData] = useState(false);
     const fieldArray = useFieldArray('tokens');
-    const form = useForm();
+    //  const form = useForm();
     const { fields } = fieldArray;
+    const pairsArray = useFieldArray('pairs');
+    const pairsFieldArray = pairsArray.fields;
+    const marketFilterArray = useFieldArray('marketFilters');
+    const marketFilters = marketFilterArray.fields.value;
+
+    const onChangeListener = (
+        <OnChange name={`${name}.mainnetAddress`}>
+            {async (value: string, _previous: string) => {
+                const re = new RegExp('^0x[a-fA-F0-9]{40}');
+                if (re.test(value)) {
+                    setIsLoadingData(true);
+                    try {
+                        const contract = await getERC20ContractWrapper(value.toLowerCase(), {});
+                        const tokenName = await contract.name.callAsync();
+                        const symbol = (await contract.symbol.callAsync()).toLowerCase();
+                        const decimals = await contract.decimals.callAsync();
+                        if (tokenName) {
+                            try {
+                                const tokenData = await getTokenByAddress(value.toLowerCase());
+                                const thumbImage = tokenData.image.thumb;
+                                fields.update(index, {
+                                    mainnetAddress: value.toLowerCase(),
+                                    name: tokenName,
+                                    symbol,
+                                    decimals,
+                                    website: tokenData.links.homepage[0],
+                                    c_id: tokenData.id,
+                                    icon: thumbImage.substring(0, thumbImage.indexOf('?')),
+                                });
+                            } catch (e) {
+                                fields.update(index, {
+                                    mainnetAddress: value.toLowerCase(),
+                                    name: tokenName,
+                                    symbol,
+                                    decimals,
+                                });
+                            }
+                        }
+                        marketFilters.forEach(m => {
+                            const quoteSymbol = m.value;
+                            pairsFieldArray.unshift({
+                                base: symbol.toLowerCase(),
+                                quote: quoteSymbol,
+                                config: {
+                                    basePrecision: 2,
+                                    pricePrecision: 8,
+                                    minAmount: 1,
+                                },
+                            });
+                        });
+                    } finally {
+                        setIsLoadingData(false);
+                    }
+                }
+                // do something
+            }}
+        </OnChange>
+    );
 
     if (isEdit) {
+        const onSetRemoveIsEdit = () => {
+            setIsEdit(false);
+        };
+        const value = fields.value[index];
         return (
             <>
-                <LabelContainer>
-                    <Label>Symbol</Label>
-                </LabelContainer>
-                <FieldContainer>
-                    <Field name={`${name}.symbol`} component={TextInput} placeholder={`Symbol`}/>
-                </FieldContainer>
+                <StyledActions onClick={onSetRemoveIsEdit} style={{ cursor: 'pointer' }}>
+                    ➖
+                </StyledActions>
                 <LabelContainer>
                     <Label>Contract Address</Label>
                 </LabelContainer>
                 <FieldContainer>
-                    <Field name={`${name}.contractAddress`} component={TextInput} pattern={'^0x[a-fA-F0-9]{40}'}
-                        patternMismatch={'Not a valid etheureum address'} placeholder={`Address`} required={true} />
+                    <Field
+                        name={`${name}.mainnetAddress`}
+                        component={TextInput}
+                        pattern={'^0x[a-fA-F0-9]{40}'}
+                        patternMismatch={'Not a valid etheureum address'}
+                        placeholder={`Address`}
+                        disabled={true}
+                        required={true}
+                    />
                 </FieldContainer>
-                <OnChange name={`${name}.contractAddress`}>
-                    {async ( value: string, previous: string) => {
-                        const contract = (await getContractWrappers()).erc20Token;
-                        const name = web3Wrapper.callAsync()
-                        form.batch(()=> {
-                            form.change(`${name}.name`, 'Erik');
-                            form.change(`${name}.decimals`, 'Rasmussen');
-                            form.change(`${name}.symbol`, 'Rasmussen') ;
-
-                        })
-                    // do something
-                    }}
-                </OnChange>
+                <LabelContainer>
+                    <Label>Symbol</Label>
+                </LabelContainer>
+                <FieldContainer>
+                    <Field name={`${name}.symbol`} component={TextInput} placeholder={`Symbol`} disabled={true} />
+                </FieldContainer>
                 <LabelContainer>
                     <Label>Name</Label>
                 </LabelContainer>
                 <FieldContainer>
-                    <Field name={`${name}.name`} component={TextInput} placeholder={`Name`}/>
+                    <Field name={`${name}.name`} component={TextInput} placeholder={`Name`} disabled={true} />
                 </FieldContainer>
                 <LabelContainer>
                     <Label>Primary Color</Label>
@@ -125,19 +183,33 @@ const TokenForm = ({ name, index }: { name: string; index: number }) => {
                     <Label>Icon</Label>
                 </LabelContainer>
                 <FieldContainer>
-                    <Field name={`${name}.icon`}  type={'url'} component={StyledInput} placeholder={`Icon Url`} />
+                    <TokenIcon symbol={value.symbol} icon={value.icon || ''} primaryColor={value.primaryColor} />
+                    <Field name={`${name}.icon`} type={'hidden'} component={StyledInput} placeholder={`Icon Url`} />
                 </FieldContainer>
                 <LabelContainer>
                     <Label>Decimals</Label>
                 </LabelContainer>
                 <FieldContainer>
-                    <Field name={`${name}.decimals`} type={'number'} min={0} component={StyledInput} placeholder={`Decimals`} disabled={true}/>
+                    <Field
+                        name={`${name}.decimals`}
+                        type={'number'}
+                        min={0}
+                        component={StyledInput}
+                        placeholder={`Decimals`}
+                        disabled={true}
+                    />
                 </FieldContainer>
                 <LabelContainer>
                     <Label>Display Decimals</Label>
                 </LabelContainer>
                 <FieldContainer>
-                    <Field name={`${name}.displayDecimals`} type={'number'} min={0} component={StyledInput} placeholder={`Display Decimals`} />
+                    <Field
+                        name={`${name}.displayDecimals`}
+                        type={'number'}
+                        min={0}
+                        component={StyledInput}
+                        placeholder={`Display Decimals`}
+                    />
                 </FieldContainer>
                 <LabelContainer>
                     <Label>Website</Label>
@@ -145,40 +217,106 @@ const TokenForm = ({ name, index }: { name: string; index: number }) => {
                 <FieldContainer>
                     <Field name={`${name}.website`} type={'url'} component={StyledInput} placeholder={`Website`} />
                 </FieldContainer>
-                <LabelContainer>
-                    <Label>Coingecko Id</Label>
-                </LabelContainer>
                 <FieldContainer>
-                    <Field name={`${name}.c_id`} component={TextInput} placeholder={`Coingecko id`} />
+                    <Field name={`${name}.c_id`} type={'hidden'} component={StyledInput} placeholder={`Coingecko id`} />
                 </FieldContainer>
             </>
         );
     } else {
         const removeField = () => {
+            const tokenValue: Token = fields.value[index];
+            // remove pairs and then remove token from list
+            for (let i = pairsFieldArray.value.length - 1; i >= 0; i--) {
+                const pairValue = pairsFieldArray.value[i];
+                if (pairValue.base.toLowerCase() === tokenValue.symbol.toLowerCase()) {
+                    pairsFieldArray.remove(i);
+                }
+                if (pairValue.quote.toLowerCase() === tokenValue.symbol.toLowerCase()) {
+                    pairsFieldArray.remove(i);
+                }
+            }
             fields.remove(index);
         };
         const onSetIsEdit = () => {
             setIsEdit(true);
         };
-
-        return (
+        const onSwapUp = () => {
+            const newIndex = index - 1;
+            if (newIndex >= 0) {
+                fields.move(index, newIndex);
+                const knownTokens = getKnownTokens();
+                knownTokens.updateTokens(fields.value);
+            }
+        };
+        const onSwapDown = () => {
+            const total = fields.value.length;
+            const newIndex = index + 1;
+            if (newIndex < total) {
+                fields.move(index, newIndex);
+                const knownTokens = getKnownTokens();
+                knownTokens.updateTokens(fields.value);
+            }
+        };
+        const value = fields.value[index];
+        let isTokenQuote = false;
+        if (value && value.symbol) {
+            isTokenQuote = isQuote(value.symbol, marketFilters);
+        }
+        const nameField = () => (
             <StyledFieldContainer>
-                <Field name={`${name}.name`}>
-                    {(props: any) => (
-                        <LabelContainer>
-                            <Label>{props.input.value || 'Insert Name'}</Label>
-                        </LabelContainer>
-                    )}
-                </Field>
+                <LabelContainer>
+                    <Label>{value.name}</Label>
+                </LabelContainer>
                 <div>
-                    <Label onClick={removeField} style={{ cursor: 'pointer' }}>
-                        ❌
-                    </Label>
-                    <Label onClick={onSetIsEdit} style={{ cursor: 'pointer' }}>
-                        Edit
-                    </Label>
+                    {!isTokenQuote && (
+                        <StyledActions onClick={removeField} style={{ cursor: 'pointer' }}>
+                            ❌
+                        </StyledActions>
+                    )}
+                    {!isTokenQuote && (
+                        <StyledActions onClick={onSetIsEdit} style={{ cursor: 'pointer' }}>
+                            ✎
+                        </StyledActions>
+                    )}
+                    <StyledActions onClick={onSwapDown} style={{ cursor: 'pointer' }}>
+                        ▼
+                    </StyledActions>
+                    <StyledActions onClick={onSwapUp} style={{ cursor: 'pointer' }}>
+                        ▲
+                    </StyledActions>
                 </div>
             </StyledFieldContainer>
         );
+        const contractAddressField = () => (
+            <>
+                <LabelContainer>
+                    <Label>Contract Address {isLoadingData ? '(Loading Data... )' : ''} </Label>
+                    <StyledActions onClick={removeField} style={{ cursor: 'pointer' }}>
+                        ❌
+                    </StyledActions>
+                </LabelContainer>
+                <FieldContainer>
+                    <Field
+                        name={`${name}.mainnetAddress`}
+                        component={TextInput}
+                        pattern={'^0x[a-fA-F0-9]{40}'}
+                        patternMismatch={'Not a valid etheureum address'}
+                        placeholder={`Contract Address`}
+                        required={true}
+                    />
+                    {isLoadingData ? <Label>{'Loading Data... '}</Label> : ''}
+                </FieldContainer>
+                {onChangeListener}
+            </>
+        );
+        return value && value.name ? nameField() : contractAddressField();
+    }
+};
+
+const isQuote = (tokenSymbol: string, marketFilters: Array<{ text: string; value: string }>) => {
+    try {
+        return marketFilters.map(m => m.value.toLowerCase()).includes(tokenSymbol.toLowerCase());
+    } catch {
+        return false;
     }
 };

@@ -7,9 +7,11 @@ import {
     UPDATE_ERC20_MARKETS,
     UPDATE_ETHER_PRICE_INTERVAL,
     UPDATE_TOKENS_PRICE_INTERVAL,
+    VERIDEX_ORIGIN,
 } from '../common/constants';
 import { LocalStorage } from '../services/local_storage';
 import {
+    initConfigData,
     initializeAppWallet,
     initWallet,
     updateERC20Markets,
@@ -32,6 +34,7 @@ interface StateProps {
 
 interface DispatchProps {
     onConnectWallet: (wallet: Wallet) => any;
+    onInitConfig: (name: string | undefined, domain: string | undefined) => any;
     onInitWalletState: () => any;
     onUpdateStore: () => any;
     onUpdateMarketPriceEther: () => any;
@@ -51,10 +54,19 @@ class App extends React.Component<Props> {
     private _updateERC20MarketsInterval: number | undefined;
 
     public componentDidMount = () => {
-        const { MARKETPLACE } = this.props;
+        const { MARKETPLACE, onInitConfig } = this.props;
         // no need to init when instant is the marketplace
         if (MARKETPLACE === MARKETPLACES.Instant) {
             return;
+        }
+        // Check if any config is requested
+        const parsedUrl = new URL(window.location.href.replace('#/', ''));
+        const dex = parsedUrl.searchParams.get('dex');
+        const origin = window.location.origin;
+        if (origin !== VERIDEX_ORIGIN) {
+            onInitConfig(undefined, origin);
+        } else if (dex) {
+            onInitConfig(dex, undefined);
         }
         // this.props.onInitWalletState();
         const walletConnected = localStorage.getWalletConnected();
@@ -160,6 +172,7 @@ const mapDispatchToProps = (dispatch: any) => {
         onUpdateMarketPriceTokens: () => dispatch(updateMarketPriceTokens()),
         onUpdateERC20Markets: () => dispatch(updateERC20Markets()),
         onConnectWallet: (wallet: Wallet) => dispatch(initWallet(wallet)),
+        onInitConfig: (name: string | undefined, domain: string | undefined) => dispatch(initConfigData(name, domain)),
     };
 };
 

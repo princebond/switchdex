@@ -5,6 +5,7 @@ import { AFFILIATE_FEE_PERCENTAGE, FEE_RECIPIENT } from '../../common/constants'
 import { INSUFFICIENT_ORDERS_TO_FILL_AMOUNT_ERR } from '../../exceptions/common';
 import { InsufficientOrdersAmountException } from '../../exceptions/insufficient_orders_amount_exception';
 import { RelayerException } from '../../exceptions/relayer_exception';
+import { postConfig } from '../../services/config';
 import {
     cancelSignedOrder,
     getAllOrdersAsUIOrders,
@@ -29,6 +30,7 @@ import {
 import { getTransactionOptions } from '../../util/transactions';
 import {
     AccountMarketStat,
+    ConfigRelayerData,
     NotificationKind,
     OrderSide,
     RelayerState,
@@ -530,6 +532,15 @@ export const fetchTakerAndMakerFeeIEO: ThunkCreator<Promise<{ makerFee: BigNumbe
             makerFee,
             takerFee,
         };
+    };
+};
+
+export const submitConfigFile: ThunkCreator<Promise<ConfigRelayerData | undefined>> = (config: ConfigRelayerData) => {
+    return async (_dispatch, getState) => {
+        const state = getState();
+        const ethAccount = getEthAccount(state);
+        config.owner = ethAccount;
+        return postConfig(config);
     };
     // tslint:disable-next-line: max-file-line-count
 };

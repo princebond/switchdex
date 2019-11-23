@@ -1,9 +1,8 @@
-import React, { HTMLAttributes, useRef, useState } from 'react';
+import React, { HTMLAttributes, useState } from 'react';
+import { Collapse } from 'react-collapse';
 import styled from 'styled-components';
 
 import { Chevron } from './icons/chevron_icon';
-import { Collapse } from 'react-collapse';
-import { themeDimensions } from '../../themes/commons';
 
 const AccordionSection = styled.div`
     display: flex;

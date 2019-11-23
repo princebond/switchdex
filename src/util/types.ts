@@ -7,7 +7,7 @@ import { ThunkAction } from 'redux-thunk';
 import { TokenMetaData } from '../common/tokens_meta_data';
 import { TokenIEOMetaData } from '../common/tokens_meta_data_ieo';
 import { ExtraArgument } from '../store/index';
-import { ThemeModalStyle, ThemeProperties } from '../themes/commons';
+import { Theme, ThemeModalStyle, ThemeProperties } from '../themes/commons';
 
 export interface TabItem {
     active: boolean;
@@ -157,6 +157,9 @@ export interface UIState {
     readonly orderPriceSelected: BigNumber | null;
     readonly sidebarOpen: boolean;
     readonly openFiatOnRampModal: boolean;
+    readonly erc20Theme: Theme;
+    readonly generalConfig?: GeneralConfig;
+    readonly configData?: ConfigData | null;
 }
 
 export interface MarketState {
@@ -191,6 +194,7 @@ export enum StepKind {
     UnlockCollectibles = 'UnlockCollectibles',
     SellCollectible = 'SellCollectible',
     BuyCollectible = 'BuyCollectible',
+    SubmitConfig = 'SubmitConfig',
 }
 
 export interface StepWrapEth {
@@ -280,6 +284,11 @@ export interface StepBuyCollectible {
     collectible: Collectible;
 }
 
+export interface StepSubmitConfig {
+    kind: StepKind.SubmitConfig;
+    config: ConfigFile;
+}
+
 export type Step =
     | StepWrapEth
     | StepToggleTokenLock
@@ -291,7 +300,8 @@ export type Step =
     | StepBuySellLimitMatching
     | StepTransferToken
     | StepLendingToken
-    | StepUnLendingToken;
+    | StepUnLendingToken
+    | StepSubmitConfig;
 
 export interface StepsModalState {
     readonly doneSteps: Step[];
@@ -565,6 +575,8 @@ export interface PartialTheme {
 export interface GeneralConfig {
     title?: string;
     icon?: string;
+    domain?: string;
+    feeRecipient?: string;
     social?: {
         facebook_url?: string;
         reddit_url?: string;
@@ -591,6 +603,24 @@ export interface ConfigFile {
     wallets?: WalletsConfig;
     theme?: PartialTheme;
     general?: GeneralConfig;
+}
+
+export interface ConfigData {
+    config: ConfigFile;
+    owner: string;
+    signature: string;
+    message: string;
+    slug?: string;
+    createdAt?: number;
+}
+
+export interface ConfigRelayerData {
+    config: string;
+    owner: string;
+    signature: string;
+    message: string;
+    slug?: string;
+    createdAt?: number;
 }
 
 export interface ConfigFileIEO {

@@ -24,4 +24,4 @@ const InputStyled = styled.input`
 export const CheckboxInput: React.FC<Props> = ({
     // tslint:disable-next-line: boolean-naming
     input: { value, ...input },
-}: Props) => <input {...input} type="checkbox" checked={!!value} />;
+}: Props) => <InputStyled {...input} type="checkbox" checked={!!value} />;
