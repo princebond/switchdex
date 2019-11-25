@@ -128,14 +128,12 @@ export const toggleTokenLock: ThunkCreator<Promise<any>> = (token: Token, isUnlo
 
         const erc20Token = new ERC20TokenContract(token.address, contractWrappers.getProvider());
         const amount = isUnlocked ? ZERO : UNLIMITED_ALLOWANCE_IN_BASE_UNITS;
-        const tx = await erc20Token.approve.validateAndSendTransactionAsync(
-            contractWrappers.erc20Proxy.address,
-            amount,
-            {
+        const tx = await erc20Token
+            .approve(contractWrappers.contractAddresses.erc20Proxy, amount)
+            .sendTransactionAsync({
                 from: ethAccount,
                 ...getTransactionOptions(gasPrice),
-            },
-        );
+            });
 
         web3Wrapper.awaitTransactionSuccessAsync(tx).then(() => {
             // tslint:disable-next-line:no-floating-promises
@@ -243,13 +241,13 @@ export const updateWethBalance: ThunkCreator<Promise<any>> = (newWethBalance: Bi
         let txHash: string;
         const wethToken = contractWrappers.weth9;
         if (wethBalance.isLessThan(newWethBalance)) {
-            txHash = await wethToken.deposit.validateAndSendTransactionAsync({
+            txHash = await wethToken.deposit().sendTransactionAsync({
                 value: newWethBalance.minus(wethBalance),
                 from: ethAccount,
                 ...getTransactionOptions(gasPrice),
             });
         } else if (wethBalance.isGreaterThan(newWethBalance)) {
-            txHash = await wethToken.withdraw.validateAndSendTransactionAsync(wethBalance.minus(newWethBalance), {
+            txHash = await wethToken.withdraw(wethBalance.minus(newWethBalance)).sendTransactionAsync({
                 from: ethAccount,
                 ...getTransactionOptions(gasPrice),
             });
@@ -625,11 +623,9 @@ export const unlockCollectible: ThunkCreator<Promise<string>> = (collectible: Co
         const ethAccount = getEthAccount(state);
         const erc721Token = new ERC721TokenContract(COLLECTIBLE_ADDRESS, contractWrappers.getProvider());
 
-        const tx = await erc721Token.setApprovalForAll.validateAndSendTransactionAsync(
-            contractWrappers.erc721Proxy.address,
-            true,
-            { from: ethAccount, ...getTransactionOptions(gasPrice) },
-        );
+        const tx = await erc721Token
+            .setApprovalForAll(contractWrappers.contractAddresses.erc721Proxy, true)
+            .sendTransactionAsync({ from: ethAccount, ...getTransactionOptions(gasPrice) });
         return tx;
     };
 };
@@ -664,20 +660,21 @@ export const createSignedCollectibleOrder: ThunkCreator = (
             const exchangeAddress = contractWrappers.exchange.address;
             let order;
             if (endPrice) {
+                throw new Error('DutchAuction currently unsupported');
                 // DutchAuction sell
-                const senderAddress = contractWrappers.dutchAuction.address;
-                order = await buildDutchAuctionCollectibleOrder({
-                    account: ethAccount,
-                    amount: new BigNumber('1'),
-                    price: startPrice,
-                    endPrice,
-                    expirationDate,
-                    wethAddress,
-                    collectibleAddress: COLLECTIBLE_ADDRESS,
-                    collectibleId,
-                    exchangeAddress,
-                    senderAddress,
-                });
+                // const senderAddress = contractWrappers.dutchAuction.address;
+                // order = await buildDutchAuctionCollectibleOrder({
+                //     account: ethAccount,
+                //     amount: new BigNumber('1'),
+                //     price: startPrice,
+                //     endPrice,
+                //     expirationDate,
+                //     wethAddress,
+                //     collectibleAddress: COLLECTIBLE_ADDRESS,
+                //     collectibleId,
+                //     exchangeAddress,
+                //     senderAddress,
+                // });
             } else {
                 // Normal Sell
                 order = await buildSellCollectibleOrder(

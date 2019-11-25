@@ -4,7 +4,7 @@ import { OrderStatus } from '@0x/types';
 import { BigNumber, NULL_BYTES } from '@0x/utils';
 import * as Factory from 'factory.ts';
 
-import { NETWORK_ID, ZERO } from '../common/constants';
+import { CHAIN_ID, ZERO } from '../common/constants';
 import { TokenMetaData } from '../common/tokens_meta_data';
 
 import { buildFill } from './fills';
@@ -40,7 +40,7 @@ export const makeOrder = ({
         takerFee: ZERO,
         makerFeeAssetData: NULL_BYTES,
         takerFeeAssetData: NULL_BYTES,
-        chainId: NETWORK_ID,
+        chainId: CHAIN_ID,
         signature: '',
     };
 };

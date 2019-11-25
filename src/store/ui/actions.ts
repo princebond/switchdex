@@ -177,10 +177,9 @@ export const startSellCollectibleSteps: ThunkCreator = (
         const ethAccount = selectors.getEthAccount(state);
 
         const erc721Token = new ERC721TokenContract(COLLECTIBLE_ADDRESS, contractWrappers.getProvider());
-        const isUnlocked = await erc721Token.isApprovedForAll.callAsync(
-            ethAccount,
-            contractWrappers.erc721Proxy.address,
-        );
+        const isUnlocked = await erc721Token
+            .isApprovedForAll(ethAccount, contractWrappers.contractAddresses.erc721Proxy)
+            .callAsync();
         const sellCollectibleSteps: Step[] = createSellCollectibleSteps(
             collectible,
             startingPrice,
@@ -203,21 +202,22 @@ export const startBuyCollectibleSteps: ThunkCreator = (collectible: Collectible,
 
         let buyCollectibleSteps;
         if (isDutchAuction(collectible.order)) {
-            const state = getState();
-            const contractWrappers = await getContractWrappers();
+            throw new Error('DutchAuction currently unsupported');
+            // const state = getState();
+            // const contractWrappers = await getContractWrappers();
 
-            const wethTokenBalance = selectors.getWethTokenBalance(state) as TokenBalance;
+            // const wethTokenBalance = selectors.getWethTokenBalance(state) as TokenBalance;
 
-            const { currentAmount } = await contractWrappers.dutchAuction.getAuctionDetails.callAsync(
-                collectible.order,
-            );
+            // const { currentAmount } = await contractWrappers.dutchAuction.getAuctionDetails.callAsync(
+            //     collectible.order,
+            // );
 
-            buyCollectibleSteps = createDutchBuyCollectibleSteps(
-                collectible.order,
-                collectible,
-                wethTokenBalance,
-                currentAmount,
-            );
+            // buyCollectibleSteps = createDutchBuyCollectibleSteps(
+            //     collectible.order,
+            //     collectible,
+            //     wethTokenBalance,
+            //     currentAmount,
+            // );
         } else {
             buyCollectibleSteps = createBasicBuyCollectibleSteps(collectible.order, collectible);
         }
