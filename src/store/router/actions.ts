@@ -181,3 +181,21 @@ export const setCollectiblesListFilterType = (filterType: CollectibleFilterType 
         );
     };
 };
+
+export const setDexName = (name: string) => {
+    return async (dispatch: any, getState: any) => {
+        const state = getState();
+        const searchObject = {
+            ...queryString.parse(state.router.location.search),
+            dex: name,
+        };
+
+        dispatch(
+            replace({
+                ...state.router.location,
+                search: queryString.stringify(searchObject),
+            }),
+        );
+        dispatch(goToHomeErc20());
+    };
+};

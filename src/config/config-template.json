@@ -1,15 +1,6 @@
 {
     "general": {
-        "title": "VeriDex",
-        "social": {
-            "telegram_url": "https://t.me/VeriSafe",
-            "twitter_url": "https://twitter.com/VeriSafeProject",
-            "facebook_url": "https://www.facebook.com/VeriSafe.io/",
-            "discord_url": "https://discord.gg/cGMJemv",
-            "reddit_url": "https://reddit.com/r/verisafe",
-            "bitcointalk_url": "https://bitcointalk.org/index.php?topic=5140352",
-            "statedapps_url": "https://www.stateofthedapps.com/dapps/veridex"
-        }
+        "title": "My first Dex"
     },
     "tokens": [
         {
@@ -82,23 +73,6 @@
             },
             "c_id": "digixdao",
             "website": "https://digix.global/dgd/"
-        },
-        {
-            "decimals": 18,
-            "symbol": "dai",
-            "name": "Dai",
-            "icon": "assets/icons/dai.svg",
-            "primaryColor": "#DEA349",
-            "addresses": {
-                "1": "0x89d24a6b4ccb1b6faa2625fe562bdd9a23260359",
-                "3": "0xad6d458402f60fd3bd25163575031acdce07538d",
-                "4": "0x6f2d6ff85efca691aad23d549771160a12f0a0fc",
-                "42": "0xc4375b7de8af5a38a93548eb8453a498222c4ff2",
-                "50": ""
-            },
-            "website": "https://makerdao.com/en/dai/",
-            "description": "Dai is an asset-backed, hard currency for the 21st century.",
-            "c_id": "dai"
         },
         {
             "decimals": 8,

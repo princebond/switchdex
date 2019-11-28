@@ -1,6 +1,7 @@
 import arrayMutators from 'final-form-arrays';
-import React from 'react';
+import React, { useState } from 'react';
 import { Form } from 'react-final-form';
+import Joyride, { ACTIONS, CallBackProps, EVENTS, STATUS, Step } from 'react-joyride';
 import { useDispatch, useSelector } from 'react-redux';
 import styled, { withTheme } from 'styled-components';
 
@@ -44,9 +45,57 @@ const PreStyled = styled.pre`
     color: ${props => props.theme.componentsTheme.textColorCommon};
 `;
 
+const Introduction = styled.p`
+    color: ${props => props.theme.componentsTheme.textColorCommon};
+`;
+
 const WizardForm = (_props: Props) => {
     const configTemplate = ConfigTemplate.getConfig();
     const dispatch = useDispatch();
+    const steps: Step[] = [
+        {
+            target: '.general-config-step',
+            content:
+                'Welcome to Dex Wizard! Configure your dex with your custom domain, title and logo. Add your ethereum fee recipient  address to receive affiliate fees when supported ',
+            placementBeacon: 'top',
+            disableBeacon: true,
+            floaterProps: { disableAnimation: true },
+        },
+        {
+            target: '.theme-step',
+            content: 'Choose a predefined theme (Light or Dark) and configure below the colors if needed',
+            placementBeacon: 'top',
+        },
+        {
+            target: '.tokens-step',
+            content:
+                'Add tokens by using contract address. If the token is listed on Coingecko it will get automatically the logo.',
+            placementBeacon: 'top',
+        },
+        {
+            target: '.pairs-step',
+            content:
+                'VSF and Eth pairs are added automatically when you add Tokens. Here you can change the order how the pairs appears on the DEX',
+            placementBeacon: 'top',
+        },
+        {
+            target: '.market-filters-step',
+            content: 'The market quotes supported by the DEX. Now it is locked at ETH and VSF',
+            placementBeacon: 'top',
+        },
+    ];
+
+    const [stepsState] = useState(steps);
+    const [stepIndexState, setStepIndex] = useState(0);
+    const [isOpen, setIsOpen] = useState({
+        generalConfig: true,
+        theme: false,
+        tokens: false,
+        pairs: false,
+        marketFilters: false,
+    });
+    const [isRun, setIsRun] = useState(false);
+
     const themeColor = useSelector(getERC20Theme);
     const configData = useSelector(getConfigData);
     let config: ConfigFile;
@@ -58,6 +107,10 @@ const WizardForm = (_props: Props) => {
             t.mainnetAddress = t.addresses['1'];
         }
     });
+
+    const onTakeTutorial = () => {
+        setIsRun(true);
+    };
 
     const onSubmit = (values: any) => {
         // @TODO remove this workaround
@@ -90,11 +143,15 @@ const WizardForm = (_props: Props) => {
                     values,
                 }) => (
                     <form onSubmit={handleSubmit}>
-                        <GeneralWizardForm name="general" label="test" />
-                        <ThemeForm name="theme" label="test" />
-                        <TokensForm unshift={unshift} />
-                        <PairsForm />
-                        <MarketFiltersForm />
+                        <GeneralWizardForm
+                            name="general"
+                            selector="general-config-step"
+                            isOpen={isOpen.generalConfig}
+                        />
+                        <ThemeForm name="theme" selector={'theme-step'} isOpen={isOpen.theme} />
+                        <TokensForm unshift={unshift} selector={'tokens-step'} isOpen={isOpen.tokens} />
+                        <PairsForm selector={'pairs-step'} isOpen={isOpen.pairs} />
+                        <MarketFiltersForm selector={'market-filters-step'} isOpen={isOpen.marketFilters} />
                         <ButtonsContainer>
                             <ButtonContainer>
                                 <Button
@@ -115,14 +172,82 @@ const WizardForm = (_props: Props) => {
                                 </Button>
                             </ButtonContainer>
                         </ButtonsContainer>
-                        <PreStyled>{JSON.stringify(values, undefined, 2)}</PreStyled>
+                        <PreStyled>{/*JSON.stringify(values, undefined, 2)*/}</PreStyled>
                     </form>
                 )}
             />
         </Content>
     );
 
-    return <Card title="DEX Wizard">{content}</Card>;
+    const handleJoyrideCallback = (data: CallBackProps) => {
+        const { action, index, type, status } = data;
+        if (([STATUS.FINISHED, STATUS.SKIPPED] as string[]).includes(status)) {
+            // Need to set our running state to false, so we can restart if we click start again.
+            setStepIndex(0);
+            setIsRun(false);
+            setIsOpen({ generalConfig: true, theme: false, tokens: false, pairs: false, marketFilters: false });
+        } else if (([EVENTS.STEP_AFTER, EVENTS.TARGET_NOT_FOUND] as string[]).includes(type)) {
+            // @ts-ignore
+            const stepIndex = index + (action === ACTIONS.PREV ? -1 : 1);
+            switch (index) {
+                case 0:
+                    setIsRun(true);
+                    setStepIndex(stepIndex);
+                    setIsOpen({ generalConfig: false, theme: true, tokens: false, pairs: false, marketFilters: false });
+                    break;
+                case 1:
+                    setStepIndex(stepIndex);
+                    setIsOpen({ generalConfig: false, theme: false, tokens: true, pairs: false, marketFilters: false });
+                    break;
+                case 2:
+                    setStepIndex(stepIndex);
+                    setIsOpen({
+                        generalConfig: false,
+                        theme: false,
+                        tokens: false,
+                        pairs: false,
+                        marketFilters: false,
+                    });
+                    break;
+                case 3:
+                    setStepIndex(stepIndex);
+                    setIsOpen({ generalConfig: false, theme: false, tokens: false, pairs: true, marketFilters: true });
+                    break;
+                case 4:
+                    setStepIndex(stepIndex);
+                    setIsOpen({ generalConfig: true, theme: false, tokens: false, pairs: false, marketFilters: true });
+                    break;
+                default:
+                    break;
+            }
+        }
+    };
+
+    return (
+        <Card title="DEX Wizard">
+            <Introduction>
+                {' '}
+                Create your DEX with few steps. <button onClick={onTakeTutorial}>Take Tutorial</button>
+            </Introduction>
+            <Joyride
+                run={isRun}
+                steps={stepsState}
+                stepIndex={stepIndexState}
+                continuous={true}
+                scrollToFirstStep={true}
+                showSkipButton={true}
+                showProgress={true}
+                callback={handleJoyrideCallback}
+                styles={{
+                    options: {
+                        zIndex: 10000,
+                    },
+                }}
+            />
+
+            {content}
+        </Card>
+    );
 };
 
 const WizardFormWithTheme = withTheme(WizardForm);

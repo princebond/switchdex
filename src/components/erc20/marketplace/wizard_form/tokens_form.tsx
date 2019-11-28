@@ -15,6 +15,7 @@ import { ColorButtonInput } from '../../../common/final_form/color_button_input'
 import { StyledInput } from '../../../common/final_form/styled_input';
 import { TextInput } from '../../../common/final_form/text_input';
 import { TokenIcon } from '../../../common/icons/token_icon';
+import { IconType, Tooltip } from '../../../common/tooltip';
 
 import { FieldContainer, Label, LabelContainer } from './styles';
 
@@ -43,20 +44,36 @@ const StyledActions = styled(Label)`
     padding: 5px;
 `;
 
-export const TokensForm = (props: any) => {
+const TooltipStyled = styled(Tooltip)``;
+
+export const TokensForm = ({
+    unshift,
+    isOpen = false,
+    selector,
+}: {
+    unshift: any;
+    isOpen?: boolean;
+    selector?: string;
+}) => {
     const onPush = (e: any) => {
         e.preventDefault();
-        props.unshift('tokens', undefined);
+        unshift('tokens', undefined);
     };
+    const fieldArray = useFieldArray('tokens');
+    const tokenFields = fieldArray.fields;
     return (
         <>
-            <AccordionCollapse title={'Tokens'}>
+            <AccordionCollapse title={'3-Listed Tokens'} setIsOpen={isOpen} className={selector}>
                 <ButtonsContainer>
                     <ButtonContainer>
-                        <Button onClick={onPush} variant={ButtonVariant.Buy}>
+                        <Button onClick={onPush} variant={ButtonVariant.Buy} disabled={tokenFields.value.length > 10}>
                             Add
                         </Button>
                     </ButtonContainer>
+                    <TooltipStyled
+                        description="Add Tokens to be listed using contract address. Logo images are fetched from Coingecko. Max 10 with free basic plan"
+                        iconType={IconType.Fill}
+                    />
                 </ButtonsContainer>
                 <FieldArray name="tokens">
                     {({ fields }) =>
@@ -228,11 +245,13 @@ const TokenForm = ({ name, index }: { name: string; index: number }) => {
             // remove pairs and then remove token from list
             for (let i = pairsFieldArray.value.length - 1; i >= 0; i--) {
                 const pairValue = pairsFieldArray.value[i];
-                if (pairValue.base.toLowerCase() === tokenValue.symbol.toLowerCase()) {
-                    pairsFieldArray.remove(i);
-                }
-                if (pairValue.quote.toLowerCase() === tokenValue.symbol.toLowerCase()) {
-                    pairsFieldArray.remove(i);
+                if (tokenValue) {
+                    if (pairValue.base.toLowerCase() === tokenValue.symbol.toLowerCase()) {
+                        pairsFieldArray.remove(i);
+                    }
+                    if (pairValue.quote.toLowerCase() === tokenValue.symbol.toLowerCase()) {
+                        pairsFieldArray.remove(i);
+                    }
                 }
             }
             fields.remove(index);

@@ -41,10 +41,11 @@ const ChevronContainer = styled.div<{ isRotate: boolean }>`
 interface Props extends HTMLAttributes<HTMLDivElement> {
     children: React.ReactNode;
     isOpen?: boolean;
+    setIsOpen?: boolean;
 }
 
 export const AccordionCollapse = (props: Props) => {
-    const { children, title, isOpen = false, ...restProps } = props;
+    const { children, title, isOpen = false, setIsOpen, ...restProps } = props;
 
     const [isActive, setActiveState] = useState(isOpen);
     const [isRotate, setRotateState] = useState(isOpen ? true : false);
@@ -53,6 +54,11 @@ export const AccordionCollapse = (props: Props) => {
         setActiveState(isActive ? false : true);
         setRotateState(isActive ? false : true);
     };
+    // externally set collapse
+    if (setIsOpen && !isActive) {
+        setActiveState(true);
+        setRotateState(true);
+    }
 
     return (
         <AccordionSection {...restProps}>

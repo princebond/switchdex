@@ -4,7 +4,7 @@ import { connect } from 'react-redux';
 import { RELAYER_ERR, SIGNATURE_ERR } from '../../../exceptions/common';
 import { RelayerException } from '../../../exceptions/relayer_exception';
 import { SignatureFailedException } from '../../../exceptions/signature_failed_exception';
-import { createConfigSignature, submitConfigFile } from '../../../store/actions';
+import { createConfigSignature, setDexName, submitConfigFile } from '../../../store/actions';
 import { getEstimatedTxTimeMs, getStepsModalCurrentStep, getWallet } from '../../../store/selectors';
 import { ConfigRelayerData, StepSubmitConfig, StoreState, Wallet } from '../../../util/types';
 
@@ -23,6 +23,7 @@ interface StateProps {
 interface DispatchProps {
     createConfigSignature: () => Promise<{ signature: string; message: string; owner: string }>;
     submitConfigFile: (config: ConfigRelayerData) => Promise<ConfigRelayerData>;
+    onSetDexName: (name: string) => Promise<string>;
 }
 
 interface State {
@@ -42,7 +43,7 @@ class SubmitConfigStep extends React.Component<Props, State> {
         const title = 'Config setup';
         const confirmCaption = `Confirm signature on ${wallet} to create/edit Dex.`;
         const loadingCaption = 'Submitting Dex.';
-        const doneCaption = `Config submited. Dex is created and you can visit it here at your defined domain or using dex=${this.state.dexSlug}`;
+        const doneCaption = `Config submitted. Dex is created and you can visit it here at your defined domain or using dex=${this.state.dexSlug} at the url`;
         const errorCaption = this.state.errorMsg;
         const loadingFooterCaption = `Waiting for signature...`;
         const doneFooterCaption = `Dex Created/Edited`;
@@ -66,7 +67,7 @@ class SubmitConfigStep extends React.Component<Props, State> {
     };
 
     private readonly _getSubmitConfig = async ({ onLoading, onDone, onError }: any) => {
-        const { step } = this.props;
+        const { step, onSetDexName } = this.props;
         const { config } = step;
         try {
             const { signature, message, owner } = await this.props.createConfigSignature();
@@ -80,8 +81,9 @@ class SubmitConfigStep extends React.Component<Props, State> {
             };
             const data = await this.props.submitConfigFile(configData);
             if (data) {
-                const dexSlug = data.slug;
-                this.setState({ dexSlug });
+                const name = data.slug as string;
+                await onSetDexName(name);
+                this.setState({ dexSlug: name });
                 onDone();
             } else {
                 const errorException = new RelayerException(RELAYER_ERR);
@@ -125,6 +127,7 @@ const SubmitConfigStepContainer = connect(
         return {
             createConfigSignature: () => dispatch(createConfigSignature()),
             submitConfigFile: (config: ConfigRelayerData) => dispatch(submitConfigFile(config)),
+            onSetDexName: (name: string) => dispatch(setDexName(name)),
         };
     },
 )(SubmitConfigStep);

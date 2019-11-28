@@ -18,6 +18,6 @@ export const FieldContainer = styled.div`
 export const LabelContainer = styled.div`
     align-items: flex-start;
     display: flex;
-    justify-content: space-between;
+    justify-content: start;
     margin-bottom: 10px;
 `;

@@ -10,6 +10,7 @@ import { GeneralConfig } from '../../../../util/types';
 import { AccordionCollapse } from '../../../common/accordion_collapse';
 import { StyledInput } from '../../../common/final_form/styled_input';
 import { TextInput } from '../../../common/final_form/text_input';
+import { IconType, Tooltip } from '../../../common/tooltip';
 
 import { FieldContainer, Label, LabelContainer } from './styles';
 
@@ -76,26 +77,48 @@ const StyledSocialForm = styled(AccordionCollapse)`
     border: 1px solid ${props => props.theme.componentsTheme.cardBorderColor};
 `;
 
-export const GeneralWizardForm = ({ name, label }: { name: string; label: string }) => {
+const TooltipStyled = styled(Tooltip)``;
+
+export const GeneralWizardForm = ({
+    name,
+    selector,
+    isOpen = true,
+}: {
+    name: string;
+    selector?: string;
+    isOpen?: boolean;
+}) => {
     const dispatch = useDispatch();
 
     return (
         <>
-            <AccordionCollapse title={'General'} isOpen={true}>
+            <AccordionCollapse title={'1-General Config'} isOpen={isOpen} className={selector}>
                 <LabelContainer>
                     <Label>Title</Label>
+                    <TooltipStyled
+                        description="Add a title to your DEX. This will be your DEX ID"
+                        iconType={IconType.Fill}
+                    />
                 </LabelContainer>
                 <FieldContainer>
                     <Field required={true} name={`${name}.title`} component={TextInput} placeholder={`Title`} />
                 </FieldContainer>
                 <LabelContainer>
                     <Label>Domain</Label>
+                    <TooltipStyled
+                        description="Domain where your DEX will be showed. Ex: https://dex.verisafe.io/"
+                        iconType={IconType.Fill}
+                    />
                 </LabelContainer>
                 <FieldContainer>
                     <Field name={`${name}.domain`} type={'url'} component={StyledInput} placeholder={`Domain`} />
                 </FieldContainer>
                 <LabelContainer>
                     <Label>Fee Recipient</Label>
+                    <TooltipStyled
+                        description="Address to collect fees from your DEX trades. This will be used in future!"
+                        iconType={IconType.Fill}
+                    />
                 </LabelContainer>
                 <FieldContainer>
                     <Field
@@ -107,7 +130,11 @@ export const GeneralWizardForm = ({ name, label }: { name: string; label: string
                     />
                 </FieldContainer>
                 <LabelContainer>
-                    <Label>Icon URL (SVG)</Label>
+                    <Label>Icon URL (SVG Or PNG)</Label>
+                    <TooltipStyled
+                        description="DEX logo. It is recommended a public url with 28x28 px."
+                        iconType={IconType.Fill}
+                    />
                 </LabelContainer>
                 <FieldContainer>
                     <Field name={`${name}.icon`} type={'url'} component={StyledInput} placeholder={`Icon Url`} />

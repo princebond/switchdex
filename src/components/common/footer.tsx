@@ -44,7 +44,7 @@ const SocialsContainer = styled.div`
 `;
 
 const HrefStyled = styled.a`
-    color: white;
+    color: ${props => props.theme.componentsTheme.textColorCommon};
     text-decoration: none;
     padding-left: 5px;
     @media (max-width: ${themeBreakPoints.md}) {
