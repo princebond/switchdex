@@ -6,10 +6,14 @@ import configFileProduction from '../config/files/config.json';
 // import configFileIEOProduction from './config-ieo.json';
 import configFileTest from './config-test.json';
 import configFileIEOProduction from './files/config-ieo.json';
+import configTipBot from './files/settingsAssets.json'
+import configTipBotWhitelistAddresses from './files/settingsAssetsWhitelistAddresses.json'
 // import configFileProduction from './config.json';
 
 let configFile: any;
 let configFileIEO: any;
+
+
 
 if (process.env.NODE_ENV === 'test') {
     configFile = configFileTest;
@@ -23,4 +27,4 @@ if (process.env.NODE_ENV === 'development') {
 
 configFileIEO = configFileIEOProduction;
 
-export { configFile, configFileIEO };
+export { configFile, configFileIEO, configTipBot, configTipBotWhitelistAddresses };

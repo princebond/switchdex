@@ -1,7 +1,7 @@
 import { Validator } from 'jsonschema';
 
-import { configFile, configFileIEO } from '../config';
-import { ConfigFile, ConfigFileIEO } from '../util/types';
+import { configFile, configFileIEO, configTipBot, configTipBotWhitelistAddresses } from '../config';
+import { ConfigFile, ConfigFileIEO, ConfigFileTipBot, AssetBot } from '../util/types';
 
 import { configIEOSchema, configSchema, schemas } from './configSchema';
 
@@ -34,6 +34,7 @@ export class ConfigIEO {
     private static _instance: ConfigIEO;
     private readonly _validator: Validator;
     private readonly _config: ConfigFileIEO;
+    private readonly _configBot: ConfigFileTipBot;
     public static getInstance(): ConfigIEO {
         if (!ConfigIEO._instance) {
             ConfigIEO._instance = new ConfigIEO();
@@ -44,6 +45,11 @@ export class ConfigIEO {
     public static getConfig(): ConfigFileIEO {
         return this.getInstance()._config;
     }
+    public static getConfigBot(): ConfigFileTipBot {
+        return this.getInstance()._configBot;
+    }
+
+
     constructor() {
         this._validator = new Validator();
         for (const schema of schemas) {
@@ -51,5 +57,23 @@ export class ConfigIEO {
         }
         this._validator.validate(configFileIEO, configIEOSchema, { throwError: true });
         this._config = configFileIEO;
+
+        const tokens: AssetBot[] = []
+        for (const [key, value] of Object.entries(configTipBot.tokens)) {
+            const asset = value as Partial<AssetBot>;
+            const tokenConfigs = (<any>configTipBotWhitelistAddresses.tokens)[key]
+            if(tokenConfigs){
+                asset.whitelistAddresses = tokenConfigs.whitelistAddresses;
+                asset.feePercentage = tokenConfigs.feePercentage;
+            }else{
+                asset.whitelistAddresses = configTipBotWhitelistAddresses.defaultWhitelistAddresses;
+                asset.feePercentage = configTipBotWhitelistAddresses.defaultFeePercentage;
+            }
+
+
+            tokens.push(asset as AssetBot);     
+        }
+
+        this._configBot = {tokens: tokens};
     }
 }

@@ -4,16 +4,19 @@ import { KNOWN_TOKENS_META_DATA } from '../common/tokens_meta_data';
 import { KNOWN_TOKENS_IEO_META_DATA, TokenIEOMetaData } from '../common/tokens_meta_data_ieo';
 
 import { getLogger } from './logger';
-import { mapTokensIEOMetaDataToTokenByNetworkId } from './token_ieo_meta_data';
+import { mapTokensIEOMetaDataToTokenByNetworkId, mapTokensBotToTokenIEO } from './token_ieo_meta_data';
 import { TokenIEO } from './types';
+import { ConfigIEO } from '../common/config';
 
 const logger = getLogger('Tokens::known_tokens .ts');
 
 export class KnownTokensIEO {
     private readonly _tokens: TokenIEO[] = [];
+    private readonly _tokensBot: TokenIEO[] = [];
 
     constructor(knownTokensMetadata: TokenIEOMetaData[]) {
         this._tokens = mapTokensIEOMetaDataToTokenByNetworkId(knownTokensMetadata);
+        this._tokensBot = mapTokensBotToTokenIEO(ConfigIEO.getConfigBot().tokens);
     }
 
     public getTokenBySymbol = (symbol: string): TokenIEO => {
@@ -40,6 +43,14 @@ export class KnownTokensIEO {
     public getTokenByAddress = (address: string): TokenIEO => {
         const addressInLowerCase = address.toLowerCase();
         const token = this._tokens.find(t => t.address.toLowerCase() === addressInLowerCase);
+        if (!token) {
+            throw new Error(`Token with address ${address} not found in known tokens`);
+        }
+        return token;
+    };
+    public getTokenBotByAddress = (address: string): TokenIEO => {
+        const addressInLowerCase = address.toLowerCase();
+        const token = this._tokensBot.find(t => t.address.toLowerCase() === addressInLowerCase);
         if (!token) {
             throw new Error(`Token with address ${address} not found in known tokens`);
         }
