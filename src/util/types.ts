@@ -8,7 +8,6 @@ import { TokenMetaData } from '../common/tokens_meta_data';
 import { TokenIEOMetaData } from '../common/tokens_meta_data_ieo';
 import { ExtraArgument } from '../store/index';
 import { ThemeModalStyle, ThemeProperties } from '../themes/commons';
-import { string } from 'prop-types';
 
 export interface TabItem {
     active: boolean;
@@ -602,15 +601,14 @@ export interface ConfigFileTipBot {
     tokens: AssetBot[];
 }
 
-export interface AssetBot{
+export interface AssetBot {
     ticker: string;
     name: string;
     contract: string;
     decimals: number;
     whitelistAddresses: string[];
-    feePercentage: number;
+    feePercentage: string;
 }
-
 
 export enum Browser {
     Chrome = 'CHROME',

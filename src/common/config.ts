@@ -1,7 +1,7 @@
 import { Validator } from 'jsonschema';
 
 import { configFile, configFileIEO, configTipBot, configTipBotWhitelistAddresses } from '../config';
-import { ConfigFile, ConfigFileIEO, ConfigFileTipBot, AssetBot } from '../util/types';
+import { AssetBot, ConfigFile, ConfigFileIEO, ConfigFileTipBot } from '../util/types';
 
 import { configIEOSchema, configSchema, schemas } from './configSchema';
 
@@ -49,7 +49,6 @@ export class ConfigIEO {
         return this.getInstance()._configBot;
     }
 
-
     constructor() {
         this._validator = new Validator();
         for (const schema of schemas) {
@@ -58,22 +57,21 @@ export class ConfigIEO {
         this._validator.validate(configFileIEO, configIEOSchema, { throwError: true });
         this._config = configFileIEO;
 
-        const tokens: AssetBot[] = []
+        const tokens: AssetBot[] = [];
         for (const [key, value] of Object.entries(configTipBot.tokens)) {
             const asset = value as Partial<AssetBot>;
-            const tokenConfigs = (<any>configTipBotWhitelistAddresses.tokens)[key]
-            if(tokenConfigs){
+            const tokenConfigs = (configTipBotWhitelistAddresses.tokens as any)[key];
+            if (tokenConfigs) {
                 asset.whitelistAddresses = tokenConfigs.whitelistAddresses;
-                asset.feePercentage = tokenConfigs.feePercentage;
-            }else{
+                asset.feePercentage = String(tokenConfigs.feePercentage);
+            } else {
                 asset.whitelistAddresses = configTipBotWhitelistAddresses.defaultWhitelistAddresses;
-                asset.feePercentage = configTipBotWhitelistAddresses.defaultFeePercentage;
+                asset.feePercentage = String(configTipBotWhitelistAddresses.defaultFeePercentage);
             }
 
-
-            tokens.push(asset as AssetBot);     
+            tokens.push(asset as AssetBot);
         }
 
-        this._configBot = {tokens: tokens};
+        this._configBot = { tokens };
     }
 }

@@ -1,7 +1,7 @@
 import { NETWORK_ID, UI_DECIMALS_DISPLAYED_DEFAULT_PRECISION } from '../common/constants';
 import { TokenIEOMetaData } from '../common/tokens_meta_data_ieo';
 
-import { TokenIEO, AssetBot } from './types';
+import { AssetBot, TokenIEO } from './types';
 
 export const mapTokensIEOMetaDataToTokenByNetworkId = (tokensMetaData: TokenIEOMetaData[]): TokenIEO[] => {
     return tokensMetaData
@@ -48,41 +48,39 @@ export const mapTokensIEOMetaDataToTokenByNetworkId = (tokensMetaData: TokenIEOM
         );
 };
 
-
 export const mapTokensBotToTokenIEO = (assetTokens: AssetBot[]): TokenIEO[] => {
-    return assetTokens
-        .map(
-            (asset): AssetBot => {
-                return {
-                    address: asset.contract,
-                    symbol: asset.ticker,
-                    decimals: asset.decimals,
-                    name: asset.name,
-                    primaryColor: '#fff',
-                    icon: undefined,
-                    displayDecimals: UI_DECIMALS_DISPLAYED_DEFAULT_PRECISION,
-                    id: undefined,
-                    c_id: undefined,
-                    minAmount:  0,
-                    maxAmount:  undefined,
-                    precision: UI_DECIMALS_DISPLAYED_DEFAULT_PRECISION,
-                    website:  undefined,
-                    description:  undefined,
-                    verisafe_sticker:  undefined,
-                    owners: asset.whitelistAddresses,
-                    social: {
-                        facebook_url:  undefined,
-                        reddit_url: undefined,
-                        twitter_url: undefined,
-                        telegram_url: undefined,
-                        discord_url: undefined,
-                        bitcointalk_url: undefined,
-                        youtube_url:  undefined,
-                        medium_url: undefined,
-                    },
-                    feePercentage: asset.feePercentage,
-                    endDate:  undefined,
-                };
-            },
-        );
+    return assetTokens.map(
+        (asset): TokenIEO => {
+            return {
+                address: asset.contract,
+                symbol: asset.ticker,
+                decimals: asset.decimals,
+                name: asset.name,
+                primaryColor: '#000',
+                icon: undefined,
+                displayDecimals: UI_DECIMALS_DISPLAYED_DEFAULT_PRECISION,
+                id: undefined,
+                c_id: undefined,
+                minAmount: 0,
+                maxAmount: undefined,
+                precision: UI_DECIMALS_DISPLAYED_DEFAULT_PRECISION,
+                website: undefined,
+                description: undefined,
+                verisafe_sticker: undefined,
+                owners: asset.whitelistAddresses,
+                social: {
+                    facebook_url: undefined,
+                    reddit_url: undefined,
+                    twitter_url: undefined,
+                    telegram_url: undefined,
+                    discord_url: undefined,
+                    bitcointalk_url: undefined,
+                    youtube_url: undefined,
+                    medium_url: undefined,
+                },
+                feePercentage: asset.feePercentage,
+                endDate: undefined,
+            };
+        },
+    );
 };
