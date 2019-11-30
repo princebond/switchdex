@@ -7,7 +7,7 @@ export const LAUNCHPAD_APP_BASE_PATH = '/launchpad';
 export const MARGIN_APP_BASE_PATH = '/margin';
 export const INSTANT_APP_BASE_PATH = '/instant';
 
-export const ERC721_APP_BASE_PATH = '/erc721';
+export const ERC721_APP_BASE_PATH = '/marketplace';
 export const DEFAULT_BASE_PATH = process.env.REACT_APP_DEFAULT_BASE_PATH || ERC20_APP_BASE_PATH;
 
 export const RELAYER_URL = process.env.REACT_APP_RELAYER_URL || 'http://localhost:3001/api/v2';

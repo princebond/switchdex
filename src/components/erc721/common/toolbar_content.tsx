@@ -10,6 +10,7 @@ import { separatorTopbar, ToolbarContainer } from '../../common/toolbar';
 import { NotificationsDropdownContainer } from '../../notifications/notifications_dropdown';
 import { WalletConnectionContentContainer } from '../account/wallet_connection_content';
 import { CollectiblesSearch } from '../collectibles/collectibles_search';
+import { CategoryCollectiblesDropdownContainer } from './category_collectibles_dropdown';
 
 interface DispatchProps {
     onGoToHome: () => any;
@@ -56,18 +57,29 @@ const WalletDropdown = styled(WalletConnectionContentContainer)`
     }
 `;
 
+
+const CategoryCollectiblesDropdownHeader = styled<any>(CategoryCollectiblesDropdownContainer)`
+    align-items: center;
+    display: flex;
+
+    ${separatorTopbar}
+`;
+
 const ToolbarContent = (props: Props) => {
     const handleLogoClick: React.EventHandler<React.MouseEvent> = e => {
         e.preventDefault();
         props.onGoToHome();
     };
     const startContent = (
+        <>
         <LogoHeader
             image={<LogoSVGStyled />}
             onClick={handleLogoClick}
-            text="0x Collectibles"
+            text="VeriCollectibles"
             textColor={props.theme.componentsTheme.logoERC721TextColor}
         />
+        <CategoryCollectiblesDropdownHeader shouldCloseDropdownBodyOnClick={false} />
+        </>
     );
 
     const handleMyWalletClick: React.EventHandler<React.MouseEvent> = e => {

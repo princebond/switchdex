@@ -668,6 +668,12 @@ export interface TokenMetadataBZX {
     index: number;
 }
 
+export interface CollectibleCategory{
+    name: string;
+    address: string;
+    description: string;
+}
+
 // tslint:disable-next-line: class-name
 export interface iTokenData {
     token: Token;
