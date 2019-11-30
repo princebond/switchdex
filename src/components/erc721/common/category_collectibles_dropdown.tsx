@@ -8,7 +8,7 @@ import { getBaseToken, getCurrencyPair, getMarkets } from '../../../store/select
 import { themeDimensions } from '../../../themes/commons';
 import { getKnownTokens } from '../../../util/known_tokens';
 import { filterMarketsByString, filterMarketsByTokenSymbol } from '../../../util/markets';
-import { CurrencyPair, Filter, Market, StoreState, Token } from '../../../util/types';
+import { CurrencyPair, Filter, Market, StoreState, Token, CollectibleCategory } from '../../../util/types';
 import { CardBase } from '../../common/card_base';
 import { Dropdown } from '../../common/dropdown';
 import { ChevronDownIcon } from '../../common/icons/chevron_down_icon';
@@ -19,14 +19,13 @@ import { CustomTDFirst, CustomTDLast, Table, TBody, THead, THFirst, THLast, TR }
 interface PropsDivElement extends HTMLAttributes<HTMLDivElement> {}
 
 interface DispatchProps {
-    changeMarket: (currencyPair: CurrencyPair) => any;
+    changeCollectibleCategory: (collectibleCategory: CollectibleCategory) => any;
     goToHome: () => any;
 }
 
 interface PropsToken {
-    baseToken: Token | null;
-    currencyPair: CurrencyPair;
-    markets: Market[] | null;
+    collectibleCategory: CollectibleCategory | null;
+    collectibleCategories: CollectibleCategory[] | null;
 }
 
 type Props = PropsDivElement & PropsToken & DispatchProps;
@@ -63,7 +62,7 @@ const MarketsDropdownHeaderText = styled.span`
     margin-right: 10px;
 `;
 
-const MarketsDropdownBody = styled(CardBase)`
+const CollectiblesCategoryDropdownBody = styled(CardBase)`
     box-shadow: ${props => props.theme.componentsTheme.boxShadow};
     max-height: 100%;
     max-width: 100%;
@@ -234,34 +233,26 @@ class CategoryCollectiblesDropdown extends React.Component<Props, State> {
     private readonly _dropdown = React.createRef<Dropdown>();
 
     public render = () => {
-        const { currencyPair, baseToken, ...restProps } = this.props;
+        const { collectibleCategories, collectibleCategory, ...restProps } = this.props;
 
         const header = (
             <MarketsDropdownHeader>
                 <MarketsDropdownHeaderText>
-                    {baseToken ? (
-                        <DropdownTokenIcon
-                            symbol={baseToken.symbol}
-                            primaryColor={baseToken.primaryColor}
-                            isInline={true}
-                            icon={baseToken.icon}
-                        />
-                    ) : null}
-                    {currencyPair.base.toUpperCase()}/{currencyPair.quote.toUpperCase()}
+                         ☰
                 </MarketsDropdownHeaderText>
                 <ChevronDownIcon />
             </MarketsDropdownHeader>
         );
 
         const body = (
-            <MarketsDropdownBody>
-                <MarketsFilters onMouseOver={this._setUserOnDropdown} onMouseOut={this._removeUserOnDropdown}>
+            <CollectiblesCategoryDropdownBody>
+               { /*<MarketsFilters onMouseOver={this._setUserOnDropdown} onMouseOut={this._removeUserOnDropdown}>
                     <MarketsFiltersLabel>Markets</MarketsFiltersLabel>
                     {this._getTokensFilterTabs()}
                     {this._getSearchField()}
-                </MarketsFilters>
-                <TableWrapper>{this._getMarkets()}</TableWrapper>
-            </MarketsDropdownBody>
+        </MarketsFilters>*/ }
+                <TableWrapper>{this._getCollectibleCategories()}</TableWrapper>
+            </CollectiblesCategoryDropdownBody>
         );
         return (
             <MarketsDropdownWrapper
@@ -321,11 +312,11 @@ class CategoryCollectiblesDropdown extends React.Component<Props, State> {
         });
     };
 
-    private readonly _getMarkets = () => {
-        const { baseToken, currencyPair, markets } = this.props;
+    private readonly _getCollectibleCategories = () => {
+        const { collectibleCategory, collectibleCategories } = this.props;
         const { search, selectedFilter } = this.state;
 
-        if (!baseToken || !markets) {
+        if (!collectibleCategory || !collectibleCategories) {
             return null;
         }
 
@@ -339,7 +330,7 @@ class CategoryCollectiblesDropdown extends React.Component<Props, State> {
             <Table>
                 <THead>
                     <TR>
-                        <THFirstStyled styles={{ textAlign: 'left' }}>Market</THFirstStyled>
+                        <THFirstStyled styles={{ textAlign: 'left' }}>Category</THFirstStyled>
                         <THLastStyled styles={{ textAlign: 'center' }}>Price</THLastStyled>
                     </TR>
                 </THead>
@@ -348,7 +339,7 @@ class CategoryCollectiblesDropdown extends React.Component<Props, State> {
                         const isActive =
                             market.currencyPair.base === currencyPair.base &&
                             market.currencyPair.quote === currencyPair.quote;
-                        const setSelectedMarket = () => this._setSelectedMarket(market.currencyPair);
+                        const setSelectedMarket = () => this._setSelectedCollectibleCategory(market.currencyPair);
 
                         const token = getKnownTokens().getTokenBySymbol(market.currencyPair.base);
 
@@ -380,34 +371,26 @@ class CategoryCollectiblesDropdown extends React.Component<Props, State> {
         );
     };
 
-    private readonly _setSelectedMarket: any = (currencyPair: CurrencyPair) => {
-        this.props.changeMarket(currencyPair);
+    private readonly _setSelectedCollectibleCategory: any = (collectibleCategory: CollectibleCategory) => {
+        this.props.changeCollectibleCategory(collectibleCategory);
         this.props.goToHome();
         if (this._dropdown.current) {
             this._dropdown.current.closeDropdown();
         }
     };
 
-    private readonly _getPrice: any = (market: Market) => {
-        if (market.bestAsk) {
-            return market.bestAsk.toFixed(market.currencyPair.config.pricePrecision);
-        }
-
-        return '-';
-    };
 }
 
 const mapStateToProps = (state: StoreState): PropsToken => {
     return {
-        baseToken: getBaseToken(state),
-        currencyPair: getCurrencyPair(state),
-        collectiblesCategory: getCollectiblesCategory(state),
+        collectibleCategory: getCollectibleCategory(state),
+        collectibleCategories: getCollectibleCategories(state),
     };
 };
 
 const mapDispatchToProps = (dispatch: any): DispatchProps => {
     return {
-        changeCollectibleCategory: (category: string) => dispatch(changeCollectibleCategory(category)),
+        changeCollectibleCategory: (category: CollectibleCategory) => dispatch(changeCollectibleCategory(category)),
         goToHome: () => dispatch(goToHome()),
     };
 };
