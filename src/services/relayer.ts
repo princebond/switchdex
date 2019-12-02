@@ -162,6 +162,28 @@ export const getRelayer = (): Relayer => {
     return relayer;
 };
 
+export const getMarketFillsFromRelayer = async (
+    pair: string,
+    page?: number,
+    perPage?: number,
+): Promise<AccountMarketStat[]> => {
+    const headers = new Headers({
+        'content-type': 'application/json',
+    });
+
+    const init: RequestInit = {
+        method: 'GET',
+        headers,
+    };
+    const response = await fetch(`${RELAYER_URL}/markets/${pair}/history`, init);
+    if (response.ok) {
+        return (await response.json()) as AccountMarketStat[];
+    } else {
+        return [];
+    }
+};
+
+
 export const getAccountMarketStatsFromRelayer = async (
     pair: string,
     from: number,
