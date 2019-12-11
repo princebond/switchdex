@@ -16,7 +16,13 @@ import { Theme } from '../../themes/commons';
 import { getThemeByMarketplace } from '../../themes/theme_meta_data_utils';
 import { getCurrencyPairByTokensSymbol } from '../../util/known_currency_pairs';
 import { getKnownTokens, isWeth } from '../../util/known_tokens';
-import { buildLimitOrder, buildMarketLimitMatchingOrders, buildMarketOrders, isDutchAuction } from '../../util/orders';
+import {
+    buildLimitOrder,
+    buildLimitOrderIEO,
+    buildMarketLimitMatchingOrders,
+    buildMarketOrders,
+    isDutchAuction,
+} from '../../util/orders';
 import {
     createBasicBuyCollectibleSteps,
     createBuySellLimitMatchingSteps,
@@ -595,7 +601,7 @@ export const createSignedOrderIEO: ThunkCreator = (amount: BigNumber, price: Big
             const web3Wrapper = await getWeb3Wrapper();
             const contractWrappers = await getContractWrappers();
 
-            const order = await buildLimitOrder(
+            const order = await buildLimitOrderIEO(
                 {
                     account: ethAccount,
                     amount,

@@ -23,6 +23,7 @@ const initialMarketState: MarketState = {
     markets: null,
     ethInUsd: null,
     tokensPrice: null,
+    marketStats: null,
 };
 
 export function market(state: MarketState = initialMarketState, action: RootAction): MarketState {
@@ -53,6 +54,8 @@ export function market(state: MarketState = initialMarketState, action: RootActi
             return state;
         case getType(actions.fetchERC20MarketsError):
             return state;
+        case getType(actions.setMarketStats):
+            return { ...state, marketStats: action.payload };
         default:
             return state;
     }
