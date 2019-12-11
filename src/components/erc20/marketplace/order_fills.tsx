@@ -86,7 +86,7 @@ const fillToRow = (fill: Fill, index: number, _setMarket: any) => {
 class OrderFills extends React.Component<Props> {
     public render = () => {
         const { fills, baseToken, quoteToken, web3State } = this.props;
-        let content: React.ReactNode;
+        let content: React.ReactNode = null;
         const defaultBehaviour = () => {
             if (web3State !== Web3State.Error && (!baseToken || !quoteToken)) {
                 content = <LoadingWrapper minHeight="120px" />;
@@ -132,9 +132,8 @@ class OrderFills extends React.Component<Props> {
                     break;
                 }
             }
-
-            return <DexTradesList title="Last 0X Mesh Trades">{content}</DexTradesList>;
         }
+        return <DexTradesList title="Last 0X Mesh Trades">{content}</DexTradesList>;
     };
 }
 const mapStateToProps = (state: StoreState): StateProps => {
