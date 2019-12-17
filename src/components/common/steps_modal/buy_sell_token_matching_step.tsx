@@ -1,4 +1,3 @@
-import { BigNumber } from '0x.js';
 import React from 'react';
 import { connect } from 'react-redux';
 
@@ -17,6 +16,7 @@ import { CurrencyPair, OrderSide, StepBuySellLimitMatching, StoreState, Token, W
 
 import { BaseStepModal } from './base_step_modal';
 import { StepItem } from './steps_progress';
+import { BigNumber } from '@0x/utils';
 
 interface OwnProps {
     buildStepsProgress: (currentStepItem: StepItem) => StepItem[];
@@ -141,17 +141,14 @@ const mapStateToProps = (state: StoreState): StateProps => {
     };
 };
 
-const BuySellTokenMatchingStepContainer = connect(
-    mapStateToProps,
-    (dispatch: any) => {
-        return {
-            onSubmitLimitMatchingOrder: (amount: BigNumber, price: BigNumber, side: OrderSide) =>
-                dispatch(submitLimitMatchingOrder(amount, price, side)),
-            notifyBuySellMarket: (id: string, amount: BigNumber, token: Token, side: OrderSide, tx: Promise<any>) =>
-                dispatch(addMarketBuySellNotification(id, amount, token, side, tx)),
-            refreshOrders: () => dispatch(getOrderbookAndUserOrders()),
-        };
-    },
-)(BuySellTokenMatchingStep);
+const BuySellTokenMatchingStepContainer = connect(mapStateToProps, (dispatch: any) => {
+    return {
+        onSubmitLimitMatchingOrder: (amount: BigNumber, price: BigNumber, side: OrderSide) =>
+            dispatch(submitLimitMatchingOrder(amount, price, side)),
+        notifyBuySellMarket: (id: string, amount: BigNumber, token: Token, side: OrderSide, tx: Promise<any>) =>
+            dispatch(addMarketBuySellNotification(id, amount, token, side, tx)),
+        refreshOrders: () => dispatch(getOrderbookAndUserOrders()),
+    };
+})(BuySellTokenMatchingStep);
 
 export { BuySellTokenMatchingStep, BuySellTokenMatchingStepContainer };

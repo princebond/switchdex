@@ -319,7 +319,7 @@ export const startBuySellLimitIEOSteps: ThunkCreator = (
     amount: BigNumber,
     price: BigNumber,
     side: OrderSide,
-    makerFee: BigNumber,
+    orderFeeData: OrderFeeData,
     baseToken: Token,
     quoteToken: Token,
 ) => {
@@ -336,7 +336,7 @@ export const startBuySellLimitIEOSteps: ThunkCreator = (
             amount,
             price,
             side,
-            makerFee,
+            orderFeeData,
             true,
         );
 
@@ -350,7 +350,7 @@ export const startBuySellLimitMatchingSteps: ThunkCreator = (
     amount: BigNumber,
     price: BigNumber,
     side: OrderSide,
-    takerFee: BigNumber,
+    orderFeeData: OrderFeeData,
 ) => {
     return async (dispatch, getState) => {
         const state = getState();
@@ -365,7 +365,7 @@ export const startBuySellLimitMatchingSteps: ThunkCreator = (
 
         const allOrders =
             side === OrderSide.Buy ? selectors.getOpenSellOrders(state) : selectors.getOpenBuyOrders(state);
-        const { orders, amounts, amountFill, amountsMaker } = buildMarketLimitMatchingOrders(
+        const { ordersToFill, amounts, amountFill, amountsMaker } = buildMarketLimitMatchingOrders(
             {
                 amount,
                 price,
@@ -374,7 +374,7 @@ export const startBuySellLimitMatchingSteps: ThunkCreator = (
             side,
         );
 
-        if (orders.length === 0) {
+        if (ordersToFill.length === 0) {
             return 0;
         }
         const totalFilledAmount = amounts.reduce((total: BigNumber, currentValue: BigNumber) => {
@@ -427,7 +427,7 @@ export const startBuySellLimitMatchingSteps: ThunkCreator = (
             side,
             price,
             price_avg,
-            takerFee,
+            orderFeeData,
         );
 
         dispatch(setStepsModalCurrentStep(buySellLimitMatchingFlow[0]));
@@ -654,7 +654,10 @@ export const createConfigSignature: ThunkCreator = (message: string) => {
                         { name: 'version', type: 'string' },
                         { name: 'verifyingContractAddress', type: 'string' },
                     ],
-                    Message: [{ name: 'message', type: 'string' }, { name: 'terms', type: 'string' }],
+                    Message: [
+                        { name: 'message', type: 'string' },
+                        { name: 'terms', type: 'string' },
+                    ],
                 },
                 primaryType: 'Message',
                 domain: {

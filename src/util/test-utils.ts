@@ -10,6 +10,7 @@ import { TokenMetaData } from '../common/tokens_meta_data';
 import { buildFill } from './fills';
 import { getKnownTokens } from './known_tokens';
 import { Collectible, CurrencyPair, Market, OrderSide, Token, TokenBalance, UIOrder } from './types';
+import { ExchangeFillEventArgs } from '@0x/contract-wrappers';
 
 export const makeOrder = ({
     makerAssetAmount,
@@ -202,6 +203,9 @@ export const createFill = (
         orderHash: '',
         makerAssetData: baseTokenAssetData,
         takerAssetData: quoteTokenAssetData,
+        makerFeeAssetData: NULL_BYTES,
+        takerFeeAssetData: NULL_BYTES,
+        protocolFeePaid: ZERO,
     };
     const log: any = {
         args,

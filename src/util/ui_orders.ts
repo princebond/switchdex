@@ -6,7 +6,6 @@ import { UI_DECIMALS_DISPLAYED_PRICE_ETH } from '../common/constants';
 
 import { getKnownTokens } from './known_tokens';
 import { getKnownTokensIEO } from './known_tokens_ieo';
-import { getLogger } from './logger';
 import { tokenAmountInUnitsToBigNumber } from './tokens';
 import { OrderBookItem, OrderSide, Token, UIOrder } from './types';
 
@@ -18,12 +17,14 @@ export const ordersToUIOrders = (orders: SignedOrder[], baseToken: Token, orders
     }
 };
 
-export const ordersToIEOUIOrders = (
-    orders: SignedOrder[],
-    baseToken: Token,
-    orderAndTraderInfo: OrderAndTraderInfo[],
-): UIOrder[] => {
-    return filterUIOrders(ordersToIEOUIOrdersWithOrdersInfo(orders, orderAndTraderInfo, baseToken));
+export const ordersToIEOUIOrders = (orders: SignedOrder[], baseToken: Token, ordersInfo?: OrderInfo[]): UIOrder[] => {
+    if (ordersInfo) {
+        return ordersToIEOUIOrdersWithOrdersInfo(orders, ordersInfo, baseToken);
+    } else {
+        return [];
+    }
+
+    //return filterUIOrders(ordersToIEOUIOrdersWithOrdersInfo(orders, ordersInfo, baseToken));
 };
 
 // The user does not have web3 and the order info could not be retrieved from the contract
@@ -134,44 +135,39 @@ export const mergeByPrice = (orders: UIOrder[], precision = UI_DECIMALS_DISPLAYE
 // IEO orders
 const ordersToIEOUIOrdersWithOrdersInfo = (
     orders: SignedOrder[],
-    orderAndTraderInfos: OrderAndTraderInfo[],
+    ordersInfo: OrderInfo[],
     baseToken: Token,
 ): UIOrder[] => {
-    if (orderAndTraderInfos.length !== orders.length) {
+    if (ordersInfo.length !== orders.length) {
         throw new Error(
-            `AssertionError: Orders info length does not match orders length: ${orderAndTraderInfos.length} !== ${orders.length}`,
+            `AssertionError: Orders info length does not match orders length: ${ordersInfo.length} !== ${orders.length}`,
         );
     }
 
     const selectedTokenEncoded = assetDataUtils.encodeERC20AssetData(baseToken.address);
 
     return orders.map((order, i) => {
-        const orderAndTraderInfo = orderAndTraderInfos[i];
+        const orderInfo = ordersInfo[i];
+
         const side = order.takerAssetData === selectedTokenEncoded ? OrderSide.Buy : OrderSide.Sell;
         const isSell = side === OrderSide.Sell;
         const size = isSell ? order.makerAssetAmount : order.takerAssetAmount;
 
         const makerAssetAddress = assetDataUtils.decodeERC20AssetData(order.makerAssetData).tokenAddress;
-        const makerAssetTokenDecimals = getKnownTokensIEO().getAllTokensByAddress(makerAssetAddress).decimals;
+        const makerAssetTokenDecimals = getKnownTokensIEO().getTokenByAddress(makerAssetAddress).decimals;
         const makerAssetAmountInUnits = tokenAmountInUnitsToBigNumber(order.makerAssetAmount, makerAssetTokenDecimals);
 
         const takerAssetAddress = assetDataUtils.decodeERC20AssetData(order.takerAssetData).tokenAddress;
         const takerAssetTokenDecimals = getKnownTokensIEO().getTokenByAddress(takerAssetAddress).decimals;
         const takerAssetAmountInUnits = tokenAmountInUnitsToBigNumber(order.takerAssetAmount, takerAssetTokenDecimals);
 
-        const orderTakerAssetFilledAmount = orderAndTraderInfo.orderInfo.orderTakerAssetFilledAmount;
-        const remainingTakerAssetFillAmount = order.takerAssetAmount.minus(orderTakerAssetFilledAmount);
-        const makerAssetFilledAmount = orderCalculationUtils.getMakerFillAmount(order, orderTakerAssetFilledAmount);
-        const makerFillableAmount = BigNumber.min(
-            orderAndTraderInfo.traderInfo.makerAllowance,
-            orderAndTraderInfo.traderInfo.makerBalance,
-        );
-        const makerFillableAmountInTakerAsset = orderCalculationUtils.getTakerFillAmount(order, makerFillableAmount);
-        const filled = isSell ? makerAssetFilledAmount : orderTakerAssetFilledAmount;
+        const filled = isSell
+            ? orderInfo.orderTakerAssetFilledAmount.div(order.takerAssetAmount).multipliedBy(order.makerAssetAmount)
+            : orderInfo.orderTakerAssetFilledAmount;
         const price = isSell
             ? takerAssetAmountInUnits.div(makerAssetAmountInUnits)
             : makerAssetAmountInUnits.div(takerAssetAmountInUnits);
-        const status = orderAndTraderInfo.orderInfo.orderStatus;
+        const status = orderInfo.orderStatus;
 
         return {
             rawOrder: order,
@@ -180,8 +176,6 @@ const ordersToIEOUIOrdersWithOrdersInfo = (
             filled,
             price,
             status,
-            makerFillableAmountInTakerAsset,
-            remainingTakerAssetFillAmount,
         };
     });
 };

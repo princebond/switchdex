@@ -1,4 +1,3 @@
-import { BigNumber } from '0x.js';
 import React from 'react';
 import { connect } from 'react-redux';
 
@@ -11,6 +10,7 @@ import { iTokenData, StepLendingToken, StepUnLendingToken, StoreState, Token, Wa
 
 import { BaseStepModal } from './base_step_modal';
 import { StepItem } from './steps_progress';
+import { BigNumber } from '@0x/utils';
 
 interface OwnProps {
     buildStepsProgress: (currentStepItem: StepItem) => StepItem[];
@@ -117,22 +117,19 @@ const mapStateToProps = (state: StoreState): StateProps => {
     };
 };
 
-const LendingTokenStepContainer = connect(
-    mapStateToProps,
-    (dispatch: any) => {
-        return {
-            onSubmitLendingToken: (token: Token, iToken: iTokenData, amount: BigNumber, isEth: boolean) =>
-                dispatch(lendingToken(token, iToken, amount, isEth)),
-            onSubmitUnLendingToken: (token: Token, iToken: iTokenData, amount: BigNumber, isEth: boolean) =>
-                dispatch(unLendingToken(token, iToken, amount, isEth)),
-            notifyLendingToken: (id: string, amount: BigNumber, token: Token, tx: Promise<any>) =>
-                dispatch(addLendingTokenNotification(id, amount, token, tx)),
-            notifyUnLendingToken: (id: string, amount: BigNumber, token: Token, tx: Promise<any>) =>
-                dispatch(addUnLendingTokenNotification(id, amount, token, tx)),
-            updateITokenBalance: (token: iTokenData) => dispatch(updateITokenBalance(token)),
-            updateTokenBalance: (token: Token) => dispatch(updateTokenBalance(token)),
-        };
-    },
-)(LendingTokenStep);
+const LendingTokenStepContainer = connect(mapStateToProps, (dispatch: any) => {
+    return {
+        onSubmitLendingToken: (token: Token, iToken: iTokenData, amount: BigNumber, isEth: boolean) =>
+            dispatch(lendingToken(token, iToken, amount, isEth)),
+        onSubmitUnLendingToken: (token: Token, iToken: iTokenData, amount: BigNumber, isEth: boolean) =>
+            dispatch(unLendingToken(token, iToken, amount, isEth)),
+        notifyLendingToken: (id: string, amount: BigNumber, token: Token, tx: Promise<any>) =>
+            dispatch(addLendingTokenNotification(id, amount, token, tx)),
+        notifyUnLendingToken: (id: string, amount: BigNumber, token: Token, tx: Promise<any>) =>
+            dispatch(addUnLendingTokenNotification(id, amount, token, tx)),
+        updateITokenBalance: (token: iTokenData) => dispatch(updateITokenBalance(token)),
+        updateTokenBalance: (token: Token) => dispatch(updateTokenBalance(token)),
+    };
+})(LendingTokenStep);
 
 export { LendingTokenStep, LendingTokenStepContainer };

@@ -413,11 +413,6 @@ const mapDispatchToProps = (dispatch: any) => {
     };
 };
 
-const WalletBalanceContainer = withTheme(
-    connect(
-        mapStateToProps,
-        mapDispatchToProps,
-    )(WalletBalance),
-);
+const WalletBalanceContainer = withTheme(connect(mapStateToProps, mapDispatchToProps)(WalletBalance));
 
 export { WalletBalance, WalletBalanceContainer };

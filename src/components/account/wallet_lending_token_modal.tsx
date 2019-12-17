@@ -1,4 +1,3 @@
-import { BigNumber } from '0x.js';
 // tslint:disable-next-line: no-implicit-dependencies
 import React from 'react';
 import Modal from 'react-modal';
@@ -12,6 +11,7 @@ import { BigNumberInput } from '../common/big_number_input';
 import { Button } from '../common/button';
 import { ErrorCard, ErrorIcons, FontSize } from '../common/error_card';
 import { CloseModalButton } from '../common/icons/close_modal_button';
+import { BigNumber } from '@0x/utils';
 
 interface State {
     amount: BigNumber | null;

@@ -78,28 +78,31 @@ export class Relayer {
     }
 
     public async getCurrencyPairMarketDataAsync(baseToken: Token, quoteToken: Token): Promise<MarketData> {
-        await this._rateLimit();
-        const { asks, bids } = await this._client.getOrderbookAsync({
-            baseAssetData: assetDataUtils.encodeERC20AssetData(baseToken.address),
-            quoteAssetData: assetDataUtils.encodeERC20AssetData(quoteToken.address),
-        });
+       // await this._rateLimit();
+        const baseTokenAssetData = assetDataUtils.encodeERC20AssetData(baseToken.address);
+        const quoteTokenAssetData =  assetDataUtils.encodeERC20AssetData(quoteToken.address);
+        const [asks, bids] = await Promise.all([
+            this._getOrdersAsync(baseTokenAssetData, quoteTokenAssetData),
+            this._getOrdersAsync(quoteTokenAssetData, baseTokenAssetData),
+        ]);
+
         const marketData: MarketData = {
             bestAsk: null,
             bestBid: null,
             spreadInPercentage: null,
         };
 
-        if (asks.records.length) {
-            const lowestPriceAsk = asks.records[0];
-            const { makerAssetAmount, takerAssetAmount } = lowestPriceAsk.order;
+        if (asks.length) {
+            const lowestPriceAsk = asks[0];
+            const { makerAssetAmount, takerAssetAmount } = lowestPriceAsk;
             const takerAssetAmountInUnits = tokenAmountInUnitsToBigNumber(takerAssetAmount, quoteToken.decimals);
             const makerAssetAmountInUnits = tokenAmountInUnitsToBigNumber(makerAssetAmount, baseToken.decimals);
             marketData.bestAsk = takerAssetAmountInUnits.div(makerAssetAmountInUnits);
         }
 
-        if (bids.records.length) {
-            const lowestPriceBid = bids.records[0];
-            const { makerAssetAmount, takerAssetAmount } = lowestPriceBid.order;
+        if (bids.length) {
+            const lowestPriceBid = bids[0];
+            const { makerAssetAmount, takerAssetAmount } = lowestPriceBid;
             const takerAssetAmountInUnits = tokenAmountInUnitsToBigNumber(takerAssetAmount, baseToken.decimals);
             const makerAssetAmountInUnits = tokenAmountInUnitsToBigNumber(makerAssetAmount, quoteToken.decimals);
             marketData.bestBid = makerAssetAmountInUnits.div(takerAssetAmountInUnits);

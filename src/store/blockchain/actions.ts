@@ -12,6 +12,7 @@ import {
     START_BLOCK_LIMIT,
     UNLIMITED_ALLOWANCE_IN_BASE_UNITS,
     ZERO,
+    USE_RELAYER_MARKET_UPDATES,
 } from '../../common/constants';
 import { ConvertBalanceMustNotBeEqualException } from '../../exceptions/convert_balance_must_not_be_equal_exception';
 import { SignedOrderException } from '../../exceptions/signed_order_exception';
@@ -202,13 +203,11 @@ export const transferToken: ThunkCreator<Promise<any>> = (
                 gasPrice: getTransactionOptions(gasPrice).gasPrice,
             });
         } else {
-            txHash = await contractWrappers.erc20Token.transferAsync(
-                token.address,
-                ethAccount.toLowerCase(),
-                address.toLowerCase(),
-                amount,
-                getTransactionOptions(gasPrice),
-            );
+            const erc20Token = new ERC20TokenContract(token.address, contractWrappers.getProvider());
+            txHash = await erc20Token.transfer(address.toLowerCase(), amount).sendTransactionAsync({
+                from: ethAccount,
+                ...getTransactionOptions(gasPrice),
+            });
         }
 
         const tx = web3Wrapper.awaitTransactionSuccessAsync(txHash);

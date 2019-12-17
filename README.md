@@ -93,6 +93,7 @@ After starting those containers, you can run the following in another terminal. 
 ```
 REACT_APP_RELAYER_URL='http://localhost:3000/v3' REACT_APP_RELAYER_WS_URL='ws://localhost:3000' yarn start
 ```
+
 ```
 git clone git@github.com:VeriSafe/veridex.git
 cd Veridex
@@ -184,4 +185,7 @@ If you want to add your own theme for the app, please read the [THEMES.md](THEME
 ### Using custom Config on the DEX
 
 If you want to config the app and markets, please read the [CONFIG.md](CONFIG.md) file
+
+```
+
 ```

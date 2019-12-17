@@ -1,5 +1,3 @@
-import { assetDataUtils, ExchangeFillEventArgs, LogWithDecodedArgs } from '0x.js';
-
 import { ConfigIEO } from '../common/config';
 import { KNOWN_TOKENS_META_DATA } from '../common/tokens_meta_data';
 import { KNOWN_TOKENS_IEO_META_DATA, TokenIEOMetaData } from '../common/tokens_meta_data_ieo';
@@ -7,6 +5,8 @@ import { KNOWN_TOKENS_IEO_META_DATA, TokenIEOMetaData } from '../common/tokens_m
 import { getLogger } from './logger';
 import { mapTokensBotToTokenIEO, mapTokensIEOMetaDataToTokenByNetworkId } from './token_ieo_meta_data';
 import { TokenIEO } from './types';
+import { assetDataUtils } from '@0x/order-utils';
+import { ExchangeFillEventArgs, LogWithDecodedArgs } from '@0x/contract-wrappers';
 
 const logger = getLogger('Tokens::known_tokens .ts');
 

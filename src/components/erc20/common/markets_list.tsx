@@ -396,9 +396,6 @@ const mapDispatchToProps = (dispatch: any): DispatchProps => {
     };
 };
 
-const MarketsListContainer = connect(
-    mapStateToProps,
-    mapDispatchToProps,
-)(MarketsList);
+const MarketsListContainer = connect(mapStateToProps, mapDispatchToProps)(MarketsList);
 
 export { MarketsList, MarketsListContainer };

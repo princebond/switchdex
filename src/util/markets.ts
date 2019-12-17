@@ -1,7 +1,6 @@
-import { BigNumber } from '0x.js';
-
 import { convertDateToUTCTimestamp } from './time_utils';
 import { CurrencyPair, Fill, Market, Token } from './types';
+import { BigNumber } from '@0x/utils';
 
 export const filterMarketsByTokenSymbol = (markets: Market[], tokenSymbol: string): Market[] => {
     return markets.filter(

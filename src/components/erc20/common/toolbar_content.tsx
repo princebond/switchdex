@@ -151,13 +151,6 @@ const mapDispatchToProps = (dispatch: any): DispatchProps => {
     };
 };
 
-const ToolbarContentContainer = withWindowWidth(
-    withTheme(
-        connect(
-            null,
-            mapDispatchToProps,
-        )(ToolbarContent),
-    ),
-);
+const ToolbarContentContainer = withWindowWidth(withTheme(connect(null, mapDispatchToProps)(ToolbarContent)));
 
 export { ToolbarContent, ToolbarContentContainer as default };

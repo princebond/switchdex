@@ -121,20 +121,17 @@ const mapStateToProps = (state: StoreState): StateProps => {
     };
 };
 
-const SignOrderStepContainer = connect(
-    mapStateToProps,
-    (dispatch: any) => {
-        return {
-            submitLimitOrder: (signedOrder: SignedOrder, amount: BigNumber, side: OrderSide) =>
-                dispatch(submitLimitOrder(signedOrder, amount, side)),
-            createSignedOrder: (amount: BigNumber, price: BigNumber, side: OrderSide) =>
-                dispatch(createSignedOrder(amount, price, side)),
-            submitLimitOrderIEO: (signedOrder: SignedOrder, amount: BigNumber, side: OrderSide) =>
-                dispatch(submitLimitOrderIEO(signedOrder, amount, side)),
-            createSignedOrderIEO: (amount: BigNumber, price: BigNumber, side: OrderSide) =>
-                dispatch(createSignedOrderIEO(amount, price, side)),
-        };
-    },
-)(SignOrderStep);
+const SignOrderStepContainer = connect(mapStateToProps, (dispatch: any) => {
+    return {
+        submitLimitOrder: (signedOrder: SignedOrder, amount: BigNumber, side: OrderSide) =>
+            dispatch(submitLimitOrder(signedOrder, amount, side)),
+        createSignedOrder: (amount: BigNumber, price: BigNumber, side: OrderSide) =>
+            dispatch(createSignedOrder(amount, price, side)),
+        submitLimitOrderIEO: (signedOrder: SignedOrder, amount: BigNumber, side: OrderSide) =>
+            dispatch(submitLimitOrderIEO(signedOrder, amount, side)),
+        createSignedOrderIEO: (amount: BigNumber, price: BigNumber, side: OrderSide) =>
+            dispatch(createSignedOrderIEO(amount, price, side)),
+    };
+})(SignOrderStep);
 
 export { SignOrderStep, SignOrderStepContainer };

@@ -1,6 +1,5 @@
-import { BigNumber } from '0x.js';
 // tslint:disable-next-line: no-implicit-dependencies
-import { addressUtils } from '@0x/utils';
+import { addressUtils, BigNumber } from '@0x/utils';
 import React from 'react';
 import Modal from 'react-modal';
 import styled from 'styled-components';

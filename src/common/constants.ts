@@ -12,14 +12,15 @@ export const USE_RELAYER_MARKET_UPDATES = process.env.REACT_APP_USE_RELAYER_MARK
 export const ERC721_APP_BASE_PATH = '/erc721';
 export const DEFAULT_BASE_PATH = process.env.REACT_APP_DEFAULT_BASE_PATH || ERC20_APP_BASE_PATH;
 
-export const RELAYER_URL = process.env.REACT_APP_RELAYER_URL || 'http://localhost:3001/api/v2';
+export const RELAYER_URL = process.env.REACT_APP_RELAYER_URL || 'http://localhost:3001/api/v3';
 
 export const RELAYER_WS_URL = process.env.REACT_APP_RELAYER_WS_URL || 'ws://localhost:3001';
 
 export const TX_DEFAULTS = {
-    gasLimit: 1000000,
-    gasTransferToken: 21000,
-    shouldValidate: true,
+    gas: 1000000,
+   // gasLimit: 1000000,
+  //  gasTransferToken: 21000,
+  //  shouldValidate: true,
 };
 
 export const ZERO_ADDRESS = '0x0000000000000000000000000000000000000000';
@@ -32,6 +33,10 @@ export const VERIDEX_ORIGIN = 'http://localhost:3001';
 export const FEE_RECIPIENT = process.env.REACT_APP_FEE_RECIPIENT || ZERO_ADDRESS;
 export const AFFILIATE_FEE_PERCENTAGE: number = process.env.REACT_APP_AFFILIATE_FEE_PERCENTAGE
     ? Number(process.env.REACT_APP_AFFILIATE_FEE_PERCENTAGE)
+    : 0;
+
+export const FEE_PERCENTAGE: number = process.env.REACT_APP_FEE_PERCENTAGE
+    ? Number(process.env.REACT_APP_FEE_PERCENTAGE)
     : 0;
 
 export const INSTANT_FEE_PERCENTAGE: number = process.env.REACT_APP_INSTANT_FEE_PERCENTAGE

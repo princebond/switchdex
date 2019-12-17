@@ -1,4 +1,3 @@
-import { BigNumber } from '0x.js';
 import React, { useEffect, useState } from 'react';
 import { connect } from 'react-redux';
 import styled, { withTheme } from 'styled-components';
@@ -43,6 +42,7 @@ import { CustomTD, Table, TH, THead, THLast, TR } from '../common/table';
 import { ZeroXInstantWidget } from '../erc20/common/0xinstant_widget';
 
 import { LendingTokenModal } from './wallet_lending_token_modal';
+import { BigNumber } from '@0x/utils';
 
 interface StateProps {
     ethBalance: BigNumber;
@@ -588,12 +588,7 @@ const mapDispatchToProps = {
 };
 
 const WalletLendingBalancesContainer = withTheme(
-    withWindowWidth(
-        connect(
-            mapStateToProps,
-            mapDispatchToProps,
-        )(WalletLendingBalances),
-    ),
+    withWindowWidth(connect(mapStateToProps, mapDispatchToProps)(WalletLendingBalances)),
 );
 
 // tslint:disable-next-line: max-file-line-count

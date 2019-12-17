@@ -37,7 +37,10 @@ export const getAllOrdersAsUIOrders = async (baseToken: Token, quoteToken: Token
     try {
         const contractWrappers = await getContractWrappers();
         const [ordersInfo] = await contractWrappers.devUtils
-            .getOrderRelevantStates(orders, orders.map(o => o.signature))
+            .getOrderRelevantStates(
+                orders,
+                orders.map(o => o.signature),
+            )
             .callAsync();
         return ordersToUIOrders(orders, baseToken, ordersInfo);
     } catch (err) {
@@ -67,7 +70,10 @@ export const getUserOrdersAsUIOrders = async (baseToken: Token, quoteToken: Toke
     try {
         const contractWrappers = await getContractWrappers();
         const [ordersInfo] = await contractWrappers.devUtils
-            .getOrderRelevantStates(myOrders, myOrders.map(o => o.signature))
+            .getOrderRelevantStates(
+                myOrders,
+                myOrders.map(o => o.signature),
+            )
             .callAsync();
         return ordersToUIOrders(myOrders, baseToken, ordersInfo);
     } catch (err) {
@@ -90,11 +96,13 @@ export const getUserIEOOrdersAsUIOrders = async (baseToken: Token, quoteToken: T
     const myOrders = await getUserIEOSignedOrders(ethAccount, baseToken, quoteToken);
     try {
         const contractWrappers = await getContractWrappers();
-        const ordersAndTradersInfo = await contractWrappers.orderValidator.getOrdersAndTradersInfoAsync(
-            myOrders,
-            myOrders.map(o => o.makerAddress),
-        );
-        return ordersToIEOUIOrders(myOrders, baseToken, ordersAndTradersInfo);
+        const [ordersInfo] = await contractWrappers.devUtils
+            .getOrderRelevantStates(
+                myOrders,
+                myOrders.map(o => o.signature),
+            )
+            .callAsync();
+        return ordersToIEOUIOrders(myOrders, baseToken, ordersInfo);
     } catch (err) {
         logger.error(`There was an error getting the ieo orders info from exchange.`, err);
         throw err;

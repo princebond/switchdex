@@ -1,4 +1,3 @@
-import { BigNumber } from '0x.js';
 import React from 'react';
 import { connect } from 'react-redux';
 import styled from 'styled-components';
@@ -39,6 +38,7 @@ import { EmptyContent } from '../../common/empty_content';
 import { ErrorCard, ErrorIcons, FontSize } from '../../common/error_card';
 
 import { IEOOrderDetailsContainer } from './ieo_order_details';
+import { BigNumber } from '@0x/utils';
 
 interface StateProps {
     web3State: Web3State;
@@ -460,9 +460,6 @@ const mapDispatchToProps = (dispatch: any): DispatchProps => {
     };
 };
 
-const IEOOrderContainer = connect(
-    mapStateToProps,
-    mapDispatchToProps,
-)(IEOOrder);
+const IEOOrderContainer = connect(mapStateToProps, mapDispatchToProps)(IEOOrder);
 
 export { IEOOrder, IEOOrderContainer };

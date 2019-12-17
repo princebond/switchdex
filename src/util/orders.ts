@@ -37,6 +37,12 @@ interface BuildMarketOrderParams {
     orders: UIOrder[];
 }
 
+interface BuildMarketLimitMatchingOrderParams {
+    amount: BigNumber;
+    price: BigNumber;
+    orders: UIOrder[];
+}
+
 export const buildSellCollectibleOrder = async (params: BuildSellCollectibleOrderParams, side: OrderSide) => {
     const {
         account,
@@ -201,7 +207,7 @@ export const buildMarketLimitMatchingOrders = (
     params: BuildMarketLimitMatchingOrderParams,
     side: OrderSide,
 ): {
-    orders: SignedOrder[];
+    ordersToFill: SignedOrder[];
     amounts: BigNumber[];
     amountsMaker: BigNumber[];
     canBeFilled: boolean;
@@ -228,7 +234,7 @@ export const buildMarketLimitMatchingOrders = (
     });
     if (filteredOrders.length === 0) {
         return {
-            orders: [],
+            ordersToFill: [],
             amounts: [new BigNumber(0)],
             canBeFilled: false,
             remainingAmount: amount,
@@ -273,7 +279,7 @@ export const buildMarketLimitMatchingOrders = (
 
     const roundedAmounts = amounts.map(a => a.integerValue(BigNumber.ROUND_CEIL));
     return {
-        orders: ordersToFill,
+        ordersToFill,
         amounts: roundedAmounts,
         canBeFilled,
         remainingAmount,

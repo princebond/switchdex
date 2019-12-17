@@ -1,10 +1,11 @@
-import { assetDataUtils, BigNumber, ExchangeFillEventArgs, LogWithDecodedArgs } from '0x.js';
-
 import { getKnownTokens, KnownTokens } from './known_tokens';
 import { marketToStringFromTokens } from './markets';
 import { getOrderSideFromFillEvent } from './notifications';
 import { getTransactionLink } from './transaction_link';
 import { Fill, Market, OrderSide, RelayerFill, Token } from './types';
+import { LogWithDecodedArgs, ExchangeFillEventArgs } from '@0x/contract-wrappers';
+import { assetDataUtils } from '@0x/order-utils';
+import { BigNumber } from '@0x/utils';
 
 export const buildFill = (
     log: LogWithDecodedArgs<ExchangeFillEventArgs>,

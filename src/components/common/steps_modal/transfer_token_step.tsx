@@ -1,4 +1,3 @@
-import { BigNumber } from '0x.js';
 import React from 'react';
 import { connect } from 'react-redux';
 
@@ -11,6 +10,7 @@ import { StepTransferToken, StoreState, Token, Wallet } from '../../../util/type
 
 import { BaseStepModal } from './base_step_modal';
 import { StepItem } from './steps_progress';
+import { BigNumber } from '@0x/utils';
 
 interface OwnProps {
     buildStepsProgress: (currentStepItem: StepItem) => StepItem[];
@@ -103,17 +103,14 @@ const mapStateToProps = (state: StoreState): StateProps => {
     };
 };
 
-const TransferTokenStepContainer = connect(
-    mapStateToProps,
-    (dispatch: any) => {
-        return {
-            onSubmitTransferToken: (token: Token, amount: BigNumber, address: string, isEth: boolean) =>
-                dispatch(transferToken(token, amount, address, isEth)),
-            notifyTransferToken: (id: string, amount: BigNumber, token: Token, address: string, tx: Promise<any>) =>
-                dispatch(addTransferTokenNotification(id, amount, token, address, tx)),
-            updateTokenBalance: (token: Token) => dispatch(updateTokenBalance(token)),
-        };
-    },
-)(TransferTokenStep);
+const TransferTokenStepContainer = connect(mapStateToProps, (dispatch: any) => {
+    return {
+        onSubmitTransferToken: (token: Token, amount: BigNumber, address: string, isEth: boolean) =>
+            dispatch(transferToken(token, amount, address, isEth)),
+        notifyTransferToken: (id: string, amount: BigNumber, token: Token, address: string, tx: Promise<any>) =>
+            dispatch(addTransferTokenNotification(id, amount, token, address, tx)),
+        updateTokenBalance: (token: Token) => dispatch(updateTokenBalance(token)),
+    };
+})(TransferTokenStep);
 
 export { TransferTokenStep, TransferTokenStepContainer };

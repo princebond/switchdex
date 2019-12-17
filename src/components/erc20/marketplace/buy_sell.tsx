@@ -462,9 +462,6 @@ const mapDispatchToProps = (dispatch: any): DispatchProps => {
     };
 };
 
-const BuySellContainer = connect(
-    mapStateToProps,
-    mapDispatchToProps,
-)(BuySell);
+const BuySellContainer = connect(mapStateToProps, mapDispatchToProps)(BuySell);
 
 export { BuySell, BuySellContainer };
