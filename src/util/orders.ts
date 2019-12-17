@@ -23,11 +23,6 @@ interface BuildSellCollectibleOrderParams {
     price: BigNumber;
 }
 
-interface DutchAuctionOrderParams extends BuildSellCollectibleOrderParams {
-    endPrice: BigNumber;
-    senderAddress: string;
-}
-
 interface BuildLimitOrderParams {
     account: string;
     amount: BigNumber;
@@ -41,43 +36,6 @@ interface BuildMarketOrderParams {
     amount: BigNumber;
     orders: UIOrder[];
 }
-
-interface BuildMarketLimitMatchingOrderParams {
-    amount: BigNumber;
-    price: BigNumber;
-    orders: UIOrder[];
-}
-
-export const buildDutchAuctionCollectibleOrder = async (params: DutchAuctionOrderParams) => {
-    const {
-        account,
-        collectibleId,
-        collectibleAddress,
-        amount,
-        price,
-        exchangeAddress,
-        wethAddress,
-        expirationDate,
-        endPrice,
-    } = params;
-    const collectibleData = assetDataUtils.encodeERC721AssetData(collectibleAddress, collectibleId);
-    const beginTimeSeconds = new BigNumber(Math.round(Date.now() / 1000));
-    const auctionAssetData = assetDataUtils.encodeDutchAuctionAssetData(collectibleData, beginTimeSeconds, price);
-    const wethAssetData = assetDataUtils.encodeERC20AssetData(wethAddress);
-
-    const orderConfigRequest: OrderConfigRequest = {
-        exchangeAddress,
-        makerAssetData: auctionAssetData,
-        takerAssetData: wethAssetData,
-        makerAssetAmount: amount,
-        takerAssetAmount: endPrice,
-        makerAddress: account,
-        takerAddress: ZERO_ADDRESS,
-        expirationTimeSeconds: expirationDate,
-    };
-
-    return orderHelper.getOrderWithTakerAndFeeConfigFromRelayer(orderConfigRequest);
-};
 
 export const buildSellCollectibleOrder = async (params: BuildSellCollectibleOrderParams, side: OrderSide) => {
     const {
@@ -347,17 +305,8 @@ export const calculateWorstCaseProtocolFee = (orders: SignedOrder[], gasPrice: B
     return protocolFee;
 };
 
-export const getDutchAuctionData = (assetData: string) => {
-    return assetDataUtils.decodeDutchAuctionData(assetData);
-};
-
-export const isDutchAuction = (order: SignedOrder) => {
-    try {
-        getDutchAuctionData(order.makerAssetData);
-        return true;
-    } catch (e) {
-        return false;
-    }
+export const isDutchAuction = (_order: SignedOrder) => {
+    return false;
 };
 
 export const serializeOrder = (o: any): SignedOrder => {

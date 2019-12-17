@@ -64,6 +64,7 @@ export const getStepsModalCurrentStep = (state: StoreState) => state.ui.stepsMod
 export const getSideBarOpenState = (state: StoreState) => state.ui.sidebarOpen;
 export const getOpenFiatOnRampModalState = (state: StoreState) => state.ui.openFiatOnRampModal;
 export const getCurrencyPair = (state: StoreState) => state.market.currencyPair;
+export const getMakerAddresses = (state: StoreState) => state.market.makerAddresses;
 export const getBaseToken = (state: StoreState) => state.market.baseToken;
 export const getQuoteToken = (state: StoreState) => state.market.quoteToken;
 export const getMarkets = (state: StoreState) => state.market.markets;

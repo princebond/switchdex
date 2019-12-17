@@ -29,12 +29,20 @@ List of deployed dex's using this source code:
 
 If you are using the source code of this fork, please let me know! Help the project adding VSF as a pair on your fork!
 
+If you have the URL of an existing relayer, you can use this frontend against it. After installing the dependencies, start the application with this command, replacing `RELAYER_URL` and `RELAYER_WS_URL` with the proper value:
+
+```
+REACT_APP_RELAYER_URL='https://RELAYER_URL/' REACT_APP_RELAYER_WS_URL='wss://RELAYER_URL/' yarn start
+```
+
 ## Usage
 
 Clone this repository and install its dependencies:
 
+You can optionally pass in any relayer endpoint that complies with the [0x Standard Relayer API](https://github.com/0xProject/standard-relayer-api). For example, if you want to show liquidity from 0x API:
+
 ```
-REACT_APP_RELAYER_URL='https://sra.0x.org/v3' REACT_APP_RELAYER_WS_URL='wss://sra.0x.org/v3' yarn start
+REACT_APP_RELAYER_URL='https://api.0x.org/sra' REACT_APP_RELAYER_WS_URL='wss://api.0x.org/sra' REACT_APP_NETWORK_ID=1 REACT_APP_CHAIN_ID=1 yarn start
 ```
 
 ### Creating a relayer for development
@@ -48,14 +56,12 @@ services:
         image: 0xorg/ganache-cli
         ports:
             - '8545:8545'
-        environment:
-            - VERSION=4.4.0-beta.1
-            - SNAPSHOT_NAME=0x_ganache_snapshot-v3-beta
     backend:
-        image: 0xorg/launch-kit-backend:v3
+        image: 0xorg/launch-kit-backend:latest
         environment:
             HTTP_PORT: '3000'
             NETWORK_ID: '50'
+            CHAIN_ID: '1337'
             WHITELIST_ALL_TOKENS: 'true'
             FEE_RECIPIENT: '0x0000000000000000000000000000000000000001'
             MAKER_FEE_UNIT_AMOUNT: '0'
@@ -64,18 +70,20 @@ services:
         ports:
             - '3000:3000'
     mesh:
-        image: 0xorg/mesh:0xV3
+        image: 0xorg/mesh:7.2.1-beta-0xv3
         environment:
             ETHEREUM_RPC_URL: 'http://ganache:8545'
-            ETHEREUM_CHAIN_ID: '1337'
-            ETHEREUM_NETWORK_ID: '50'
-            USE_BOOTSTRAP_LIST: 'true'
+            ETHEREUM_CHAIN_ID: 1337
             VERBOSITY: 3
-            PRIVATE_KEY_PATH: ''
+            RPC_ADDR: 'mesh:60557'
+            # You can decrease the BLOCK_POLLING_INTERVAL for test networks to
+            # improve performance. See https://0x-org.gitbook.io/mesh/ for more
+            # Documentation about Mesh and its environment variables.
             BLOCK_POLLING_INTERVAL: '5s'
-            P2P_LISTEN_PORT: '60557'
         ports:
             - '60557:60557'
+            - '60558:60558'
+            - '60559:60559'
 ```
 
 and then run `docker-compose up`. This will create three containers: one has a ganache with the 0x contracts deployed and some test tokens, another one has an instance of the [launch kit](https://github.com/0xProject/0x-launch-kit) implementation of a relayer that connects to that ganache and finally a container for [0x-mesh](https://github.com/0xProject/0x-mesh) for order sharing and discovery on a p2p network.
@@ -85,11 +93,10 @@ After starting those containers, you can run the following in another terminal. 
 ```
 REACT_APP_RELAYER_URL='http://localhost:3000/v3' REACT_APP_RELAYER_WS_URL='ws://localhost:3000' yarn start
 ```
-
+```
 git clone git@github.com:VeriSafe/veridex.git
 cd Veridex
 yarn
-
 ```
 
 ## TODO
@@ -166,6 +173,7 @@ You can create a `.env` file to set environment variables and configure the beha
 -   `REACT_APP_FEE_RECIPIENT`: The address which receives the fees from the Forwarder.
 -   `REACT_APP_NETWORK_ID`: The network id to build the front end for. E.g `42` for Kovan, `50` for Ganache
 -   `REACT_APP_CHAIN_ID`: The chain id to build the front end for. E.g `42` for Kovan, `1337` for Ganache
+-   `REACT_APP_DEFAULT_ORDER_EXPIRY_SECONDS`: The expiration time for an order. Defaults to 1 day.
 
 Check `.env.example` for the full list.
 

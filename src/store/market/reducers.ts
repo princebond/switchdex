@@ -15,6 +15,14 @@ try {
 } catch (e) {
     currencyPair = getCurrencyPairByTokensSymbol(getAvailableMarkets()[0].base, getAvailableMarkets()[0].quote);
 }
+const getMakerAddresses = () => {
+    const makerAddressesString = queryString.parse(queryString.extract(window.location.hash)).makerAddresses as string;
+    if (!makerAddressesString) {
+        return null;
+    }
+    const makerAddresses = makerAddressesString.split(',');
+    return makerAddresses.map(a => a.toLowerCase());
+};
 
 const initialMarketState: MarketState = {
     currencyPair,
@@ -24,6 +32,7 @@ const initialMarketState: MarketState = {
     ethInUsd: null,
     tokensPrice: null,
     marketStats: null,
+    makerAddresses: getMakerAddresses(),
 };
 
 export function market(state: MarketState = initialMarketState, action: RootAction): MarketState {

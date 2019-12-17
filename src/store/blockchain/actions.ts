@@ -27,8 +27,8 @@ import { getKnownTokens, isWeth } from '../../util/known_tokens';
 import { getKnownTokensIEO } from '../../util/known_tokens_ieo';
 import { getLogger } from '../../util/logger';
 import { buildOrderFilledNotification } from '../../util/notifications';
-import { buildDutchAuctionCollectibleOrder, buildSellCollectibleOrder } from '../../util/orders';
 import { providerFactory } from '../../util/provider_factory';
+import { buildSellCollectibleOrder } from '../../util/orders';
 import { getTransactionOptions } from '../../util/transactions';
 import {
     BlockchainState,

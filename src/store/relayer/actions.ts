@@ -62,6 +62,7 @@ import {
     getEthAccount,
     getEthBalance,
     getGasPriceInWei,
+    getMakerAddresses,
     getOpenBuyOrders,
     getOpenSellOrders,
     getQuoteToken,
@@ -102,6 +103,7 @@ export const getAllOrders: ThunkCreator = () => {
         const baseToken = getBaseToken(state) as Token;
         const quoteToken = getQuoteToken(state) as Token;
         const web3State = getWeb3State(state) as Web3State;
+        const makerAddresses = getMakerAddresses(state);
         try {
             let uiOrders: UIOrder[] = [];
             const isWeb3NotDoneState = [
@@ -113,9 +115,9 @@ export const getAllOrders: ThunkCreator = () => {
             ].includes(web3State);
             // tslint:disable-next-line:prefer-conditional-expression
             if (isWeb3NotDoneState) {
-                uiOrders = await getAllOrdersAsUIOrdersWithoutOrdersInfo(baseToken, quoteToken);
+                uiOrders = await getAllOrdersAsUIOrdersWithoutOrdersInfo(baseToken, quoteToken, makerAddresses);
             } else {
-                uiOrders = await getAllOrdersAsUIOrders(baseToken, quoteToken);
+                uiOrders = await getAllOrdersAsUIOrders(baseToken, quoteToken, makerAddresses);
             }
             dispatch(setOrders(uiOrders));
         } catch (err) {

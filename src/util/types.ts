@@ -179,6 +179,7 @@ export interface MarketState {
     readonly markets: Market[] | null;
     readonly tokensPrice: TokenPrice[] | null;
     readonly marketStats: RelayerMarketStats | null;
+    readonly makerAddresses: string[] | null;
 }
 
 export interface StoreState {

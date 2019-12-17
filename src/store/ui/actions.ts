@@ -34,7 +34,6 @@ import {
     createBuySellLimitMatchingSteps,
     createBuySellLimitSteps,
     createBuySellMarketSteps,
-    createDutchBuyCollectibleSteps,
     createLendingTokenSteps,
     createSellCollectibleSteps,
 } from '../../util/steps_modals_generation';
