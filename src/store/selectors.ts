@@ -84,6 +84,7 @@ export const getBZXLoadingState = (state: StoreState) => state.bzx.bzxLoadingSta
 export const getIEOOrders = (state: StoreState) => state.relayer.ieoOrders;
 export const getUserIEOUIOrders = (state: StoreState) => state.relayer.userIEOOrders;
 export const getERC20Theme = (state: StoreState) => state.ui.erc20Theme;
+export const getThemeName = (state: StoreState) => state.ui.themeName;
 export const getGeneralConfig = (state: StoreState) => state.ui.generalConfig;
 export const getConfigData = (state: StoreState) => state.ui.configData;
 export const getMarketStats = (state: StoreState) => state.market.marketStats;

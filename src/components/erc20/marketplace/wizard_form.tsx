@@ -7,8 +7,9 @@ import styled, { withTheme } from 'styled-components';
 
 import { ConfigTemplate } from '../../../common/config';
 import { startDexConfigSteps } from '../../../store/actions';
-import { getConfigData, getERC20Theme } from '../../../store/selectors';
+import { getConfigData, getERC20Theme, getThemeName } from '../../../store/selectors';
 import { Theme, themeDimensions } from '../../../themes/commons';
+import { getThemeByName } from '../../../themes/theme_meta_data_utils';
 import { ButtonVariant, ConfigFile } from '../../../util/types';
 import { Button } from '../../common/button';
 import { Card } from '../../common/card';
@@ -95,12 +96,20 @@ const WizardForm = (_props: Props) => {
         marketFilters: false,
     });
     const [isRun, setIsRun] = useState(false);
-
+    const themeName = useSelector(getThemeName);
     const themeColor = useSelector(getERC20Theme);
     const configData = useSelector(getConfigData);
     let config: ConfigFile;
     configData ? (config = configData.config) : (config = configTemplate);
+    config.theme_name = themeName;
     config.theme = themeColor;
+    // if themes are not presented init them with default ones
+    if (!config.theme_dark) {
+        config.theme_dark = getThemeByName('DARK_THEME');
+    }
+    if (!config.theme_light) {
+        config.theme_light = getThemeByName('LIGHT_THEME');
+    }
     config.tokens.forEach(t => {
         if (!t.mainnetAddress) {
             // @ts-ignore
@@ -197,7 +206,7 @@ const WizardForm = (_props: Props) => {
                     break;
                 case 1:
                     setStepIndex(stepIndex);
-                    setIsOpen({ generalConfig: false, theme: false, tokens: true, pairs: false, marketFilters: false });
+                    setIsOpen({ generalConfig: false, theme: false, tokens: true, pairs: true, marketFilters: false });
                     break;
                 case 2:
                     setStepIndex(stepIndex);

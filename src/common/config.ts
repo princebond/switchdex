@@ -1,6 +1,6 @@
 import { Validator } from 'jsonschema';
 
-import { configFile, configFileIEO, configTipBot, configTipBotWhitelistAddresses, configTemplateFile } from '../config';
+import { configFile, configFileIEO, configTemplateFile, configTipBot, configTipBotWhitelistAddresses } from '../config';
 import { AssetBot, ConfigFile, ConfigFileIEO, ConfigFileTipBot, CurrencyPairMetaData } from '../util/types';
 
 import { configIEOSchema, configSchema, schemas } from './configSchema';

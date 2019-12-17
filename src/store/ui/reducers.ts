@@ -1,8 +1,9 @@
 import { getType } from 'typesafe-actions';
 
 import { Config } from '../../common/config';
-import { getThemeByMarketplace } from '../../themes/theme_meta_data_utils';
-import { MarketFill, MARKETPLACES, Step, StepsModalState, UIState } from '../../util/types';
+import { ERC20_THEME_NAME } from '../../common/constants';
+import { getThemeByName } from '../../themes/theme_meta_data_utils';
+import { MarketFill, Step, StepsModalState, UIState } from '../../util/types';
 import * as actions from '../actions';
 import { RootAction } from '../reducers';
 
@@ -23,7 +24,8 @@ const initialUIState: UIState = {
     orderPriceSelected: null,
     sidebarOpen: false,
     openFiatOnRampModal: false,
-    erc20Theme: getThemeByMarketplace(MARKETPLACES.ERC20),
+    themeName: ERC20_THEME_NAME,
+    erc20Theme: getThemeByName(ERC20_THEME_NAME),
     generalConfig: Config.getConfig().general,
     configData: null,
 };
@@ -93,6 +95,8 @@ export function ui(state: UIState = initialUIState, action: RootAction): UIState
         }
         case getType(actions.setERC20Theme):
             return { ...state, erc20Theme: action.payload };
+        case getType(actions.setThemeName):
+            return { ...state, themeName: action.payload };
         case getType(actions.setGeneralConfig):
             return { ...state, generalConfig: action.payload };
         case getType(actions.setFills):

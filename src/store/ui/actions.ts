@@ -12,8 +12,9 @@ import { InsufficientOrdersAmountException } from '../../exceptions/insufficient
 import { InsufficientTokenBalanceException } from '../../exceptions/insufficient_token_balance_exception';
 import { SignedOrderException } from '../../exceptions/signed_order_exception';
 import { getConfigFromNameOrDomain } from '../../services/config';
+import { LocalStorage } from '../../services/local_storage';
 import { Theme } from '../../themes/commons';
-import { getThemeByMarketplace } from '../../themes/theme_meta_data_utils';
+import { getThemeFromConfigDex } from '../../themes/theme_meta_data_utils';
 import { getCurrencyPairByTokensSymbol } from '../../util/known_currency_pairs';
 import { getKnownTokens, isWeth } from '../../util/known_tokens';
 import {
@@ -42,7 +43,6 @@ import {
     GeneralConfig,
     iTokenData,
     MarketFill,
-    MARKETPLACES,
     Notification,
     NotificationKind,
     OrderSide,
@@ -139,6 +139,10 @@ export const openFiatOnRampModal = createAction('ui/OPEN_FIAT_ON_RAMP_set', reso
 
 export const setERC20Theme = createAction('ui/ERC20_THEME_set', resolve => {
     return (theme: Theme) => resolve(theme);
+});
+
+export const setThemeName = createAction('ui/THEME_NAME_set', resolve => {
+    return (themeName: string | undefined) => resolve(themeName);
 });
 
 export const setGeneralConfig = createAction('ui/GENERAL_CONFIG_set', resolve => {
@@ -713,7 +717,6 @@ export const addTransferTokenNotification: ThunkCreator = (
             ]),
         );
     };
-    // tslint:disable-next-line: max-file-line-count
 };
 
 export const addLendingTokenNotification: ThunkCreator = (
@@ -737,7 +740,6 @@ export const addLendingTokenNotification: ThunkCreator = (
             ]),
         );
     };
-    // tslint:disable-next-line: max-file-line-count
 };
 
 export const addUnLendingTokenNotification: ThunkCreator = (
@@ -762,6 +764,20 @@ export const addUnLendingTokenNotification: ThunkCreator = (
         );
     };
     // tslint:disable-next-line: max-file-line-count
+};
+
+export const initTheme: ThunkCreator = (themeName: string | null) => {
+    return async dispatch => {
+        if (themeName) {
+            dispatch(setThemeName(themeName));
+            const theme = getThemeFromConfigDex(themeName);
+            dispatch(setERC20Theme(theme));
+        } else {
+            dispatch(setThemeName(Config.getConfig().theme_name));
+            const theme = getThemeFromConfigDex();
+            dispatch(setERC20Theme(theme));
+        }
+    };
 };
 
 export const initConfigData: ThunkCreator = (queryString: string | undefined, domain: string | undefined) => {
@@ -801,8 +817,9 @@ export const initConfigData: ThunkCreator = (queryString: string | undefined, do
             }
             dispatch(setCurrencyPair(currencyPair));
             dispatch(setGeneralConfig(Config.getConfig().general));
-            const theme = getThemeByMarketplace(MARKETPLACES.ERC20);
-            dispatch(setERC20Theme(theme));
+            const localStorage = new LocalStorage(window.localStorage);
+            const themeName = localStorage.getThemeName() || Config.getConfig().theme_name;
+            dispatch(initTheme(themeName));
         } catch (e) {
             return;
         }

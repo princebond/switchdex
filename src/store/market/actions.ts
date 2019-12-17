@@ -87,14 +87,27 @@ export const changeMarket: ThunkCreator = (currencyPair: CurrencyPair) => {
         const state = getState() as StoreState;
         const oldQuoteToken = state.market.quoteToken;
         const knownTokens = getKnownTokens();
-        const newQuoteToken = knownTokens.getTokenBySymbol(currencyPair.quote);
-        dispatch(
-            setMarketTokens({
-                baseToken: knownTokens.getTokenBySymbol(currencyPair.base),
-                quoteToken: newQuoteToken,
-            }),
-        );
-        dispatch(setCurrencyPair(currencyPair));
+        try {
+            const newQuoteToken = knownTokens.getTokenBySymbol(currencyPair.quote);
+            dispatch(
+                setMarketTokens({
+                    baseToken: knownTokens.getTokenBySymbol(currencyPair.base),
+                    quoteToken: newQuoteToken,
+                }),
+            );
+            dispatch(setCurrencyPair(currencyPair));
+
+            // if quote token changed, update quote price
+            if (oldQuoteToken !== newQuoteToken) {
+                try {
+                    await dispatch(updateMarketPriceQuote());
+                } catch (e) {
+                    logger.error(`Failed to get Quote price`);
+                }
+            }
+        } catch (e) {
+            logger.error(`Failed to set token market ${e}`);
+        }
         if (USE_RELAYER_MARKET_UPDATES) {
             // tslint:disable-next-line:no-floating-promises
             dispatch(fetchPastMarketFills());
@@ -104,14 +117,6 @@ export const changeMarket: ThunkCreator = (currencyPair: CurrencyPair) => {
 
         // tslint:disable-next-line:no-floating-promises
         dispatch(getOrderbookAndUserOrders());
-        // if quote token changed, update quote price
-        if (oldQuoteToken !== newQuoteToken) {
-            try {
-                await dispatch(updateMarketPriceQuote());
-            } catch (e) {
-                logger.error(`Failed to get Quote price`);
-            }
-        }
 
         const newSearch = queryString.stringify({
             ...queryString.parse(state.router.location.search),

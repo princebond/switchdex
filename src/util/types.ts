@@ -158,6 +158,7 @@ export interface UIState {
     readonly sidebarOpen: boolean;
     readonly openFiatOnRampModal: boolean;
     readonly erc20Theme: Theme;
+    readonly themeName: string;
     readonly generalConfig?: GeneralConfig;
     readonly configData?: ConfigData | null;
 }
@@ -677,7 +678,10 @@ export interface ConfigFile {
     pairs: CurrencyPairMetaData[];
     marketFilters?: Filter[];
     wallets?: WalletsConfig;
+    theme_name?: string;
     theme?: PartialTheme;
+    theme_light?: PartialTheme;
+    theme_dark?: PartialTheme;
     general?: GeneralConfig;
 }
 

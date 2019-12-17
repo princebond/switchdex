@@ -1,11 +1,12 @@
 import React, { useState } from 'react';
 import { Field, useForm } from 'react-final-form';
 import { OnChange } from 'react-final-form-listeners';
-import { useDispatch } from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
 import Select from 'react-select';
 import styled from 'styled-components';
 
-import { setERC20Theme } from '../../../../store/actions';
+import { setERC20Theme, setThemeName } from '../../../../store/actions';
+import { getThemeName } from '../../../../store/selectors';
 import { Theme, themeDimensions } from '../../../../themes/commons';
 import { getThemeByName } from '../../../../themes/theme_meta_data_utils';
 import { AccordionCollapse } from '../../../common/accordion_collapse';
@@ -23,48 +24,43 @@ const StyledComponentsTheme = styled.div`
 
 const TooltipStyled = styled(Tooltip)``;
 
-export const ThemeForm = ({
-    name,
-    isOpen = false,
-    selector,
-}: {
-    name: string;
-    isOpen?: boolean;
-    selector?: string;
-}) => {
+export const ThemeForm = ({ isOpen = false, selector }: { name: string; isOpen?: boolean; selector?: string }) => {
     const dispatch = useDispatch();
 
     const options = [{ value: 'dark', label: 'Dark' }, { value: 'light', label: 'Light' }];
-    const [selectedOption, setSelectedOption] = useState(options[0]);
+    const themeName = useSelector(getThemeName);
+    const themeNameForm = themeName === 'DARK_THEME' ? 'theme_dark' : 'theme_light';
+    const [selectedOption, setSelectedOption] = useState(themeName === 'DARK_THEME' ? options[0] : options[1]);
     const form = useForm();
-
     const onChange = (option: any) => {
         setSelectedOption(option);
-        // console.log(value);
         let theme;
         switch (option.value) {
             case 'dark':
                 theme = getThemeByName('DARK_THEME');
+                dispatch(setThemeName('DARK_THEME'));
                 dispatch(setERC20Theme(theme));
                 form.change('theme', theme);
+                form.change('theme_dark', theme);
                 break;
             case 'light':
                 theme = getThemeByName('LIGHT_THEME');
+                dispatch(setThemeName('LIGHT_THEME'));
                 dispatch(setERC20Theme(theme));
                 form.change('theme', theme);
+                form.change('theme_light', theme);
                 break;
             default:
                 break;
         }
     };
-
     return (
         <>
             <AccordionCollapse title={'2-Theme'} setIsOpen={isOpen} className={selector}>
                 <LabelContainer>
-                    <Label>Pre Defined Themes:</Label>
+                    <Label>Themes:</Label>
                     <TooltipStyled
-                        description="Choose an initial theme and costumize it. Currently support for Dark and Ligh Themes"
+                        description="Choose a theme and costumize it. Currently support for Dark and Ligh Themes. The active selected theme will be the defaulted one."
                         iconType={IconType.Fill}
                     />
                 </LabelContainer>
@@ -72,9 +68,12 @@ export const ThemeForm = ({
                     <Select value={selectedOption} onChange={onChange} options={options} />
                 </FieldContainer>
                 <StyledComponentsTheme>
-                    <ComponentsTheme name={`${name}.componentsTheme`} />
+                    <ComponentsTheme
+                        name={`${themeNameForm}.componentsTheme`}
+                        themeName={themeName === 'DARK_THEME' ? 'DARK' : 'LIGHT'}
+                    />
                 </StyledComponentsTheme>
-                <OnChange name={`${name}`}>
+                <OnChange name={`${themeNameForm}`}>
                     {(value: Theme, _previous: Theme) => {
                         dispatch(setERC20Theme(value));
                         // do something
@@ -85,9 +84,9 @@ export const ThemeForm = ({
     );
 };
 
-const ComponentsTheme = ({ name }: { name: string }) => (
+const ComponentsTheme = ({ name, themeName }: { name: string; themeName: string }) => (
     <>
-        <Label>Costumize DEX theme colors:</Label>
+        <Label>Costumize Dex {themeName} Theme colors:</Label>
         <LabelContainer>
             <Label>Background</Label>
         </LabelContainer>

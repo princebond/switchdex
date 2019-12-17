@@ -6,7 +6,6 @@ import { INSUFFICIENT_ORDERS_TO_FILL_AMOUNT_ERR } from '../../exceptions/common'
 import { InsufficientOrdersAmountException } from '../../exceptions/insufficient_orders_amount_exception';
 import { RelayerException } from '../../exceptions/relayer_exception';
 import { postConfig } from '../../services/config';
-import { LocalStorage } from '../../services/local_storage';
 import {
     cancelSignedOrder,
     getAllOrdersAsUIOrders,
@@ -561,14 +560,14 @@ export const subscribeToRelayerWebsocketFillEvents: ThunkCreator<Promise<void>> 
 export const fetchPastFills: ThunkCreator<Promise<void>> = () => {
     return async (dispatch, getState) => {
         const state = getState();
-        const knownTokens = getKnownTokens();
+        /*const knownTokens = getKnownTokens();
         const ethAccount = FEE_RECIPIENT;
         const localStorage = new LocalStorage(window.localStorage);
         const storageFills = localStorage.getFills(ethAccount).filter(f => {
             return knownTokens.isKnownAddress(f.tokenBase.address) && knownTokens.isKnownAddress(f.tokenQuote.address);
         });
         dispatch(setFills(storageFills));
-        dispatch(setMarketFills(localStorage.getMarketFills(ethAccount)));
+        dispatch(setMarketFills(localStorage.getMarketFills(ethAccount)));*/
 
         try {
             const fillsResponse = await getFillsFromRelayer();
