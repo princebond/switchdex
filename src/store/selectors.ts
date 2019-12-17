@@ -2,7 +2,15 @@ import { OrderStatus } from '@0x/types';
 import { BigNumber } from '@0x/utils';
 import { createSelector } from 'reselect';
 
-import { ERC20_APP_BASE_PATH, ZERO } from '../common/constants';
+import {
+    ERC20_APP_BASE_PATH,
+    ERC721_APP_BASE_PATH,
+    INSTANT_APP_BASE_PATH,
+    LAUNCHPAD_APP_BASE_PATH,
+    MARGIN_APP_BASE_PATH,
+    USE_RELAYER_MARKET_UPDATES,
+    ZERO,
+} from '../common/constants';
 import { isWeth } from '../util/known_tokens';
 import {
     getLastPrice,
@@ -20,6 +28,7 @@ import {
     MARKETPLACES,
     OrderBook,
     OrderSide,
+    RelayerMarketStats,
     SearchTokenBalanceObject,
     StoreState,
     Token,
@@ -30,6 +39,9 @@ import { mergeByPrice } from '../util/ui_orders';
 
 export const getEthAccount = (state: StoreState) => state.blockchain.ethAccount;
 export const getTokenBalances = (state: StoreState) => state.blockchain.tokenBalances;
+export const getBaseTokenIEO = (state: StoreState) => state.blockchain.tokenBaseIEO;
+export const getBaseTokenBalanceIEO = (state: StoreState) => state.blockchain.tokenBaseBalanceIEO;
+export const getTokenBalancesIEO = (state: StoreState) => state.blockchain.tokenBalancesIEO;
 export const getWeb3State = (state: StoreState) => state.blockchain.web3State;
 export const getWallet = (state: StoreState) => state.blockchain.wallet;
 export const getEthBalance = (state: StoreState) => state.blockchain.ethBalance;
@@ -68,10 +80,34 @@ export const getSelectedCollectible = (state: StoreState) => state.collectibles.
 export const getCurrentRoutePath = (state: StoreState) => state.router.location.pathname;
 export const getRouterLocationSearch = (state: StoreState) => state.router.location.search;
 export const getAccountMarketStats = (state: StoreState) => state.relayer.accountMarketStats;
+export const getITokensData = (state: StoreState) => state.bzx.iTokensData;
+export const getBZXiTokensList = (state: StoreState) => state.bzx.TokensList;
+export const getBZXLoadingState = (state: StoreState) => state.bzx.bzxLoadingState;
+export const getIEOOrders = (state: StoreState) => state.relayer.ieoOrders;
+export const getUserIEOUIOrders = (state: StoreState) => state.relayer.userIEOOrders;
+export const getERC20Theme = (state: StoreState) => state.ui.erc20Theme;
+export const getThemeName = (state: StoreState) => state.ui.themeName;
+export const getGeneralConfig = (state: StoreState) => state.ui.generalConfig;
+export const getConfigData = (state: StoreState) => state.ui.configData;
+export const getMarketStats = (state: StoreState) => state.market.marketStats;
 
 export const getCurrentMarketPlace = createSelector(
     getCurrentRoutePath,
-    (currentRoute: string) => (currentRoute.includes(ERC20_APP_BASE_PATH) ? MARKETPLACES.ERC20 : MARKETPLACES.ERC721),
+    (currentRoute: string) => {
+        if (currentRoute.includes(ERC20_APP_BASE_PATH)) {
+            return MARKETPLACES.ERC20;
+        } else if (currentRoute.includes(ERC721_APP_BASE_PATH)) {
+            return MARKETPLACES.ERC721;
+        } else if (currentRoute.includes(LAUNCHPAD_APP_BASE_PATH)) {
+            return MARKETPLACES.LaunchPad;
+        } else if (currentRoute.includes(MARGIN_APP_BASE_PATH)) {
+            return MARKETPLACES.Margin;
+        } else if (currentRoute.includes(INSTANT_APP_BASE_PATH)) {
+            return MARKETPLACES.Instant;
+        } else {
+            return MARKETPLACES.ERC20;
+        }
+    },
 );
 
 export const getCurrentMarketFills = createSelector(
@@ -90,33 +126,77 @@ export const getCurrentMarketLastPrice = createSelector(
     },
 );
 
-export const getCurrentMarketTodayVolume = createSelector(
-    getCurrentMarketFills,
-    (marketFills: Fill[]) => {
-        return getTodayVolumeFromFills(marketFills);
-    },
-);
+export const getCurrentMarketTodayVolume = USE_RELAYER_MARKET_UPDATES
+    ? createSelector(
+          getMarketStats,
+          (stats: RelayerMarketStats | null) => {
+              if (stats) {
+                  return new BigNumber(stats.volume_24);
+              } else {
+                  return new BigNumber(0);
+              }
+          },
+      )
+    : createSelector(
+          getCurrentMarketFills,
+          (marketFills: Fill[]) => {
+              return getTodayVolumeFromFills(marketFills);
+          },
+      );
 
-export const getCurrentMarketTodayHighPrice = createSelector(
-    getCurrentMarketFills,
-    (marketFills: Fill[]) => {
-        return getTodayHighPriceFromFills(marketFills);
-    },
-);
+export const getCurrentMarketTodayHighPrice = USE_RELAYER_MARKET_UPDATES
+    ? createSelector(
+          getMarketStats,
+          (stats: RelayerMarketStats | null) => {
+              if (stats) {
+                  return new BigNumber(stats.price_max_24);
+              } else {
+                  return new BigNumber(0);
+              }
+          },
+      )
+    : createSelector(
+          getCurrentMarketFills,
+          (marketFills: Fill[]) => {
+              return getTodayHighPriceFromFills(marketFills);
+          },
+      );
 
-export const getCurrentMarketTodayLowerPrice = createSelector(
-    getCurrentMarketFills,
-    (marketFills: Fill[]) => {
-        return getTodayLowerPriceFromFills(marketFills);
-    },
-);
+export const getCurrentMarketTodayLowerPrice = USE_RELAYER_MARKET_UPDATES
+    ? createSelector(
+          getMarketStats,
+          (stats: RelayerMarketStats | null) => {
+              if (stats) {
+                  return new BigNumber(stats.price_min_24);
+              } else {
+                  return null;
+              }
+          },
+      )
+    : createSelector(
+          getCurrentMarketFills,
+          (marketFills: Fill[]) => {
+              return getTodayLowerPriceFromFills(marketFills);
+          },
+      );
 
-export const getCurrentMarketTodayClosedOrders = createSelector(
-    getCurrentMarketFills,
-    (marketFills: Fill[]) => {
-        return getTodayClosedOrdersFromFills(marketFills);
-    },
-);
+export const getCurrentMarketTodayClosedOrders = USE_RELAYER_MARKET_UPDATES
+    ? createSelector(
+          getMarketStats,
+          (stats: RelayerMarketStats | null) => {
+              if (stats) {
+                  return stats.total_orders;
+              } else {
+                  return 0;
+              }
+          },
+      )
+    : createSelector(
+          getCurrentMarketFills,
+          (marketFills: Fill[]) => {
+              return getTodayClosedOrdersFromFills(marketFills);
+          },
+      );
 
 const searchToken = ({ tokenBalances, tokenToFind, wethTokenBalance }: SearchTokenBalanceObject) => {
     if (tokenToFind && isWeth(tokenToFind.symbol)) {

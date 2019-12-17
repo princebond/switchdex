@@ -2,6 +2,10 @@ import { ContractWrappers } from '@0x/contract-wrappers';
 
 import { CHAIN_ID } from '../common/constants';
 
+import { TxData } from 'ethereum-types';
+
+import { erc20Contract } from '../util/contract_wrappers/erc20';
+
 import { getWeb3Wrapper } from './web3_wrapper';
 
 let contractWrappers: ContractWrappers;
@@ -13,4 +17,9 @@ export const getContractWrappers = async () => {
     }
 
     return contractWrappers;
+};
+
+export const getERC20ContractWrapper = async (address: string, partialTxData: Partial<TxData>) => {
+    const web3Wrapper = await getWeb3Wrapper();
+    return new erc20Contract(address, web3Wrapper.getProvider(), partialTxData);
 };

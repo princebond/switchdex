@@ -3,11 +3,19 @@ import { BigNumber } from '@0x/utils';
 import { Network, ProviderType } from '../util/types';
 
 export const ERC20_APP_BASE_PATH = '/erc20';
+export const LAUNCHPAD_APP_BASE_PATH = '/launchpad';
+export const MARGIN_APP_BASE_PATH = '/margin';
+export const INSTANT_APP_BASE_PATH = '/instant';
+
+export const USE_RELAYER_MARKET_UPDATES = process.env.REACT_APP_USE_RELAYER_MARKET_UPDATES === 'true' ? true : false;
+
 export const ERC721_APP_BASE_PATH = '/erc721';
 export const DEFAULT_BASE_PATH = process.env.REACT_APP_DEFAULT_BASE_PATH || ERC20_APP_BASE_PATH;
 
 export const RELAYER_URL = process.env.REACT_APP_RELAYER_URL || 'http://localhost:3001/api/v2';
 export const RELAYER_WS_URL = process.env.REACT_APP_RELAYER_WS_URL || 'ws://localhost:3001/';
+
+export const RELAYER_WS_URL = process.env.REACT_APP_RELAYER_WS_URL || 'ws://localhost:3001';
 
 export const TX_DEFAULTS = {
     gasLimit: 1000000,
@@ -19,6 +27,8 @@ export const ZERO_ADDRESS = '0x0000000000000000000000000000000000000000';
 export const UNLIMITED_ALLOWANCE_IN_BASE_UNITS = new BigNumber(2).pow(256).minus(1);
 
 export const ZERO = new BigNumber(0);
+
+export const VERIDEX_ORIGIN = 'http://localhost:3001';
 
 export const FEE_RECIPIENT = process.env.REACT_APP_FEE_RECIPIENT || ZERO_ADDRESS;
 export const AFFILIATE_FEE_PERCENTAGE: number = process.env.REACT_APP_AFFILIATE_FEE_PERCENTAGE
@@ -71,8 +81,8 @@ export const UPDATE_TOKENS_PRICE_INTERVAL: number = process.env.REACT_APP_UPDATE
 
 // Default value is enabled, 0 is disabled
 export const UPDATE_ERC20_MARKETS: number = process.env.REACT_APP_UPDATE_ERC20_MARKETS_INTERVAL
-    ? Number.parseInt(process.env.REACT_APP_UPDATE_ETHER_PRICE_INTERVAL as string, 10)
-    : 3600000;
+    ? Number.parseInt(process.env.REACT_APP_UPDATE_ERC20_MARKETS_INTERVAL as string, 10)
+    : 60000;
 
 export const NOTIFICATIONS_LIMIT: number =
     Number.parseInt(process.env.REACT_APP_NOTIFICATIONS_LIMIT as string, 10) || 20;

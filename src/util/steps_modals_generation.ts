@@ -6,6 +6,7 @@ import { isWeth, isZrx } from './known_tokens';
 import {
     Collectible,
     OrderFeeData,
+    iTokenData,
     OrderSide,
     Step,
     StepBuyCollectible,
@@ -26,6 +27,7 @@ export const createBuySellLimitSteps = (
     price: BigNumber,
     side: OrderSide,
     orderFeeData: OrderFeeData,
+    is_ieo?: boolean,
 ): Step[] => {
     const buySellLimitFlow: Step[] = [];
     let unlockTokenStep;
@@ -67,6 +69,7 @@ export const createBuySellLimitSteps = (
         price,
         side,
         token: baseToken,
+        is_ieo,
     });
 
     return buySellLimitFlow;
@@ -82,7 +85,7 @@ export const createBuySellLimitMatchingSteps = (
     side: OrderSide,
     price: BigNumber,
     price_avg: BigNumber,
-    takerFee: BigNumber,
+    orderFeeData: OrderFeeData,
 ): Step[] => {
     const buySellLimitMatchingFlow: Step[] = [];
     const isBuy = side === OrderSide.Buy;
@@ -104,11 +107,13 @@ export const createBuySellLimitMatchingSteps = (
         buySellLimitMatchingFlow.push(unlockTokenStep as Step);
     }
 
-    // unlock zrx (for fees) if the taker fee is positive
-    if (!isZrx(tokenToUnlock.symbol) && takerFee.isGreaterThan(0)) {
-        const unlockZrxStep = getUnlockZrxStepIfNeeded(tokenBalances);
-        if (unlockZrxStep) {
-            buySellLimitMatchingFlow.push(unlockZrxStep);
+    if (orderFeeData.makerFee.isGreaterThan(0)) {
+        const { tokenAddress } = assetDataUtils.decodeERC20AssetData(orderFeeData.makerFeeAssetData);
+        if (!unlockTokenStep || unlockTokenStep.token.address !== tokenAddress) {
+            const unlockFeeTokenStep = getUnlockFeeAssetStepIfNeeded(tokenBalances, tokenAddress);
+            if (unlockFeeTokenStep) {
+                buySellLimitMatchingFlow.push(unlockFeeTokenStep);
+            }
         }
     }
 
@@ -258,6 +263,61 @@ export const createBuySellMarketSteps = (
         token: baseToken,
     });
     return buySellMarketFlow;
+};
+
+export const createLendingTokenSteps = (
+    iToken: iTokenData,
+    token: Token,
+    // tokenBalances: TokenBalance[],
+    wethTokenBalance: BigNumber,
+    ethBalance: BigNumber,
+    amount: BigNumber,
+    isEth: boolean,
+): Step[] => {
+    const lendingTokenFlow: Step[] = [];
+    if (isEth) {
+        if (amount.isGreaterThan(ethBalance)) {
+            const newWethBalance = wethTokenBalance.minus(amount.minus(ethBalance));
+            const currentWethBalance = wethTokenBalance;
+            const wrapEthStep: StepWrapEth = {
+                kind: StepKind.WrapEth,
+                currentWethBalance,
+                newWethBalance,
+                context: 'standalone',
+            };
+            lendingTokenFlow.push(wrapEthStep);
+            // unwrapp eth here
+        }
+    } else {
+        const unlockTokenStep = getUnlockLendingTokenStepIfNeeded(iToken, token);
+        if (unlockTokenStep) {
+            lendingTokenFlow.push(unlockTokenStep);
+        }
+    }
+
+    lendingTokenFlow.push({
+        kind: StepKind.LendingToken,
+        amount,
+        token,
+        iToken,
+        isEth,
+        isLending: true,
+    });
+    return lendingTokenFlow;
+};
+
+export const getUnlockLendingTokenStepIfNeeded = (iToken: iTokenData, token: Token): StepToggleTokenLock | null => {
+    if (iToken.isUnlocked) {
+        return null;
+    } else {
+        return {
+            kind: StepKind.ToggleTokenLock,
+            token,
+            address: iToken.address,
+            isUnlocked: false,
+            context: 'lending',
+        };
+    }
 };
 
 export const getUnlockTokenStepIfNeeded = (

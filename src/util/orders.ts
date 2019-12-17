@@ -6,8 +6,9 @@ import { CHAIN_ID, PROTOCOL_FEE_MULTIPLIER, ZERO, ZERO_ADDRESS } from '../common
 import { getRelayer } from '../services/relayer';
 
 import { getKnownTokens } from './known_tokens';
+import { getKnownTokensIEO } from './known_tokens_ieo';
 import * as orderHelper from './orders';
-import { getExpirationTimeOrdersFromConfig } from './time_utils';
+import { getExpirationTimeFromDate, getExpirationTimeOrdersFromConfig } from './time_utils';
 import { tokenAmountInUnitsToBigNumber, unitsInTokenAmount } from './tokens';
 import { OrderSide, UIOrder } from './types';
 
@@ -107,7 +108,11 @@ export const buildSellCollectibleOrder = async (params: BuildSellCollectibleOrde
     return orderHelper.getOrderWithTakerAndFeeConfigFromRelayer(orderConfigRequest);
 };
 
-export const buildLimitOrder = async (params: BuildLimitOrderParams, side: OrderSide): Promise<Order> => {
+export const buildLimitOrder = async (
+    params: BuildLimitOrderParams,
+    side: OrderSide,
+    timestamp?: number | string,
+): Promise<Order> => {
     const { account, baseTokenAddress, exchangeAddress, amount, price, quoteTokenAddress } = params;
 
     const baseTokenAssetData = assetDataUtils.encodeERC20AssetData(baseTokenAddress);
@@ -134,7 +139,41 @@ export const buildLimitOrder = async (params: BuildLimitOrderParams, side: Order
         takerAssetAmount: isBuy ? amount : quoteTokenAmountInBaseUnits,
         makerAddress: account,
         takerAddress: ZERO_ADDRESS,
-        expirationTimeSeconds: getExpirationTimeOrdersFromConfig(),
+        expirationTimeSeconds: timestamp ? getExpirationTimeFromDate(timestamp) : getExpirationTimeOrdersFromConfig(),
+    };
+
+    return orderHelper.getOrderWithTakerAndFeeConfigFromRelayer(orderConfigRequest);
+};
+
+export const buildLimitOrderIEO = async (
+    params: BuildLimitOrderParams,
+    side: OrderSide,
+    timestamp?: number | string,
+): Promise<Order> => {
+    const { account, baseTokenAddress, exchangeAddress, amount, price, quoteTokenAddress } = params;
+
+    const baseTokenAssetData = assetDataUtils.encodeERC20AssetData(baseTokenAddress);
+    const quoteTokenAssetData = assetDataUtils.encodeERC20AssetData(quoteTokenAddress);
+
+    const baseTokenDecimals = getKnownTokensIEO().getAllTokensByAddress(baseTokenAddress).decimals;
+    const baseTokenAmountInUnits = tokenAmountInUnitsToBigNumber(amount, baseTokenDecimals);
+
+    const quoteTokenAmountInUnits = baseTokenAmountInUnits.multipliedBy(price);
+
+    const quoteTokenDecimals = getKnownTokens().getTokenByAddress(quoteTokenAddress).decimals;
+    const quoteTokenAmountInBaseUnits = unitsInTokenAmount(quoteTokenAmountInUnits.toString(), quoteTokenDecimals);
+
+    const isBuy = side === OrderSide.Buy;
+
+    const orderConfigRequest: OrderConfigRequest = {
+        exchangeAddress,
+        makerAssetData: isBuy ? quoteTokenAssetData : baseTokenAssetData,
+        takerAssetData: isBuy ? baseTokenAssetData : quoteTokenAssetData,
+        makerAssetAmount: isBuy ? quoteTokenAmountInBaseUnits : amount,
+        takerAssetAmount: isBuy ? amount : quoteTokenAmountInBaseUnits,
+        makerAddress: account,
+        takerAddress: ZERO_ADDRESS,
+        expirationTimeSeconds: timestamp ? getExpirationTimeFromDate(timestamp) : getExpirationTimeOrdersFromConfig(),
     };
 
     return orderHelper.getOrderWithTakerAndFeeConfigFromRelayer(orderConfigRequest);
@@ -319,4 +358,16 @@ export const isDutchAuction = (order: SignedOrder) => {
     } catch (e) {
         return false;
     }
+};
+
+export const serializeOrder = (o: any): SignedOrder => {
+    return {
+        ...o,
+        makerFee: new BigNumber(o.makerFee),
+        takerFee: new BigNumber(o.takerFee),
+        makerAssetAmount: new BigNumber(o.makerAssetAmount),
+        takerAssetAmount: new BigNumber(o.takerAssetAmount),
+        salt: new BigNumber(o.salt),
+        expirationTimeSeconds: new BigNumber(o.expirationTimeSeconds),
+    };
 };

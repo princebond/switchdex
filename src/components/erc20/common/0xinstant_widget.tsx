@@ -1,10 +1,12 @@
+import { SignedOrder } from '0x.js';
 import React from 'react';
 import styled from 'styled-components';
 
 import { FEE_RECIPIENT, INSTANT_FEE_PERCENTAGE } from '../../../common/constants';
 import { getWeb3Wrapper } from '../../../services/web3_wrapper';
 import { getKnownTokens } from '../../../util/known_tokens';
-import { ButtonVariant, Wallet } from '../../../util/types';
+import { getKnownTokensIEO } from '../../../util/known_tokens_ieo';
+import { ButtonVariant, Token, Wallet } from '../../../util/types';
 import { Button } from '../../common/button';
 
 /**
@@ -36,7 +38,7 @@ interface State {
 }
 
 interface Props {
-    orderSource: string;
+    orderSource: string | SignedOrder[];
     tokenAddress: string;
     provider?: string;
     walletDisplayName?: Wallet | null;
@@ -49,6 +51,10 @@ interface Props {
     shouldDisableAnalyticsTracking?: boolean;
     onSuccess?: any;
     onClose?: any;
+    buttonVariant?: ButtonVariant;
+    btnName?: string;
+    feePercentage?: number;
+    isIEO?: boolean;
 }
 
 const BuyButton = styled(Button)`
@@ -69,11 +75,27 @@ export class ZeroXInstantWidget extends React.Component<Props, State> {
     };
 
     public render = () => {
-        const { orderSource, networkId = 1, tokenAddress, walletDisplayName = Wallet.Metamask } = this.props;
+        const {
+            orderSource,
+            networkId = 1,
+            tokenAddress,
+            walletDisplayName = Wallet.Metamask,
+            buttonVariant = ButtonVariant.Buy,
+            btnName = 'Buy',
+            feePercentage = INSTANT_FEE_PERCENTAGE,
+            isIEO = false,
+        } = this.props;
 
         const openZeroXinstantModal = async () => {
-            const knownTokens = getKnownTokens();
-            const token = knownTokens.getTokenByAddress(tokenAddress);
+            let token: Token;
+            if (isIEO) {
+                const knownTokens = getKnownTokensIEO();
+                token = knownTokens.getTokenByAddress(tokenAddress);
+            } else {
+                const knownTokens = getKnownTokens();
+                token = knownTokens.getTokenByAddress(tokenAddress);
+            }
+
             const erc20TokenAssetData = zeroExInstant.assetDataForERC20TokenAddress(token.address);
             const additionalAssetMetaDataMap = {
                 [erc20TokenAssetData]: {
@@ -93,7 +115,7 @@ export class ZeroXInstantWidget extends React.Component<Props, State> {
                     networkId,
                     affiliateInfo: {
                         feeRecipient: FEE_RECIPIENT,
-                        feePercentage: INSTANT_FEE_PERCENTAGE,
+                        feePercentage,
                     },
                     walletDisplayName,
                     additionalAssetMetaDataMap,
@@ -106,8 +128,8 @@ export class ZeroXInstantWidget extends React.Component<Props, State> {
         return (
             <>
                 {this.state.scriptReady ? (
-                    <BuyButton onClick={openZeroXinstantModal} variant={ButtonVariant.Buy}>
-                        Buy
+                    <BuyButton onClick={openZeroXinstantModal} variant={buttonVariant}>
+                        {btnName}
                     </BuyButton>
                 ) : (
                     ''

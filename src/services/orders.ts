@@ -6,10 +6,10 @@ import { NETWORK_ID } from '../common/constants';
 import { getLogger } from '../util/logger';
 import { getTransactionOptions } from '../util/transactions';
 import { Token } from '../util/types';
-import { ordersToUIOrders } from '../util/ui_orders';
+import { ordersToIEOUIOrders, ordersToUIOrders } from '../util/ui_orders';
 
 import { getContractWrappers } from './contract_wrappers';
-import { getRelayer } from './relayer';
+import { getRelayer, getUserIEOSignedOrders } from './relayer';
 import { getWeb3Wrapper } from './web3_wrapper';
 
 const logger = getLogger('Services::Orders');
@@ -69,4 +69,19 @@ export const cancelSignedOrder = async (order: SignedOrder, gasPrice: BigNumber)
         ...getTransactionOptions(gasPrice),
     });
     return web3Wrapper.awaitTransactionSuccessAsync(tx);
+};
+
+export const getUserIEOOrdersAsUIOrders = async (baseToken: Token, quoteToken: Token, ethAccount: string) => {
+    const myOrders = await getUserIEOSignedOrders(ethAccount, baseToken, quoteToken);
+    try {
+        const contractWrappers = await getContractWrappers();
+        const ordersAndTradersInfo = await contractWrappers.orderValidator.getOrdersAndTradersInfoAsync(
+            myOrders,
+            myOrders.map(o => o.makerAddress),
+        );
+        return ordersToIEOUIOrders(myOrders, baseToken, ordersAndTradersInfo);
+    } catch (err) {
+        logger.error(`There was an error getting the ieo orders info from exchange.`, err);
+        throw err;
+    }
 };

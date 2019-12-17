@@ -1,9 +1,6 @@
 // tslint:disable-next-line: no-implicit-dependencies
 import { providerUtils } from '@0x/utils';
 import { Web3Wrapper } from '@0x/web3-wrapper';
-import Portis from '@portis/web3';
-// @ts-ignore - no typings
-import Fortmatic from 'fortmatic';
 
 import { FORTMATIC_APP_ID, NETWORK_ID, NETWORK_NAME, PORTIS_APP_ID } from '../common/constants';
 import { providerFactory } from '../util/provider_factory';
@@ -42,7 +39,7 @@ export const initializeWeb3Wrapper = async (wallet: Wallet): Promise<Web3Wrapper
             web3Wrapper = await initCoinbase();
             break;
         case Wallet.Trust:
-            web3Wrapper = await initProviderWallet(wallet);
+            web3Wrapper = await initTrustWallet(wallet);
             break;
         case Wallet.Cipher:
             web3Wrapper = await initProviderWallet(wallet);
@@ -165,13 +162,35 @@ const initProviderWallet = async (wallet: Wallet): Promise<Web3Wrapper | null> =
     }
 };
 
+const initTrustWallet = async (wallet: Wallet): Promise<Web3Wrapper | null> => {
+    const provider = window.ethereum;
+
+    if (provider) {
+        try {
+            web3Wrapper = new Web3Wrapper(provider);
+            if (provider.enable !== undefined) {
+                await provider.enable();
+            }
+            localStorage.saveWalletConnected(wallet);
+            return web3Wrapper;
+        } catch (error) {
+            // The user denied account access
+            return null;
+        }
+    } else {
+        localStorage.resetWalletConnected();
+        return null;
+    }
+};
+
 export const initPortis = async (): Promise<Web3Wrapper | null> => {
     const { location } = window;
     if (!PORTIS_APP_ID) {
         return null;
     }
     try {
-        const portis = new Portis(PORTIS_APP_ID, NETWORK_NAME.toLowerCase());
+        const Portis = await import('@portis/web3');
+        const portis = new Portis.default(PORTIS_APP_ID, NETWORK_NAME.toLowerCase());
         web3Wrapper = new Web3Wrapper(portis.provider);
         const [account] = await web3Wrapper.getAvailableAddressesAsync();
         portis.onLogout(() => {
@@ -246,10 +265,12 @@ export const initFortmatic = async (): Promise<Web3Wrapper | null> => {
     if (!FORTMATIC_APP_ID) {
         return null;
     }
+    // @ts-ignore - no typings
+    const Fortmatic = await import('fortmatic');
     const fm =
         NETWORK_ID === 1
-            ? new Fortmatic(FORTMATIC_APP_ID)
-            : new Fortmatic(FORTMATIC_APP_ID, NETWORK_NAME.toLowerCase());
+            ? new Fortmatic.default(FORTMATIC_APP_ID)
+            : new Fortmatic.default(FORTMATIC_APP_ID, NETWORK_NAME.toLowerCase());
 
     web3Wrapper = new Web3Wrapper(fm.getProvider());
     let isUserLoggedIn = await fm.user.isLoggedIn();

@@ -7,10 +7,14 @@ import {
     UPDATE_ERC20_MARKETS,
     UPDATE_ETHER_PRICE_INTERVAL,
     UPDATE_TOKENS_PRICE_INTERVAL,
+    VERIDEX_ORIGIN,
 } from '../common/constants';
 import { LocalStorage } from '../services/local_storage';
+import * as serviceWorker from '../serviceWorker';
 import {
+    initConfigData,
     initializeAppWallet,
+    initTheme,
     initWallet,
     updateERC20Markets,
     updateMarketPriceEther,
@@ -32,6 +36,8 @@ interface StateProps {
 
 interface DispatchProps {
     onConnectWallet: (wallet: Wallet) => any;
+    onInitTheme: (themeName: string | null) => any;
+    onInitConfig: (name: string | undefined, domain: string | undefined) => any;
     onInitWalletState: () => any;
     onUpdateStore: () => any;
     onUpdateMarketPriceEther: () => any;
@@ -51,6 +57,25 @@ class App extends React.Component<Props> {
     private _updateERC20MarketsInterval: number | undefined;
 
     public componentDidMount = () => {
+        const { MARKETPLACE, onInitConfig, onInitTheme } = this.props;
+        // no need to init when instant is the marketplace
+        if (MARKETPLACE === MARKETPLACES.Instant) {
+            serviceWorker.unregister();
+            return;
+        }
+        // Check if any config is requested
+        const parsedUrl = new URL(window.location.href.replace('#/', ''));
+        const dex = parsedUrl.searchParams.get('dex');
+        const origin = window.location.origin;
+        if (origin !== VERIDEX_ORIGIN) {
+            onInitConfig(undefined, origin);
+        } else if (dex) {
+            onInitConfig(dex, undefined);
+        } else {
+            const themeName = localStorage.getThemeName();
+            //  console.log(themeName);
+            onInitTheme(themeName);
+        }
         // this.props.onInitWalletState();
         const walletConnected = localStorage.getWalletConnected();
         if (walletConnected !== false && walletConnected !== undefined) {
@@ -61,7 +86,12 @@ class App extends React.Component<Props> {
     };
 
     public componentDidUpdate = async (prevProps: Readonly<Props>, prevState: Readonly<Props>, snapshot?: any) => {
-        const { web3State } = this.props;
+        const { web3State, MARKETPLACE } = this.props;
+        // no need to init when instant is the marketplace
+        if (MARKETPLACE === MARKETPLACES.Instant) {
+            serviceWorker.unregister();
+            return;
+        }
         if (web3State !== prevProps.web3State) {
             if (web3State === Web3State.Done) {
                 this._activatePollingUpdates();
@@ -100,12 +130,11 @@ class App extends React.Component<Props> {
                 }
             }, UPDATE_ETHER_PRICE_INTERVAL);
         }
-
         // Enables realtime updates of token prices
         if (
             !this._updatePriceTokensInterval &&
             UPDATE_TOKENS_PRICE_INTERVAL !== 0 &&
-            MARKETPLACE === MARKETPLACES.ERC20
+            (MARKETPLACE === MARKETPLACES.ERC20 || MARKETPLACE === MARKETPLACES.Margin)
         ) {
             this._updatePriceTokensInterval = window.setInterval(async () => {
                 this.props.onUpdateMarketPriceTokens();
@@ -146,12 +175,14 @@ const mapStateToProps = (state: StoreState): StateProps => {
 const mapDispatchToProps = (dispatch: any) => {
     return {
         onInitWalletState: () => dispatch(initializeAppWallet()),
+        onInitTheme: (themeName: string | null) => dispatch(initTheme(themeName)),
         onUpdateStore: () => dispatch(updateStore()),
         onUpdateMarketPriceEther: () => dispatch(updateMarketPriceEther()),
         onUpdateMarketPriceQuote: () => dispatch(updateMarketPriceQuote()),
         onUpdateMarketPriceTokens: () => dispatch(updateMarketPriceTokens()),
         onUpdateERC20Markets: () => dispatch(updateERC20Markets()),
         onConnectWallet: (wallet: Wallet) => dispatch(initWallet(wallet)),
+        onInitConfig: (name: string | undefined, domain: string | undefined) => dispatch(initConfigData(name, domain)),
     };
 };
 

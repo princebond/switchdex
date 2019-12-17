@@ -7,17 +7,30 @@ import { FEE_PERCENTAGE, FEE_RECIPIENT, ZERO, AFFILIATE_FEE_PERCENTAGE } from '.
 import { INSUFFICIENT_ORDERS_TO_FILL_AMOUNT_ERR } from '../../exceptions/common';
 import { InsufficientOrdersAmountException } from '../../exceptions/insufficient_orders_amount_exception';
 import { RelayerException } from '../../exceptions/relayer_exception';
+import { postConfig } from '../../services/config';
 import {
     cancelSignedOrder,
     getAllOrdersAsUIOrders,
     getAllOrdersAsUIOrdersWithoutOrdersInfo,
+    getUserIEOOrdersAsUIOrders,
     getUserOrdersAsUIOrders,
 } from '../../services/orders';
-import { getAccountMarketStatsFromRelayer, getRelayer } from '../../services/relayer';
-import { isWeth } from '../../util/known_tokens';
+import {
+    getAccountMarketStatsFromRelayer,
+    getAllIEOSignedOrders,
+    getFillsFromRelayer,
+    getMarketFillsFromRelayer,
+    getRelayer,
+    postIEOSignedOrder,
+    startWebsocketMarketsSubscription,
+} from '../../services/relayer';
+import { mapRelayerFillToFill } from '../../util/fills';
+import { getKnownTokens, isWeth } from '../../util/known_tokens';
 import { getLogger } from '../../util/logger';
+import { marketToString } from '../../util/markets';
 import {
     buildLimitOrder,
+    buildLimitOrderIEO,
     buildMarketLimitMatchingOrders,
     buildMarketOrders,
     calculateWorstCaseProtocolFee,
@@ -26,19 +39,26 @@ import {
 import { getTransactionOptions } from '../../util/transactions';
 import {
     AccountMarketStat,
+    ConfigRelayerData,
+    Fill,
+    MarketFill,
     NotificationKind,
     OrderFeeData,
+    OrderFilledMessage,
     OrderSide,
     RelayerState,
     ThunkCreator,
     Token,
+    TokenBalance,
     UIOrder,
     Web3State,
 } from '../../util/types';
-import { updateTokenBalances } from '../blockchain/actions';
+import { fetchBaseTokenIEO, updateTokenBalances } from '../blockchain/actions';
 import { getAllCollectibles } from '../collectibles/actions';
 import {
     getBaseToken,
+    getBaseTokenIEO,
+    getCurrencyPair,
     getEthAccount,
     getEthBalance,
     getGasPriceInWei,
@@ -46,8 +66,9 @@ import {
     getOpenSellOrders,
     getQuoteToken,
     getWeb3State,
+    getWethTokenBalance,
 } from '../selectors';
-import { addNotifications } from '../ui/actions';
+import { addFills, addMarketFills, addNotifications, setFills, setMarketFills } from '../ui/actions';
 
 const logger = getLogger('Store::Market::Actions');
 
@@ -61,6 +82,14 @@ export const setOrders = createAction('relayer/ORDERS_set', resolve => {
 
 export const setUserOrders = createAction('relayer/USER_ORDERS_set', resolve => {
     return (orders: UIOrder[]) => resolve(orders);
+});
+
+export const setUserIEOOrders = createAction('relayer/USER_ORDERS_IEO_set', resolve => {
+    return (orders: UIOrder[]) => resolve(orders);
+});
+
+export const setTokenIEOOrders = createAction('relayer/TOKEN_IEO_ORDERS_set', resolve => {
+    return (orders: SignedOrder[]) => resolve(orders);
 });
 
 export const setAccountMarketStats = createAction('relayer/ACCOUNT_MARKET_STATS_set', resolve => {
@@ -102,6 +131,28 @@ export const fetchAccountMarketStats: ThunkCreator = (market, from, to) => {
             dispatch(setAccountMarketStats(accountMarketStats));
         } catch (err) {
             logger.error(`get Market Account Stats: fetch account stats from the relayer failed.`, err);
+        }
+    };
+};
+
+export const fetchAllIEOOrders: ThunkCreator = () => {
+    return async (dispatch, _getState) => {
+        try {
+            const IEOOrders: SignedOrder[] = await getAllIEOSignedOrders();
+            dispatch(setTokenIEOOrders(IEOOrders));
+        } catch (err) {
+            logger.error(`get IEO orders from relayer failed.`, err);
+        }
+    };
+};
+
+export const fetchUserIEOOrders: ThunkCreator = (ethAccount, baseToken, quoteToken) => {
+    return async (dispatch, _getState) => {
+        try {
+            const IEOOrders = await getUserIEOOrdersAsUIOrders(baseToken, quoteToken, ethAccount);
+            dispatch(setUserIEOOrders(IEOOrders));
+        } catch (err) {
+            logger.error(`get IEO orders from relayer failed.`, err);
         }
     };
 };
@@ -178,6 +229,34 @@ export const submitLimitOrder: ThunkCreator = (signedOrder: SignedOrder, amount:
             const submitResult = await getRelayer().submitOrderAsync(signedOrder);
             // tslint:disable-next-line:no-floating-promises
             dispatch(getOrderbookAndUserOrders());
+            dispatch(
+                addNotifications([
+                    {
+                        id: signedOrder.signature,
+                        kind: NotificationKind.Limit,
+                        amount,
+                        token: baseToken,
+                        side,
+                        timestamp: new Date(),
+                    },
+                ]),
+            );
+
+            return submitResult;
+        } catch (error) {
+            throw new RelayerException(error.message);
+        }
+    };
+};
+
+export const submitLimitOrderIEO: ThunkCreator = (signedOrder: SignedOrder, amount: BigNumber, side: OrderSide) => {
+    return async (dispatch, getState) => {
+        const state = getState();
+        const baseToken = getBaseTokenIEO(state) as Token;
+        try {
+            const submitResult = await postIEOSignedOrder(signedOrder);
+            // tslint:disable-next-line:no-floating-promises
+            dispatch(fetchBaseTokenIEO(baseToken));
             dispatch(
                 addNotifications([
                     {
@@ -453,4 +532,194 @@ export const fetchTakerAndMakerFee: ThunkCreator<Promise<OrderFeeData>> = (
             takerFeeAssetData,
         };
     };
+};
+
+export const subscribeToRelayerWebsocketFillEvents: ThunkCreator<Promise<void>> = () => {
+    return async (dispatch, _getState) => {
+        const onmessage = (ev: any) => {
+            try {
+                const fillMessage = JSON.parse(ev.data) as OrderFilledMessage;
+                if (fillMessage.action === 'FILL') {
+                    const fill = fillMessage.event;
+                    const known_tokens = getKnownTokens();
+                    if (
+                        known_tokens.isKnownAddress(fill.quoteTokenAddress) &&
+                        known_tokens.isKnownAddress(fill.baseTokenAddress)
+                    ) {
+                        const newFill: Fill = {
+                            id: fill.id,
+                            amountQuote: new BigNumber(fill.filledQuoteTokenAmount),
+                            amountBase: new BigNumber(fill.filledBaseTokenAmount),
+                            tokenQuote: known_tokens.getTokenByAddress(fill.quoteTokenAddress),
+                            tokenBase: known_tokens.getTokenByAddress(fill.baseTokenAddress),
+                            side: fill.type === 'BUY' ? OrderSide.Buy : OrderSide.Sell,
+                            price: fill.price,
+                            timestamp: new Date(fill.timestamp),
+                            makerAddress: fill.makerAddress,
+                            takerAddress: fill.takerAddress,
+                            market: fill.pair,
+                        };
+                        dispatch(addFills([newFill]));
+                        dispatch(
+                            addMarketFills({
+                                [fill.pair]: [newFill],
+                            }),
+                        );
+                    }
+                }
+            } catch (error) {
+                logger.error('Failed to subscribe websocket relayer', error);
+            }
+        };
+
+        try {
+            startWebsocketMarketsSubscription(onmessage);
+        } catch (error) {
+            logger.error('Failed to subscribe websocket relayer', error);
+        }
+    };
+};
+
+export const fetchPastFills: ThunkCreator<Promise<void>> = () => {
+    return async (dispatch, getState) => {
+        const state = getState();
+        /*const knownTokens = getKnownTokens();
+        const ethAccount = FEE_RECIPIENT;
+        const localStorage = new LocalStorage(window.localStorage);
+        const storageFills = localStorage.getFills(ethAccount).filter(f => {
+            return knownTokens.isKnownAddress(f.tokenBase.address) && knownTokens.isKnownAddress(f.tokenQuote.address);
+        });
+        dispatch(setFills(storageFills));
+        dispatch(setMarketFills(localStorage.getMarketFills(ethAccount)));*/
+
+        try {
+            const fillsResponse = await getFillsFromRelayer();
+            const currencyPair = getCurrencyPair(state);
+            const market = marketToString(currencyPair);
+            const marketFillsResponse = await getMarketFillsFromRelayer(market);
+            const known_tokens = getKnownTokens();
+            if (fillsResponse) {
+                const fills = fillsResponse.records;
+                if (fills.length > 0) {
+                    const filteredFills = fills
+                        .filter(
+                            f =>
+                                known_tokens.isKnownAddress(f.tokenQuoteAddress) &&
+                                known_tokens.isKnownAddress(f.tokenBaseAddress),
+                        )
+                        .map(mapRelayerFillToFill);
+                    if (filteredFills && filteredFills.length > 0) {
+                        dispatch(setFills(filteredFills));
+                    }
+                }
+            }
+            if (marketFillsResponse) {
+                const fills = marketFillsResponse.records;
+                if (fills.length > 0) {
+                    const filteredFills = fills
+                        .filter(
+                            f =>
+                                known_tokens.isKnownAddress(f.tokenQuoteAddress) &&
+                                known_tokens.isKnownAddress(f.tokenBaseAddress),
+                        )
+                        .map(mapRelayerFillToFill);
+                    if (filteredFills && filteredFills.length > 0) {
+                        const marketsFill: MarketFill = {};
+                        filteredFills.forEach(f => {
+                            if (marketsFill[f.market]) {
+                                marketsFill[f.market].push(f);
+                            } else {
+                                marketsFill[f.market] = [f];
+                            }
+                        });
+                        dispatch(setMarketFills(marketsFill));
+                    }
+                }
+            }
+        } catch (error) {
+            logger.error('Failed to fetch past fills', error);
+        }
+    };
+};
+
+export const fetchPastMarketFills: ThunkCreator<Promise<void>> = () => {
+    return async (dispatch, getState) => {
+        const state = getState();
+        const currencyPair = getCurrencyPair(state);
+        const market = marketToString(currencyPair);
+        try {
+            const marketFillsResponse = await getMarketFillsFromRelayer(market);
+            const known_tokens = getKnownTokens();
+
+            if (marketFillsResponse) {
+                const fills = marketFillsResponse.records;
+                if (fills.length > 0) {
+                    const filteredFills = fills
+                        .filter(
+                            f =>
+                                known_tokens.isKnownAddress(f.tokenQuoteAddress) &&
+                                known_tokens.isKnownAddress(f.tokenBaseAddress),
+                        )
+                        .map(mapRelayerFillToFill);
+                    if (filteredFills && filteredFills.length > 0) {
+                        const marketsFill: MarketFill = {};
+                        filteredFills.forEach(f => {
+                            if (marketsFill[f.market]) {
+                                marketsFill[f.market].push(f);
+                            } else {
+                                marketsFill[f.market] = [f];
+                            }
+                        });
+                        dispatch(addMarketFills(marketsFill));
+                    }
+                }
+            }
+        } catch (error) {
+            logger.error('Failed to fetch past market fills', error);
+        }
+    };
+};
+
+export const fetchTakerAndMakerFeeIEO: ThunkCreator<Promise<{ makerFee: BigNumber; takerFee: BigNumber }>> = (
+    amount: BigNumber,
+    price: BigNumber,
+    side: OrderSide,
+) => {
+    return async (dispatch, getState, { getContractWrappers }) => {
+        const state = getState();
+        const ethAccount = getEthAccount(state);
+        const baseToken = getBaseTokenIEO(state) as Token;
+        const quoteTokenBalance = getWethTokenBalance(state) as TokenBalance;
+        const quoteToken = quoteTokenBalance.token;
+        const contractWrappers = await getContractWrappers();
+
+        const order = await buildLimitOrderIEO(
+            {
+                account: ethAccount,
+                amount,
+                price,
+                baseTokenAddress: baseToken.address,
+                quoteTokenAddress: quoteToken.address,
+                exchangeAddress: contractWrappers.exchange.address,
+            },
+            side,
+        );
+
+        const { makerFee, takerFee } = order;
+
+        return {
+            makerFee,
+            takerFee,
+        };
+    };
+};
+
+export const submitConfigFile: ThunkCreator<Promise<ConfigRelayerData | undefined>> = (config: ConfigRelayerData) => {
+    return async (_dispatch, getState) => {
+        const state = getState();
+        const ethAccount = getEthAccount(state);
+        config.owner = ethAccount;
+        return postConfig(config);
+    };
+    // tslint:disable-next-line: max-file-line-count
 };
