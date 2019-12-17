@@ -379,7 +379,7 @@ export const submitMarketOrder: ThunkCreator<Promise<{ txHash: string; amountInR
 
         const isBuy = side === OrderSide.Buy;
         const orders = isBuy ? getOpenSellOrders(state) : getOpenBuyOrders(state);
-        const {ordersToFill, amounts, canBeFilled} = buildMarketOrders(
+        const { ordersToFill, amounts, canBeFilled } = buildMarketOrders(
             {
                 amount,
                 orders,

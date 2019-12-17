@@ -11,7 +11,6 @@ import { eip712Utils } from '@0x/order-utils';
 import { EIP712TypedData } from '@0x/types';
 import { Web3Wrapper } from '@0x/web3-wrapper';
 
-
 import { Config } from '../../common/config';
 import { getAvailableMarkets, updateAvailableMarkets } from '../../common/markets';
 import { InsufficientOrdersAmountException } from '../../exceptions/insufficient_orders_amount_exception';
@@ -437,7 +436,6 @@ export const startBuySellLimitMatchingSteps: ThunkCreator = (
         dispatch(setStepsModalDoneSteps([]));
     };
 };
-
 
 export const startLendingTokenSteps: ThunkCreator = (
     amount: BigNumber,

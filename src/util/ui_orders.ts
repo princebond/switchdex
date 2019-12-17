@@ -51,7 +51,6 @@ const ordersToUIOrdersWithoutOrderInfo = (orders: SignedOrder[], baseToken: Toke
     });
 };
 
-
 // The user has web3 and the order info could be retrieved from the contract
 const ordersToUIOrdersWithOrdersInfo = (
     orders: SignedOrder[],
@@ -60,9 +59,7 @@ const ordersToUIOrdersWithOrdersInfo = (
 ): UIOrder[] => {
     if (ordersInfo.length !== orders.length) {
         throw new Error(
-            `AssertionError: Orders info length does not match orders length: ${ordersInfo.length} !== ${
-                orders.length
-            }`,
+            `AssertionError: Orders info length does not match orders length: ${ordersInfo.length} !== ${orders.length}`,
         );
     }
 

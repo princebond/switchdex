@@ -3,7 +3,12 @@ import React from 'react';
 import { connect } from 'react-redux';
 import styled, { withTheme } from 'styled-components';
 
-import { UI_DECIMALS_DISPLAYED_PRICE_ETH, UI_DECIMALS_DISPLAYED_SPREAD_PERCENT, ZERO, UI_DECIMALS_DISPLAYED_ORDER_SIZE } from '../../../common/constants';
+import {
+    UI_DECIMALS_DISPLAYED_PRICE_ETH,
+    UI_DECIMALS_DISPLAYED_SPREAD_PERCENT,
+    ZERO,
+    UI_DECIMALS_DISPLAYED_ORDER_SIZE,
+} from '../../../common/constants';
 import {
     getBaseToken,
     getCurrencyPair,

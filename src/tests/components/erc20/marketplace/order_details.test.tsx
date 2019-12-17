@@ -29,8 +29,9 @@ describe('OrderDetails', () => {
     const getExpectedTotalCostText = (amount: number, symbol: string, price: number): string => {
         return `${new BigNumber(amount).toFixed(3)} ${tokenSymbolToDisplayString(symbol)} (${new BigNumber(amount)
             .times(price)
-            .toFixed(2)} $)`};
-            
+            .toFixed(2)} $)`;
+    };
+
     const getExpectedFeeText = (amount: number): string => {
         return `${new BigNumber(amount).toFixed(2)} ${tokenSymbolToDisplayString('zrx')}`;
     };
@@ -63,7 +64,6 @@ describe('OrderDetails', () => {
         const tokenPrice = new BigNumber(3);
         const fees = async () => ORDER_FEE_DEFAULTS;
         const qouteInUSD = new BigNumber(1);
-
 
         // when
         const wrapper = shallow(

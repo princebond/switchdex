@@ -40,14 +40,19 @@ interface StateProps {
 }
 
 interface DispatchProps {
-    onSubmitLimitOrder: (amount: BigNumber, price: BigNumber, side: OrderSide,  orderFeeData: OrderFeeData) => Promise<any>;
+    onSubmitLimitOrder: (
+        amount: BigNumber,
+        price: BigNumber,
+        side: OrderSide,
+        orderFeeData: OrderFeeData,
+    ) => Promise<any>;
     onSubmitLimitOrderMatching: (
         amount: BigNumber,
         price: BigNumber,
         side: OrderSide,
         orderFeeData: OrderFeeData,
     ) => Promise<any>;
-    onSubmitMarketOrder: (amount: BigNumber, side: OrderSide,  orderFeeData: OrderFeeData) => Promise<any>;
+    onSubmitMarketOrder: (amount: BigNumber, side: OrderSide, orderFeeData: OrderFeeData) => Promise<any>;
     onConnectWallet: () => any;
     onFetchTakerAndMakerFee: (amount: BigNumber, price: BigNumber, side: OrderSide) => Promise<OrderFeeData>;
 }
@@ -443,8 +448,12 @@ const mapDispatchToProps = (dispatch: any): DispatchProps => {
     return {
         onSubmitLimitOrder: (amount: BigNumber, price: BigNumber, side: OrderSide, orderFeeData: OrderFeeData) =>
             dispatch(startBuySellLimitSteps(amount, price, side, orderFeeData)),
-        onSubmitLimitOrderMatching: (amount: BigNumber, price: BigNumber, side: OrderSide, orderFeeData: OrderFeeData) =>
-            dispatch(startBuySellLimitMatchingSteps(amount, price, side, orderFeeData)),
+        onSubmitLimitOrderMatching: (
+            amount: BigNumber,
+            price: BigNumber,
+            side: OrderSide,
+            orderFeeData: OrderFeeData,
+        ) => dispatch(startBuySellLimitMatchingSteps(amount, price, side, orderFeeData)),
         onSubmitMarketOrder: (amount: BigNumber, side: OrderSide, orderFeeData: OrderFeeData) =>
             dispatch(startBuySellMarketSteps(amount, side, orderFeeData)),
         onConnectWallet: () => dispatch(initWallet()),

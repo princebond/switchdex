@@ -5,8 +5,14 @@ import { MetamaskSubprovider } from '@0x/subproviders';
 import { BigNumber } from '@0x/utils';
 import { createAction, createAsyncAction } from 'typesafe-actions';
 
-import { COLLECTIBLE_ADDRESS, FEE_RECIPIENT, NETWORK_ID, START_BLOCK_LIMIT,  UNLIMITED_ALLOWANCE_IN_BASE_UNITS,
-    ZERO, } from '../../common/constants';
+import {
+    COLLECTIBLE_ADDRESS,
+    FEE_RECIPIENT,
+    NETWORK_ID,
+    START_BLOCK_LIMIT,
+    UNLIMITED_ALLOWANCE_IN_BASE_UNITS,
+    ZERO,
+} from '../../common/constants';
 import { ConvertBalanceMustNotBeEqualException } from '../../exceptions/convert_balance_must_not_be_equal_exception';
 import { SignedOrderException } from '../../exceptions/signed_order_exception';
 import { subscribeToAllFillEvents, subscribeToFillEvents } from '../../services/exchange';
