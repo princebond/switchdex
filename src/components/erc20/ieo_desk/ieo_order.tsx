@@ -1,3 +1,4 @@
+import { BigNumber } from '@0x/utils';
 import React from 'react';
 import { connect } from 'react-redux';
 import styled from 'styled-components';
@@ -20,6 +21,7 @@ import {
     ButtonIcons,
     ButtonVariant,
     CurrencyPair,
+    OrderFeeData,
     OrderSide,
     OrderType,
     StoreState,
@@ -38,7 +40,6 @@ import { EmptyContent } from '../../common/empty_content';
 import { ErrorCard, ErrorIcons, FontSize } from '../../common/error_card';
 
 import { IEOOrderDetailsContainer } from './ieo_order_details';
-import { BigNumber } from '@0x/utils';
 
 interface StateProps {
     web3State: Web3State;
@@ -55,7 +56,7 @@ interface DispatchProps {
         amount: BigNumber,
         price: BigNumber,
         side: OrderSide,
-        makerFee: BigNumber,
+        orderFeeData: OrderFeeData,
         baseToken: Token,
         quoteToken: Token,
     ) => Promise<any>;
@@ -412,8 +413,8 @@ class IEOOrder extends React.Component<Props, State> {
         const orderSide = this.state.tab;
         const makerAmount = this.state.makerAmount || new BigNumber(0.000001);
         const price = this.state.price || new BigNumber(0);
-        const { makerFee } = await this.props.onFetchTakerAndMakerFee(makerAmount, price, this.state.tab);
-        await this.props.onSubmitLimitOrder(makerAmount, price, orderSide, makerFee, baseToken, quoteToken);
+        const orderFeeData = await this.props.onFetchTakerAndMakerFee(makerAmount, price, this.state.tab);
+        await this.props.onSubmitLimitOrder(makerAmount, price, orderSide, orderFeeData, baseToken, quoteToken);
         this._reset();
     };
 
@@ -449,10 +450,10 @@ const mapDispatchToProps = (dispatch: any): DispatchProps => {
             amount: BigNumber,
             price: BigNumber,
             side: OrderSide,
-            makerFee: BigNumber,
+            orderFeeData: OrderFeeData,
             baseToken: Token,
             quoteToken: Token,
-        ) => dispatch(startBuySellLimitIEOSteps(amount, price, side, makerFee, baseToken, quoteToken)),
+        ) => dispatch(startBuySellLimitIEOSteps(amount, price, side, orderFeeData, baseToken, quoteToken)),
         onConnectWallet: () => dispatch(initWallet()),
         onFetchBaseTokenIEO: (token: TokenIEO) => dispatch(fetchBaseTokenIEO(token)),
         onFetchTakerAndMakerFee: (amount: BigNumber, price: BigNumber, side: OrderSide) =>

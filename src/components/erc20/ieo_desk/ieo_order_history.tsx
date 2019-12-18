@@ -1,3 +1,4 @@
+import { OrderStatus } from '@0x/types';
 import React from 'react';
 import { connect } from 'react-redux';
 import styled from 'styled-components';
@@ -11,7 +12,6 @@ import { EmptyContent } from '../../common/empty_content';
 import { LoadingWrapper } from '../../common/loading';
 import { CustomTD, Table, TH, THead, TR } from '../../common/table';
 import { CancelOrderButtonContainer } from '../marketplace/cancel_order_button';
-import { OrderStatus } from '@0x/types';
 
 const OrderHistoryCard = styled(Card)`
     max-height: 220px;

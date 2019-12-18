@@ -5,8 +5,8 @@ import { BigNumber } from '@0x/utils';
 import { isWeth, isZrx } from './known_tokens';
 import {
     Collectible,
-    OrderFeeData,
     iTokenData,
+    OrderFeeData,
     OrderSide,
     Step,
     StepBuyCollectible,

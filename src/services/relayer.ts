@@ -78,9 +78,9 @@ export class Relayer {
     }
 
     public async getCurrencyPairMarketDataAsync(baseToken: Token, quoteToken: Token): Promise<MarketData> {
-       // await this._rateLimit();
+        // await this._rateLimit();
         const baseTokenAssetData = assetDataUtils.encodeERC20AssetData(baseToken.address);
-        const quoteTokenAssetData =  assetDataUtils.encodeERC20AssetData(quoteToken.address);
+        const quoteTokenAssetData = assetDataUtils.encodeERC20AssetData(quoteToken.address);
         const [asks, bids] = await Promise.all([
             this._getOrdersAsync(baseTokenAssetData, quoteTokenAssetData),
             this._getOrdersAsync(quoteTokenAssetData, baseTokenAssetData),

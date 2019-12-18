@@ -1,10 +1,12 @@
-import { assetDataUtils, BigNumber, ExchangeFillEventArgs } from '0x.js';
 
 import { buildFill } from '../../util/fills';
 import { getKnownTokens } from '../../util/known_tokens';
 import { marketToStringFromTokens } from '../../util/markets';
 import { addressFactory } from '../../util/test-utils';
 import { Market, OrderSide } from '../../util/types';
+import { assetDataUtils } from '@0x/order-utils';
+import { BigNumber } from '@0x/utils';
+import { ExchangeFillEventArgs } from '@0x/contract-wrappers';
 
 describe('buildFillFromEvent', () => {
     const knownTokens = getKnownTokens();
@@ -71,6 +73,9 @@ describe('buildFillFromEvent', () => {
             orderHash: '',
             makerAssetData: baseTokenAssetData,
             takerAssetData: quoteTokenAssetData,
+            makerFeeAssetData: '0x',
+            takerFeeAssetData: '0x',
+            protocolFeePaid: new BigNumber(0),
         };
         const log: any = {
             args,

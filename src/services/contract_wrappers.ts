@@ -1,9 +1,7 @@
 import { ContractWrappers } from '@0x/contract-wrappers';
-
-import { CHAIN_ID } from '../common/constants';
-
 import { TxData } from 'ethereum-types';
 
+import { CHAIN_ID } from '../common/constants';
 import { erc20Contract } from '../util/contract_wrappers/erc20';
 
 import { getWeb3Wrapper } from './web3_wrapper';

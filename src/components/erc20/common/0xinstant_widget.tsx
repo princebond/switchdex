@@ -1,3 +1,4 @@
+import { SignedOrder } from '@0x/order-utils';
 import React from 'react';
 import styled from 'styled-components';
 
@@ -7,7 +8,6 @@ import { getKnownTokens } from '../../../util/known_tokens';
 import { getKnownTokensIEO } from '../../../util/known_tokens_ieo';
 import { ButtonVariant, Token, Wallet } from '../../../util/types';
 import { Button } from '../../common/button';
-import { SignedOrder } from '@0x/order-utils';
 
 /**
  * @see https://cleverbeagle.com/blog/articles/tutorial-how-to-load-third-party-scripts-dynamically-in-javascript

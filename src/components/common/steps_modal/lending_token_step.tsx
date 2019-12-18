@@ -1,3 +1,4 @@
+import { BigNumber } from '@0x/utils';
 import React from 'react';
 import { connect } from 'react-redux';
 
@@ -10,7 +11,6 @@ import { iTokenData, StepLendingToken, StepUnLendingToken, StoreState, Token, Wa
 
 import { BaseStepModal } from './base_step_modal';
 import { StepItem } from './steps_progress';
-import { BigNumber } from '@0x/utils';
 
 interface OwnProps {
     buildStepsProgress: (currentStepItem: StepItem) => StepItem[];

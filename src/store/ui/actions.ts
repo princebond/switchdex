@@ -1,17 +1,13 @@
 import { ERC721TokenContract } from '@0x/contract-wrappers';
-import { signatureUtils } from '@0x/order-utils';
+import { signatureUtils, eip712Utils } from '@0x/order-utils';
 import { MetamaskSubprovider } from '@0x/subproviders';
+import { EIP712TypedData } from '@0x/types';
 import { BigNumber } from '@0x/utils';
+import { Web3Wrapper } from '@0x/web3-wrapper';
 import { createAction } from 'typesafe-actions';
 
-import { COLLECTIBLE_ADDRESS, ZERO } from '../../common/constants';
-
-import { eip712Utils } from '@0x/order-utils';
-// @ts-ignore
-import { EIP712TypedData } from '@0x/types';
-import { Web3Wrapper } from '@0x/web3-wrapper';
-
 import { Config } from '../../common/config';
+import { CHAIN_ID, COLLECTIBLE_ADDRESS, ZERO } from '../../common/constants';
 import { getAvailableMarkets, updateAvailableMarkets } from '../../common/markets';
 import { InsufficientOrdersAmountException } from '../../exceptions/insufficient_orders_amount_exception';
 import { InsufficientTokenBalanceException } from '../../exceptions/insufficient_token_balance_exception';
@@ -630,7 +626,6 @@ export const createSignedOrderIEO: ThunkCreator = (amount: BigNumber, price: Big
                 side,
                 baseToken.endDate,
             );
-
             const provider = new MetamaskSubprovider(web3Wrapper.getProvider());
             return signatureUtils.ecSignOrderAsync(provider, order, ethAccount);
         } catch (error) {
@@ -652,7 +647,8 @@ export const createConfigSignature: ThunkCreator = (message: string) => {
                     EIP712Domain: [
                         { name: 'name', type: 'string' },
                         { name: 'version', type: 'string' },
-                        { name: 'verifyingContractAddress', type: 'string' },
+                        { name: 'chainId', type: 'uint256' },
+                        { name: 'verifyingContract', type: 'address' },
                     ],
                     Message: [
                         { name: 'message', type: 'string' },
@@ -663,7 +659,8 @@ export const createConfigSignature: ThunkCreator = (message: string) => {
                 domain: {
                     name: 'Veridex',
                     version: '1',
-                    verifyingContractAddress: '0xCcCCccccCCCCcCCCCCCcCcCccCcCCCcCcccccccC',
+                    chainId: CHAIN_ID,
+                    verifyingContract: '0xCcCCccccCCCCcCCCCCCcCcCccCcCCCcCcccccccC',
                 },
                 message: {
                     message: 'I want to create/edit this DEX. Veridex terms apply',

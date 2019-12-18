@@ -1,3 +1,4 @@
+import { SignedOrder } from '@0x/types';
 import React, { useEffect, useState } from 'react';
 import { useLocation } from 'react-router-dom';
 
@@ -7,7 +8,6 @@ import { getKnownTokens } from '../../../util/known_tokens';
 import { getKnownTokensIEO } from '../../../util/known_tokens_ieo';
 import { Token, TokenIEO, Wallet } from '../../../util/types';
 import { PageLoading } from '../../common/page_loading';
-import { SignedOrder } from '@0x/types';
 
 /**
  * @see https://cleverbeagle.com/blog/articles/tutorial-how-to-load-third-party-scripts-dynamically-in-javascript

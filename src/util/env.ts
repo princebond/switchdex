@@ -1,9 +1,9 @@
+import { ZeroExProvider } from '@0x/order-utils';
 import * as Bowser from 'bowser';
 
 import { PROVIDER_TYPE_TO_NAME } from '../common/constants';
 
 import { ProviderType } from './types';
-import { ZeroExProvider } from '@0x/order-utils';
 
 const browser = Bowser.getParser(window.navigator.userAgent);
 

@@ -11,8 +11,8 @@ import {
     NETWORK_ID,
     START_BLOCK_LIMIT,
     UNLIMITED_ALLOWANCE_IN_BASE_UNITS,
-    ZERO,
     USE_RELAYER_MARKET_UPDATES,
+    ZERO,
 } from '../../common/constants';
 import { ConvertBalanceMustNotBeEqualException } from '../../exceptions/convert_balance_must_not_be_equal_exception';
 import { SignedOrderException } from '../../exceptions/signed_order_exception';
@@ -28,8 +28,8 @@ import { getKnownTokens, isWeth } from '../../util/known_tokens';
 import { getKnownTokensIEO } from '../../util/known_tokens_ieo';
 import { getLogger } from '../../util/logger';
 import { buildOrderFilledNotification } from '../../util/notifications';
-import { providerFactory } from '../../util/provider_factory';
 import { buildSellCollectibleOrder } from '../../util/orders';
+import { providerFactory } from '../../util/provider_factory';
 import { getTransactionOptions } from '../../util/transactions';
 import {
     BlockchainState,

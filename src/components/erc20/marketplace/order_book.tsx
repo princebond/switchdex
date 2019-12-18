@@ -7,7 +7,6 @@ import {
     UI_DECIMALS_DISPLAYED_PRICE_ETH,
     UI_DECIMALS_DISPLAYED_SPREAD_PERCENT,
     ZERO,
-    UI_DECIMALS_DISPLAYED_ORDER_SIZE,
 } from '../../../common/constants';
 import {
     getBaseToken,

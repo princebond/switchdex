@@ -3,7 +3,7 @@ import { BigNumber } from '@0x/utils';
 import { Web3Wrapper } from '@0x/web3-wrapper';
 import { createAction } from 'typesafe-actions';
 
-import { FEE_PERCENTAGE, FEE_RECIPIENT, ZERO, AFFILIATE_FEE_PERCENTAGE } from '../../common/constants';
+import { FEE_PERCENTAGE, FEE_RECIPIENT, ZERO, ZERO_ADDRESS } from '../../common/constants';
 import { INSUFFICIENT_ORDERS_TO_FILL_AMOUNT_ERR } from '../../exceptions/common';
 import { InsufficientOrdersAmountException } from '../../exceptions/insufficient_orders_amount_exception';
 import { RelayerException } from '../../exceptions/relayer_exception';
@@ -70,7 +70,6 @@ import {
     getWethTokenBalance,
 } from '../selectors';
 import { addFills, addMarketFills, addNotifications, setFills, setMarketFills } from '../ui/actions';
-
 
 const logger = getLogger('Store::Market::Actions');
 
@@ -303,7 +302,7 @@ export const submitLimitMatchingOrder: ThunkCreator = (amount: BigNumber, price:
             const quoteToken = getQuoteToken(state) as Token;
             // Check if the order is fillable using the forwarder
             const ethBalance = getEthBalance(state) as BigNumber;
-            let ethAmountRequired = amounts.reduce((total: BigNumber, currentValue: BigNumber) => {
+            const ethAmountRequired = amounts.reduce((total: BigNumber, currentValue: BigNumber) => {
                 return total.plus(currentValue);
             }, ZERO);
             const protocolFee = calculateWorstCaseProtocolFee(ordersToFill, gasPrice);
@@ -414,7 +413,7 @@ export const submitMarketOrder: ThunkCreator<Promise<{ txHash: string; amountInR
 
             // Check if the order is fillable using the forwarder
             const ethBalance = getEthBalance(state) as BigNumber;
-            let ethAmountRequired = amounts.reduce((total: BigNumber, currentValue: BigNumber) => {
+            const ethAmountRequired = amounts.reduce((total: BigNumber, currentValue: BigNumber) => {
                 return total.plus(currentValue);
             }, ZERO);
             const protocolFee = calculateWorstCaseProtocolFee(ordersToFill, gasPrice);
@@ -469,7 +468,6 @@ export const submitMarketOrder: ThunkCreator<Promise<{ txHash: string; amountInR
                     }
                 }
             } catch (e) {
-                console.log(e);
                 logger.log(e.message);
                 throw e;
             }
@@ -701,7 +699,7 @@ export const fetchPastMarketFills: ThunkCreator<Promise<void>> = () => {
     };
 };
 
-export const fetchTakerAndMakerFeeIEO: ThunkCreator<Promise<{ makerFee: BigNumber; takerFee: BigNumber }>> = (
+export const fetchTakerAndMakerFeeIEO: ThunkCreator<Promise<OrderFeeData>> = (
     amount: BigNumber,
     price: BigNumber,
     side: OrderSide,
@@ -726,11 +724,13 @@ export const fetchTakerAndMakerFeeIEO: ThunkCreator<Promise<{ makerFee: BigNumbe
             side,
         );
 
-        const { makerFee, takerFee } = order;
+        const { makerFee, takerFee, makerFeeAssetData, takerFeeAssetData } = order;
 
         return {
             makerFee,
             takerFee,
+            makerFeeAssetData,
+            takerFeeAssetData,
         };
     };
 };

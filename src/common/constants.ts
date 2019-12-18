@@ -18,9 +18,16 @@ export const RELAYER_WS_URL = process.env.REACT_APP_RELAYER_WS_URL || 'ws://loca
 
 export const TX_DEFAULTS = {
     gas: 1000000,
-   // gasLimit: 1000000,
-  //  gasTransferToken: 21000,
-  //  shouldValidate: true,
+    // gasLimit: 1000000,
+    //  gasTransferToken: 21000,
+    //  shouldValidate: true,
+};
+
+export const TX_DEFAULTS_TRANSFER = {
+    gas: 1000000,
+    gasLimit: 1000000,
+    gasTransferToken: 21000,
+    shouldValidate: true,
 };
 
 export const ZERO_ADDRESS = '0x0000000000000000000000000000000000000000';

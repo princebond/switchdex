@@ -24,7 +24,7 @@ export const ordersToIEOUIOrders = (orders: SignedOrder[], baseToken: Token, ord
         return [];
     }
 
-    //return filterUIOrders(ordersToIEOUIOrdersWithOrdersInfo(orders, ordersInfo, baseToken));
+    // return filterUIOrders(ordersToIEOUIOrdersWithOrdersInfo(orders, ordersInfo, baseToken));
 };
 
 // The user does not have web3 and the order info could not be retrieved from the contract

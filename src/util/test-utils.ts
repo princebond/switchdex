@@ -1,4 +1,5 @@
 import { SignedOrder } from '@0x/connect';
+import { ExchangeFillEventArgs } from '@0x/contract-wrappers';
 import { assetDataUtils } from '@0x/order-utils';
 import { OrderStatus } from '@0x/types';
 import { BigNumber, NULL_BYTES } from '@0x/utils';
@@ -10,7 +11,6 @@ import { TokenMetaData } from '../common/tokens_meta_data';
 import { buildFill } from './fills';
 import { getKnownTokens } from './known_tokens';
 import { Collectible, CurrencyPair, Market, OrderSide, Token, TokenBalance, UIOrder } from './types';
-import { ExchangeFillEventArgs } from '@0x/contract-wrappers';
 
 export const makeOrder = ({
     makerAssetAmount,

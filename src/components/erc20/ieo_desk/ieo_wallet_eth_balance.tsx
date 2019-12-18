@@ -1,3 +1,4 @@
+import { BigNumber } from '@0x/utils';
 import React from 'react';
 import { connect } from 'react-redux';
 import styled, { withTheme } from 'styled-components';
@@ -20,7 +21,6 @@ import { Button } from '../../common/button';
 import { Card } from '../../common/card';
 import { ErrorCard, ErrorIcons, FontSize } from '../../common/error_card';
 import { IconType, Tooltip } from '../../common/tooltip';
-import { BigNumber } from '@0x/utils';
 
 const LabelWrapper = styled.div`
     align-items: center;

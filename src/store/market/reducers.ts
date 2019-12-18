@@ -1,5 +1,6 @@
-import { getType } from 'typesafe-actions';
 import queryString from 'query-string';
+import { getType } from 'typesafe-actions';
+
 import { getAvailableMarkets } from '../../common/markets';
 import { getCurrencyPairByTokensSymbol } from '../../util/known_currency_pairs';
 import { MarketState } from '../../util/types';

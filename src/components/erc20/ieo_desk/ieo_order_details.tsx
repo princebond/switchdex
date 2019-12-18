@@ -1,3 +1,4 @@
+import { BigNumber } from '@0x/utils';
 import { Web3Wrapper } from '@0x/web3-wrapper';
 import React from 'react';
 import { connect } from 'react-redux';
@@ -8,7 +9,6 @@ import { getOpenBuyOrders, getOpenSellOrders, getQuoteInUsd } from '../../../sto
 import { getKnownTokens } from '../../../util/known_tokens';
 import { tokenAmountInUnits, tokenSymbolToDisplayString } from '../../../util/tokens';
 import { OrderSide, OrderType, StoreState, Token, UIOrder } from '../../../util/types';
-import { BigNumber } from '@0x/utils';
 
 const Row = styled.div`
     align-items: center;

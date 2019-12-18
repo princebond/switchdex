@@ -1,3 +1,5 @@
+import { assetDataUtils, SignedOrder } from '@0x/order-utils';
+import { BigNumber } from '@0x/utils';
 import React, { useEffect, useState } from 'react';
 import { connect } from 'react-redux';
 import styled, { withTheme } from 'styled-components';
@@ -29,8 +31,6 @@ import { LoadingWrapper } from '../../common/loading';
 import { CustomTD, Table, TH, THead, THLast, TR } from '../../common/table';
 import { IconType, Tooltip } from '../../common/tooltip';
 import { ZeroXInstantWidget } from '../common/0xinstant_widget';
-import { SignedOrder, assetDataUtils } from '@0x/order-utils';
-import { BigNumber } from '@0x/utils';
 
 interface StateProps {
     ethBalance: BigNumber;

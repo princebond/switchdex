@@ -1,6 +1,7 @@
-import { Maybe } from './types';
 import { ZeroExProvider } from '@0x/order-utils';
 import { providerUtils } from '@0x/utils';
+
+import { Maybe } from './types';
 
 export const providerFactory = {
     getInjectedProviderIfExists: (): Maybe<ZeroExProvider> => {

@@ -1,3 +1,4 @@
+import { BigNumber } from '@0x/utils';
 import { createAction } from 'typesafe-actions';
 
 import { getAllITokens, getToken } from '../../services/bzx';
@@ -6,7 +7,6 @@ import { getTransactionOptions } from '../../util/transactions';
 import { BZXLoadingState, BZXState, iTokenData, NotificationKind, ThunkCreator, Token } from '../../util/types';
 import { addNotifications, updateTokenBalances } from '../actions';
 import { getEthAccount, getGasPriceInWei } from '../selectors';
-import { BigNumber } from '@0x/utils';
 
 const logger = getLogger('BZX::Actions');
 

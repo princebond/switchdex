@@ -1,3 +1,4 @@
+import { BigNumber } from '@0x/utils';
 import React from 'react';
 import { connect } from 'react-redux';
 import styled from 'styled-components';
@@ -24,7 +25,6 @@ import { EmptyContent } from '../../common/empty_content';
 import { withWindowWidth } from '../../common/hoc/withWindowWidth';
 import { LoadingWrapper } from '../../common/loading';
 import { CustomTD, Table, TH, THead, TR } from '../../common/table';
-import { BigNumber } from '@0x/utils';
 
 const TVChartContainer = React.lazy(() => import('../marketplace/tv_chart'));
 
