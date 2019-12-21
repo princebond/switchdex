@@ -14,6 +14,8 @@ interface Props extends HTMLAttributes<HTMLDivElement> {}
 const FooterWrapper = styled.div`
     align-items: center;
     justify-content: center;
+    width: 100%;
+    background-color: ${props => props.theme.componentsTheme.background};
 `;
 
 const LinksContainer = styled.div`

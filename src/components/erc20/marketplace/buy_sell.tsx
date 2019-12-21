@@ -14,7 +14,7 @@ import { fetchTakerAndMakerFee } from '../../../store/relayer/actions';
 import { getCurrencyPair, getOrderPriceSelected, getWeb3State } from '../../../store/selectors';
 import { themeDimensions } from '../../../themes/commons';
 import { getKnownTokens } from '../../../util/known_tokens';
-import { tokenSymbolToDisplayString, unitsInTokenAmount } from '../../../util/tokens';
+import { formatTokenSymbol, unitsInTokenAmount } from '../../../util/tokens';
 import {
     ButtonIcons,
     ButtonVariant,
@@ -183,7 +183,7 @@ const TokenText = styled.span`
 
 const BigInputNumberTokenLabel = (props: { tokenSymbol: string }) => (
     <TokenContainer>
-        <TokenText>{tokenSymbolToDisplayString(props.tokenSymbol)}</TokenText>
+        <TokenText>{formatTokenSymbol(props.tokenSymbol)}</TokenText>
     </TokenContainer>
 );
 
@@ -249,7 +249,7 @@ class BuySell extends React.Component<Props, State> {
         const isOrderTypeMarketIsEmpty = orderType === OrderType.Market && (isMakerAmountEmpty || isMakerAmountMin);
 
         const btnPrefix = tab === OrderSide.Buy ? 'Buy ' : 'Sell ';
-        const btnText = error && error.btnMsg ? 'Error' : btnPrefix + tokenSymbolToDisplayString(currencyPair.base);
+        const btnText = error && error.btnMsg ? 'Error' : btnPrefix + formatTokenSymbol(currencyPair.base);
 
         return (
             <>

@@ -12,6 +12,7 @@ const lastBlockCheckedKey = addPrefix('lastBlockChecked');
 const adBlockMessageShownKey = addPrefix('adBlockMessageShown');
 const walletConnectedKey = addPrefix('walletConnected');
 const themeNameKey = addPrefix('themeName');
+const erc20LayoutKey = addPrefix('erc20Layout');
 
 export class LocalStorage {
     private readonly _storage: Storage;
@@ -219,6 +220,15 @@ export class LocalStorage {
     }
     public getThemeName(): string | null {
         return JSON.parse(this._storage.getItem(themeNameKey) || 'null');
+    }
+
+    public getErc20Layout(): string | null {
+        return JSON.parse(this._storage.getItem(erc20LayoutKey) || 'null');
+    }
+    public saveErc20Layout(erc20Layout?: string): void {
+        if (erc20Layout) {
+            this._storage.setItem(erc20LayoutKey, JSON.stringify(erc20Layout));
+        }
     }
     public saveThemeName(themeName?: string): void {
         if (themeName) {
