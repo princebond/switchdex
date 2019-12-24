@@ -6,6 +6,7 @@ import { LocalStorage } from '../services/local_storage';
 
 import * as actions from './actions';
 import {
+    getDynamicLayout,
     getERC20Layout,
     getEthAccount,
     getFills,
@@ -14,7 +15,6 @@ import {
     getNotifications,
     getThemeName,
     getWallet,
-    getDynamicLayout,
 } from './selectors';
 
 const localStorage = new LocalStorage(window.localStorage);

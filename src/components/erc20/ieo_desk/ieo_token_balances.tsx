@@ -51,7 +51,6 @@ const TokenListCard = styled(Card)`
     overflow: auto;
 `;
 
-
 interface DispatchProps {
     onFetchLaunchpad: () => Promise<any>;
     onSubmitTransferToken: (amount: BigNumber, token: Token, address: string, isEth: boolean) => Promise<any>;

@@ -245,7 +245,7 @@ class WalletBalance extends React.Component<Props, State> {
             totalEthBalance,
             onConnectingWallet,
             wallet,
-            //onClickOpenFiatOnRampModal,
+            // onClickOpenFiatOnRampModal,
         } = this.props;
 
         if (quoteToken && baseTokenBalance && quoteTokenBalance) {

@@ -15,8 +15,6 @@ const ColumnWideMyWallet = styled(ColumnWide)`
     }
 `;
 
-
-
 const IEOPage = () => (
     <Content>
         <CheckWalletStateModalContainer>

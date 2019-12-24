@@ -4,8 +4,8 @@ import Joyride, { CallBackProps, STATUS } from 'react-joyride';
 import { useDispatch, useSelector } from 'react-redux';
 import styled from 'styled-components';
 
-import { setERC20Layout, setDynamicLayout } from '../../../store/actions';
-import { getERC20Layout, getEthAccount, getDynamicLayout } from '../../../store/selectors';
+import { setDynamicLayout, setERC20Layout } from '../../../store/actions';
+import { getDynamicLayout, getERC20Layout, getEthAccount } from '../../../store/selectors';
 import { isMobile } from '../../../util/screen';
 import { FiatOnRampModalContainer } from '../../account/fiat_modal';
 import { FiatChooseModalContainer } from '../../account/fiat_onchoose_modal';
@@ -17,14 +17,14 @@ import { LayoutDropdownContainer } from '../common/layout_dropdown';
 import { MarketDetailsContainer } from '../common/market_details';
 import { MarketsListContainer } from '../common/markets_list';
 import { BuySellContainer } from '../marketplace/buy_sell';
-import { noWalletSteps, allSteps } from '../marketplace/joyride-steps';
+import { allSteps, noWalletSteps } from '../marketplace/joyride-steps';
 import { MarketFillsContainer } from '../marketplace/market_fills';
 // import GoogleADS from '../../common/google';
 import { OrderBookTableContainer } from '../marketplace/order_book';
 import { OrderFillsContainer } from '../marketplace/order_fills';
 import { OrderHistoryContainer } from '../marketplace/order_history';
 import { WalletBalanceContainer } from '../marketplace/wallet_balance';
-import Tour from 'reactour'
+
 // const ResponsiveReactGridLayout = WidthProvider(Responsive);
 
 const StyledDiv = styled.div`
@@ -39,7 +39,6 @@ const StyledDiv = styled.div`
 const MarketPlaceDiv = styled.div`
     display: block;
 `;
-
 
 const Grid = styled(Responsive)`
     width: 100%;
@@ -136,32 +135,6 @@ const ContentDoubleHeight = styled(Content)`
     ],
 };*/
 
-const mutateLayoutsToStaticByReference = (layouts: ReactGridLayout.Layouts, isSet: boolean) => { 
-            for (const lay of Object.keys(layouts)) {
-                for (const cards of layouts[lay]) {
-                    if(isSet){
-                        cards.static = false;
-                    }else{
-                        cards.static = true;
-                    }
-                }    
-            }
-
-};
-const isLayoutStatic = (layouts: ReactGridLayout.Layouts) =>  {
-    let isStatic = false;
-    Object.keys(layouts).forEach(lay => {
-        const index = layouts[lay].findIndex(l => l.static === true);
-        if(index !== 1){
-           isStatic = true;
-        }
-    });
-    return isStatic;
-
-};
-
-
-
 const Marketplace = () => {
     const dispatch = useDispatch();
     const layouts = JSON.parse(useSelector(getERC20Layout));
@@ -192,25 +165,32 @@ const Marketplace = () => {
         setBreakPoint(br);
     };
     const onTakeTutorial = () => {
+        document.body.style.minHeight = '200vh';
+        const root = document.getElementById('root');
+        if (root) {
+            root.style.minHeight = '200vh';
+        }
         setIsRun(true);
-        document.body.style.minHeight = '100vh';
-        document.body.style.height = '200vh';
     };
 
     const onDynamicLayout = () => {
         dispatch(setDynamicLayout(!isDynamicLayout));
-    }
+    };
 
     const layout: ReactGridLayout.Layout[] = layouts[breakpoint] ? layouts[breakpoint] : layouts.lg;
-      const handleJoyrideCallback = (data: CallBackProps) => {
+    const handleJoyrideCallback = (data: CallBackProps) => {
         const { status } = data;
         const finishedStatuses: string[] = [STATUS.FINISHED, STATUS.SKIPPED];
-    
+
         if (finishedStatuses.includes(status)) {
             setIsRun(false);
+            document.body.style.minHeight = '100vh';
+            const root = document.getElementById('root');
+            if (root) {
+                root.style.minHeight = '100vh';
+            }
         }
-
-      };
+    };
     /*
     TODO: Add and remove layoyts dynamically*/
     const isMarketList = layout.find(l => l.i === 'a') ? true : false;
@@ -300,7 +280,9 @@ const Marketplace = () => {
             <MarketPlaceDiv>
                 <StyledDiv>
                     <LayoutDropdownContainer />
-                    <StyledButton onClick={onDynamicLayout}>{isDynamicLayout ? 'Dynamic Layout' : 'Static Layout'}</StyledButton>
+                    <StyledButton onClick={onDynamicLayout}>
+                        {isDynamicLayout ? 'Dynamic Layout' : 'Static Layout'}
+                    </StyledButton>
                     <StyledButton onClick={onTakeTutorial}>Take Tour </StyledButton>
                 </StyledDiv>
                 <Joyride
@@ -311,11 +293,11 @@ const Marketplace = () => {
                     disableOverlay={true}
                     showSkipButton={true}
                     scrollToFirstStep={true}
-                    disableScrollParentFix={true}
+                    disableScrollParentFix={false}
                     showProgress={true}
                     styles={{
                         options: {
-                            zIndex: 10000
+                            zIndex: 10000,
                         },
                     }}
                 />

@@ -44,7 +44,6 @@ const StyledActions = styled(Label)`
     padding: 5px;
 `;
 
-
 const TooltipStyled = styled(Tooltip)``;
 
 export const TokensForm = ({

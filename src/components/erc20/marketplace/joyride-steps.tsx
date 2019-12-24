@@ -3,36 +3,41 @@ import { Step } from 'react-joyride';
 const commonSteps: Step[] = [
     {
         target: '.markets-list',
-        content: 'Lists all markets listed in this dex',
+        content: 'Markets Lists: Lists all markets listed in this dex',
     },
     {
         target: '.market-details',
-        content: 'Show all market details related to the selected pair and respective graphic',
+        content: 'Market Stats: Show all market details related to the selected pair and respective graphic',
     },
     {
         target: '.wallet-balance',
-        content: 'Shows your balances of current active pair',
+        content: 'Wallet Balances: Shows your balances of current active pair',
+        placementBeacon: 'bottom',
+        placement: 'bottom',
     },
     {
         target: '.buy-sell',
         content:
             'Buy or sell the current active pair with limit and market options. Market buy/sell will buy directly from orders on orderbook, market limit buy/sell will buy or sell at the fixed price, if no order with that value it will place a order.',
+        placement: 'bottom',
+        placementBeacon: 'bottom',
     },
     {
         target: '.orderbook',
-        content: 'Shows bid and asks for active current pair',
+        content: 'OrderBook: Shows bid and asks for active current pair',
     },
     {
         target: '.orderhistory',
-        content: 'Shows your open orders for active current pair. You can check filled balance and cancel orders here.',
+        content:
+            'My Current Orders: Shows your open orders for active current pair. You can check filled balance and cancel orders here.',
     },
     {
         target: '.market-fills',
-        content: 'Shows most recent market fills for the current active pair.',
+        content: 'Market History: Shows most recent market fills for the current active pair.',
     },
     {
         target: '.order-fills',
-        content: 'Shows all recent trades on 0x network for the listed pairs on this dex.',
+        content: '0x Mesh Trades: Shows all recent trades on 0x network for the listed pairs on this dex.',
     },
 ];
 
@@ -79,5 +84,5 @@ const noLoginWallet: Step[] = [
 
 export const allSteps = marketPlaceSteps.concat(commonSteps);
 
-// export const noWalletSteps = noLoginWallet.concat(commonSteps);
-export const noWalletSteps = commonSteps;
+export const noWalletSteps = noLoginWallet.concat(commonSteps);
+// export const noWalletSteps = commonSteps;

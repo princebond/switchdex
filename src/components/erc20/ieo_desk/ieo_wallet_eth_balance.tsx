@@ -148,8 +148,6 @@ interface DispatchProps {
     onClickOpenFiatOnRampModal: () => any;
 }
 
-
-
 interface OwnProps {
     theme: Theme;
 }
@@ -260,9 +258,9 @@ class IEOWalletEthBalance extends React.Component<Props, State> {
             ) : null;
             const quoteTokenLabel = isWeth(quoteToken.symbol) ? 'ETH' : tokenSymbolToDisplayString(quoteToken.symbol);
 
-            const openFiatOnRamp = () => {
+            /*const openFiatOnRamp = () => {
                 onClickOpenFiatOnRampModal();
-            };
+            };*/
 
             content = (
                 <>
@@ -273,7 +271,7 @@ class IEOWalletEthBalance extends React.Component<Props, State> {
                         </Label>
                         <Value>{quoteBalanceString}</Value>
                     </LabelWrapper>
-                 { /*  <ButtonStyled onClick={openFiatOnRamp} variant={ButtonVariant.Buy}>
+                    {/*  <ButtonStyled onClick={openFiatOnRamp} variant={ButtonVariant.Buy}>
                         Buy ETH
             </ButtonStyled>*/}
                 </>

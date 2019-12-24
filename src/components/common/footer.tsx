@@ -4,18 +4,24 @@ import styled from 'styled-components';
 
 import { Config } from '../../common/config';
 import { GIT_COMMIT } from '../../common/constants';
-import { goToDexWizard, goToListedTokens, setThemeName, setERC20Theme, openFiatOnRampChooseModal } from '../../store/actions';
-import { themeBreakPoints, themeDimensions } from '../../themes/commons';
-
-import { SocialIcon } from './icons/social_icon';
-import { Button } from './button';
+import {
+    goToDexWizard,
+    goToListedTokens,
+    openFiatOnRampChooseModal,
+    setERC20Theme,
+    setThemeName,
+} from '../../store/actions';
 import { getThemeName } from '../../store/selectors';
+import { themeBreakPoints, themeDimensions } from '../../themes/commons';
 import { getThemeFromConfigDex } from '../../themes/theme_meta_data_utils';
+
+import { Button } from './button';
+import { SocialIcon } from './icons/social_icon';
 
 interface Props extends HTMLAttributes<HTMLDivElement> {}
 
 const FooterWrapper = styled.div`
-    display:block;
+    display: block;
     align-items: center;
     justify-content: center;
     width: 100%;
@@ -61,7 +67,7 @@ const HrefStyled = styled.a`
 const StyledButton = styled(Button)`
     background-color: ${props => props.theme.componentsTheme.background};
     color: ${props => props.theme.componentsTheme.textColorCommon};
-    padding:0px;
+    padding: 0px;
     padding-left: 2px;
     &:hover {
         text-decoration: underline;
@@ -160,7 +166,6 @@ export const Footer: React.FC<Props> = props => {
     const handleFiatChooseModal = () => {
         dispatch(openFiatOnRampChooseModal(true));
     };
-
 
     const handleDexWizardClick: React.EventHandler<React.MouseEvent> = e => {
         e.preventDefault();
