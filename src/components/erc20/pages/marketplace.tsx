@@ -1,12 +1,11 @@
 import React, { useState } from 'react';
 import { Responsive } from 'react-grid-layout';
-import Joyride from 'react-joyride';
+import Joyride, { CallBackProps, STATUS } from 'react-joyride';
 import { useDispatch, useSelector } from 'react-redux';
 import styled from 'styled-components';
 
-import { setERC20Layout } from '../../../store/actions';
-import { getERC20Layout, getWeb3State } from '../../../store/selectors';
-import { themeBreakPoints, themeDimensions } from '../../../themes/commons';
+import { setERC20Layout, setDynamicLayout } from '../../../store/actions';
+import { getERC20Layout, getEthAccount, getDynamicLayout } from '../../../store/selectors';
 import { isMobile } from '../../../util/screen';
 import { FiatOnRampModalContainer } from '../../account/fiat_modal';
 import { FiatChooseModalContainer } from '../../account/fiat_onchoose_modal';
@@ -18,14 +17,14 @@ import { LayoutDropdownContainer } from '../common/layout_dropdown';
 import { MarketDetailsContainer } from '../common/market_details';
 import { MarketsListContainer } from '../common/markets_list';
 import { BuySellContainer } from '../marketplace/buy_sell';
-import { noWalletSteps } from '../marketplace/joyride-steps';
+import { noWalletSteps, allSteps } from '../marketplace/joyride-steps';
 import { MarketFillsContainer } from '../marketplace/market_fills';
 // import GoogleADS from '../../common/google';
 import { OrderBookTableContainer } from '../marketplace/order_book';
 import { OrderFillsContainer } from '../marketplace/order_fills';
 import { OrderHistoryContainer } from '../marketplace/order_history';
 import { WalletBalanceContainer } from '../marketplace/wallet_balance';
-
+import Tour from 'reactour'
 // const ResponsiveReactGridLayout = WidthProvider(Responsive);
 
 const StyledDiv = styled.div`
@@ -36,6 +35,11 @@ const StyledDiv = styled.div`
     background-color: ${props => props.theme.componentsTheme.cardBackgroundColor};
     color: ${props => props.theme.componentsTheme.textColorCommon};
 `;
+
+const MarketPlaceDiv = styled.div`
+    display: block;
+`;
+
 
 const Grid = styled(Responsive)`
     width: 100%;
@@ -51,6 +55,28 @@ const StyledButton = styled(Button)`
     padding: 0;
     padding-left: 10px;
 `;
+
+/*const Label = styled.label<{ color?: string }>`
+    color: ${props => props.color || props.theme.componentsTheme.textColorCommon};
+    line-height: normal;
+    font-size: 16px;
+    font-weight: 600;
+    margin: 0;
+`;
+
+const LabelContainer = styled.div`
+    align-items: flex-start;
+    justify-content: space-between;
+    flex-direction: row;
+    display: flex;
+    padding-left: 8px;
+`;
+
+const FieldContainer = styled.div`
+    position: relative;
+    padding-left: 2px;
+`;*/
+
 /*const ColumnWideDouble = styled.div`
     @media (min-width: ${themeBreakPoints.md}) {
         flex-grow: 3;
@@ -109,9 +135,38 @@ const ContentDoubleHeight = styled(Content)`
         { i: 't', x: 16, y: 14, w: 4, h: 2 },
     ],
 };*/
+
+const mutateLayoutsToStaticByReference = (layouts: ReactGridLayout.Layouts, isSet: boolean) => { 
+            for (const lay of Object.keys(layouts)) {
+                for (const cards of layouts[lay]) {
+                    if(isSet){
+                        cards.static = false;
+                    }else{
+                        cards.static = true;
+                    }
+                }    
+            }
+
+};
+const isLayoutStatic = (layouts: ReactGridLayout.Layouts) =>  {
+    let isStatic = false;
+    Object.keys(layouts).forEach(lay => {
+        const index = layouts[lay].findIndex(l => l.static === true);
+        if(index !== 1){
+           isStatic = true;
+        }
+    });
+    return isStatic;
+
+};
+
+
+
 const Marketplace = () => {
     const dispatch = useDispatch();
     const layouts = JSON.parse(useSelector(getERC20Layout));
+    const isDynamicLayout = useSelector(getDynamicLayout);
+    const ethAccount = useSelector(getEthAccount);
     /**
      * TODO: Remove this workaround. In some states, react-grid-layoyt is not
      * finding the correct way to get the correct width.
@@ -138,9 +193,24 @@ const Marketplace = () => {
     };
     const onTakeTutorial = () => {
         setIsRun(true);
+        document.body.style.minHeight = '100vh';
+        document.body.style.height = '200vh';
     };
-    const layout: ReactGridLayout.Layout[] = layouts[breakpoint] ? layouts[breakpoint] : layouts.lg;
 
+    const onDynamicLayout = () => {
+        dispatch(setDynamicLayout(!isDynamicLayout));
+    }
+
+    const layout: ReactGridLayout.Layout[] = layouts[breakpoint] ? layouts[breakpoint] : layouts.lg;
+      const handleJoyrideCallback = (data: CallBackProps) => {
+        const { status } = data;
+        const finishedStatuses: string[] = [STATUS.FINISHED, STATUS.SKIPPED];
+    
+        if (finishedStatuses.includes(status)) {
+            setIsRun(false);
+        }
+
+      };
     /*
     TODO: Add and remove layoyts dynamically*/
     const isMarketList = layout.find(l => l.i === 'a') ? true : false;
@@ -176,7 +246,7 @@ const Marketplace = () => {
 
         if (isMarketDetails) {
             cards.push(
-                <div key="b" className="markets-details">
+                <div key="b" className="market-details">
                     <MarketDetailsContainer isTradingGraphic={true} />
                 </div>,
             );
@@ -227,36 +297,41 @@ const Marketplace = () => {
         }
 
         content = (
-            <>
+            <MarketPlaceDiv>
                 <StyledDiv>
                     <LayoutDropdownContainer />
+                    <StyledButton onClick={onDynamicLayout}>{isDynamicLayout ? 'Dynamic Layout' : 'Static Layout'}</StyledButton>
                     <StyledButton onClick={onTakeTutorial}>Take Tour </StyledButton>
                 </StyledDiv>
+                <Joyride
+                    run={isRun}
+                    steps={ethAccount ? allSteps : noWalletSteps}
+                    callback={handleJoyrideCallback}
+                    continuous={true}
+                    disableOverlay={true}
+                    showSkipButton={true}
+                    scrollToFirstStep={true}
+                    disableScrollParentFix={true}
+                    showProgress={true}
+                    styles={{
+                        options: {
+                            zIndex: 10000
+                        },
+                    }}
+                />
                 <Grid
                     className="layout"
                     layouts={layouts}
                     width={size.width}
                     onLayoutChange={onLayoutChange}
-                    isResizable={true}
+                    isResizable={isDynamicLayout}
+                    isDraggable={isDynamicLayout}
                     cols={{ lg: 12, md: 10, sm: 6, xs: 4, xxs: 2 }}
                     onBreakpointChange={onBreakpointChange}
                 >
                     {cards}
                 </Grid>
-                <Joyride
-                    run={isRun}
-                    steps={noWalletSteps}
-                    continuous={true}
-                    scrollToFirstStep={true}
-                    showSkipButton={true}
-                    showProgress={true}
-                    styles={{
-                        options: {
-                            zIndex: 10000,
-                        },
-                    }}
-                />
-            </>
+            </MarketPlaceDiv>
         );
     }
 

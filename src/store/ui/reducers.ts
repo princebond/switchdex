@@ -42,6 +42,7 @@ const initialUIState: UIState = {
     openFiatOnRampModal: false,
     openFiatOnRampChooseModal: false,
     erc20Layout: localStorage.getErc20Layout() || JSON.stringify(initialLayouts),
+    isDynamicLayout: localStorage.getDynamicLayout(),
     themeName: ERC20_THEME_NAME,
     erc20Theme: getThemeByName(ERC20_THEME_NAME),
     generalConfig: Config.getConfig().general,
@@ -94,6 +95,8 @@ export function ui(state: UIState = initialUIState, action: RootAction): UIState
             return { ...state, configData: action.payload };
         case getType(actions.setERC20Layout):
             return { ...state, erc20Layout: action.payload };
+        case getType(actions.setDynamicLayout):
+            return { ...state, isDynamicLayout: action.payload };
         case getType(actions.setFiatType):
             return { ...state, fiatType: action.payload };
         case getType(actions.addNotifications): {

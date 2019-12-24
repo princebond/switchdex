@@ -153,6 +153,10 @@ export const setERC20Layout = createAction('ui/ERC20_LAYOUT_set', resolve => {
     return (layout: string) => resolve(layout);
 });
 
+export const setDynamicLayout = createAction('ui/DYNAMIC_LAYOUT_set', resolve => {
+    return (isDynamic: boolean) => resolve(isDynamic);
+});
+
 export const setGeneralConfig = createAction('ui/GENERAL_CONFIG_set', resolve => {
     return (generalConfig: GeneralConfig | undefined) => resolve(generalConfig);
 });

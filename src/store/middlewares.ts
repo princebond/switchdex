@@ -14,6 +14,7 @@ import {
     getNotifications,
     getThemeName,
     getWallet,
+    getDynamicLayout,
 } from './selectors';
 
 const localStorage = new LocalStorage(window.localStorage);
@@ -149,6 +150,12 @@ export const localStorageMiddleware: Middleware = ({ getState }: MiddlewareAPI) 
             const state = getState();
             const layout = getERC20Layout(state);
             localStorage.saveErc20Layout(layout);
+            break;
+        }
+        case getType(actions.setDynamicLayout): {
+            const state = getState();
+            const layout = getDynamicLayout(state);
+            localStorage.saveDynamicLayout(layout);
             break;
         }
 

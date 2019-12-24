@@ -79,6 +79,7 @@ const WalletStatusContainer = styled.div`
 
 const WalletCard = styled(Card)`
     max-width: 450px;
+    max-height: 150px;
 `;
 
 const TooltipStyled = styled(Tooltip)`
@@ -146,6 +147,8 @@ interface DispatchProps {
     onChooseWallet: () => any;
     onClickOpenFiatOnRampModal: () => any;
 }
+
+
 
 interface OwnProps {
     theme: Theme;
@@ -270,9 +273,9 @@ class IEOWalletEthBalance extends React.Component<Props, State> {
                         </Label>
                         <Value>{quoteBalanceString}</Value>
                     </LabelWrapper>
-                    <ButtonStyled onClick={openFiatOnRamp} variant={ButtonVariant.Buy}>
+                 { /*  <ButtonStyled onClick={openFiatOnRamp} variant={ButtonVariant.Buy}>
                         Buy ETH
-                    </ButtonStyled>
+            </ButtonStyled>*/}
                 </>
             );
         }

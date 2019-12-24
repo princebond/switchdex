@@ -91,6 +91,7 @@ export const getGeneralConfig = (state: StoreState) => state.ui.generalConfig;
 export const getConfigData = (state: StoreState) => state.ui.configData;
 export const getFiatType = (state: StoreState) => state.ui.fiatType;
 export const getERC20Layout = (state: StoreState) => state.ui.erc20Layout;
+export const getDynamicLayout = (state: StoreState) => state.ui.isDynamicLayout;
 export const getMarketStats = (state: StoreState) => state.market.marketStats;
 
 export const getCurrentMarketPlace = createSelector(

@@ -161,6 +161,7 @@ export interface UIState {
     readonly fiatType: 'APPLE_PAY' | 'CREDIT_CARD';
     readonly erc20Theme: Theme;
     readonly erc20Layout: string;
+    readonly isDynamicLayout: boolean;
     readonly themeName: string;
     readonly generalConfig?: GeneralConfig;
     readonly configData?: ConfigData | null;
