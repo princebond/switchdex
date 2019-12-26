@@ -4,7 +4,7 @@ import { connect } from 'react-redux';
 import styled, { withTheme } from 'styled-components';
 
 import { METAMASK_EXTENSION_URL } from '../../../common/constants';
-import { initWallet, openFiatOnRampModal, setWeb3State } from '../../../store/actions';
+import { initWallet, setWeb3State } from '../../../store/actions';
 import {
     getEthAccount,
     getTotalEthBalance,
@@ -145,7 +145,6 @@ interface DispatchProps {
     onConnectWallet: () => any;
     onConnectingWallet: () => any;
     onChooseWallet: () => any;
-    onClickOpenFiatOnRampModal: () => any;
 }
 
 interface OwnProps {
@@ -239,7 +238,6 @@ class IEOWalletEthBalance extends React.Component<Props, State> {
             totalEthBalance,
             onConnectingWallet,
             wallet,
-            onClickOpenFiatOnRampModal,
         } = this.props;
 
         if (quoteTokenBalance) {
@@ -398,7 +396,6 @@ const mapDispatchToProps = (dispatch: any) => {
         onChooseWallet: () => dispatch(setWeb3State(Web3State.Connect)),
         onConnectingWallet: () => dispatch(setWeb3State(Web3State.Connecting)),
         onConnectWallet: () => dispatch(initWallet()),
-        onClickOpenFiatOnRampModal: () => dispatch(openFiatOnRampModal(true)),
     };
 };
 

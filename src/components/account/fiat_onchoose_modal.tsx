@@ -63,9 +63,9 @@ const FiatChooseModal: React.FC<Props> = props => {
     const content = (
         <>
             <ModalTitle>Buy With:</ModalTitle>
-            <ButtonStyled onClick={chooseApplePay} variant={ButtonVariant.Portis}>
+            {/*<ButtonStyled onClick={chooseApplePay} variant={ButtonVariant.Portis}>
                 <LinkButton>{'Apple Pay'}</LinkButton>
-            </ButtonStyled>
+            </ButtonStyled>*/}
             <ButtonStyled onClick={chooseCreditCard} variant={ButtonVariant.Fortmatic}>
                 <LinkButton>{'Credit Card'}</LinkButton>
             </ButtonStyled>

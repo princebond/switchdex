@@ -167,10 +167,10 @@ export const Footer: React.FC<Props> = props => {
         dispatch(openFiatOnRampChooseModal(true));
     };
 
-    const handleDexWizardClick: React.EventHandler<React.MouseEvent> = e => {
+   /*const handleDexWizardClick: React.EventHandler<React.MouseEvent> = e => {
         e.preventDefault();
         dispatch(goToDexWizard());
-    };
+    };*/
 
     const handleListTokensClick: React.EventHandler<React.MouseEvent> = e => {
         e.preventDefault();
@@ -211,9 +211,9 @@ export const Footer: React.FC<Props> = props => {
                 </HrefStyled>
             </LinksContainer>
             <LinksContainer>
-                <HrefStyled href={`/dex-wizard`} onClick={handleDexWizardClick}>
+                {/*<HrefStyled href={`/dex-wizard`} onClick={handleDexWizardClick}>
                     Dex Wizard
-                </HrefStyled>
+                 </HrefStyled> */}
                 <StyledButton onClick={handleThemeClick} className={'theme-switcher-footer'}>
                     {themeName === 'DARK_THEME' ? '☼' : '🌑'}
                 </StyledButton>
