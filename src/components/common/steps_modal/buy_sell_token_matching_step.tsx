@@ -141,17 +141,14 @@ const mapStateToProps = (state: StoreState): StateProps => {
     };
 };
 
-const BuySellTokenMatchingStepContainer = connect(
-    mapStateToProps,
-    (dispatch: any) => {
-        return {
-            onSubmitLimitMatchingOrder: (amount: BigNumber, price: BigNumber, side: OrderSide) =>
-                dispatch(submitLimitMatchingOrder(amount, price, side)),
-            notifyBuySellMarket: (id: string, amount: BigNumber, token: Token, side: OrderSide, tx: Promise<any>) =>
-                dispatch(addMarketBuySellNotification(id, amount, token, side, tx)),
-            refreshOrders: () => dispatch(getOrderbookAndUserOrders()),
-        };
-    },
-)(BuySellTokenMatchingStep);
+const BuySellTokenMatchingStepContainer = connect(mapStateToProps, (dispatch: any) => {
+    return {
+        onSubmitLimitMatchingOrder: (amount: BigNumber, price: BigNumber, side: OrderSide) =>
+            dispatch(submitLimitMatchingOrder(amount, price, side)),
+        notifyBuySellMarket: (id: string, amount: BigNumber, token: Token, side: OrderSide, tx: Promise<any>) =>
+            dispatch(addMarketBuySellNotification(id, amount, token, side, tx)),
+        refreshOrders: () => dispatch(getOrderbookAndUserOrders()),
+    };
+})(BuySellTokenMatchingStep);
 
 export { BuySellTokenMatchingStep, BuySellTokenMatchingStepContainer };

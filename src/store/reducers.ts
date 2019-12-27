@@ -12,11 +12,12 @@ import { collectibles } from './collectibles/reducers';
 import { market } from './market/reducers';
 import { relayer } from './relayer/reducers';
 import { ui } from './ui/reducers';
+import { translation } from './translation/reducers';
 
 export type RootAction = ActionType<typeof actions>;
 
 export const createRootReducer = (history: History) =>
-    combineReducers<StoreState>({
+    combineReducers<any>({
         router: connectRouter(history),
         blockchain,
         relayer,
@@ -24,4 +25,5 @@ export const createRootReducer = (history: History) =>
         market,
         collectibles,
         bzx,
+        translation,
     });

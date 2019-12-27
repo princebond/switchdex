@@ -588,12 +588,7 @@ const mapDispatchToProps = {
 };
 
 const WalletLendingBalancesContainer = withTheme(
-    withWindowWidth(
-        connect(
-            mapStateToProps,
-            mapDispatchToProps,
-        )(WalletLendingBalances),
-    ),
+    withWindowWidth(connect(mapStateToProps, mapDispatchToProps)(WalletLendingBalances)),
 );
 
 // tslint:disable-next-line: max-file-line-count

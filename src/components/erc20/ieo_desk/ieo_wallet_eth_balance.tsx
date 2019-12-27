@@ -401,11 +401,6 @@ const mapDispatchToProps = (dispatch: any) => {
     };
 };
 
-const IEOWalletEthBalanceContainer = withTheme(
-    connect(
-        mapStateToProps,
-        mapDispatchToProps,
-    )(IEOWalletEthBalance),
-);
+const IEOWalletEthBalanceContainer = withTheme(connect(mapStateToProps, mapDispatchToProps)(IEOWalletEthBalance));
 
 export { IEOWalletEthBalance, IEOWalletEthBalanceContainer };

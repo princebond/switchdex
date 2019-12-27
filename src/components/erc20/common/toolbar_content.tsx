@@ -1,12 +1,13 @@
 import React from 'react';
 import { connect, useDispatch, useSelector } from 'react-redux';
 import styled, { withTheme } from 'styled-components';
-
+import { FormattedMessage } from 'react-intl';
 import { UI_GENERAL_TITLE } from '../../../common/constants';
 import { Logo } from '../../../components/common/logo';
 import { separatorTopbar, ToolbarContainer } from '../../../components/common/toolbar';
 import { NotificationsDropdownContainer } from '../../../components/notifications/notifications_dropdown';
 import { goToHome, goToWallet, openSideBar, setERC20Theme, setThemeName } from '../../../store/actions';
+import { setLanguage } from '../../../store/translation/actions';
 import { getGeneralConfig, getThemeName } from '../../../store/selectors';
 import { Theme, themeBreakPoints } from '../../../themes/commons';
 import { getThemeFromConfigDex } from '../../../themes/theme_meta_data_utils';
@@ -16,17 +17,19 @@ import { withWindowWidth } from '../../common/hoc/withWindowWidth';
 import { LogoIcon } from '../../common/icons/logo_icon';
 import { MenuBurguer } from '../../common/icons/menu_burguer';
 import { WalletConnectionContentContainer } from '../account/wallet_connection_content';
-
+import LanguagesDropdown from './languages_dropdown';
 import { MarketsDropdownContainer } from './markets_dropdown';
 
 interface DispatchProps {
     onGoToHome: () => any;
     onGoToWallet: () => any;
+    onChangeLanguage: (value: String) => any;
 }
 
 interface OwnProps {
     theme: Theme;
     windowWidth: number;
+    language: string;
 }
 
 type Props = DispatchProps & OwnProps;
@@ -54,6 +57,10 @@ const MarketsDropdownHeader = styled<any>(MarketsDropdownContainer)`
     align-items: center;
     display: flex;
 
+    ${separatorTopbar}
+`;
+
+const LanguagesDropdownContainer = styled<any>(LanguagesDropdown)`
     ${separatorTopbar}
 `;
 
@@ -121,6 +128,12 @@ const ToolbarContent = (props: Props) => {
         e.preventDefault();
         props.onGoToWallet();
     };
+
+    const changeLanguage = (e: any) => {
+        const value = e.target.attributes['value'].value;
+        props.onChangeLanguage(value);
+    };
+
     let endContent;
     if (isMobile(props.windowWidth)) {
         endContent = (
@@ -133,9 +146,10 @@ const ToolbarContent = (props: Props) => {
             <>
                 <StyledButton onClick={handleThemeClick}>{themeName === 'DARK_THEME' ? '☼' : '🌑'}</StyledButton>
                 <MyWalletLink href="/my-wallet" onClick={handleMyWalletClick}>
-                    My Wallet
+                    <FormattedMessage id="toolbar.my-wallet" defaultMessage="My Wallet" description="My Wallet" />
                 </MyWalletLink>
                 <WalletDropdown />
+                <LanguagesDropdownContainer onClick={changeLanguage} language={props.language} />
                 <NotificationsDropdownContainer />
             </>
         );
@@ -144,20 +158,22 @@ const ToolbarContent = (props: Props) => {
     return <ToolbarContainer startContent={startContent} endContent={endContent} />;
 };
 
+const mapStateToProps = (state: any) => {
+    return {
+        language: state.translation.language,
+    };
+};
+
 const mapDispatchToProps = (dispatch: any): DispatchProps => {
     return {
         onGoToHome: () => dispatch(goToHome()),
         onGoToWallet: () => dispatch(goToWallet()),
+        onChangeLanguage: value => dispatch(setLanguage(value)),
     };
 };
 
 const ToolbarContentContainer = withWindowWidth(
-    withTheme(
-        connect(
-            null,
-            mapDispatchToProps,
-        )(ToolbarContent),
-    ),
+    withTheme(connect(mapStateToProps, mapDispatchToProps)(ToolbarContent)),
 );
 
 export { ToolbarContent, ToolbarContentContainer as default };

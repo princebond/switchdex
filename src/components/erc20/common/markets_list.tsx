@@ -1,7 +1,7 @@
 import React, { HTMLAttributes } from 'react';
 import { connect } from 'react-redux';
 import styled from 'styled-components';
-
+import { FormattedMessage } from 'react-intl';
 import { UI_DECIMALS_DISPLAYED_SPREAD_PERCENT } from '../../../common/constants';
 import { marketFilters } from '../../../common/markets';
 import { changeMarket, goToHome } from '../../../store/actions';
@@ -214,7 +214,18 @@ class MarketsList extends React.Component<Props, State> {
         switch (web3State) {
             case Web3State.Locked:
             case Web3State.NotInstalled: {
-                content = <EmptyContent alignAbsoluteCenter={true} text="There are no market details to show" />;
+                content = (
+                    <EmptyContent
+                        alignAbsoluteCenter={true}
+                        text={
+                            <FormattedMessage
+                                id="market-list.empty"
+                                defaultMessage="There are no market details to show"
+                                description="Empty Message"
+                            />
+                        }
+                    />
+                );
                 break;
             }
             case Web3State.Loading: {
@@ -225,7 +236,18 @@ class MarketsList extends React.Component<Props, State> {
                 if (web3State !== Web3State.Error && (!baseToken || !quoteToken)) {
                     content = <LoadingWrapper minHeight="120px" />;
                 } else if (!baseToken || !quoteToken) {
-                    content = <EmptyContent alignAbsoluteCenter={true} text="There are no market details to show" />;
+                    content = (
+                        <EmptyContent
+                            alignAbsoluteCenter={true}
+                            text={
+                                <FormattedMessage
+                                    id="market-list.empty"
+                                    defaultMessage="There are no market details to show"
+                                    description="Empty Message"
+                                />
+                            }
+                        />
+                    );
                 } else {
                     content = (
                         <>
@@ -242,7 +264,13 @@ class MarketsList extends React.Component<Props, State> {
             }
         }
 
-        return <MarketListCard title="Markets">{content}</MarketListCard>;
+        return (
+            <MarketListCard
+                title={<FormattedMessage id="market-list.title" defaultMessage="Markets" description="Title" />}
+            >
+                {content}
+            </MarketListCard>
+        );
     };
 
     private readonly _getTokensFilterTabs = () => {
@@ -302,10 +330,26 @@ class MarketsList extends React.Component<Props, State> {
             <Table>
                 <THead>
                     <TR>
-                        <THFirstStyled styles={{ textAlign: 'left' }}>Market</THFirstStyled>
-                        <THLastStyled styles={{ textAlign: 'center' }}>Best Ask</THLastStyled>
-                        <THLastStyled styles={{ textAlign: 'center' }}>Best Bid</THLastStyled>
-                        <THLastStyled styles={{ textAlign: 'center' }}>Spread</THLastStyled>
+                        <THFirstStyled styles={{ textAlign: 'left' }}>
+                            <FormattedMessage id="market-list.market" defaultMessage="Market" description="Market" />
+                        </THFirstStyled>
+                        <THLastStyled styles={{ textAlign: 'center' }}>
+                            <FormattedMessage
+                                id="market-list.best-ask"
+                                defaultMessage="Best Ask"
+                                description="Best Ask"
+                            />
+                        </THLastStyled>
+                        <THLastStyled styles={{ textAlign: 'center' }}>
+                            <FormattedMessage
+                                id="market-list.best-bid"
+                                defaultMessage="Best Bid"
+                                description="Best Bid"
+                            />
+                        </THLastStyled>
+                        <THLastStyled styles={{ textAlign: 'center' }}>
+                            <FormattedMessage id="market-list.spread" defaultMessage="Spread" description="Spread" />
+                        </THLastStyled>
                     </TR>
                 </THead>
                 <TBody>
@@ -396,9 +440,6 @@ const mapDispatchToProps = (dispatch: any): DispatchProps => {
     };
 };
 
-const MarketsListContainer = connect(
-    mapStateToProps,
-    mapDispatchToProps,
-)(MarketsList);
+const MarketsListContainer = connect(mapStateToProps, mapDispatchToProps)(MarketsList);
 
 export { MarketsList, MarketsListContainer };

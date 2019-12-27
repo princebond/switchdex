@@ -12,7 +12,7 @@ import { Theme, ThemeModalStyle, ThemeProperties } from '../themes/commons';
 export interface TabItem {
     active: boolean;
     onClick: any;
-    text: string;
+    text: any;
 }
 
 export type Maybe<T> = T | undefined;
@@ -163,6 +163,10 @@ export interface UIState {
     readonly configData?: ConfigData | null;
 }
 
+export interface Language {
+    language: string;
+}
+
 export interface MarketState {
     readonly currencyPair: CurrencyPair;
     readonly baseToken: Token | null;
@@ -182,6 +186,7 @@ export interface StoreState {
     readonly market: MarketState;
     readonly collectibles: CollectiblesState;
     readonly bzx: BZXState;
+    readonly language: Language;
 }
 
 export enum StepKind {

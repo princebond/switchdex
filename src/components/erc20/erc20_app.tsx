@@ -1,8 +1,8 @@
 import React, { lazy, Suspense } from 'react';
-import { useSelector } from 'react-redux';
+import { useSelector, connect } from 'react-redux';
 import { Route, Switch } from 'react-router';
 import { ThemeProvider } from 'styled-components';
-
+import { IntlProvider } from 'react-intl';
 import { ERC20_APP_BASE_PATH } from '../../common/constants';
 import { AdBlockDetector } from '../../components/common/adblock_detector';
 import { GeneralLayoutContainer } from '../../components/general_layout';
@@ -10,7 +10,8 @@ import { getERC20Theme } from '../../store/selectors';
 import { PageLoading } from '../common/page_loading';
 
 import ToolbarContentContainer from './common/toolbar_content';
-
+import messages_en from './translations/en.json';
+import messages_pt from './translations/pt.json';
 const toolbar = <ToolbarContentContainer />;
 
 const TokensListPage = lazy(() => import('./pages/tokens_list'));
@@ -19,28 +20,46 @@ const AccountTradingsPage = lazy(() => import('./pages/account_trading'));
 const Marketplace = lazy(() => import('./pages/marketplace'));
 const WizardPage = lazy(() => import('./pages/wizard'));
 
-const Erc20App = () => {
+const messages: any = {
+    pt: messages_pt,
+    en: messages_en,
+};
+
+const Erc20App = (props: any) => {
     const themeColor = useSelector(getERC20Theme);
+
     return (
         <ThemeProvider theme={themeColor}>
-            <GeneralLayoutContainer toolbar={toolbar}>
-                <AdBlockDetector />
-                <Switch>
-                    <Suspense fallback={<PageLoading />}>
-                        <Route exact={true} path={`${ERC20_APP_BASE_PATH}/`} component={Marketplace} />
-                        <Route exact={true} path={`${ERC20_APP_BASE_PATH}/my-wallet`} component={MyWallet} />
-                        <Route exact={true} path={`${ERC20_APP_BASE_PATH}/listed-tokens`} component={TokensListPage} />
-                        <Route exact={true} path={`${ERC20_APP_BASE_PATH}/dex-wizard`} component={WizardPage} />
-                        <Route
-                            exact={true}
-                            path={`${ERC20_APP_BASE_PATH}/trading-competition`}
-                            component={AccountTradingsPage}
-                        />
-                    </Suspense>
-                </Switch>
-            </GeneralLayoutContainer>
+            <IntlProvider locale={props.language} messages={messages[props.language]}>
+                <GeneralLayoutContainer toolbar={toolbar}>
+                    <AdBlockDetector />
+                    <Switch>
+                        <Suspense fallback={<PageLoading />}>
+                            <Route exact={true} path={`${ERC20_APP_BASE_PATH}/`} component={Marketplace} />
+                            <Route exact={true} path={`${ERC20_APP_BASE_PATH}/my-wallet`} component={MyWallet} />
+                            <Route
+                                exact={true}
+                                path={`${ERC20_APP_BASE_PATH}/listed-tokens`}
+                                component={TokensListPage}
+                            />
+                            <Route exact={true} path={`${ERC20_APP_BASE_PATH}/dex-wizard`} component={WizardPage} />
+                            <Route
+                                exact={true}
+                                path={`${ERC20_APP_BASE_PATH}/trading-competition`}
+                                component={AccountTradingsPage}
+                            />
+                        </Suspense>
+                    </Switch>
+                </GeneralLayoutContainer>
+            </IntlProvider>
         </ThemeProvider>
     );
 };
 
-export { Erc20App as default };
+const mapStateToProps = (state: any) => {
+    return {
+        language: state.translation.language,
+    };
+};
+
+export default connect(mapStateToProps, null)(Erc20App);

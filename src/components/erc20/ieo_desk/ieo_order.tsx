@@ -460,9 +460,6 @@ const mapDispatchToProps = (dispatch: any): DispatchProps => {
     };
 };
 
-const IEOOrderContainer = connect(
-    mapStateToProps,
-    mapDispatchToProps,
-)(IEOOrder);
+const IEOOrderContainer = connect(mapStateToProps, mapDispatchToProps)(IEOOrder);
 
 export { IEOOrder, IEOOrderContainer };

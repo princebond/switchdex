@@ -641,7 +641,10 @@ export const createConfigSignature: ThunkCreator = (message: string) => {
                         { name: 'version', type: 'string' },
                         { name: 'verifyingContractAddress', type: 'string' },
                     ],
-                    Message: [{ name: 'message', type: 'string' }, { name: 'terms', type: 'string' }],
+                    Message: [
+                        { name: 'message', type: 'string' },
+                        { name: 'terms', type: 'string' },
+                    ],
                 },
                 primaryType: 'Message',
                 domain: {

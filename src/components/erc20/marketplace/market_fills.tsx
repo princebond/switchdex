@@ -153,9 +153,6 @@ const mapDispatchToProps = (dispatch: any): DispatchProps => {
     };
 };
 
-const MarketFillsContainer = connect(
-    mapStateToProps,
-    mapDispatchToProps,
-)(MarketFills);
+const MarketFillsContainer = connect(mapStateToProps, mapDispatchToProps)(MarketFills);
 
 export { MarketFills, MarketFillsContainer };

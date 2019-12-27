@@ -2,7 +2,7 @@ import { BigNumber } from '0x.js';
 import React from 'react';
 import { connect } from 'react-redux';
 import styled from 'styled-components';
-
+import { FormattedMessage } from 'react-intl';
 import { USE_RELAYER_MARKET_UPDATES } from '../../../common/constants';
 import { changeMarket, goToHome } from '../../../store/actions';
 import {
@@ -112,12 +112,48 @@ const DesktopTable = (marketStats: MarketStats, baseToken: Token, currencyPair: 
         <Table isResponsive={true}>
             <THead>
                 <TR>
-                    <TH>Project</TH>
-                    <TH styles={{ textAlign: 'right' }}>Last Price</TH>
-                    <TH styles={{ textAlign: 'right' }}>Max Price 24H</TH>
-                    <TH styles={{ textAlign: 'right' }}>Min Price 24H</TH>
-                    <TH styles={{ textAlign: 'right' }}>Volume 24H</TH>
-                    <TH styles={{ textAlign: 'right' }}>Orders Closed</TH>
+                    <TH>
+                        <FormattedMessage
+                            id="market-details.project"
+                            defaultMessage="Project"
+                            description="Project Name"
+                        />
+                    </TH>
+                    <TH styles={{ textAlign: 'right' }}>
+                        <FormattedMessage
+                            id="market-details.last-price"
+                            defaultMessage="Last Price"
+                            description="Last Price"
+                        />
+                    </TH>
+                    <TH styles={{ textAlign: 'right' }}>
+                        <FormattedMessage
+                            id="market-details.max-price-24h"
+                            defaultMessage="Max Price 24H"
+                            description="Max Price 24H"
+                        />
+                    </TH>
+                    <TH styles={{ textAlign: 'right' }}>
+                        <FormattedMessage
+                            id="market-details.min-price-24h"
+                            defaultMessage="Min Price 24H"
+                            description="Min Price 24H"
+                        />
+                    </TH>
+                    <TH styles={{ textAlign: 'right' }}>
+                        <FormattedMessage
+                            id="market-details.volume-24h"
+                            defaultMessage="Volume 24H"
+                            description="Volume 24H"
+                        />
+                    </TH>
+                    <TH styles={{ textAlign: 'right' }}>
+                        <FormattedMessage
+                            id="market-details.orders-closed"
+                            defaultMessage="Orders Closed"
+                            description="Orders Closed"
+                        />
+                    </TH>
                 </TR>
             </THead>
             <tbody>{statsToRow(marketStats, baseToken, currencyPair)}</tbody>
@@ -134,22 +170,42 @@ const MobileTable = (marketStats: MarketStats, baseToken: Token, currencyPair: C
         <Table isResponsive={true}>
             <tbody>
                 <TR>
-                    <TH>Project</TH>
+                    <TH>
+                        <FormattedMessage id="market-details.project" defaultMessage="Project" description="Project" />
+                    </TH>
                     <CustomTD styles={{ textAlign: 'right', tabular: true }}>{baseToken.name}</CustomTD>
                 </TR>
                 <TR>
-                    <TH>Last Price</TH>
+                    <TH>
+                        <FormattedMessage
+                            id="market-details.last-price"
+                            defaultMessage="Last Price"
+                            description="Last Price"
+                        />
+                    </TH>
                     <CustomTD styles={{ textAlign: 'right', tabular: true }}>{lastPrice || '-'}</CustomTD>
                 </TR>
                 <TR>
-                    <TH>Max Price 24H</TH>
+                    <TH>
+                        <FormattedMessage
+                            id="market-details.max-price-24h"
+                            defaultMessage="Max Price 24H"
+                            description="Max Price 24H"
+                        />
+                    </TH>
                     <CustomTD styles={{ textAlign: 'right', tabular: true }}>
                         {(marketStats.highPrice && marketStats.highPrice.toFixed(currencyPair.config.pricePrecision)) ||
                             '-'}
                     </CustomTD>
                 </TR>
                 <TR>
-                    <TH>Min Price 24H</TH>
+                    <TH>
+                        <FormattedMessage
+                            id="market-details.min-price-24h"
+                            defaultMessage="Min Price 24H"
+                            description="Min Price 24H"
+                        />
+                    </TH>
                     <CustomTD styles={{ textAlign: 'right', tabular: true }}>
                         {(marketStats.lowerPrice &&
                             marketStats.lowerPrice.toFixed(currencyPair.config.pricePrecision)) ||
@@ -157,7 +213,13 @@ const MobileTable = (marketStats: MarketStats, baseToken: Token, currencyPair: C
                     </CustomTD>
                 </TR>
                 <TR>
-                    <TH>Volume 24H</TH>
+                    <TH>
+                        <FormattedMessage
+                            id="market-details.volume-24h"
+                            defaultMessage="Volume 24H"
+                            description="Volume 24H"
+                        />
+                    </TH>
                     <CustomTD styles={{ textAlign: 'right', tabular: true }}>
                         {(marketStats.volume &&
                             `${tokenAmountInUnits(
@@ -169,7 +231,13 @@ const MobileTable = (marketStats: MarketStats, baseToken: Token, currencyPair: C
                     </CustomTD>
                 </TR>
                 <TR>
-                    <TH>Orders Closed</TH>
+                    <TH>
+                        <FormattedMessage
+                            id="market-details.orders-closed"
+                            defaultMessage="Orders Closed"
+                            description="Orders Closed"
+                        />
+                    </TH>
                     <CustomTD styles={{ textAlign: 'right', tabular: true }}>
                         {marketStats.closedOrders || '-'}
                     </CustomTD>
@@ -186,7 +254,18 @@ class MarketDetails extends React.Component<Props> {
         switch (web3State) {
             case Web3State.Locked:
             case Web3State.NotInstalled: {
-                content = <EmptyContent alignAbsoluteCenter={true} text="There are no market details to show" />;
+                content = (
+                    <EmptyContent
+                        alignAbsoluteCenter={true}
+                        text={
+                            <FormattedMessage
+                                id="market-list.empty"
+                                defaultMessage="There are no market details to show"
+                                description="Empty Message"
+                            />
+                        }
+                    />
+                );
                 break;
             }
             case Web3State.Loading: {
@@ -197,7 +276,18 @@ class MarketDetails extends React.Component<Props> {
                 if (web3State !== Web3State.Error && (!baseToken || !quoteToken)) {
                     content = <LoadingWrapper minHeight="120px" />;
                 } else if (!baseToken || !quoteToken) {
-                    content = <EmptyContent alignAbsoluteCenter={true} text="There are no market details to show" />;
+                    content = (
+                        <EmptyContent
+                            alignAbsoluteCenter={true}
+                            text={
+                                <FormattedMessage
+                                    id="market-list.empty"
+                                    defaultMessage="There are no market details to show"
+                                    description="Empty Message"
+                                />
+                            }
+                        />
+                    );
                 } else {
                     const { highPrice, lowerPrice, volume, closedOrders, lastPrice, windowWidth } = this.props;
 
@@ -255,11 +345,6 @@ const mapDispatchToProps = (dispatch: any): DispatchProps => {
     };
 };
 
-const MarketDetailsContainer = withWindowWidth(
-    connect(
-        mapStateToProps,
-        mapDispatchToProps,
-    )(MarketDetails),
-);
+const MarketDetailsContainer = withWindowWidth(connect(mapStateToProps, mapDispatchToProps)(MarketDetails));
 
 export { MarketDetails, MarketDetailsContainer };

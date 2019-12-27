@@ -205,9 +205,6 @@ const mapDispatchToProps = (dispatch: any): DispatchProps => {
     };
 };
 
-const IEOOrderDetailsContainer = connect(
-    mapStateToProps,
-    mapDispatchToProps,
-)(IEOOrderDetails);
+const IEOOrderDetailsContainer = connect(mapStateToProps, mapDispatchToProps)(IEOOrderDetails);
 
 export { CostValue, IEOOrderDetails, IEOOrderDetailsContainer, Value };

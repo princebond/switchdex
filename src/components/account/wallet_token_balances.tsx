@@ -506,12 +506,7 @@ const mapDispatchToProps = {
     onClickOpenFiatOnRampModal: openFiatOnRampModal,
 };
 
-const WalletTokenBalancesContainer = withTheme(
-    connect(
-        mapStateToProps,
-        mapDispatchToProps,
-    )(WalletTokenBalances),
-);
+const WalletTokenBalancesContainer = withTheme(connect(mapStateToProps, mapDispatchToProps)(WalletTokenBalances));
 
 // tslint:disable-next-line: max-file-line-count
 export { WalletTokenBalances, WalletTokenBalancesContainer };

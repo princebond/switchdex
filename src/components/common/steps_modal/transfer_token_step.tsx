@@ -103,17 +103,14 @@ const mapStateToProps = (state: StoreState): StateProps => {
     };
 };
 
-const TransferTokenStepContainer = connect(
-    mapStateToProps,
-    (dispatch: any) => {
-        return {
-            onSubmitTransferToken: (token: Token, amount: BigNumber, address: string, isEth: boolean) =>
-                dispatch(transferToken(token, amount, address, isEth)),
-            notifyTransferToken: (id: string, amount: BigNumber, token: Token, address: string, tx: Promise<any>) =>
-                dispatch(addTransferTokenNotification(id, amount, token, address, tx)),
-            updateTokenBalance: (token: Token) => dispatch(updateTokenBalance(token)),
-        };
-    },
-)(TransferTokenStep);
+const TransferTokenStepContainer = connect(mapStateToProps, (dispatch: any) => {
+    return {
+        onSubmitTransferToken: (token: Token, amount: BigNumber, address: string, isEth: boolean) =>
+            dispatch(transferToken(token, amount, address, isEth)),
+        notifyTransferToken: (id: string, amount: BigNumber, token: Token, address: string, tx: Promise<any>) =>
+            dispatch(addTransferTokenNotification(id, amount, token, address, tx)),
+        updateTokenBalance: (token: Token) => dispatch(updateTokenBalance(token)),
+    };
+})(TransferTokenStep);
 
 export { TransferTokenStep, TransferTokenStepContainer };

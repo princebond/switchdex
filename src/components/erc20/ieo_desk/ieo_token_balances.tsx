@@ -483,12 +483,7 @@ const mapDispatchToProps = {
 };
 
 const IEOTokenBalancesContainer = withTheme(
-    withWindowWidth(
-        connect(
-            mapStateToProps,
-            mapDispatchToProps,
-        )(IEOTokenBalances),
-    ),
+    withWindowWidth(connect(mapStateToProps, mapDispatchToProps)(IEOTokenBalances)),
 );
 
 // tslint:disable-next-line: max-file-line-count
