@@ -6,7 +6,14 @@ import { UI_GENERAL_TITLE } from '../../../common/constants';
 import { Logo } from '../../../components/common/logo';
 import { separatorTopbar, ToolbarContainer } from '../../../components/common/toolbar';
 import { NotificationsDropdownContainer } from '../../../components/notifications/notifications_dropdown';
-import { goToHome, goToWallet, openSideBar, setERC20Theme, setThemeName } from '../../../store/actions';
+import {
+    goToHome,
+    goToWallet,
+    openFiatOnRampChooseModal,
+    openSideBar,
+    setERC20Theme,
+    setThemeName,
+} from '../../../store/actions';
 import { setLanguage } from '../../../store/translation/actions';
 import { getGeneralConfig, getThemeName } from '../../../store/selectors';
 import { Theme, themeBreakPoints } from '../../../themes/commons';
@@ -78,6 +85,14 @@ const WalletDropdown = styled(WalletConnectionContentContainer)`
 const StyledButton = styled(Button)`
     background-color: ${props => props.theme.componentsTheme.topbarBackgroundColor};
     color: ${props => props.theme.componentsTheme.textColorCommon};
+    &:hover {
+        text-decoration: underline;
+    }
+`;
+
+const MenuStyledButton = styled(Button)`
+    background-color: ${props => props.theme.componentsTheme.topbarBackgroundColor};
+    color: ${props => props.theme.componentsTheme.textColorCommon};
 `;
 
 const StyledMenuBurguer = styled(MenuBurguer)`
@@ -102,13 +117,19 @@ const ToolbarContent = (props: Props) => {
         const theme = getThemeFromConfigDex(themeN);
         dispatch(setERC20Theme(theme));
     };
+    const handleFiatChooseModal = () => {
+        dispatch(openFiatOnRampChooseModal(true));
+    };
 
     let startContent;
     if (isMobile(props.windowWidth)) {
         startContent = (
-            <StyledButton onClick={setOpenSideBar}>
-                <StyledMenuBurguer />
-            </StyledButton>
+            <>
+                <MenuStyledButton onClick={setOpenSideBar}>
+                    <StyledMenuBurguer />
+                </MenuStyledButton>
+                <MarketsDropdownHeader shouldCloseDropdownBodyOnClick={false} />
+            </>
         );
     } else {
         startContent = (
@@ -119,7 +140,7 @@ const ToolbarContent = (props: Props) => {
                     text={(generalConfig && generalConfig.title) || UI_GENERAL_TITLE}
                     textColor={props.theme.componentsTheme.logoERC20TextColor}
                 />
-                <MarketsDropdownHeader shouldCloseDropdownBodyOnClick={false} />
+                <MarketsDropdownHeader shouldCloseDropdownBodyOnClick={false} className={'markets-dropdown'} />
             </>
         );
     }
@@ -144,13 +165,18 @@ const ToolbarContent = (props: Props) => {
     } else {
         endContent = (
             <>
-                <StyledButton onClick={handleThemeClick}>{themeName === 'DARK_THEME' ? '☼' : '🌑'}</StyledButton>
-                <MyWalletLink href="/my-wallet" onClick={handleMyWalletClick}>
+                <StyledButton onClick={handleThemeClick} className={'theme-switcher'}>
+                    {themeName === 'DARK_THEME' ? '☼' : '🌑'}
+                </StyledButton>
+                <StyledButton onClick={handleFiatChooseModal} className={'buy-eth'}>
+                    <FormattedMessage id="toolbar.buy-eth" defaultMessage="Buy ETH" description="Buy ETH" />
+                </StyledButton>
+                <MyWalletLink href="/my-wallet" onClick={handleMyWalletClick} className={'my-wallet'}>
                     <FormattedMessage id="toolbar.my-wallet" defaultMessage="My Wallet" description="My Wallet" />
                 </MyWalletLink>
-                <WalletDropdown />
+                <WalletDropdown className={'wallet-dropdown'} />
                 <LanguagesDropdownContainer onClick={changeLanguage} language={props.language} />
-                <NotificationsDropdownContainer />
+                <NotificationsDropdownContainer className={'notifications'} />
             </>
         );
     }

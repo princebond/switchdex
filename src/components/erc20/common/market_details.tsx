@@ -16,7 +16,7 @@ import {
     getQuoteToken,
     getWeb3State,
 } from '../../../store/selectors';
-import { marketToString } from '../../../util/markets';
+import { formatMarketToString, marketToString } from '../../../util/markets';
 import { isMobile } from '../../../util/screen';
 import { tokenAmountInUnits } from '../../../util/tokens';
 import { CurrencyPair, StoreState, Token, Web3State } from '../../../util/types';
@@ -29,8 +29,7 @@ import { CustomTD, Table, TH, THead, TR } from '../../common/table';
 const TVChartContainer = React.lazy(() => import('../marketplace/tv_chart'));
 
 const MarketDetailCard = styled(Card)`
-    max-height: 600px;
-    min-height: 520px;
+    height: 100%;
     overflow: auto;
     margin-top: 5px;
 `;
@@ -58,6 +57,7 @@ interface DispatchProps {
 
 interface OwnProps {
     windowWidth: number;
+    isTradingGraphic: boolean;
 }
 
 type Props = StateProps & DispatchProps & OwnProps;
@@ -249,11 +249,12 @@ const MobileTable = (marketStats: MarketStats, baseToken: Token, currencyPair: C
 
 class MarketDetails extends React.Component<Props> {
     public render = () => {
-        const { baseToken, quoteToken, web3State, currencyPair } = this.props;
+        const { baseToken, quoteToken, web3State, currencyPair, isTradingGraphic = true } = this.props;
         let content: React.ReactNode;
-        switch (web3State) {
-            case Web3State.Locked:
-            case Web3State.NotInstalled: {
+        const defaultBehaviour = () => {
+            if (web3State !== Web3State.Error && (!baseToken || !quoteToken)) {
+                content = <LoadingWrapper minHeight="120px" />;
+            } else if (!baseToken || !quoteToken) {
                 content = (
                     <EmptyContent
                         alignAbsoluteCenter={true}
@@ -266,56 +267,51 @@ class MarketDetails extends React.Component<Props> {
                         }
                     />
                 );
-                break;
+            } else {
+                const { highPrice, lowerPrice, volume, closedOrders, lastPrice, windowWidth } = this.props;
+
+                const marketStats = {
+                    highPrice,
+                    lowerPrice,
+                    volume,
+                    closedOrders,
+                    lastPrice,
+                };
+                let tableMarketDetails;
+
+                isMobile(windowWidth)
+                    ? (tableMarketDetails = MobileTable(marketStats, baseToken, currencyPair))
+                    : (tableMarketDetails = DesktopTable(marketStats, baseToken, currencyPair));
+
+                content = (
+                    <>
+                        {tableMarketDetails}
+                        <StyledHr />
+                        {isTradingGraphic && <TVChartContainer symbol={marketToString(currencyPair)} />}
+                    </>
+                );
             }
-            case Web3State.Loading: {
-                content = <LoadingWrapper minHeight="120px" />;
-                break;
-            }
-            default: {
-                if (web3State !== Web3State.Error && (!baseToken || !quoteToken)) {
-                    content = <LoadingWrapper minHeight="120px" />;
-                } else if (!baseToken || !quoteToken) {
-                    content = (
-                        <EmptyContent
-                            alignAbsoluteCenter={true}
-                            text={
-                                <FormattedMessage
-                                    id="market-list.empty"
-                                    defaultMessage="There are no market details to show"
-                                    description="Empty Message"
-                                />
-                            }
-                        />
-                    );
-                } else {
-                    const { highPrice, lowerPrice, volume, closedOrders, lastPrice, windowWidth } = this.props;
-
-                    const marketStats = {
-                        highPrice,
-                        lowerPrice,
-                        volume,
-                        closedOrders,
-                        lastPrice,
-                    };
-                    let tableMarketDetails;
-
-                    isMobile(windowWidth)
-                        ? (tableMarketDetails = MobileTable(marketStats, baseToken, currencyPair))
-                        : (tableMarketDetails = DesktopTable(marketStats, baseToken, currencyPair));
-
-                    content = (
-                        <>
-                            {tableMarketDetails}
-                            <StyledHr />
-                            <TVChartContainer symbol={marketToString(currencyPair)} />
-                        </>
-                    );
+        };
+        if (USE_RELAYER_MARKET_UPDATES) {
+            defaultBehaviour();
+        } else {
+            switch (web3State) {
+                case Web3State.Locked:
+                case Web3State.NotInstalled: {
+                    content = <EmptyContent alignAbsoluteCenter={true} text="There are no market details to show" />;
+                    break;
                 }
-                break;
+                case Web3State.Loading: {
+                    content = <LoadingWrapper minHeight="120px" />;
+                    break;
+                }
+                default: {
+                    defaultBehaviour();
+                    break;
+                }
             }
         }
-        const title = `Market Stats: ${marketToString(currencyPair)}`;
+        const title = `Market Stats: ${formatMarketToString(currencyPair)}`;
 
         return (
             <MarketDetailCard title={title} minHeightBody={'90px'}>
