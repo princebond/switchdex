@@ -280,12 +280,7 @@ class BuySell extends React.Component<Props, State> {
             orderType === OrderType.Limit && (isMakerAmountEmpty || isPriceEmpty || isPriceMin);
         const isOrderTypeMarketIsEmpty = orderType === OrderType.Market && (isMakerAmountEmpty || isMakerAmountMin);
         const baseSymbol = formatTokenSymbol(currencyPair.base);
-        const btnPrefix =
-            tab === OrderSide.Buy ? (
-                <FormattedMessage id="buy-sell.buy" defaultMessage="Buy" description="Buy" />
-            ) : (
-                <FormattedMessage id="buy-sell.sell" defaultMessage="Sell" description="Sell" />
-            );
+        const btnPrefix = tab === OrderSide.Buy ? 'Buy' : 'Sell';
         const btnText = error && error.btnMsg ? 'Error' : btnPrefix + baseSymbol;
 
         return (

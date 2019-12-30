@@ -1,5 +1,6 @@
 {
     "toolbar.my-wallet": "My Wallet",
+    "toolbar.buy-eth": "buy ETH",
     "toolbar.wallet-dropdown.copy": "Copy Address to Clipboard",
     "toolbar.wallet-dropdown.view-address": "View Address on Etherscan",
     "toolbar.wallet-dropdown.track-dex": "Track DEX volume",
@@ -35,5 +36,12 @@
     "buy-sell.error": "Error",
     "buy-sell.amount": "Amount",
     "buy-sell.min": "Min",
-    "buy-sell.price-per-token": "Price per Token"
+    "buy-sell.price-per-token": "Price per Token",
+    "order-details.title": "Order Details",
+    "order-details.fee": "Fee",
+    "order-details.median-price": "Median Price",
+    "order-details.total": "Total (USD)",
+    "order-details.cost": "Cost (USD)",
+    "order-details.total-desc": "Total",
+    "order-details.total-cost": "Cost"
 }

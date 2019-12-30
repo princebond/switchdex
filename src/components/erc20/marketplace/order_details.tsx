@@ -3,7 +3,7 @@ import { Web3Wrapper } from '@0x/web3-wrapper';
 import React from 'react';
 import { connect } from 'react-redux';
 import styled from 'styled-components';
-
+import { FormattedMessage } from 'react-intl';
 import { fetchTakerAndMakerFee } from '../../../store/relayer/actions';
 import { getOpenBuyOrders, getOpenSellOrders, getQuoteInUsd } from '../../../store/selectors';
 import { getKnownTokens } from '../../../util/known_tokens';
@@ -125,10 +125,18 @@ class OrderDetails extends React.Component<Props, State> {
         return (
             <>
                 <LabelContainer>
-                    <MainLabel>Order Details</MainLabel>
+                    <MainLabel>
+                        <FormattedMessage
+                            id="order-details.title"
+                            defaultMessage="Order Details"
+                            description="Order Details"
+                        />
+                    </MainLabel>
                 </LabelContainer>
                 <Row>
-                    <FeeLabel>Fee</FeeLabel>
+                    <FeeLabel>
+                        <FormattedMessage id="order-details.fee" defaultMessage="Fee" description="Fee" />{' '}
+                    </FeeLabel>
                     <Value>{fee}</Value>
                 </Row>
                 <Row>
@@ -137,7 +145,14 @@ class OrderDetails extends React.Component<Props, State> {
                 </Row>
                 {orderType === OrderType.Market && (
                     <Row>
-                        <CostLabel>Median Price:</CostLabel>
+                        <CostLabel>
+                            <FormattedMessage
+                                id="order-details.median-price"
+                                defaultMessage="Median Price"
+                                description="Median Price"
+                            />
+                            :
+                        </CostLabel>
                         <CostValue>{priceMedianText}</CostValue>
                     </Row>
                 )}
@@ -237,9 +252,17 @@ class OrderDetails extends React.Component<Props, State> {
     private readonly _getCostLabelStringForRender = () => {
         const { qouteInUSD, orderSide } = this.props;
         if (qouteInUSD) {
-            return orderSide === OrderSide.Sell ? 'Total (USD)' : 'Cost (USD)';
+            return orderSide === OrderSide.Sell ? (
+                <FormattedMessage id="order-details.total" defaultMessage="Total (USD)" description="Total (USD)" />
+            ) : (
+                <FormattedMessage id="order-details.cost" defaultMessage="Cost (USD)" description="Cost (USD)" />
+            );
         } else {
-            return orderSide === OrderSide.Sell ? 'Total' : 'Cost';
+            return orderSide === OrderSide.Sell ? (
+                <FormattedMessage id="order-details.total-desc" defaultMessage="Total" description="Total" />
+            ) : (
+                <FormattedMessage id="order-details.total-cost" defaultMessage="Cost" description="Cost" />
+            );
         }
     };
 }

@@ -1,5 +1,6 @@
 {
     "toolbar.my-wallet": "Minha Carteira",
+    "toolbar.buy-eth": "Comprar ETH",
     "toolbar.wallet-dropdown.copy": "Copiar Adereço para o Clipboard",
     "toolbar.wallet-dropdown.view-address": "Ver Adereço no Etherscan",
     "toolbar.wallet-dropdown.track-dex": "Seguir o volume DEX",
@@ -19,7 +20,7 @@
     "market-details.min-price-24h": "Min Preço 24h",
     "market-details.volume-24h": "Volume 24h",
     "market-details.orders-closed": "Ordens Fechadas",
-    "market-balance.title": "Balanco da Carteira",
+    "market-balance.title": "Balanço da Carteira",
     "market-balance.no-wallet": "Nenhuma Carteira encontrada",
     "market-balance.connect": "Conecte",
     "market-balance.connecting": "Conectando",
@@ -35,5 +36,17 @@
     "buy-sell.error": "Erro",
     "buy-sell.amount": "Quantidade",
     "buy-sell.min": "Min",
-    "buy-sell.price-per-token": "Preço por Token"
+    "buy-sell.price-per-token": "Preço por Token",
+    "order-details.title": "Detalhes da Ordem",
+    "order-details.fee": "Comissão",
+    "order-details.median-price": "Preço médio",
+    "order-details.total": "Total (USD)",
+    "order-details.cost": "Custo (USD)",
+    "order-details.total-desc": "Total",
+    "order-details.total-cost": "Custo",
+    "order-book.no-orders": "Não existem compras a mostrar",
+    "order-book.my-size": "Meu tamanho",
+    "order-book.trade-size": "Tamanho do trade",
+    "order-book.price": "Preço",
+    "order-book.title": "Registo de compras"
 }
