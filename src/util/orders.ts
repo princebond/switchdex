@@ -1,8 +1,17 @@
-import { OrderConfigRequest } from '@0x/connect';
+import { OrderConfigRequest, OrderConfigResponse } from '@0x/connect';
 import { assetDataUtils, Order, SignedOrder } from '@0x/order-utils';
-import { BigNumber } from '@0x/utils';
+import { BigNumber, NULL_BYTES } from '@0x/utils';
 
-import { CHAIN_ID, PROTOCOL_FEE_MULTIPLIER, ZERO, ZERO_ADDRESS } from '../common/constants';
+import {
+    CHAIN_ID,
+    FEE_RECIPIENT,
+    MAKER_FEE_PERCENTAGE,
+    PROTOCOL_FEE_MULTIPLIER,
+    TAKER_FEE_PERCENTAGE,
+    USE_RELAYER_ORDER_CONFIG,
+    ZERO,
+    ZERO_ADDRESS,
+} from '../common/constants';
 import { getRelayer } from '../services/relayer';
 
 import { getKnownTokens } from './known_tokens';
@@ -144,8 +153,25 @@ export const buildLimitOrderIEO = async (
 };
 
 export const getOrderWithTakerAndFeeConfigFromRelayer = async (orderConfigRequest: OrderConfigRequest) => {
-    const client = getRelayer();
-    const orderResult = await client.getOrderConfigAsync(orderConfigRequest);
+    let orderResult: OrderConfigResponse;
+    if (USE_RELAYER_ORDER_CONFIG) {
+        const client = getRelayer();
+        orderResult = await client.getOrderConfigAsync(orderConfigRequest);
+    } else {
+        orderResult = {
+            feeRecipientAddress: FEE_RECIPIENT,
+            senderAddress: ZERO_ADDRESS,
+            makerFeeAssetData: new BigNumber(MAKER_FEE_PERCENTAGE).isGreaterThan('0')
+                ? orderConfigRequest.makerAssetData
+                : NULL_BYTES,
+            takerFeeAssetData: new BigNumber(TAKER_FEE_PERCENTAGE).isGreaterThan('0')
+                ? orderConfigRequest.takerAssetData
+                : NULL_BYTES,
+            makerFee: orderConfigRequest.makerAssetAmount.multipliedBy(new BigNumber(MAKER_FEE_PERCENTAGE)),
+            takerFee: orderConfigRequest.takerAssetAmount.multipliedBy(new BigNumber(TAKER_FEE_PERCENTAGE)),
+        };
+    }
+
     return {
         ...orderConfigRequest,
         ...orderResult,

@@ -59,10 +59,6 @@ class App extends React.Component<Props> {
     public componentDidMount = () => {
         const { MARKETPLACE, onInitConfig, onInitTheme } = this.props;
         // no need to init when instant is the marketplace
-        if (MARKETPLACE === MARKETPLACES.Instant) {
-            serviceWorker.unregister();
-            return;
-        }
         // Check if any config is requested
         const parsedUrl = new URL(window.location.href.replace('#/', ''));
         const dex = parsedUrl.searchParams.get('dex');
@@ -76,6 +72,11 @@ class App extends React.Component<Props> {
             //  console.log(themeName);
             onInitTheme(themeName);
         }
+        if (MARKETPLACE === MARKETPLACES.Instant || MARKETPLACE === MARKETPLACES.FiatRamp) {
+            serviceWorker.unregister();
+            return;
+        }
+
         // this.props.onInitWalletState();
         const walletConnected = localStorage.getWalletConnected();
         if (walletConnected !== false && walletConnected !== undefined) {
@@ -88,7 +89,7 @@ class App extends React.Component<Props> {
     public componentDidUpdate = async (prevProps: Readonly<Props>, prevState: Readonly<Props>, snapshot?: any) => {
         const { web3State, MARKETPLACE } = this.props;
         // no need to init when instant is the marketplace
-        if (MARKETPLACE === MARKETPLACES.Instant) {
+        if (MARKETPLACE === MARKETPLACES.Instant || MARKETPLACE === MARKETPLACES.FiatRamp) {
             serviceWorker.unregister();
             return;
         }

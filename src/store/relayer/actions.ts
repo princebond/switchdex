@@ -3,7 +3,7 @@ import { BigNumber } from '@0x/utils';
 import { Web3Wrapper } from '@0x/web3-wrapper';
 import { createAction } from 'typesafe-actions';
 
-import { FEE_PERCENTAGE, FEE_RECIPIENT, ZERO, ZERO_ADDRESS } from '../../common/constants';
+import { FEE_PERCENTAGE, FEE_RECIPIENT, ZERO } from '../../common/constants';
 import { INSUFFICIENT_ORDERS_TO_FILL_AMOUNT_ERR } from '../../exceptions/common';
 import { InsufficientOrdersAmountException } from '../../exceptions/insufficient_orders_amount_exception';
 import { RelayerException } from '../../exceptions/relayer_exception';
@@ -68,6 +68,7 @@ import {
     getQuoteToken,
     getWeb3State,
     getWethTokenBalance,
+    getFeeRecipient,
 } from '../selectors';
 import { addFills, addMarketFills, addNotifications, setFills, setMarketFills } from '../ui/actions';
 
@@ -95,6 +96,14 @@ export const setTokenIEOOrders = createAction('relayer/TOKEN_IEO_ORDERS_set', re
 
 export const setAccountMarketStats = createAction('relayer/ACCOUNT_MARKET_STATS_set', resolve => {
     return (accountMarketStats: AccountMarketStat[]) => resolve(accountMarketStats);
+});
+
+export const setFeeRecipient = createAction('relayer/FEE_RECIPIENT_set', resolve => {
+    return (feeRecipient: string) => resolve(feeRecipient);
+});
+
+export const setFeePercentage = createAction('relayer/FEE_PERCENTAGE_set', resolve => {
+    return (feePercentange: number) => resolve(feePercentange);
 });
 
 export const getAllOrders: ThunkCreator = () => {
@@ -306,11 +315,17 @@ export const submitLimitMatchingOrder: ThunkCreator = (amount: BigNumber, price:
                 return total.plus(currentValue);
             }, ZERO);
             const protocolFee = calculateWorstCaseProtocolFee(ordersToFill, gasPrice);
+            const feeAmount = ordersToFill.map(o => o.takerFee).reduce((p, c) => p.plus(c));
             const affiliateFeeAmount = ethAmountRequired
                 .plus(protocolFee)
+                .plus(feeAmount)
                 .multipliedBy(FEE_PERCENTAGE)
                 .integerValue(BigNumber.ROUND_CEIL);
-            const totalEthAmount = ethAmountRequired.plus(protocolFee).plus(affiliateFeeAmount);
+
+            const totalEthAmount = ethAmountRequired
+                .plus(protocolFee)
+                .plus(affiliateFeeAmount)
+                .plus(feeAmount);
             const isEthBalanceEnough = ethBalance.isGreaterThan(totalEthAmount);
             // HACK(dekz): Forwarder not currently deployed in Ganache
             const NULL_ADDRESS = '0x0000000000000000000000000000000000000000';
@@ -393,6 +408,8 @@ export const submitMarketOrder: ThunkCreator<Promise<{ txHash: string; amountInR
 ) => {
     return async (dispatch, getState, { getContractWrappers, getWeb3Wrapper }) => {
         const state = getState();
+        const feeRecipient = getFeeRecipient(state) || FEE_RECIPIENT;
+        const feePercentange = Number(getFeeRecipient(state)) || FEE_PERCENTAGE;
         const ethAccount = getEthAccount(state);
         const gasPrice = getGasPriceInWei(state);
 
@@ -417,11 +434,18 @@ export const submitMarketOrder: ThunkCreator<Promise<{ txHash: string; amountInR
                 return total.plus(currentValue);
             }, ZERO);
             const protocolFee = calculateWorstCaseProtocolFee(ordersToFill, gasPrice);
+            const feeAmount = ordersToFill.map(o => o.takerFee).reduce((p, c) => p.plus(c));
             const affiliateFeeAmount = ethAmountRequired
                 .plus(protocolFee)
-                .multipliedBy(FEE_PERCENTAGE)
+                .plus(feeAmount)
+                .multipliedBy(feePercentange)
                 .integerValue(BigNumber.ROUND_CEIL);
-            const totalEthAmount = ethAmountRequired.plus(protocolFee).plus(affiliateFeeAmount);
+
+            const totalEthAmount = ethAmountRequired
+                .plus(protocolFee)
+                .plus(affiliateFeeAmount)
+                .plus(feeAmount);
+
             const isEthBalanceEnough = ethBalance.isGreaterThan(totalEthAmount);
             // HACK(dekz): Forwarder not currently deployed in Ganache
             const NULL_ADDRESS = '0x0000000000000000000000000000000000000000';
@@ -440,8 +464,8 @@ export const submitMarketOrder: ThunkCreator<Promise<{ txHash: string; amountInR
                             ordersToFill,
                             amount,
                             orderSignatures,
-                            Web3Wrapper.toBaseUnitAmount(FEE_PERCENTAGE, 18),
-                            FEE_RECIPIENT,
+                            Web3Wrapper.toBaseUnitAmount(feePercentange, 18),
+                            feeRecipient,
                         )
                         .sendTransactionAsync({
                             from: ethAccount,

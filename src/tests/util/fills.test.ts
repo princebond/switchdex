@@ -1,12 +1,12 @@
+import { ExchangeFillEventArgs } from '@0x/contract-wrappers';
+import { assetDataUtils } from '@0x/order-utils';
+import { BigNumber } from '@0x/utils';
 
 import { buildFill } from '../../util/fills';
 import { getKnownTokens } from '../../util/known_tokens';
 import { marketToStringFromTokens } from '../../util/markets';
 import { addressFactory } from '../../util/test-utils';
 import { Market, OrderSide } from '../../util/types';
-import { assetDataUtils } from '@0x/order-utils';
-import { BigNumber } from '@0x/utils';
-import { ExchangeFillEventArgs } from '@0x/contract-wrappers';
 
 describe('buildFillFromEvent', () => {
     const knownTokens = getKnownTokens();

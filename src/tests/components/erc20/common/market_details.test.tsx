@@ -2,6 +2,9 @@
  * @jest-environment jsdom
  */
 
+import { ExchangeFillEventArgs } from '@0x/contract-wrappers';
+import { assetDataUtils } from '@0x/order-utils';
+import { BigNumber } from '@0x/utils';
 import { shallow, ShallowWrapper } from 'enzyme';
 import React from 'react';
 
@@ -19,9 +22,6 @@ import {
 import { addressFactory, getCurrencyPairFromTokens } from '../../../../util/test-utils';
 // import { tokenAmountInUnits } from '../../../../util/tokens';
 import { Market } from '../../../../util/types';
-import { BigNumber } from '@0x/utils';
-import { assetDataUtils } from '@0x/order-utils';
-import { ExchangeFillEventArgs } from '@0x/contract-wrappers';
 
 describe('MarketDetails', () => {
     const getTextCustomTDFromWrapper = (wrapper: ShallowWrapper, element = 0): string =>

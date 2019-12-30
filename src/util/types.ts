@@ -151,6 +151,8 @@ export interface RelayerState {
     readonly userIEOOrders?: UIOrder[];
     readonly ieoOrders?: SignedOrder[];
     readonly accountMarketStats?: AccountMarketStat[];
+    readonly feeRecipient?: string;
+    readonly feePercentage?: number;
 }
 
 export interface UIState {
@@ -164,7 +166,11 @@ export interface UIState {
     readonly orderPriceSelected: BigNumber | null;
     readonly sidebarOpen: boolean;
     readonly openFiatOnRampModal: boolean;
+    readonly openFiatOnRampChooseModal: boolean;
+    readonly fiatType: 'APPLE_PAY' | 'CREDIT_CARD';
     readonly erc20Theme: Theme;
+    readonly erc20Layout: string;
+    readonly isDynamicLayout: boolean;
     readonly themeName: string;
     readonly generalConfig?: GeneralConfig;
     readonly configData?: ConfigData | null;
@@ -577,6 +583,7 @@ export enum MARKETPLACES {
     LaunchPad = 'LAUNCHPAD',
     Margin = 'MARGIN',
     Instant = 'INSTANT',
+    FiatRamp = 'FiatRamp',
 }
 
 export enum Wallet {
@@ -660,6 +667,7 @@ export interface GeneralConfig {
     icon?: string;
     domain?: string;
     feeRecipient?: string;
+    feePercentage?: number;
     social?: {
         facebook_url?: string;
         reddit_url?: string;

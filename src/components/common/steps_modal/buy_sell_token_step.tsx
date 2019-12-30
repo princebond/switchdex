@@ -95,6 +95,7 @@ class BuySellTokenStep extends React.Component<Props, State> {
             this.props.notifyBuySellMarket(txHash, amount, token, side, Promise.resolve());
             this.props.refreshOrders();
         } catch (err) {
+            console.log(err);
             onError(err);
         }
     };

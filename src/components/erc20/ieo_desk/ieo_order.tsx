@@ -269,7 +269,7 @@ class IEOOrder extends React.Component<Props, State> {
     };
 
     public render = () => {
-        const { web3State, wethTokenBalance, baseToken, ethAccount } = this.props;
+        const { web3State, wethTokenBalance, baseToken, ethAccount, currencyPair } = this.props;
         const { makerAmount, price, tab, orderType, error } = this.state;
         if (!wethTokenBalance || !baseToken) {
             return (
@@ -362,6 +362,7 @@ class IEOOrder extends React.Component<Props, State> {
                             <BigInputNumberTokenLabel tokenSymbol={quoteToken.symbol} />
                         </FieldContainer>
                         <IEOOrderDetailsContainer
+                            currencyPair={currencyPair}
                             orderType={orderType}
                             orderSide={tab}
                             tokenAmount={amount}

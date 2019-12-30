@@ -47,6 +47,10 @@ interface OwnProps {
     theme: Theme;
     windowWidth: number;
 }
+const TokenListCard = styled(Card)`
+    max-height: 80%;
+    overflow: auto;
+`;
 
 interface DispatchProps {
     onFetchLaunchpad: () => Promise<any>;
@@ -461,7 +465,7 @@ const IEOTokenBalances = (props: Props) => {
             );
         }
     }
-    return <Card title="LAUNCHPAD">{content}</Card>;
+    return <TokenListCard title="LAUNCHPAD">{content}</TokenListCard>;
 };
 
 const mapStateToProps = (state: StoreState): StateProps => {

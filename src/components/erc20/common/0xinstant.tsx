@@ -2,12 +2,14 @@ import { SignedOrder } from '@0x/types';
 import React, { useEffect, useState } from 'react';
 import { useLocation } from 'react-router-dom';
 
-import { FEE_RECIPIENT, INSTANT_FEE_PERCENTAGE, RELAYER_URL } from '../../../common/constants';
+import { FEE_RECIPIENT, INSTANT_FEE_PERCENTAGE, RELAYER_URL, FEE_PERCENTAGE } from '../../../common/constants';
 import { getUserIEOSignedOrders } from '../../../services/relayer';
 import { getKnownTokens } from '../../../util/known_tokens';
 import { getKnownTokensIEO } from '../../../util/known_tokens_ieo';
 import { Token, TokenIEO, Wallet } from '../../../util/types';
 import { PageLoading } from '../../common/page_loading';
+import { useSelector } from 'react-redux';
+import { getFeePercentage, getFeeRecipient } from '../../../store/selectors';
 
 /**
  * @see https://cleverbeagle.com/blog/articles/tutorial-how-to-load-third-party-scripts-dynamically-in-javascript
@@ -75,6 +77,9 @@ export const ZeroXInstantComponent = (props: Props) => {
         const tokenSymbol = query.get('symbol');
         const isEIO = query.get('isEIO');
         const isBot = query.get('isBot');
+        const feeP = useSelector(getFeePercentage);
+        feePercentage = feeP ? Number(feeP) : FEE_PERCENTAGE; 
+        const feeRecipient = useSelector(getFeeRecipient) || FEE_RECIPIENT;
         // TODO refactor this to be better
         try {
             const knownTokens = getKnownTokens();
@@ -157,7 +162,7 @@ export const ZeroXInstantComponent = (props: Props) => {
                     orderSource,
                     networkId,
                     affiliateInfo: {
-                        feeRecipient: FEE_RECIPIENT,
+                        feeRecipient,
                         feePercentage,
                     },
                     additionalAssetMetaDataMap,

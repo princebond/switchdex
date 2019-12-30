@@ -1,5 +1,5 @@
 import { ERC721TokenContract } from '@0x/contract-wrappers';
-import { signatureUtils, eip712Utils } from '@0x/order-utils';
+import { eip712Utils, signatureUtils } from '@0x/order-utils';
 import { MetamaskSubprovider } from '@0x/subproviders';
 import { EIP712TypedData } from '@0x/types';
 import { BigNumber } from '@0x/utils';
@@ -7,7 +7,7 @@ import { Web3Wrapper } from '@0x/web3-wrapper';
 import { createAction } from 'typesafe-actions';
 
 import { Config } from '../../common/config';
-import { CHAIN_ID, COLLECTIBLE_ADDRESS, ZERO } from '../../common/constants';
+import { CHAIN_ID, COLLECTIBLE_ADDRESS, ZERO, FEE_RECIPIENT, FEE_PERCENTAGE } from '../../common/constants';
 import { getAvailableMarkets, updateAvailableMarkets } from '../../common/markets';
 import { InsufficientOrdersAmountException } from '../../exceptions/insufficient_orders_amount_exception';
 import { InsufficientTokenBalanceException } from '../../exceptions/insufficient_token_balance_exception';
@@ -61,6 +61,7 @@ import {
 } from '../../util/types';
 import { setCurrencyPair } from '../market/actions';
 import * as selectors from '../selectors';
+import { setFeeRecipient, setFeePercentage } from '../relayer/actions';
 
 export const setHasUnreadNotifications = createAction('ui/UNREAD_NOTIFICATIONS_set', resolve => {
     return (hasUnreadNotifications: boolean) => resolve(hasUnreadNotifications);
@@ -138,6 +139,10 @@ export const openFiatOnRampModal = createAction('ui/OPEN_FIAT_ON_RAMP_set', reso
     return (isOpen: boolean) => resolve(isOpen);
 });
 
+export const openFiatOnRampChooseModal = createAction('ui/OPEN_FIAT_ON_RAMP_CHOOSE_set', resolve => {
+    return (isOpen: boolean) => resolve(isOpen);
+});
+
 export const setERC20Theme = createAction('ui/ERC20_THEME_set', resolve => {
     return (theme: Theme) => resolve(theme);
 });
@@ -146,12 +151,24 @@ export const setThemeName = createAction('ui/THEME_NAME_set', resolve => {
     return (themeName: string | undefined) => resolve(themeName);
 });
 
+export const setERC20Layout = createAction('ui/ERC20_LAYOUT_set', resolve => {
+    return (layout: string) => resolve(layout);
+});
+
+export const setDynamicLayout = createAction('ui/DYNAMIC_LAYOUT_set', resolve => {
+    return (isDynamic: boolean) => resolve(isDynamic);
+});
+
 export const setGeneralConfig = createAction('ui/GENERAL_CONFIG_set', resolve => {
     return (generalConfig: GeneralConfig | undefined) => resolve(generalConfig);
 });
 
 export const setConfigData = createAction('ui/CONFIG_DATA_set', resolve => {
     return (config: ConfigData) => resolve(config);
+});
+
+export const setFiatType = createAction('ui/FIAT_TYPE_set', resolve => {
+    return (fiatType: 'APPLE_PAY' | 'CREDIT_CARD') => resolve(fiatType);
 });
 
 export const startToggleTokenLockSteps: ThunkCreator = (token: Token, isUnlocked: boolean) => {
@@ -833,6 +850,16 @@ export const initConfigData: ThunkCreator = (queryString: string | undefined, do
             const localStorage = new LocalStorage(window.localStorage);
             const themeName = localStorage.getThemeName() || Config.getConfig().theme_name;
             dispatch(initTheme(themeName));
+            let feeRecipient = FEE_RECIPIENT;
+            let feePercentage = FEE_PERCENTAGE;
+            const general = Config.getConfig().general;
+            if(general){
+                feeRecipient = general.feeRecipient || FEE_RECIPIENT;
+                feePercentage = general.feePercentage || FEE_PERCENTAGE
+            }
+            dispatch(setFeeRecipient(feeRecipient));
+            dispatch(setFeePercentage(feePercentage));
+      
         } catch (e) {
             return;
         }

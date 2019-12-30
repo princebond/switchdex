@@ -6,6 +6,7 @@ export const ERC20_APP_BASE_PATH = '/erc20';
 export const LAUNCHPAD_APP_BASE_PATH = '/launchpad';
 export const MARGIN_APP_BASE_PATH = '/margin';
 export const INSTANT_APP_BASE_PATH = '/instant';
+export const FIAT_RAMP_APP_BASE_PATH = '/fiat-onramp';
 
 export const USE_RELAYER_MARKET_UPDATES = process.env.REACT_APP_USE_RELAYER_MARKET_UPDATES === 'true' ? true : false;
 
@@ -81,6 +82,8 @@ export const FORTMATIC_APP_ID = process.env.REACT_APP_FORTMATIC_APP_ID;
 
 export const COINDIRECT_MERCHANT_ID = process.env.REACT_APP_COINDIRECT_MERCHANT_ID || '';
 
+export const WYRE_ID = process.env.REACT_APP_WYRE_ID || '';
+
 // Default value is enabled, 0 is disabled
 export const UI_UPDATE_CHECK_INTERVAL: number = process.env.REACT_APP_UI_UPDATE_CHECK_INTERVAL
     ? Number.parseInt(process.env.REACT_APP_UI_UPDATE_CHECK_INTERVAL as string, 10)
@@ -146,6 +149,13 @@ export const CHAIN_ID: number = process.env.REACT_APP_CHAIN_ID
 export const NETWORK_NAME: string = Network[NETWORK_ID];
 
 export const FILLS_LIMIT: number = Number.parseInt(process.env.REACT_APP_FILLS_LIMIT as string, 10) || 50;
+
+export const TAKER_FEE_PERCENTAGE: string = process.env.REACT_APP_TAKER_FEE_PERCENTAGE || '0';
+
+export const MAKER_FEE_PERCENTAGE: string = process.env.REACT_APP_MAKER_FEE_PERCENTAGE || '0';
+
+export const USE_RELAYER_ORDER_CONFIG: boolean =
+    process.env.REACT_APP_USE_RELAYER_ORDER_CONFIG === 'true' ? true : false;
 
 export const PROVIDER_TYPE_TO_NAME: { [key in ProviderType]: string } = {
     [ProviderType.Cipher]: 'Cipher',

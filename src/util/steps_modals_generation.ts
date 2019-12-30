@@ -48,7 +48,10 @@ export const createBuySellLimitSteps = (
     if (orderFeeData.makerFee.isGreaterThan(0)) {
         const { tokenAddress } = assetDataUtils.decodeERC20AssetData(orderFeeData.makerFeeAssetData);
         if (!unlockTokenStep || unlockTokenStep.token.address !== tokenAddress) {
-            const unlockFeeTokenStep = getUnlockFeeAssetStepIfNeeded(tokenBalances, tokenAddress);
+            const unlockFeeTokenStep = getUnlockFeeAssetStepIfNeeded(
+                [...tokenBalances, wethTokenBalance],
+                tokenAddress,
+            );
             if (unlockFeeTokenStep) {
                 buySellLimitFlow.push(unlockFeeTokenStep);
             }
@@ -110,7 +113,10 @@ export const createBuySellLimitMatchingSteps = (
     if (orderFeeData.makerFee.isGreaterThan(0)) {
         const { tokenAddress } = assetDataUtils.decodeERC20AssetData(orderFeeData.makerFeeAssetData);
         if (!unlockTokenStep || unlockTokenStep.token.address !== tokenAddress) {
-            const unlockFeeTokenStep = getUnlockFeeAssetStepIfNeeded(tokenBalances, tokenAddress);
+            const unlockFeeTokenStep = getUnlockFeeAssetStepIfNeeded(
+                [...tokenBalances, wethTokenBalance],
+                tokenAddress,
+            );
             if (unlockFeeTokenStep) {
                 buySellLimitMatchingFlow.push(unlockFeeTokenStep);
             }
@@ -241,7 +247,7 @@ export const createBuySellMarketSteps = (
     if (orderFeeData.takerFee.isGreaterThan(0)) {
         const { tokenAddress } = assetDataUtils.decodeERC20AssetData(orderFeeData.takerFeeAssetData);
         if (!unlockTokenStep || (unlockTokenStep && unlockTokenStep.token.address !== tokenAddress)) {
-            const unlockFeeStep = getUnlockFeeAssetStepIfNeeded(tokenBalances, tokenAddress);
+            const unlockFeeStep = getUnlockFeeAssetStepIfNeeded([...tokenBalances, wethTokenBalance], tokenAddress);
             if (unlockFeeStep) {
                 buySellMarketFlow.push(unlockFeeStep);
             }
