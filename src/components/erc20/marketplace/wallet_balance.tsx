@@ -1,8 +1,9 @@
 import { BigNumber } from '0x.js';
 import React from 'react';
+import { FormattedMessage } from 'react-intl';
 import { connect } from 'react-redux';
 import styled, { withTheme } from 'styled-components';
-import { FormattedMessage } from 'react-intl';
+
 import { METAMASK_EXTENSION_URL } from '../../../common/constants';
 import { initWallet, openFiatOnRampChooseModal, setWeb3State } from '../../../store/actions';
 import {

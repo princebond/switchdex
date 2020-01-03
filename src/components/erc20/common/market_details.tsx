@@ -1,8 +1,9 @@
 import { BigNumber } from '0x.js';
 import React from 'react';
+import { FormattedMessage } from 'react-intl';
 import { connect } from 'react-redux';
 import styled from 'styled-components';
-import { FormattedMessage } from 'react-intl';
+
 import { USE_RELAYER_MARKET_UPDATES } from '../../../common/constants';
 import { changeMarket, goToHome } from '../../../store/actions';
 import {

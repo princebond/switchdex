@@ -1,9 +1,10 @@
 import { BigNumber } from '0x.js';
 import { Web3Wrapper } from '@0x/web3-wrapper';
 import React from 'react';
+import { FormattedMessage } from 'react-intl';
 import { connect } from 'react-redux';
 import styled from 'styled-components';
-import { FormattedMessage } from 'react-intl';
+
 import { fetchTakerAndMakerFee } from '../../../store/relayer/actions';
 import { getOpenBuyOrders, getOpenSellOrders, getQuoteInUsd } from '../../../store/selectors';
 import { getKnownTokens } from '../../../util/known_tokens';

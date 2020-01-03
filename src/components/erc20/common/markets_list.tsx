@@ -1,7 +1,8 @@
 import React, { HTMLAttributes } from 'react';
+import { FormattedMessage } from 'react-intl';
 import { connect } from 'react-redux';
 import styled from 'styled-components';
-import { FormattedMessage } from 'react-intl';
+
 import { UI_DECIMALS_DISPLAYED_SPREAD_PERCENT, USE_RELAYER_MARKET_UPDATES } from '../../../common/constants';
 import { marketFilters } from '../../../common/markets';
 import { changeMarket, goToHome } from '../../../store/actions';

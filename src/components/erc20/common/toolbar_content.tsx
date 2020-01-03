@@ -1,7 +1,8 @@
 import React from 'react';
+import { FormattedMessage } from 'react-intl';
 import { connect, useDispatch, useSelector } from 'react-redux';
 import styled, { withTheme } from 'styled-components';
-import { FormattedMessage } from 'react-intl';
+
 import { UI_GENERAL_TITLE } from '../../../common/constants';
 import { Logo } from '../../../components/common/logo';
 import { separatorTopbar, ToolbarContainer } from '../../../components/common/toolbar';
@@ -14,8 +15,8 @@ import {
     setERC20Theme,
     setThemeName,
 } from '../../../store/actions';
-import { setLanguage } from '../../../store/translation/actions';
 import { getGeneralConfig, getThemeName } from '../../../store/selectors';
+import { setLanguage } from '../../../store/translation/actions';
 import { Theme, themeBreakPoints } from '../../../themes/commons';
 import { getThemeFromConfigDex } from '../../../themes/theme_meta_data_utils';
 import { isMobile } from '../../../util/screen';
@@ -24,6 +25,7 @@ import { withWindowWidth } from '../../common/hoc/withWindowWidth';
 import { LogoIcon } from '../../common/icons/logo_icon';
 import { MenuBurguer } from '../../common/icons/menu_burguer';
 import { WalletConnectionContentContainer } from '../account/wallet_connection_content';
+
 import LanguagesDropdown from './languages_dropdown';
 import { MarketsDropdownContainer } from './markets_dropdown';
 
@@ -151,7 +153,7 @@ const ToolbarContent = (props: Props) => {
     };
 
     const changeLanguage = (e: any) => {
-        const value = e.target.attributes['value'].value;
+        const value = e.target.attributes.value.value;
         props.onChangeLanguage(value);
     };
 

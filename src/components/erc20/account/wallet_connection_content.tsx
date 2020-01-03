@@ -1,8 +1,9 @@
 import React, { HTMLAttributes } from 'react';
 import CopyToClipboard from 'react-copy-to-clipboard';
+import { FormattedMessage } from 'react-intl';
 import { connect } from 'react-redux';
 import styled from 'styled-components';
-import { FormattedMessage } from 'react-intl';
+
 import { goToHomeLaunchpad, goToHomeMarginLend, logoutWallet } from '../../../store/actions';
 import { getEthAccount } from '../../../store/selectors';
 import { connectToExplorer, viewOnFabrx } from '../../../util/external_services';

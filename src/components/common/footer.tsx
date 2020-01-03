@@ -4,13 +4,7 @@ import styled from 'styled-components';
 
 import { Config } from '../../common/config';
 import { GIT_COMMIT } from '../../common/constants';
-import {
-    goToDexWizard,
-    goToListedTokens,
-    openFiatOnRampChooseModal,
-    setERC20Theme,
-    setThemeName,
-} from '../../store/actions';
+import { goToListedTokens, openFiatOnRampChooseModal, setERC20Theme, setThemeName } from '../../store/actions';
 import { getThemeName } from '../../store/selectors';
 import { themeBreakPoints, themeDimensions } from '../../themes/commons';
 import { getThemeFromConfigDex } from '../../themes/theme_meta_data_utils';

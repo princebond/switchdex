@@ -1,8 +1,9 @@
 import { BigNumber } from '0x.js';
 import React from 'react';
+import { FormattedMessage } from 'react-intl';
 import { connect } from 'react-redux';
 import styled from 'styled-components';
-import { FormattedMessage } from 'react-intl';
+
 import { IS_ORDER_LIMIT_MATCHING } from '../../../common/constants';
 import {
     initWallet,

@@ -1,5 +1,3 @@
-import { createAction } from 'typesafe-actions';
-
 // export const setLanguage = createAction('translation/SET_LANGUAGE', resolve => {
 //     return (language: any) => resolve(language);
 // });

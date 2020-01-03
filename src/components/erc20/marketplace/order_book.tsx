@@ -1,8 +1,9 @@
 import { BigNumber } from '0x.js';
 import React from 'react';
+import { FormattedMessage } from 'react-intl';
 import { connect } from 'react-redux';
 import styled, { withTheme } from 'styled-components';
-import { FormattedMessage } from 'react-intl';
+
 import { UI_DECIMALS_DISPLAYED_PRICE_ETH, UI_DECIMALS_DISPLAYED_SPREAD_PERCENT } from '../../../common/constants';
 import {
     getBaseToken,
