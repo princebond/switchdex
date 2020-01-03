@@ -61,6 +61,7 @@ import {
     getCurrencyPair,
     getEthAccount,
     getEthBalance,
+    getFeeRecipient,
     getGasPriceInWei,
     getMakerAddresses,
     getOpenBuyOrders,
@@ -68,7 +69,6 @@ import {
     getQuoteToken,
     getWeb3State,
     getWethTokenBalance,
-    getFeeRecipient,
 } from '../selectors';
 import { addFills, addMarketFills, addNotifications, setFills, setMarketFills } from '../ui/actions';
 

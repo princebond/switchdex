@@ -327,7 +327,7 @@ export const startWebsocketMarketsSubscription = (cb_onmessage: any): WebSocket 
         setTimeout(() => {
             relayerSocket = null;
             startWebsocketMarketsSubscription(cb_onmessage);
-        }, 1000);
+        }, 3000);
     };
 
     socket.onclose = event => {
@@ -335,7 +335,7 @@ export const startWebsocketMarketsSubscription = (cb_onmessage: any): WebSocket 
         setTimeout(() => {
             relayerSocket = null;
             startWebsocketMarketsSubscription(cb_onmessage);
-        }, 1000);
+        }, 3000);
     };
     socket.onmessage = event => {
         cb_onmessage(event);

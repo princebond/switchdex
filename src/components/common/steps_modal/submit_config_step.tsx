@@ -96,7 +96,6 @@ class SubmitConfigStep extends React.Component<Props, State> {
                 );
             }
         } catch (error) {
-            console.log(error);
             let errorException = error;
             if (error.message.toString().includes(SIGNATURE_ERR)) {
                 // User denied signature

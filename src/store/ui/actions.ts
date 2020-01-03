@@ -7,7 +7,7 @@ import { Web3Wrapper } from '@0x/web3-wrapper';
 import { createAction } from 'typesafe-actions';
 
 import { Config } from '../../common/config';
-import { CHAIN_ID, COLLECTIBLE_ADDRESS, ZERO, FEE_RECIPIENT, FEE_PERCENTAGE } from '../../common/constants';
+import { CHAIN_ID, COLLECTIBLE_ADDRESS, FEE_PERCENTAGE, FEE_RECIPIENT, ZERO } from '../../common/constants';
 import { getAvailableMarkets, updateAvailableMarkets } from '../../common/markets';
 import { InsufficientOrdersAmountException } from '../../exceptions/insufficient_orders_amount_exception';
 import { InsufficientTokenBalanceException } from '../../exceptions/insufficient_token_balance_exception';
@@ -60,8 +60,8 @@ import {
     TokenIEO,
 } from '../../util/types';
 import { setCurrencyPair } from '../market/actions';
+import { setFeePercentage, setFeeRecipient } from '../relayer/actions';
 import * as selectors from '../selectors';
-import { setFeeRecipient, setFeePercentage } from '../relayer/actions';
 
 export const setHasUnreadNotifications = createAction('ui/UNREAD_NOTIFICATIONS_set', resolve => {
     return (hasUnreadNotifications: boolean) => resolve(hasUnreadNotifications);
@@ -853,13 +853,12 @@ export const initConfigData: ThunkCreator = (queryString: string | undefined, do
             let feeRecipient = FEE_RECIPIENT;
             let feePercentage = FEE_PERCENTAGE;
             const general = Config.getConfig().general;
-            if(general){
+            if (general) {
                 feeRecipient = general.feeRecipient || FEE_RECIPIENT;
-                feePercentage = general.feePercentage || FEE_PERCENTAGE
+                feePercentage = general.feePercentage || FEE_PERCENTAGE;
             }
             dispatch(setFeeRecipient(feeRecipient));
             dispatch(setFeePercentage(feePercentage));
-      
         } catch (e) {
             return;
         }

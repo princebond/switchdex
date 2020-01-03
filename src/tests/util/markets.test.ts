@@ -1,5 +1,3 @@
-import { BigNumber } from '0x.js';
-
 import {
     filterMarketsByString,
     filterMarketsByTokenSymbol,
@@ -11,6 +9,7 @@ import {
     getTodayVolumeFromFills,
 } from '../../util/markets';
 import { createFill } from '../../util/test-utils';
+import { BigNumber } from '@0x/utils';
 
 const config = {
     basePrecision: 8,

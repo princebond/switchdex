@@ -1,9 +1,9 @@
-import { assetDataUtils, BigNumber } from '0x.js';
-
 import { getKnownTokens } from '../../util/known_tokens';
 import * as utilOrders from '../../util/orders';
 import { uiOrder } from '../../util/test-utils';
 import { OrderSide } from '../../util/types';
+import { assetDataUtils } from '@0x/order-utils';
+import { BigNumber } from '@0x/utils';
 
 describe('buildLimitMatchingOrders', () => {
     const ZrxToken = getKnownTokens().getTokenBySymbol('zrx');

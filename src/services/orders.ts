@@ -13,7 +13,7 @@ import { getWeb3Wrapper } from './web3_wrapper';
 
 const logger = getLogger('Services::Orders');
 
-const getAllOrders = async (baseToken: Token, quoteToken: Token, makerAddresses: string[] | null) => {
+export const getAllOrders = async (baseToken: Token, quoteToken: Token, makerAddresses: string[] | null) => {
     const relayer = getRelayer();
     const baseTokenAssetData = assetDataUtils.encodeERC20AssetData(baseToken.address);
     const quoteTokenAssetData = assetDataUtils.encodeERC20AssetData(quoteToken.address);

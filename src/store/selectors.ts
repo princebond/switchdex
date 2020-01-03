@@ -99,7 +99,6 @@ export const getMarketStats = (state: StoreState) => state.market.marketStats;
 export const getFeeRecipient = (state: StoreState) => state.relayer.feeRecipient;
 export const getFeePercentage = (state: StoreState) => state.relayer.feePercentage;
 
-
 export const getCurrentMarketPlace = createSelector(getCurrentRoutePath, (currentRoute: string) => {
     if (currentRoute.includes(ERC20_APP_BASE_PATH)) {
         return MARKETPLACES.ERC20;
