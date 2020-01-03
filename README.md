@@ -73,7 +73,7 @@ This is a detailed list of planned features to add to this DEX (includes VeriDex
 -   [x] Theme switcher
 -   [x] Dex Wizard
 -   [ ] Upgrade 0x v3
--   [ ] [i18n](https://github.com/i18next/react-i18next)
+-   [ ] [i18n](https://github.com/i18next/react-i18next) (In progress)
 -   [x] Add [tour](https://github.com/elrumordelaluz/reactour)
 -   [ ] Add crypto price calculator
 -   [ ] Add Swap interface

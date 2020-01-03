@@ -331,7 +331,7 @@ export interface UIOrder {
     size: BigNumber;
     filled: BigNumber | null;
     price: BigNumber;
-    status: OrderStatus | null;
+    status: OrderStatus | Element | null;
     makerFillableAmountInTakerAsset: BigNumber;
     remainingTakerAssetFillAmount: BigNumber;
 }

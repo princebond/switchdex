@@ -1,7 +1,7 @@
 import React, { HTMLAttributes } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import styled from 'styled-components';
-
+import { FormattedMessage } from 'react-intl';
 import { Config } from '../../common/config';
 import { GIT_COMMIT } from '../../common/constants';
 import { goToListedTokens, openFiatOnRampChooseModal, setERC20Theme, setThemeName } from '../../store/actions';
@@ -175,7 +175,7 @@ export const Footer: React.FC<Props> = props => {
         <FooterWrapper title={GIT_COMMIT} {...props}>
             <LinksContainer>
                 <HrefStyled href={`/listed-tokens`} onClick={handleListTokensClick}>
-                    Tokens
+                    <FormattedMessage id="footer.tokens" defaultMessage="Tokens" description="Tokens" />
                 </HrefStyled>
                 <HrefStyled
                     href="https://www.verisafe.io/terms-and-conditions"
@@ -183,7 +183,11 @@ export const Footer: React.FC<Props> = props => {
                     rel="noopener noreferrer"
                     className="link"
                 >
-                    Terms and Conditions
+                    <FormattedMessage
+                        id="footer.terms-conditions"
+                        defaultMessage="Terms and Conditions"
+                        description="Terms and Conditions"
+                    />
                 </HrefStyled>
                 <HrefStyled href="https://0x.org/" target="_blank" rel="noopener noreferrer">
                     {poweredBySVG()}
@@ -191,17 +195,21 @@ export const Footer: React.FC<Props> = props => {
                 <br className="break" />
 
                 <HrefStyled href="https://www.verisafe.io/privacy-policy" target="_blank" rel="noopener noreferrer">
-                    Privay Policy
+                    <FormattedMessage
+                        id="footer.privacy-policy"
+                        defaultMessage="Privay Policy"
+                        description="Privay Policy"
+                    />
                 </HrefStyled>
                 <HrefStyled
                     href="https://steemit.com/veridex/@joaocampos/tutorial-to-use-veridex-at-dex-verisafe-io-https-dex-verisafe-io"
                     target="_blank"
                     rel="noopener noreferrer"
                 >
-                    Tutorial
+                    <FormattedMessage id="footer.tutorial" defaultMessage="Tutorial" description="Tutorial" />
                 </HrefStyled>
                 <HrefStyled href="https://my.verisafe.io/help-support/" target="_blank" rel="noopener noreferrer">
-                    Listings
+                    <FormattedMessage id="footer.listings" defaultMessage="Listings" description="Listings" />
                 </HrefStyled>
             </LinksContainer>
             <LinksContainer>
@@ -212,7 +220,7 @@ export const Footer: React.FC<Props> = props => {
                     {themeName === 'DARK_THEME' ? '☼' : '🌑'}
                 </StyledButton>
                 <StyledButton onClick={handleFiatChooseModal} className={'buy-eth-footer'}>
-                    Buy ETH
+                    <FormattedMessage id="footer.buy-eth" defaultMessage="Buy ETH" description="Buy ETH" />
                 </StyledButton>
             </LinksContainer>
             {socialButtons && <SocialsContainer>{socialButtons()}</SocialsContainer>}
