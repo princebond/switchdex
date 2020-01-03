@@ -132,7 +132,7 @@ const MagnifierIconWrapper = styled.div`
 `;
 
 const TableWrapper = styled.div`
-    max-height: 420px;
+    max-height: 520px;
     overflow: auto;
     position: relative;
 `;

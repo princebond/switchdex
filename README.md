@@ -26,6 +26,7 @@ List of deployed dex's using this source code:
 
 -   [VeriDex](https://dex.verisafe.io)
 -   [0xChange](https://0xchange.verisafe.io)
+-   [Belifex](https://dex-belifex.com)
 
 If you are using the source code of this fork, please let me know! Help the project adding VSF as a pair on your fork!
 
@@ -133,7 +134,7 @@ This is a detailed list of planned features to add to this DEX (includes VeriDex
 -   [ ] Report data to the most known crypto data aggregators (In progress)
 -   [x] Theme switcher
 -   [x] Dex Wizard
--   [ ] Upgrade 0x v3
+-   [x] Upgrade 0x v3
 -   [ ] [i18n](https://github.com/i18next/react-i18next)
 -   [x] Add [tour](https://github.com/elrumordelaluz/reactour)
 -   [ ] Add crypto price calculator
@@ -156,7 +157,7 @@ This is a detailed list of planned features to add to this DEX (includes VeriDex
 
 ```
 
-REACT_APP_RELAYER_URL='https://veridex.herokuapp.com/v2' yarn start
+REACT_APP_RELAYER_URL='https://dex-backend.verisafe.io/v3' yarn start
 
 ```
 

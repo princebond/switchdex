@@ -101,8 +101,8 @@ export class Relayer {
         }
 
         if (bids.length) {
-            const lowestPriceBid = bids[0];
-            const { makerAssetAmount, takerAssetAmount } = lowestPriceBid;
+            const highestPriceBid = bids[bids.length - 1];
+            const { makerAssetAmount, takerAssetAmount } = highestPriceBid;
             const takerAssetAmountInUnits = tokenAmountInUnitsToBigNumber(takerAssetAmount, baseToken.decimals);
             const makerAssetAmountInUnits = tokenAmountInUnitsToBigNumber(makerAssetAmount, quoteToken.decimals);
             marketData.bestBid = makerAssetAmountInUnits.div(takerAssetAmountInUnits);

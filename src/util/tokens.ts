@@ -28,6 +28,10 @@ export const formatTokenSymbol = (symbol: string): string => {
     return isWeth(symbol.toLowerCase()) ? 'ETH' : symbol.toUpperCase();
 };
 
+export const formatTokenName = (name: string): string => {
+    return (name = 'Wrapped Ether' ? 'Ethereum' : name);
+};
+
 export const getEtherscanLinkForToken = (token: Token): string => {
     return `${ETHERSCAN_URL[NETWORK_ID]}token/${token.address}`;
 };

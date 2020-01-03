@@ -159,7 +159,7 @@ export const ZeroXInstantComponent = (props: Props) => {
                         assetProxyId: zeroExInstant.ERC20_PROXY_ID,
                         decimals,
                         symbol,
-                        name: name,
+                        name,
                     },
                 };
                 orderSource = RELAYER_URL;
