@@ -92,5 +92,21 @@
     "wizard-form.vsf-eth": "VSF and Eth pairs are added automatically when you add Tokens. Here you can change the order how the pairs appears on the DEX",
     "wizard-form.the-market": "The market quotes supported by the DEX. Now it is locked at ETH and VSF",
     "wizard-form.submit": "Submit",
-    "wizard-form.create": "Create your DEX with few steps."
+    "wizard-form.create": "Create your DEX with few steps.",
+
+    "joyride-steps.step-1": "Markets Lists: Lists all markets listed in this dex",
+    "joyride-steps.step-2": "Market Stats: Show all market details related to the selected pair and respective graphic",
+    "joyride-steps.step-3": "Wallet Balances: Shows your balances of current active pair",
+    "joyride-steps.step-4": "Buy or sell the current active pair with limit and market options. Market buy/sell will buy directly from orders on orderbook, market limit buy/sell will buy or sell at the fixed price, if no order with that value it will place a order.",
+    "joyride-steps.step-5": "OrderBook: Shows bid and asks for active current pair",
+    "joyride-steps.step-6": "My Current Orders: Shows your open orders for active current pair. You can check filled balance and cancel orders here.",
+    "joyride-steps.step-7": "Market History: Shows most recent market fills for the current active pair.",
+    "joyride-steps.step-8": "0x Mesh Trades: Shows all recent trades on 0x network for the listed pairs on this dex.",
+    "market-place-steps.step-1": "Choose a theme between Light or Dark",
+    "market-place-steps.step-2": "Buy ETH with Apple Pay, Credit or Debit Cards using our integrated fiat on ramps from our parterns: Wyre and Coindirect",
+    "market-place-steps.step-3": "Navigate to your Wallet. Here you can check all token balances, transfer tokens and buy tokens instantly",
+    "market-place-steps.step-4": "Check the navigation menu. Here you can copy to clipboard, set alerts, check your etherscan wallet, go to launchpad or lend tokens at lending page",
+    "market-place-steps.step-5": "Check all markets clicking on this dropdown",
+    "market-place-steps.step-6": "Check all related blockchain notifications here from market buy, market sell and token transfers.",
+    "no-login-wallet.step-1": "Connect Wallet to start use the platform clicking here"
 }

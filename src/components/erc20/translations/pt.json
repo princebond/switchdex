@@ -95,5 +95,20 @@
     "wizard-form.vsf-eth": "Os pares VSF e Eth serao adicionados automaticamente quando adicionar os tokens. Aqui, voce pode mudar a ordem de como os pares surgirao na DEX",
     "wizard-form.the-market": "As quotas de  mercado suportadas pela Dex. Agora esta bloqueada em ETH e VSF",
     "wizard-form.submit": "Submeter",
-    "wizard-form.create": "Crie a sua DEX em alguns peuqenos passos."
+    "wizard-form.create": "Crie a sua DEX em alguns peuqenos passos.",
+    "joyride-steps.step-1": "Listas de Mercados: Liste todos os mercados listados nesta dex",
+    "joyride-steps.step-2": "Stats de Mercado: Mostrar todos os detalhes relacionados com o par selecionado e com o respetivo grafico",
+    "joyride-steps.step-3": "Balanco de Carteira: Mostra o seu balanco do par atual",
+    "joyride-steps.step-4": "Comprar ou Vender o par ativo atual com opcao de limite e mercados. Mercado compra/venda compra diretamente sobre ordens do orderbook, mercado limite compra/venda vai comprar ou vender por um valor fixo, se nenhuma ordem com esse valor uma ordem sera criada.",
+    "joyride-steps.step-5": "OrderBook: Mostra licitacoes and perguntas por pares ativos",
+    "joyride-steps.step-6": "Minhas Ordens Correntes: Mostra as suas ordens abertas para o par ativo corrente. Voce pode verificar balancos preenchidos e cancelar ordens aqui.",
+    "joyride-steps.step-7": "Historico de Mercado: Mostra os mais recentes preenchimentos de mercado para o par ativo corrente.",
+    "joyride-steps.step-8": "0x Mesh Trades: Mostra todos os trades recentes na Rede 0x para os pares listados nesta dex.",
+    "market-place-steps.step-1": "Escolha entre o tema Light(Claro) ou Dark(Escuro)",
+    "market-place-steps.step-2": "Compre ETH com Apple Pay, Cartao de Credito ou de Debito usando a nossa integracao fiat on ramp dos nossos parceiros: Wyre and Coindirect",
+    "market-place-steps.step-3": "Navegue para a sua Carteira. Aqui consegue verificar todos os balancos de tokens, transferir e comprar tokens instantaneamente",
+    "market-place-steps.step-4": "Verifique a navegacao de menu. Aqui consegue copiar para o clipboard, definir alertas, verificar a sua carteira etherscan, ir para o launchpad ou emprestar tokens na pagina de emprestimos",
+    "market-place-steps.step-5": "Verifique todos os mercados clickando nesta dropdown",
+    "market-place-steps.step-6": "Verifique todas as notificacoes relacionadas com a blockchain aqui, desde compras, vendas e transferencias.",
+    "no-login-wallet.step-1": "Conecte a sua Carteira para comecar a usar a nossa plataforma clickando aqui"
 }
