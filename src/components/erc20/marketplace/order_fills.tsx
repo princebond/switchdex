@@ -1,8 +1,9 @@
 import React from 'react';
+import { FormattedMessage } from 'react-intl';
 import { connect } from 'react-redux';
 import TimeAgo from 'react-timeago';
 import styled from 'styled-components';
-import { FormattedMessage } from 'react-intl';
+
 import { USE_RELAYER_MARKET_UPDATES } from '../../../common/constants';
 import { changeMarket, goToHome } from '../../../store/actions';
 import { getBaseToken, getFills, getQuoteToken, getWeb3State } from '../../../store/selectors';

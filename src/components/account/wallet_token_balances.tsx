@@ -1,8 +1,9 @@
 import { BigNumber } from '@0x/utils';
 import React from 'react';
+import { FormattedMessage } from 'react-intl';
 import { connect } from 'react-redux';
 import styled, { withTheme } from 'styled-components';
-import { FormattedMessage } from 'react-intl';
+
 import { NETWORK_ID, RELAYER_URL } from '../../common/constants';
 import { openFiatOnRampChooseModal, startToggleTokenLockSteps, startTranferTokenSteps } from '../../store/actions';
 import {

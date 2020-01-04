@@ -1,7 +1,8 @@
 import React, { HTMLAttributes } from 'react';
+import { FormattedMessage } from 'react-intl';
 import { useDispatch, useSelector } from 'react-redux';
 import styled from 'styled-components';
-import { FormattedMessage } from 'react-intl';
+
 import { Config } from '../../common/config';
 import { GIT_COMMIT } from '../../common/constants';
 import { goToListedTokens, openFiatOnRampChooseModal, setERC20Theme, setThemeName } from '../../store/actions';

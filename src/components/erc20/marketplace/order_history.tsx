@@ -1,8 +1,9 @@
 import { OrderStatus } from '@0x/types';
 import React from 'react';
+import { FormattedMessage } from 'react-intl';
 import { connect } from 'react-redux';
 import styled from 'styled-components';
-import { FormattedMessage } from 'react-intl';
+
 import { getBaseToken, getQuoteToken, getUserOrders, getWeb3State } from '../../../store/selectors';
 import { themeBreakPoints } from '../../../themes/commons';
 import { getCurrencyPairFromTokens } from '../../../util/known_currency_pairs';

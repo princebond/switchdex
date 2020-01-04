@@ -1,10 +1,11 @@
 import arrayMutators from 'final-form-arrays';
 import React, { useState } from 'react';
 import { Form } from 'react-final-form';
+import { FormattedMessage } from 'react-intl';
 import Joyride, { ACTIONS, CallBackProps, EVENTS, STATUS, Step } from 'react-joyride';
 import { useDispatch, useSelector } from 'react-redux';
 import styled, { withTheme } from 'styled-components';
-import { FormattedMessage } from 'react-intl';
+
 import { ConfigTemplate } from '../../../common/config';
 import { startDexConfigSteps } from '../../../store/actions';
 import { getConfigData, getERC20Theme, getThemeName } from '../../../store/selectors';
