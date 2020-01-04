@@ -1,5 +1,6 @@
-import { BigNumber, OrderStatus } from '0x.js';
 import { SignedOrder } from '@0x/connect';
+import { OrderStatus } from '@0x/types';
+import { BigNumber } from '@0x/utils';
 import { RouterState } from 'connected-react-router';
 import { ActionCreator, AnyAction } from 'redux';
 import { ThunkAction } from 'redux-thunk';
@@ -90,6 +91,12 @@ export interface TokenBalance {
     token: Token;
 }
 
+export interface OrderFeeData {
+    makerFee: BigNumber;
+    takerFee: BigNumber;
+    makerFeeAssetData: string;
+    takerFeeAssetData: string;
+}
 export interface TokenBalanceIEO {
     balance: BigNumber;
     isUnlocked: boolean;
@@ -144,6 +151,8 @@ export interface RelayerState {
     readonly userIEOOrders?: UIOrder[];
     readonly ieoOrders?: SignedOrder[];
     readonly accountMarketStats?: AccountMarketStat[];
+    readonly feeRecipient?: string;
+    readonly feePercentage?: number;
 }
 
 export interface UIState {
@@ -180,6 +189,7 @@ export interface MarketState {
     readonly markets: Market[] | null;
     readonly tokensPrice: TokenPrice[] | null;
     readonly marketStats: RelayerMarketStats | null;
+    readonly makerAddresses: string[] | null;
 }
 
 export interface StoreState {
@@ -332,8 +342,6 @@ export interface UIOrder {
     filled: BigNumber | null;
     price: BigNumber;
     status: OrderStatus | Element | null;
-    makerFillableAmountInTakerAsset: BigNumber;
-    remainingTakerAssetFillAmount: BigNumber;
 }
 
 export interface OrderBookItem {
@@ -664,6 +672,7 @@ export interface GeneralConfig {
     icon?: string;
     domain?: string;
     feeRecipient?: string;
+    feePercentage?: number;
     social?: {
         facebook_url?: string;
         reddit_url?: string;

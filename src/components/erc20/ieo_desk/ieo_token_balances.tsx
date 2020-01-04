@@ -1,4 +1,5 @@
-import { assetDataUtils, BigNumber, SignedOrder } from '0x.js';
+import { assetDataUtils, SignedOrder } from '@0x/order-utils';
+import { BigNumber } from '@0x/utils';
 import React, { useEffect, useState } from 'react';
 import { connect } from 'react-redux';
 import styled, { withTheme } from 'styled-components';

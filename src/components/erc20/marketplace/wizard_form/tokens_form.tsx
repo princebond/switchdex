@@ -108,9 +108,9 @@ const TokenForm = ({ name, index }: { name: string; index: number }) => {
                     setIsLoadingData(true);
                     try {
                         const contract = await getERC20ContractWrapper(value.toLowerCase(), {});
-                        const tokenName = await contract.name.callAsync();
-                        const symbol = (await contract.symbol.callAsync()).toLowerCase();
-                        const decimals = await contract.decimals.callAsync();
+                        const tokenName = await contract.name().callAsync();
+                        const symbol = (await contract.symbol().callAsync()).toLowerCase();
+                        const decimals = await contract.decimals().callAsync();
                         if (tokenName) {
                             try {
                                 const tokenData = await getTokenByAddress(value.toLowerCase());

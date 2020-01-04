@@ -1,4 +1,5 @@
-import { BigNumber, OrderStatus } from '0x.js';
+import { OrderStatus } from '@0x/types';
+import { BigNumber } from '@0x/utils';
 import { createSelector } from 'reselect';
 
 import {
@@ -9,6 +10,7 @@ import {
     LAUNCHPAD_APP_BASE_PATH,
     MARGIN_APP_BASE_PATH,
     USE_RELAYER_MARKET_UPDATES,
+    ZERO,
 } from '../common/constants';
 import { isWeth } from '../util/known_tokens';
 import {
@@ -47,7 +49,7 @@ export const getEthBalance = (state: StoreState) => state.blockchain.ethBalance;
 export const getWethTokenBalance = (state: StoreState) => state.blockchain.wethTokenBalance;
 export const getConvertBalanceState = (state: StoreState) => state.blockchain.convertBalanceState;
 export const getWethBalance = (state: StoreState) =>
-    state.blockchain.wethTokenBalance ? state.blockchain.wethTokenBalance.balance : new BigNumber(0);
+    state.blockchain.wethTokenBalance ? state.blockchain.wethTokenBalance.balance : ZERO;
 export const getOrders = (state: StoreState) => state.relayer.orders;
 export const getUserOrders = (state: StoreState) => state.relayer.userOrders;
 export const getOrderPriceSelected = (state: StoreState) => state.ui.orderPriceSelected;
@@ -64,6 +66,7 @@ export const getSideBarOpenState = (state: StoreState) => state.ui.sidebarOpen;
 export const getOpenFiatOnRampModalState = (state: StoreState) => state.ui.openFiatOnRampModal;
 export const getOpenFiatOnRampChooseModalState = (state: StoreState) => state.ui.openFiatOnRampChooseModal;
 export const getCurrencyPair = (state: StoreState) => state.market.currencyPair;
+export const getMakerAddresses = (state: StoreState) => state.market.makerAddresses;
 export const getBaseToken = (state: StoreState) => state.market.baseToken;
 export const getQuoteToken = (state: StoreState) => state.market.quoteToken;
 export const getMarkets = (state: StoreState) => state.market.markets;
@@ -93,6 +96,8 @@ export const getFiatType = (state: StoreState) => state.ui.fiatType;
 export const getERC20Layout = (state: StoreState) => state.ui.erc20Layout;
 export const getDynamicLayout = (state: StoreState) => state.ui.isDynamicLayout;
 export const getMarketStats = (state: StoreState) => state.market.marketStats;
+export const getFeeRecipient = (state: StoreState) => state.relayer.feeRecipient;
+export const getFeePercentage = (state: StoreState) => state.relayer.feePercentage;
 
 export const getCurrentMarketPlace = createSelector(getCurrentRoutePath, (currentRoute: string) => {
     if (currentRoute.includes(ERC20_APP_BASE_PATH)) {
@@ -247,7 +252,7 @@ export const getMySizeOrders = createSelector(getUserOrders, userOrders => {
 
 export const getSpread = createSelector(getOpenBuyOrders, getOpenSellOrders, (buyOrders, sellOrders) => {
     if (!buyOrders.length || !sellOrders.length) {
-        return new BigNumber(0);
+        return ZERO;
     }
 
     const lowestPriceSell = sellOrders[sellOrders.length - 1].price;
@@ -258,7 +263,7 @@ export const getSpread = createSelector(getOpenBuyOrders, getOpenSellOrders, (bu
 
 export const getSpreadInPercentage = createSelector(getSpread, getOpenSellOrders, (absSpread, sellOrders) => {
     if (!sellOrders.length) {
-        return new BigNumber(0);
+        return ZERO;
     }
 
     const lowestPriceSell = sellOrders[sellOrders.length - 1].price;

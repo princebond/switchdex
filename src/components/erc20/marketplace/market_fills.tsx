@@ -186,9 +186,7 @@ class MarketFills extends React.Component<Props> {
                     break;
                 }
                 default:
-                    {
-                        defaultBehaviour();
-                    }
+                    defaultBehaviour();
                     break;
             }
         }
