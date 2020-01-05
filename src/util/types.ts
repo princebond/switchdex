@@ -174,6 +174,7 @@ export interface UIState {
     readonly themeName: string;
     readonly generalConfig?: GeneralConfig;
     readonly configData?: ConfigData | null;
+    readonly language: Language;
 }
 
 export interface Language {

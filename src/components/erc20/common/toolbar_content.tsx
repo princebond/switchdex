@@ -16,7 +16,7 @@ import {
     setThemeName,
 } from '../../../store/actions';
 import { getGeneralConfig, getThemeName } from '../../../store/selectors';
-import { setLanguage } from '../../../store/translation/actions';
+import { setLanguage } from '../../../store/ui/actions';
 import { Theme, themeBreakPoints } from '../../../themes/commons';
 import { getThemeFromConfigDex } from '../../../themes/theme_meta_data_utils';
 import { isMobile } from '../../../util/screen';
@@ -32,7 +32,7 @@ import { MarketsDropdownContainer } from './markets_dropdown';
 interface DispatchProps {
     onGoToHome: () => any;
     onGoToWallet: () => any;
-    onChangeLanguage: (value: String) => any;
+    onChangeLanguage: (value: string) => any;
 }
 
 interface OwnProps {
@@ -188,7 +188,7 @@ const ToolbarContent = (props: Props) => {
 
 const mapStateToProps = (state: any) => {
     return {
-        language: state.translation.language,
+        language: state.ui.language.language,
     };
 };
 
@@ -196,7 +196,7 @@ const mapDispatchToProps = (dispatch: any): DispatchProps => {
     return {
         onGoToHome: () => dispatch(goToHome()),
         onGoToWallet: () => dispatch(goToWallet()),
-        onChangeLanguage: value => dispatch(setLanguage(value)),
+        onChangeLanguage: value => dispatch(setLanguage({ language: value })),
     };
 };
 

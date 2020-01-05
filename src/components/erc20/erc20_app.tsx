@@ -59,7 +59,7 @@ const Erc20App = (props: any) => {
 
 const mapStateToProps = (state: any) => {
     return {
-        language: state.translation.language,
+        language: state.ui.language,
     };
 };
 
