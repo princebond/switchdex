@@ -9,6 +9,7 @@ import { TokenMetaData } from '../common/tokens_meta_data';
 import { TokenIEOMetaData } from '../common/tokens_meta_data_ieo';
 import { ExtraArgument } from '../store/index';
 import { Theme, ThemeModalStyle, ThemeProperties } from '../themes/commons';
+import { MessageFormatElement } from 'intl-messageformat-parser';
 
 export interface TabItem {
     active: boolean;
@@ -201,7 +202,6 @@ export interface StoreState {
     readonly market: MarketState;
     readonly collectibles: CollectiblesState;
     readonly bzx: BZXState;
-    readonly language: Language;
 }
 
 export enum StepKind {

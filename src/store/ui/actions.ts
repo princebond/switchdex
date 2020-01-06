@@ -869,7 +869,6 @@ export const initConfigData: ThunkCreator = (queryString: string | undefined, do
 
 export const setLanguage = createAction('ui/SET_LANGUAGE', resolve => {
     return (language: Language) => {
-        debugger;
         return resolve(language);
     };
 });
