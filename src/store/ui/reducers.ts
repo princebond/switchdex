@@ -13,7 +13,6 @@ const initialStepsModalState: StepsModalState = {
     currentStep: null,
     pendingSteps: [],
 };
-
 const initialLayouts = {
     lg: [
         { i: 'a', x: 0, y: 0, w: 4, h: 4 },
@@ -29,7 +28,6 @@ const initialLayouts = {
 };
 
 const localStorage = new LocalStorage(window.localStorage);
-
 const initialUIState: UIState = {
     notifications: [],
     fills: [],

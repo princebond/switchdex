@@ -9,12 +9,11 @@ import { TokenMetaData } from '../common/tokens_meta_data';
 import { TokenIEOMetaData } from '../common/tokens_meta_data_ieo';
 import { ExtraArgument } from '../store/index';
 import { Theme, ThemeModalStyle, ThemeProperties } from '../themes/commons';
-import { MessageFormatElement } from 'intl-messageformat-parser';
 
 export interface TabItem {
     active: boolean;
     onClick: any;
-    text: any;
+    text: string | Element;
 }
 
 export type Maybe<T> = T | undefined;
