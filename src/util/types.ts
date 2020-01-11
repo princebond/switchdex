@@ -13,7 +13,7 @@ import { Theme, ThemeModalStyle, ThemeProperties } from '../themes/commons';
 export interface TabItem {
     active: boolean;
     onClick: any;
-    text: string | Element;
+    text: any;
 }
 
 export type Maybe<T> = T | undefined;
@@ -167,7 +167,7 @@ export interface UIState {
     readonly sidebarOpen: boolean;
     readonly openFiatOnRampModal: boolean;
     readonly openFiatOnRampChooseModal: boolean;
-    readonly fiatType: 'APPLE_PAY' | 'CREDIT_CARD';
+    readonly fiatType: 'APPLE_PAY' | 'CREDIT_CARD' | 'DEBIT_CARD';
     readonly erc20Theme: Theme;
     readonly erc20Layout: string;
     readonly isDynamicLayout: boolean;

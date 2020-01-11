@@ -210,7 +210,7 @@ class MarketsList extends React.Component<Props, State> {
     };
 
     public render = () => {
-        const { baseToken, quoteToken, web3State } = this.props;
+        const { baseToken, quoteToken, web3State, markets } = this.props;
         let content: React.ReactNode;
         const defaultBehaviour = () => {
             if (web3State !== Web3State.Error && (!baseToken || !quoteToken)) {

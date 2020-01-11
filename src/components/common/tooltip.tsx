@@ -11,7 +11,7 @@ export enum IconType {
 }
 
 interface Props extends HTMLAttributes<HTMLDivElement> {
-    description?: string | Element;
+    description?: any;
     iconType?: IconType;
 }
 

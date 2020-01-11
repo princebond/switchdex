@@ -6,7 +6,7 @@ interface EmptyWrapperProps {
 }
 
 interface Props extends HTMLAttributes<HTMLDivElement>, EmptyWrapperProps {
-    text: string | Element;
+    text: any;
 }
 
 const EmptyContentWrapper = styled.div<EmptyWrapperProps>`

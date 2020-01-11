@@ -6,7 +6,7 @@ import { themeDimensions } from '../../themes/commons';
 interface Props extends HTMLAttributes<HTMLDivElement> {
     active?: boolean;
     onClick?: any;
-    text: string | Element;
+    text: any;
 }
 
 export const DropdownTextItemWrapper = styled.div<{ active?: boolean }>`
