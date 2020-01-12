@@ -30,6 +30,8 @@ const LanguagesDropdown = props => {
         switch (language) {
             case 'pt':
                 return 'Português';
+            case 'es':
+                return 'Espanol';
             case 'en':
             default:
                 return 'English';
@@ -39,6 +41,7 @@ const LanguagesDropdown = props => {
     const body = (
         <DropdownItems>
             <DropdownTextItem onClick={onClick} text="English" value="en" />
+            <DropdownTextItem onClick={onClick} text="Espanol" value="es" />
             <DropdownTextItem onClick={onClick} text="Português" value="pt" />
         </DropdownItems>
     );

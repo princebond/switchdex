@@ -12,6 +12,7 @@ import { PageLoading } from '../common/page_loading';
 import ToolbarContentContainer from './common/toolbar_content';
 import messages_en from './translations/en.json';
 import messages_pt from './translations/pt.json';
+import messages_es from './translations/es.json';
 const toolbar = <ToolbarContentContainer />;
 
 const TokensListPage = lazy(() => import('./pages/tokens_list'));
@@ -23,6 +24,7 @@ const WizardPage = lazy(() => import('./pages/wizard'));
 const messages: any = {
     pt: messages_pt,
     en: messages_en,
+    es: messages_es,
 };
 
 const Erc20App = (props: any) => {
