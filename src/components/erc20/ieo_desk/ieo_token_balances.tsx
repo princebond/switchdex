@@ -1,6 +1,6 @@
 import { assetDataUtils, SignedOrder } from '@0x/order-utils';
 import { BigNumber } from '@0x/utils';
-import React, { useEffect, useState } from 'react';
+import React, { useEffect } from 'react';
 import { connect } from 'react-redux';
 import styled, { withTheme } from 'styled-components';
 
@@ -184,11 +184,11 @@ const tokensPartialTable = (
     props: Props,
     isMobileView: boolean,
 ) => {
-    const isProject = (tb: TokenBalance) => {
+    const isProject = (tb: TokenIEO) => {
         if (!tokenName) {
             return true;
         } else {
-            return tb.token.name.toLowerCase() === tokenName.toLowerCase();
+            return tb.name.toLowerCase() === tokenName.toLowerCase();
         }
     };
     const { orders, wallet, ethAccount, web3State } = props;
@@ -197,7 +197,8 @@ const tokensPartialTable = (
         tokens &&
         tokens
             .filter(tb => tb.symbol !== 'weth')
-            .map((token, index) => {
+            .filter(isProject)
+            .map((token, _index) => {
                 const tokenBalance = tokenBalances && tokenBalances.find(t => t.token === token);
                 let balance;
                 let formattedBalance;
@@ -376,17 +377,17 @@ const tokensPartialTable = (
 };
 
 const IEOTokenBalances = (props: Props) => {
-    const [isModalOpen, setIsModalOpen] = useState(false);
+    /*const [isModalOpen, setIsModalOpen] = useState(false);
     const [isEth, setIsEth] = useState(false);
     const [isSubmitting, setIsSubmitting] = useState(false);
-    const [tokenBalanceSelected, setTokenBalanceSelected] = useState();
+    const [tokenBalanceSelected, setTokenBalanceSelected] = useState();*/
     let content: React.ReactNode;
     const {
-        ethBalance,
-        tokenBalances,
+        /*ethBalance,
         web3State,
         wethTokenBalance,
-        theme,
+        theme,*/
+        tokenBalances,
         ethAccount,
         onFetchLaunchpad,
         windowWidth,
@@ -394,7 +395,7 @@ const IEOTokenBalances = (props: Props) => {
 
     const knownTokens = getKnownTokensIEO();
     const tokensIEO = knownTokens.getTokens();
-    const wethToken = null;
+    //const wethToken = null;
 
     /* if (!wethTokenBalance) {
         content = <EmptyContent alignAbsoluteCenter={true} text="There are no orders to show" />;

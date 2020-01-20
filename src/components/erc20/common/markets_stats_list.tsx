@@ -340,13 +340,13 @@ class MarketsStatsList extends React.Component<Props, State> {
                         const marketStats =
                             marketsStats &&
                             marketsStats.find(m => m.pair.toUpperCase() === marketToString(market.currencyPair));
-                        const color = marketStats
+                        /*const color = marketStats
                             ? marketStats.last_price_change > 0
                                 ? 'green'
                                 : marketStats.last_price_change >= 0
                                 ? ''
                                 : 'red'
-                            : '';
+                            : '';*/
                         return (
                             <TRStyled active={isActive} key={index} onClick={setSelectedMarket}>
                                 <CustomTDFirstStyled styles={{ textAlign: 'left', borderBottom: true }}>
@@ -392,13 +392,13 @@ class MarketsStatsList extends React.Component<Props, State> {
 
         return '-';
     };
-    private readonly _getPriceChange: any = (marketStat: RelayerMarketStats) => {
+    /*private readonly _getPriceChange: any = (marketStat: RelayerMarketStats) => {
         if (marketStat && marketStat.last_price_change) {
             return `${new BigNumber(marketStat.last_price_change).toFixed(2)} %`;
         }
 
         return '-';
-    };
+    };*/
     private readonly _getVolume: any = (marketStat: RelayerMarketStats) => {
         if (marketStat && marketStat.quote_volume_24) {
             return new BigNumber(marketStat.quote_volume_24).toFixed(2);
