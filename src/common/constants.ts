@@ -3,6 +3,7 @@ import { BigNumber } from '@0x/utils';
 import { Network, ProviderType } from '../util/types';
 
 export const ERC20_APP_BASE_PATH = '/erc20';
+export const MARKET_APP_BASE_PATH = '/market-trade';
 export const LAUNCHPAD_APP_BASE_PATH = '/launchpad';
 export const MARGIN_APP_BASE_PATH = '/margin';
 export const INSTANT_APP_BASE_PATH = '/instant';
