@@ -100,8 +100,8 @@ export const getMarketStats = (state: StoreState) => state.market.marketStats;
 export const getMarketsStats = (state: StoreState) => state.market.marketsStats;
 export const getFeeRecipient = (state: StoreState) => state.relayer.feeRecipient;
 export const getFeePercentage = (state: StoreState) => state.relayer.feePercentage;
-export const getSwapTokenQuote = (state: StoreState) => state.swap.quoteToken;
-export const getSwapToken = (state: StoreState) => state.swap.baseToken;
+export const getSwapQuoteToken  = (state: StoreState) => state.swap.quoteToken;
+export const getSwapBaseToken = (state: StoreState) => state.swap.baseToken;
 export const getSwapQuote = (state: StoreState) => state.swap.quote;
 export const getSwapQuoteState = (state: StoreState) => state.swap.quoteState;
 
@@ -236,7 +236,7 @@ export const getQuoteTokenBalance = createSelector(
 export const getSwapBaseTokenBalance = createSelector(
     getTokenBalances,
     getWethTokenBalance,
-    getSwapToken,
+    getSwapBaseToken,
     (tokenBalances: TokenBalance[], wethTokenBalance: TokenBalance | null, baseToken: Token | null) =>
         searchToken({ tokenBalances, wethTokenBalance, tokenToFind: baseToken }),
 );
@@ -244,7 +244,7 @@ export const getSwapBaseTokenBalance = createSelector(
 export const getSwapQuoteTokenBalance = createSelector(
     getTokenBalances,
     getWethTokenBalance,
-    getSwapTokenQuote,
+    getSwapQuoteToken,
     (tokenBalances: TokenBalance[], wethTokenBalance: TokenBalance | null, quoteToken: Token | null) =>
         searchToken({ tokenBalances, wethTokenBalance, tokenToFind: quoteToken }),
 );

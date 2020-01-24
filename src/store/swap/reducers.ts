@@ -7,7 +7,7 @@ import { getType } from "typesafe-actions";
 const know_tokens = getKnownTokens();
 
 const initialSwapState: SwapState = {
-    baseToken: know_tokens.getTokens()[6],
+    baseToken: know_tokens.getTokens()[0],
     quoteToken: know_tokens.getWethToken(),
     quote: undefined,
     quoteState: SwapQuoteState.NotLoaded,
@@ -19,6 +19,10 @@ export function swap(state: SwapState = initialSwapState, action: RootAction): S
             return { ...state, quote: action.payload };
         case getType(actions.setSwapQuoteState):
             return { ...state,  quoteState: action.payload };
+        case getType(actions.setSwapQuoteToken):
+            return { ...state,  quoteToken: action.payload };
+        case getType(actions.setSwapBaseToken):
+            return { ...state,  baseToken: action.payload };
         default:
             return state;
     }

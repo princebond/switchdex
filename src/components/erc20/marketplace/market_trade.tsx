@@ -16,10 +16,10 @@ import {
     getTotalEthBalance,
     getWeb3State,
     getSwapQuote,
-    getSwapTokenQuote,
-    getSwapToken,
     getSwapQuoteTokenBalance,
     getSwapBaseTokenBalance,
+    getSwapQuoteToken,
+    getSwapBaseToken,
 } from '../../../store/selectors';
 import { themeDimensions } from '../../../themes/commons';
 import { getKnownTokens, isWeth } from '../../../util/known_tokens';
@@ -219,8 +219,8 @@ const  MarketTrade = (props:Props) =>  {
         const [makerAmountState, setMakerAmountState] = useState(new BigNumber(0));
         const {  web3State, quoteTokenBalance, baseTokenBalance } = props;
         const swapQuote = useSelector(getSwapQuote);
-        const quoteToken = useSelector(getSwapTokenQuote);
-        const baseToken  = useSelector(getSwapToken);
+        const quoteToken = useSelector(getSwapQuoteToken);
+        const baseToken  = useSelector(getSwapBaseToken);
         const dispatch = useDispatch();
         const decimals = baseToken.decimals;
         

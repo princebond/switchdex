@@ -14,7 +14,7 @@ import {
     setERC20Theme,
     setThemeName,
 } from '../../../store/actions';
-import { getGeneralConfig, getThemeName } from '../../../store/selectors';
+import { getGeneralConfig, getThemeName, getCurrentMarketPlace } from '../../../store/selectors';
 import { Theme, themeBreakPoints } from '../../../themes/commons';
 import { getThemeFromConfigDex } from '../../../themes/theme_meta_data_utils';
 import { isMobile } from '../../../util/screen';
@@ -25,6 +25,8 @@ import { MenuBurguer } from '../../common/icons/menu_burguer';
 import { WalletConnectionContentContainer } from '../account/wallet_connection_content';
 
 import { MarketsDropdownStatsContainer } from './markets_dropdown_stats';
+import { MARKETPLACES } from '../../../util/types';
+import { SwapDropdownContainer } from './swap_dropdown';
 
 interface DispatchProps {
     onGoToHome: () => any;
@@ -58,6 +60,13 @@ const LogoHeader = styled(Logo)`
 `;
 
 const MarketsDropdownHeader = styled<any>(MarketsDropdownStatsContainer)`
+    align-items: center;
+    display: flex;
+
+    ${separatorTopbar}
+`;
+
+const SwapDropdownHeader = styled<any>(SwapDropdownContainer)`
     align-items: center;
     display: flex;
 
@@ -99,6 +108,7 @@ const ToolbarContent = (props: Props) => {
     };
     const generalConfig = useSelector(getGeneralConfig);
     const themeName = useSelector(getThemeName);
+    const marketplace = useSelector(getCurrentMarketPlace);
     const logo = generalConfig && generalConfig.icon ? <LogoIcon icon={generalConfig.icon} /> : null;
     const dispatch = useDispatch();
     const setOpenSideBar = () => {
@@ -114,6 +124,9 @@ const ToolbarContent = (props: Props) => {
         dispatch(openFiatOnRampChooseModal(true));
     };
 
+    const dropdownHeader = marketplace === MARKETPLACES.MarketTrade ? <SwapDropdownHeader shouldCloseDropdownBodyOnClick={false} className={'swap-dropdown'} /> :
+        <MarketsDropdownHeader shouldCloseDropdownBodyOnClick={false} className={'markets-dropdown'} />;
+
     let startContent;
     if (isMobile(props.windowWidth)) {
         startContent = (
@@ -121,7 +134,7 @@ const ToolbarContent = (props: Props) => {
                 <MenuStyledButton onClick={setOpenSideBar}>
                     <StyledMenuBurguer />
                 </MenuStyledButton>
-                <MarketsDropdownHeader shouldCloseDropdownBodyOnClick={false} />
+                {dropdownHeader}
             </>
         );
     } else {
@@ -133,7 +146,7 @@ const ToolbarContent = (props: Props) => {
                     text={(generalConfig && generalConfig.title) || UI_GENERAL_TITLE}
                     textColor={props.theme.componentsTheme.logoERC20TextColor}
                 />
-                <MarketsDropdownHeader shouldCloseDropdownBodyOnClick={false} className={'markets-dropdown'} />
+                {dropdownHeader}
             </>
         );
     }

@@ -8,7 +8,7 @@ import { fetchBZX, initBZX } from './bzx/actions';
 import { getAllCollectibles } from './collectibles/actions';
 import { setMarketTokens, updateMarketPriceEther, updateMarketPriceQuote, fetchMarketPriceTokensUpdate } from './market/actions';
 import { getOrderBook, getOrderbookAndUserOrders } from './relayer/actions';
-import { getBZXLoadingState, getCurrencyPair, getCurrentMarketPlace, getSwapTokenQuote, getSwapToken, getSwapBaseTokenBalance, getSwapQuoteTokenBalance } from './selectors';
+import { getBZXLoadingState, getCurrencyPair, getCurrentMarketPlace, getSwapBaseTokenBalance, getSwapQuoteTokenBalance } from './selectors';
 import { getMarketPriceTokens } from '../services/markets';
 
 export * from './blockchain/actions';
