@@ -1,6 +1,8 @@
+import { Styles } from "react-modal";
+
 export interface Theme {
     componentsTheme: ThemeProperties;
-    modalTheme: ThemeModalStyle;
+    modalTheme: Styles;
 }
 
 export interface ThemeProperties {
@@ -94,12 +96,12 @@ export interface ThemeProperties {
 }
 
 export interface ThemeModalStyle {
-    content: {
+    content:{
         backgroundColor: string;
         borderColor: string;
         bottom: string;
         display: string;
-        flexDirection: string;
+        flexDirection: any;
         flexGrow: string;
         left: string;
         maxHeight: string;

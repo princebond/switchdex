@@ -1,5 +1,5 @@
 import { HttpClient, OrderConfigRequest, OrderConfigResponse, SignedOrder } from '@0x/connect';
-import { assetDataUtils, AssetProxyId } from '@0x/order-utils';
+import { assetDataUtils} from '@0x/order-utils';
 import { Orderbook } from '@0x/orderbook';
 import { BigNumber } from '@0x/utils';
 import { RateLimit } from 'async-sema';
@@ -17,6 +17,7 @@ import {
     RelayerMarketStats,
     Token,
 } from '../util/types';
+import { AssetProxyId } from '@0x/types';
 // tslint:disable-next-line
 const uuidv1 = require('uuid/v1');
 const logger = getLogger('Services::Relayer');
@@ -34,6 +35,10 @@ export class Relayer {
         this._rateLimit = RateLimit(options.rps); // requests per second
     }
 
+    public getOrderbook(){
+        return this._orderbook;
+    }
+    
     public async getAllOrdersAsync(baseTokenAssetData: string, quoteTokenAssetData: string): Promise<SignedOrder[]> {
         const [sellOrders, buyOrders] = await Promise.all([
             this._getOrdersAsync(baseTokenAssetData, quoteTokenAssetData),

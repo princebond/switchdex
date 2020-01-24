@@ -1,23 +1,25 @@
 import { BigNumber } from '@0x/utils';
 import React, { useState } from 'react';
-import { connect } from 'react-redux';
+import { connect, useSelector, useDispatch } from 'react-redux';
 import styled from 'styled-components';
 
-import { IS_ORDER_LIMIT_MATCHING, ZERO } from '../../../common/constants';
+import {  ZERO } from '../../../common/constants';
 import {
-    initWallet,
-    startBuySellLimitMatchingSteps,
-    startBuySellLimitSteps,
+
     startBuySellMarketSteps,
+    calculateSwapQuote,
 } from '../../../store/actions';
 import { fetchTakerAndMakerFee } from '../../../store/relayer/actions';
 import {
-    getBaseTokenBalance,
     getCurrencyPair,
     getOrderPriceSelected,
-    getQuoteTokenBalance,
     getTotalEthBalance,
     getWeb3State,
+    getSwapQuote,
+    getSwapTokenQuote,
+    getSwapToken,
+    getSwapQuoteTokenBalance,
+    getSwapBaseTokenBalance,
 } from '../../../store/selectors';
 import { themeDimensions } from '../../../themes/commons';
 import { getKnownTokens, isWeth } from '../../../util/known_tokens';
@@ -28,7 +30,6 @@ import {
     CurrencyPair,
     OrderFeeData,
     OrderSide,
-    OrderType,
     StoreState,
     TokenBalance,
     Web3State,
@@ -39,7 +40,8 @@ import { CardBase } from '../../common/card_base';
 import { CardTabSelector } from '../../common/card_tab_selector';
 import { ErrorCard, ErrorIcons, FontSize } from '../../common/error_card';
 
-import { OrderDetailsContainer } from './order_details';
+import { MarketTradeDetailsContainer } from './market_trade_details';
+import { CalculateSwapQuoteParams } from '../../../util/types/swap';
 
 interface StateProps {
     web3State: Web3State;
@@ -51,35 +53,13 @@ interface StateProps {
 }
 
 interface DispatchProps {
-    onSubmitLimitOrder: (
-        amount: BigNumber,
-        price: BigNumber,
-        side: OrderSide,
-        orderFeeData: OrderFeeData,
-    ) => Promise<any>;
-    onSubmitLimitOrderMatching: (
-        amount: BigNumber,
-        price: BigNumber,
-        side: OrderSide,
-        orderFeeData: OrderFeeData,
-    ) => Promise<any>;
     onSubmitMarketOrder: (amount: BigNumber, side: OrderSide, orderFeeData: OrderFeeData) => Promise<any>;
-    onConnectWallet: () => any;
     onFetchTakerAndMakerFee: (amount: BigNumber, price: BigNumber, side: OrderSide) => Promise<OrderFeeData>;
 }
 
 type Props = StateProps & DispatchProps;
 
-interface State {
-    makerAmount: BigNumber | null;
-    orderType: OrderType;
-    price: BigNumber | null;
-    tab: OrderSide;
-    error: {
-        btnMsg: string | null;
-        cardMsg: string | null;
-    };
-}
+
 
 const BuySellWrapper = styled(CardBase)`
     margin-bottom: ${themeDimensions.verticalSeparationSm};
@@ -229,16 +209,7 @@ const TIMEOUT_BTN_ERROR = 2000;
 const TIMEOUT_CARD_ERROR = 4000;
 
 const  MarketTrade = (props:Props) =>  {
-    /*public state: State = {
-        makerAmount: null,
-        price: null,
-        orderType: OrderType.Market,
-        tab: OrderSide.Buy,
-        error: {
-            btnMsg: null,
-            cardMsg: null,
-        },
-    };*/
+   
         const [tabState, setTabState] = useState(OrderSide.Buy);
         const [errorState, setErrorState] = useState<{btnMsg: null | string; cardMsg: null | string}>({
             btnMsg: null,
@@ -246,38 +217,53 @@ const  MarketTrade = (props:Props) =>  {
         });
         const [priceState, setPriceState] = useState(new BigNumber(0));
         const [makerAmountState, setMakerAmountState] = useState(new BigNumber(0));
-        const { currencyPair, web3State } = props;
-       //const { makerAmount, price, tab, orderType, error } = this.state;
-
+        const {  web3State, quoteTokenBalance, baseTokenBalance } = props;
+        const swapQuote = useSelector(getSwapQuote);
+        const quoteToken = useSelector(getSwapTokenQuote);
+        const baseToken  = useSelector(getSwapToken);
+        const dispatch = useDispatch();
+        const decimals = baseToken.decimals;
         
-        const decimals = getKnownTokens().getTokenBySymbol(currencyPair.base).decimals;
-        // Configs
-        const pricePrecision = currencyPair.config.pricePrecision;
-        const minAmount = currencyPair.config.minAmount;
-        const minAmountUnits = unitsInTokenAmount(String(currencyPair.config.minAmount), decimals);
-
-        const basePrecision = currencyPair.config.basePrecision;
-        const stepAmount = new BigNumber(1).div(new BigNumber(10).pow(basePrecision));
+        const stepAmount = new BigNumber(1).div(new BigNumber(10).pow(8));
         const stepAmountUnits = unitsInTokenAmount(String(stepAmount), decimals);
-
-        const amount = makerAmountState || minAmountUnits;
+        const amount = makerAmountState;
         const isMakerAmountEmpty = amount === null || amount.isZero();
-        const isMakerAmountMin = amount === null || amount.isLessThan(minAmountUnits);
-
-        const isPriceEmpty = priceState === null || priceState.isZero();
-        const isPriceMin =
-        priceState === null || priceState.isLessThan(new BigNumber(1).div(new BigNumber(10).pow(pricePrecision)));
+        let quoteTokenAmount = ZERO;
+        const isSell = tabState === OrderSide.Sell;
+        if(swapQuote){
+            quoteTokenAmount = isSell ? swapQuote.bestCaseQuoteInfo.makerAssetAmount : swapQuote.bestCaseQuoteInfo.takerAssetAmount;
+        }
         
-
-        const isOrderTypeMarketIsEmpty =  (isMakerAmountEmpty || isMakerAmountMin);
-        const baseSymbol = formatTokenSymbol(currencyPair.base);
+        const isOrderTypeMarketIsEmpty =  (isMakerAmountEmpty);
+        const baseSymbol = formatTokenSymbol(baseToken.symbol);
         const btnPrefix = tabState === OrderSide.Buy ? 'Buy ' : 'Sell ';
         const btnText = errorState && errorState.btnMsg ? 'Error' : btnPrefix + baseSymbol;
         const _reset = () => {
             setMakerAmountState(new BigNumber(0));
             setPriceState(new BigNumber(0));
         };
-        const changeTab = (tab: OrderSide) => () => setTabState(tab);
+        const onCalculateSwapQuote = (value: BigNumber, side: OrderSide) => {
+            const isSell = tabState === OrderSide.Sell;
+            const isETHSell = isSell && isWeth(quoteToken.symbol); 
+            const params: CalculateSwapQuoteParams = {
+                buyTokenAddress: isSell ? quoteToken.address : baseToken.address,
+                sellTokenAddress: isSell ? baseToken.address : quoteToken.address,
+                buyAmount: isSell ? undefined : value, 
+                sellAmount:isSell ?  value: undefined, 
+                from: undefined,
+                isETHSell: isETHSell,
+
+            }
+            dispatch(calculateSwapQuote(params))
+        }
+
+
+
+        const changeTab = (tab: OrderSide) => () => {
+            setTabState(tab)
+            onCalculateSwapQuote(makerAmountState, tab);
+        
+        };
 
         const onSubmit = async () => {
             const { currencyPair } = props;
@@ -317,7 +303,12 @@ const  MarketTrade = (props:Props) =>  {
             
             _reset();
         };
-        const onUpdateMakerAmount = (newValue: BigNumber) => setMakerAmountState(newValue);
+        const onUpdateMakerAmount = (newValue: BigNumber) => {
+            setMakerAmountState(newValue);
+            onCalculateSwapQuote(newValue, tabState);
+        }
+
+
         const getAmountAvailableLabel = () => {
             const { baseTokenBalance, quoteTokenBalance, totalEthBalance } = props;
             if (tabState === OrderSide.Sell) {
@@ -376,7 +367,7 @@ const  MarketTrade = (props:Props) =>  {
                     <Content>
                         <LabelContainer>
                             <Label>
-                                Amount <MinLabel>(Min: {minAmount})</MinLabel>
+                                Amount
                             </Label>
                         </LabelContainer>
                         <FieldAmountContainer>
@@ -386,20 +377,21 @@ const  MarketTrade = (props:Props) =>  {
                                 onChange={onUpdateMakerAmount}
                                 value={amount}
                                 step={stepAmountUnits}
-                                placeholder={new BigNumber(minAmount).toString()}
-                                valueFixedDecimals={basePrecision}
+                                placeholder={new BigNumber(0).toString()}
+                                valueFixedDecimals={8}
                             />
-                            <BigInputNumberTokenLabel tokenSymbol={currencyPair.base} />
+                            <BigInputNumberTokenLabel tokenSymbol={baseToken.symbol} />
                         </FieldAmountContainer>
                         <LabelAvailableContainer>
                             <LabelAvaible>{getAmountAvailableLabel()}</LabelAvaible>
                         </LabelAvailableContainer>
-                        <OrderDetailsContainer
-                            orderType={OrderType.Market}
+                        <MarketTradeDetailsContainer
                             orderSide={tabState}
                             tokenAmount={amount}
                             tokenPrice={priceState}
-                            currencyPair={currencyPair}
+                            baseToken={baseToken}
+                            quoteToken={quoteToken}
+                            quote={swapQuote}
                         />
                         <Button
                             disabled={
@@ -428,35 +420,22 @@ const  MarketTrade = (props:Props) =>  {
 
     
 
-    
-
-   
-
 
 const mapStateToProps = (state: StoreState): StateProps => {
     return {
         web3State: getWeb3State(state),
         currencyPair: getCurrencyPair(state),
         orderPriceSelected: getOrderPriceSelected(state),
-        quoteTokenBalance: getQuoteTokenBalance(state),
-        baseTokenBalance: getBaseTokenBalance(state),
+        quoteTokenBalance: getSwapQuoteTokenBalance(state),
+        baseTokenBalance: getSwapBaseTokenBalance(state),
         totalEthBalance: getTotalEthBalance(state),
     };
 };
 
 const mapDispatchToProps = (dispatch: any): DispatchProps => {
     return {
-        onSubmitLimitOrder: (amount: BigNumber, price: BigNumber, side: OrderSide, orderFeeData: OrderFeeData) =>
-            dispatch(startBuySellLimitSteps(amount, price, side, orderFeeData)),
-        onSubmitLimitOrderMatching: (
-            amount: BigNumber,
-            price: BigNumber,
-            side: OrderSide,
-            orderFeeData: OrderFeeData,
-        ) => dispatch(startBuySellLimitMatchingSteps(amount, price, side, orderFeeData)),
         onSubmitMarketOrder: (amount: BigNumber, side: OrderSide, orderFeeData: OrderFeeData) =>
             dispatch(startBuySellMarketSteps(amount, side, orderFeeData)),
-        onConnectWallet: () => dispatch(initWallet()),
         onFetchTakerAndMakerFee: (amount: BigNumber, price: BigNumber, side: OrderSide) =>
             dispatch(fetchTakerAndMakerFee(amount, price, side)),
     };

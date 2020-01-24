@@ -12,6 +12,7 @@ import {
     mapTokensMetaDataToTokenByNetworkId,
 } from './token_meta_data';
 import { Token } from './types';
+import { AssetProxyId, ERC20AssetData } from '@0x/types';
 
 const logger = getLogger('Tokens::known_tokens .ts');
 
@@ -77,7 +78,7 @@ export class KnownTokens {
     };
 
     public getTokenByAssetData = (assetData: string): Token => {
-        const tokenAddress = assetDataUtils.decodeERC20AssetData(assetData).tokenAddress;
+        const tokenAddress = (assetDataUtils.decodeAssetDataOrThrow(assetData) as ERC20AssetData).tokenAddress;
         return this.getTokenByAddress(tokenAddress);
     };
 
@@ -112,8 +113,8 @@ export class KnownTokens {
             return false;
         }
 
-        const makerAssetAddress = assetDataUtils.decodeERC20AssetData(makerAssetData).tokenAddress;
-        const takerAssetAddress = assetDataUtils.decodeERC20AssetData(takerAssetData).tokenAddress;
+        const makerAssetAddress = (assetDataUtils.decodeAssetDataOrThrow(makerAssetData) as ERC20AssetData).tokenAddress;
+        const takerAssetAddress = (assetDataUtils.decodeAssetDataOrThrow(takerAssetData) as ERC20AssetData).tokenAddress;
 
         if (!this.isKnownAddress(makerAssetAddress) || !this.isKnownAddress(takerAssetAddress)) {
             return false;
@@ -177,8 +178,12 @@ export const isWethToken = (token: Token): boolean => {
 
 export const isERC20AssetData = (assetData: string): boolean => {
     try {
-        assetDataUtils.decodeERC20AssetData(assetData);
-        return true;
+        const asset = assetDataUtils.decodeAssetDataOrThrow(assetData);
+        if(asset.assetProxyId === AssetProxyId.ERC20){
+            return true
+        }else{
+           return false;
+        }
     } catch (e) {
         return false;
     }

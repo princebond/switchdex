@@ -1,5 +1,5 @@
 import { assetDataUtils } from '@0x/order-utils';
-import { SignedOrder } from '@0x/types';
+import { SignedOrder, ERC20AssetData } from '@0x/types';
 import { BigNumber } from '@0x/utils';
 
 import { isWeth, isZrx } from './known_tokens';
@@ -46,7 +46,7 @@ export const createBuySellLimitSteps = (
     }
 
     if (orderFeeData.makerFee.isGreaterThan(0)) {
-        const { tokenAddress } = assetDataUtils.decodeERC20AssetData(orderFeeData.makerFeeAssetData);
+        const { tokenAddress } = assetDataUtils.decodeAssetDataOrThrow(orderFeeData.makerFeeAssetData) as ERC20AssetData;
         if (!unlockTokenStep || unlockTokenStep.token.address !== tokenAddress) {
             const unlockFeeTokenStep = getUnlockFeeAssetStepIfNeeded(
                 [...tokenBalances, wethTokenBalance],
@@ -111,7 +111,7 @@ export const createBuySellLimitMatchingSteps = (
     }
 
     if (orderFeeData.makerFee.isGreaterThan(0)) {
-        const { tokenAddress } = assetDataUtils.decodeERC20AssetData(orderFeeData.makerFeeAssetData);
+        const { tokenAddress } = assetDataUtils.decodeAssetDataOrThrow(orderFeeData.makerFeeAssetData) as ERC20AssetData;
         if (!unlockTokenStep || unlockTokenStep.token.address !== tokenAddress) {
             const unlockFeeTokenStep = getUnlockFeeAssetStepIfNeeded(
                 [...tokenBalances, wethTokenBalance],
@@ -245,7 +245,7 @@ export const createBuySellMarketSteps = (
 
     // unlock fees if the taker fee is positive
     if (orderFeeData.takerFee.isGreaterThan(0)) {
-        const { tokenAddress } = assetDataUtils.decodeERC20AssetData(orderFeeData.takerFeeAssetData);
+        const { tokenAddress } = assetDataUtils.decodeAssetDataOrThrow(orderFeeData.takerFeeAssetData) as ERC20AssetData;
         if (!unlockTokenStep || (unlockTokenStep && unlockTokenStep.token.address !== tokenAddress)) {
             const unlockFeeStep = getUnlockFeeAssetStepIfNeeded([...tokenBalances, wethTokenBalance], tokenAddress);
             if (unlockFeeStep) {

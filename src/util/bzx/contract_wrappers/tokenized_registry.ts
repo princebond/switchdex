@@ -7,8 +7,7 @@ import {
     ContractTxFunctionObj,
     SendTransactionOpts,
     BaseContract,
-    SubscriptionManager,
-    PromiseWithTransactionHash,
+    SubscriptionManager,PromiseWithTransactionHash,
     methodAbiToFunctionSignature,
 } from '@0x/base-contract';
 import { schemas } from '@0x/json-schemas';
@@ -34,7 +33,9 @@ import { assert } from '@0x/assert';
 import * as ethers from 'ethers';
 // tslint:enable:no-unused-variable
 
-export type TokenizedRegistryEventArgs = TokenizedRegistryOwnershipTransferredEventArgs;
+
+export type TokenizedRegistryEventArgs =
+    | TokenizedRegistryOwnershipTransferredEventArgs;
 
 export enum TokenizedRegistryEvents {
     OwnershipTransferred = 'OwnershipTransferred',
@@ -45,6 +46,7 @@ export interface TokenizedRegistryOwnershipTransferredEventArgs extends DecodedL
     newOwner: string;
 }
 
+
 /* istanbul ignore next */
 // tslint:disable:no-parameter-reassignment
 // tslint:disable-next-line:class-name
@@ -52,15 +54,15 @@ export class TokenizedRegistryContract extends BaseContract {
     /**
      * @ignore
      */
-    public static deployedBytecode: string | undefined;
-    public static contractName = 'TokenizedRegistry';
+public static deployedBytecode: string | undefined;
+public static contractName = 'TokenizedRegistry';
     private readonly _methodABIIndex: { [name: string]: number } = {};
-    private readonly _subscriptionManager: SubscriptionManager<TokenizedRegistryEventArgs, TokenizedRegistryEvents>;
-    public static async deployFrom0xArtifactAsync(
+private readonly _subscriptionManager: SubscriptionManager<TokenizedRegistryEventArgs, TokenizedRegistryEvents>;
+public static async deployFrom0xArtifactAsync(
         artifact: ContractArtifact | SimpleContractArtifact,
         supportedProvider: SupportedProvider,
         txDefaults: Partial<TxData>,
-        logDecodeDependencies: { [contractName: string]: ContractArtifact | SimpleContractArtifact },
+        logDecodeDependencies: { [contractName: string]: (ContractArtifact | SimpleContractArtifact) },
     ): Promise<TokenizedRegistryContract> {
         assert.doesConformToSchema('txDefaults', txDefaults, schemas.txDataSchema, [
             schemas.addressSchema,
@@ -79,7 +81,7 @@ export class TokenizedRegistryContract extends BaseContract {
                 logDecodeDependenciesAbiOnly[key] = logDecodeDependencies[key].compilerOutput.abi;
             }
         }
-        return TokenizedRegistryContract.deployAsync(bytecode, abi, provider, txDefaults, logDecodeDependenciesAbiOnly);
+        return TokenizedRegistryContract.deployAsync(bytecode, abi, provider, txDefaults, logDecodeDependenciesAbiOnly, );
     }
     public static async deployAsync(
         bytecode: string,
@@ -96,7 +98,12 @@ export class TokenizedRegistryContract extends BaseContract {
         ]);
         const provider = providerUtils.standardizeOrThrow(supportedProvider);
         const constructorAbi = BaseContract._lookupConstructorAbi(abi);
-        [] = BaseContract._formatABIDataItemList(constructorAbi.inputs, [], BaseContract._bigNumberToString);
+        [] = BaseContract._formatABIDataItemList(
+            constructorAbi.inputs,
+            [],
+            BaseContract._bigNumberToString,
+        );
+          //@ts-ignore
         const iface = new ethers.utils.Interface(abi);
         const deployInfo = iface.deployFunction;
         const txData = deployInfo.encode(bytecode, []);
@@ -112,24 +119,21 @@ export class TokenizedRegistryContract extends BaseContract {
         logUtils.log(`transactionHash: ${txHash}`);
         const txReceipt = await web3Wrapper.awaitTransactionSuccessAsync(txHash);
         logUtils.log(`TokenizedRegistry successfully deployed at ${txReceipt.contractAddress}`);
-        const contractInstance = new TokenizedRegistryContract(
-            txReceipt.contractAddress as string,
-            provider,
-            txDefaults,
-            logDecodeDependencies,
-        );
+        const contractInstance = new TokenizedRegistryContract(txReceipt.contractAddress as string, provider, txDefaults, logDecodeDependencies);
         contractInstance.constructorArgs = [];
         return contractInstance;
     }
+
 
     /**
      * @returns      The contract ABI
      */
     public static ABI(): ContractAbi {
         const abi = [
-            {
+            { 
                 constant: true,
-                inputs: [],
+                inputs: [
+                ],
                 name: 'owner',
                 outputs: [
                     {
@@ -141,7 +145,7 @@ export class TokenizedRegistryContract extends BaseContract {
                 stateMutability: 'view',
                 type: 'function',
             },
-            {
+            { 
                 constant: true,
                 inputs: [
                     {
@@ -180,7 +184,7 @@ export class TokenizedRegistryContract extends BaseContract {
                 stateMutability: 'view',
                 type: 'function',
             },
-            {
+            { 
                 constant: true,
                 inputs: [
                     {
@@ -199,7 +203,7 @@ export class TokenizedRegistryContract extends BaseContract {
                 stateMutability: 'view',
                 type: 'function',
             },
-            {
+            { 
                 constant: false,
                 inputs: [
                     {
@@ -208,12 +212,13 @@ export class TokenizedRegistryContract extends BaseContract {
                     },
                 ],
                 name: 'transferOwnership',
-                outputs: [],
+                outputs: [
+                ],
                 payable: false,
                 stateMutability: 'nonpayable',
                 type: 'function',
             },
-            {
+            { 
                 anonymous: false,
                 inputs: [
                     {
@@ -228,10 +233,11 @@ export class TokenizedRegistryContract extends BaseContract {
                     },
                 ],
                 name: 'OwnershipTransferred',
-                outputs: [],
+                outputs: [
+                ],
                 type: 'event',
             },
-            {
+            { 
                 constant: false,
                 inputs: [
                     {
@@ -256,12 +262,13 @@ export class TokenizedRegistryContract extends BaseContract {
                     },
                 ],
                 name: 'addTokens',
-                outputs: [],
+                outputs: [
+                ],
                 payable: false,
                 stateMutability: 'nonpayable',
                 type: 'function',
             },
-            {
+            { 
                 constant: false,
                 inputs: [
                     {
@@ -270,12 +277,13 @@ export class TokenizedRegistryContract extends BaseContract {
                     },
                 ],
                 name: 'removeTokens',
-                outputs: [],
+                outputs: [
+                ],
                 payable: false,
                 stateMutability: 'nonpayable',
                 type: 'function',
             },
-            {
+            { 
                 constant: false,
                 inputs: [
                     {
@@ -300,12 +308,13 @@ export class TokenizedRegistryContract extends BaseContract {
                     },
                 ],
                 name: 'addToken',
-                outputs: [],
+                outputs: [
+                ],
                 payable: false,
                 stateMutability: 'nonpayable',
                 type: 'function',
             },
-            {
+            { 
                 constant: false,
                 inputs: [
                     {
@@ -314,12 +323,13 @@ export class TokenizedRegistryContract extends BaseContract {
                     },
                 ],
                 name: 'removeToken',
-                outputs: [],
+                outputs: [
+                ],
                 payable: false,
                 stateMutability: 'nonpayable',
                 type: 'function',
             },
-            {
+            { 
                 constant: false,
                 inputs: [
                     {
@@ -332,12 +342,13 @@ export class TokenizedRegistryContract extends BaseContract {
                     },
                 ],
                 name: 'setTokenName',
-                outputs: [],
+                outputs: [
+                ],
                 payable: false,
                 stateMutability: 'nonpayable',
                 type: 'function',
             },
-            {
+            { 
                 constant: false,
                 inputs: [
                     {
@@ -350,12 +361,13 @@ export class TokenizedRegistryContract extends BaseContract {
                     },
                 ],
                 name: 'setTokenSymbol',
-                outputs: [],
+                outputs: [
+                ],
                 payable: false,
                 stateMutability: 'nonpayable',
                 type: 'function',
             },
-            {
+            { 
                 constant: true,
                 inputs: [
                     {
@@ -374,7 +386,7 @@ export class TokenizedRegistryContract extends BaseContract {
                 stateMutability: 'view',
                 type: 'function',
             },
-            {
+            { 
                 constant: true,
                 inputs: [
                     {
@@ -393,7 +405,7 @@ export class TokenizedRegistryContract extends BaseContract {
                 stateMutability: 'view',
                 type: 'function',
             },
-            {
+            { 
                 constant: true,
                 inputs: [
                     {
@@ -431,14 +443,14 @@ export class TokenizedRegistryContract extends BaseContract {
                                 name: 'index',
                                 type: 'uint256',
                             },
-                        ],
+                        ]
                     },
                 ],
                 payable: false,
                 stateMutability: 'view',
                 type: 'function',
             },
-            {
+            { 
                 constant: true,
                 inputs: [
                     {
@@ -476,14 +488,14 @@ export class TokenizedRegistryContract extends BaseContract {
                                 name: 'index',
                                 type: 'uint256',
                             },
-                        ],
+                        ]
                     },
                 ],
                 payable: false,
                 stateMutability: 'view',
                 type: 'function',
             },
-            {
+            { 
                 constant: true,
                 inputs: [
                     {
@@ -521,16 +533,17 @@ export class TokenizedRegistryContract extends BaseContract {
                                 name: 'index',
                                 type: 'uint256',
                             },
-                        ],
+                        ]
                     },
                 ],
                 payable: false,
                 stateMutability: 'view',
                 type: 'function',
             },
-            {
+            { 
                 constant: true,
-                inputs: [],
+                inputs: [
+                ],
                 name: 'getTokenAddresses',
                 outputs: [
                     {
@@ -542,7 +555,7 @@ export class TokenizedRegistryContract extends BaseContract {
                 stateMutability: 'view',
                 type: 'function',
             },
-            {
+            { 
                 constant: true,
                 inputs: [
                     {
@@ -588,14 +601,14 @@ export class TokenizedRegistryContract extends BaseContract {
                                 name: 'index',
                                 type: 'uint256',
                             },
-                        ],
+                        ]
                     },
                 ],
                 payable: false,
                 stateMutability: 'view',
                 type: 'function',
             },
-            {
+            { 
                 constant: true,
                 inputs: [
                     {
@@ -618,7 +631,7 @@ export class TokenizedRegistryContract extends BaseContract {
                 stateMutability: 'view',
                 type: 'function',
             },
-            {
+            { 
                 constant: true,
                 inputs: [
                     {
@@ -672,73 +685,87 @@ export class TokenizedRegistryContract extends BaseContract {
         return abiEncoder.getSelector();
     }
 
-    public owner(): ContractFunctionObj<string> {
-        const self = (this as any) as TokenizedRegistryContract;
+    public owner(
+    ): ContractFunctionObj<string
+> {
+        const self = this as any as TokenizedRegistryContract;
         const functionSignature = 'owner()';
 
         return {
-            async callAsync(callData: Partial<CallData> = {}, defaultBlock?: BlockParam): Promise<string> {
+            async callAsync(
+                callData: Partial<CallData> = {},
+                defaultBlock?: BlockParam,
+            ): Promise<string
+            > {
                 BaseContract._assertCallParams(callData, defaultBlock);
-                const rawCallResult = await self._performCallAsync(
-                    { ...callData, data: this.getABIEncodedTransactionData() },
-                    defaultBlock,
-                );
+                const rawCallResult = await self._performCallAsync({ ...callData, data: this.getABIEncodedTransactionData() }, defaultBlock);
                 const abiEncoder = self._lookupAbiEncoder(functionSignature);
-                return abiEncoder.strictDecodeReturnValue<string>(rawCallResult);
+                return abiEncoder.strictDecodeReturnValue<string
+            >(rawCallResult);
             },
             getABIEncodedTransactionData(): string {
                 return self._strictEncodeArguments(functionSignature, []);
             },
-        };
-    }
-    public tokens(index_0: string): ContractFunctionObj<[string, string, string, string, BigNumber, BigNumber]> {
-        const self = (this as any) as TokenizedRegistryContract;
-        assert.isString('index_0', index_0);
+        }
+    };
+    public tokens(
+            index_0: string,
+    ): ContractFunctionObj<[string, string, string, string, BigNumber, BigNumber]
+> {
+        const self = this as any as TokenizedRegistryContract;
+            assert.isString('index_0', index_0);
         const functionSignature = 'tokens(address)';
 
         return {
             async callAsync(
                 callData: Partial<CallData> = {},
                 defaultBlock?: BlockParam,
-            ): Promise<[string, string, string, string, BigNumber, BigNumber]> {
+            ): Promise<[string, string, string, string, BigNumber, BigNumber]
+            > {
                 BaseContract._assertCallParams(callData, defaultBlock);
-                const rawCallResult = await self._performCallAsync(
-                    { ...callData, data: this.getABIEncodedTransactionData() },
-                    defaultBlock,
-                );
+                const rawCallResult = await self._performCallAsync({ ...callData, data: this.getABIEncodedTransactionData() }, defaultBlock);
                 const abiEncoder = self._lookupAbiEncoder(functionSignature);
-                return abiEncoder.strictDecodeReturnValue<[string, string, string, string, BigNumber, BigNumber]>(
-                    rawCallResult,
-                );
+                return abiEncoder.strictDecodeReturnValue<[string, string, string, string, BigNumber, BigNumber]
+            >(rawCallResult);
             },
             getABIEncodedTransactionData(): string {
-                return self._strictEncodeArguments(functionSignature, [index_0.toLowerCase()]);
+                return self._strictEncodeArguments(functionSignature, [index_0.toLowerCase()
+            ]);
             },
-        };
-    }
-    public tokenAddresses(index_0: BigNumber): ContractFunctionObj<string> {
-        const self = (this as any) as TokenizedRegistryContract;
-        assert.isBigNumber('index_0', index_0);
+        }
+    };
+    public tokenAddresses(
+            index_0: BigNumber,
+    ): ContractFunctionObj<string
+> {
+        const self = this as any as TokenizedRegistryContract;
+            assert.isBigNumber('index_0', index_0);
         const functionSignature = 'tokenAddresses(uint256)';
 
         return {
-            async callAsync(callData: Partial<CallData> = {}, defaultBlock?: BlockParam): Promise<string> {
+            async callAsync(
+                callData: Partial<CallData> = {},
+                defaultBlock?: BlockParam,
+            ): Promise<string
+            > {
                 BaseContract._assertCallParams(callData, defaultBlock);
-                const rawCallResult = await self._performCallAsync(
-                    { ...callData, data: this.getABIEncodedTransactionData() },
-                    defaultBlock,
-                );
+                const rawCallResult = await self._performCallAsync({ ...callData, data: this.getABIEncodedTransactionData() }, defaultBlock);
                 const abiEncoder = self._lookupAbiEncoder(functionSignature);
-                return abiEncoder.strictDecodeReturnValue<string>(rawCallResult);
+                return abiEncoder.strictDecodeReturnValue<string
+            >(rawCallResult);
             },
             getABIEncodedTransactionData(): string {
-                return self._strictEncodeArguments(functionSignature, [index_0]);
+                return self._strictEncodeArguments(functionSignature, [index_0
+            ]);
             },
-        };
-    }
-    public transferOwnership(_newOwner: string): ContractTxFunctionObj<void> {
-        const self = (this as any) as TokenizedRegistryContract;
-        assert.isString('_newOwner', _newOwner);
+        }
+    };
+    public transferOwnership(
+            _newOwner: string,
+    ): ContractTxFunctionObj<void
+> {
+        const self = this as any as TokenizedRegistryContract;
+            assert.isString('_newOwner', _newOwner);
         const functionSignature = 'transferOwnership(address)';
 
         return {
@@ -761,40 +788,45 @@ export class TokenizedRegistryContract extends BaseContract {
             ): PromiseWithTransactionHash<TransactionReceiptWithDecodedLogs> {
                 return self._promiseWithTransactionHash(this.sendTransactionAsync(txData, opts), opts);
             },
-            async estimateGasAsync(txData?: Partial<TxData> | undefined): Promise<number> {
-                const txDataWithDefaults = await self._applyDefaultsToTxDataAsync({
-                    ...txData,
-                    data: this.getABIEncodedTransactionData(),
-                });
+            async estimateGasAsync(
+                txData?: Partial<TxData> | undefined,
+            ): Promise<number> {
+                const txDataWithDefaults = await self._applyDefaultsToTxDataAsync(
+                    { ...txData, data: this.getABIEncodedTransactionData() }
+                );
                 return self._web3Wrapper.estimateGasAsync(txDataWithDefaults);
             },
-            async callAsync(callData: Partial<CallData> = {}, defaultBlock?: BlockParam): Promise<void> {
+            async callAsync(
+                callData: Partial<CallData> = {},
+                defaultBlock?: BlockParam,
+            ): Promise<void
+            > {
                 BaseContract._assertCallParams(callData, defaultBlock);
-                const rawCallResult = await self._performCallAsync(
-                    { ...callData, data: this.getABIEncodedTransactionData() },
-                    defaultBlock,
-                );
+                const rawCallResult = await self._performCallAsync({ ...callData, data: this.getABIEncodedTransactionData() }, defaultBlock);
                 const abiEncoder = self._lookupAbiEncoder(functionSignature);
-                return abiEncoder.strictDecodeReturnValue<void>(rawCallResult);
+                return abiEncoder.strictDecodeReturnValue<void
+            >(rawCallResult);
             },
             getABIEncodedTransactionData(): string {
-                return self._strictEncodeArguments(functionSignature, [_newOwner.toLowerCase()]);
+                return self._strictEncodeArguments(functionSignature, [_newOwner.toLowerCase()
+            ]);
             },
-        };
-    }
+        }
+    };
     public addTokens(
-        _tokens: string[],
-        _assets: string[],
-        _names: string[],
-        _symbols: string[],
-        _types: BigNumber[],
-    ): ContractTxFunctionObj<void> {
-        const self = (this as any) as TokenizedRegistryContract;
-        assert.isArray('_tokens', _tokens);
-        assert.isArray('_assets', _assets);
-        assert.isArray('_names', _names);
-        assert.isArray('_symbols', _symbols);
-        assert.isArray('_types', _types);
+            _tokens: string[],
+            _assets: string[],
+            _names: string[],
+            _symbols: string[],
+            _types: BigNumber[],
+    ): ContractTxFunctionObj<void
+> {
+        const self = this as any as TokenizedRegistryContract;
+            assert.isArray('_tokens', _tokens);
+            assert.isArray('_assets', _assets);
+            assert.isArray('_names', _names);
+            assert.isArray('_symbols', _symbols);
+            assert.isArray('_types', _types);
         const functionSignature = 'addTokens(address[],address[],string[],string[],uint256[])';
 
         return {
@@ -817,30 +849,41 @@ export class TokenizedRegistryContract extends BaseContract {
             ): PromiseWithTransactionHash<TransactionReceiptWithDecodedLogs> {
                 return self._promiseWithTransactionHash(this.sendTransactionAsync(txData, opts), opts);
             },
-            async estimateGasAsync(txData?: Partial<TxData> | undefined): Promise<number> {
-                const txDataWithDefaults = await self._applyDefaultsToTxDataAsync({
-                    ...txData,
-                    data: this.getABIEncodedTransactionData(),
-                });
+            async estimateGasAsync(
+                txData?: Partial<TxData> | undefined,
+            ): Promise<number> {
+                const txDataWithDefaults = await self._applyDefaultsToTxDataAsync(
+                    { ...txData, data: this.getABIEncodedTransactionData() }
+                );
                 return self._web3Wrapper.estimateGasAsync(txDataWithDefaults);
             },
-            async callAsync(callData: Partial<CallData> = {}, defaultBlock?: BlockParam): Promise<void> {
+            async callAsync(
+                callData: Partial<CallData> = {},
+                defaultBlock?: BlockParam,
+            ): Promise<void
+            > {
                 BaseContract._assertCallParams(callData, defaultBlock);
-                const rawCallResult = await self._performCallAsync(
-                    { ...callData, data: this.getABIEncodedTransactionData() },
-                    defaultBlock,
-                );
+                const rawCallResult = await self._performCallAsync({ ...callData, data: this.getABIEncodedTransactionData() }, defaultBlock);
                 const abiEncoder = self._lookupAbiEncoder(functionSignature);
-                return abiEncoder.strictDecodeReturnValue<void>(rawCallResult);
+                return abiEncoder.strictDecodeReturnValue<void
+            >(rawCallResult);
             },
             getABIEncodedTransactionData(): string {
-                return self._strictEncodeArguments(functionSignature, [_tokens, _assets, _names, _symbols, _types]);
+                return self._strictEncodeArguments(functionSignature, [_tokens,
+            _assets,
+            _names,
+            _symbols,
+            _types
+            ]);
             },
-        };
-    }
-    public removeTokens(_tokens: string[]): ContractTxFunctionObj<void> {
-        const self = (this as any) as TokenizedRegistryContract;
-        assert.isArray('_tokens', _tokens);
+        }
+    };
+    public removeTokens(
+            _tokens: string[],
+    ): ContractTxFunctionObj<void
+> {
+        const self = this as any as TokenizedRegistryContract;
+            assert.isArray('_tokens', _tokens);
         const functionSignature = 'removeTokens(address[])';
 
         return {
@@ -863,40 +906,45 @@ export class TokenizedRegistryContract extends BaseContract {
             ): PromiseWithTransactionHash<TransactionReceiptWithDecodedLogs> {
                 return self._promiseWithTransactionHash(this.sendTransactionAsync(txData, opts), opts);
             },
-            async estimateGasAsync(txData?: Partial<TxData> | undefined): Promise<number> {
-                const txDataWithDefaults = await self._applyDefaultsToTxDataAsync({
-                    ...txData,
-                    data: this.getABIEncodedTransactionData(),
-                });
+            async estimateGasAsync(
+                txData?: Partial<TxData> | undefined,
+            ): Promise<number> {
+                const txDataWithDefaults = await self._applyDefaultsToTxDataAsync(
+                    { ...txData, data: this.getABIEncodedTransactionData() }
+                );
                 return self._web3Wrapper.estimateGasAsync(txDataWithDefaults);
             },
-            async callAsync(callData: Partial<CallData> = {}, defaultBlock?: BlockParam): Promise<void> {
+            async callAsync(
+                callData: Partial<CallData> = {},
+                defaultBlock?: BlockParam,
+            ): Promise<void
+            > {
                 BaseContract._assertCallParams(callData, defaultBlock);
-                const rawCallResult = await self._performCallAsync(
-                    { ...callData, data: this.getABIEncodedTransactionData() },
-                    defaultBlock,
-                );
+                const rawCallResult = await self._performCallAsync({ ...callData, data: this.getABIEncodedTransactionData() }, defaultBlock);
                 const abiEncoder = self._lookupAbiEncoder(functionSignature);
-                return abiEncoder.strictDecodeReturnValue<void>(rawCallResult);
+                return abiEncoder.strictDecodeReturnValue<void
+            >(rawCallResult);
             },
             getABIEncodedTransactionData(): string {
-                return self._strictEncodeArguments(functionSignature, [_tokens]);
+                return self._strictEncodeArguments(functionSignature, [_tokens
+            ]);
             },
-        };
-    }
+        }
+    };
     public addToken(
-        _token: string,
-        _asset: string,
-        _name: string,
-        _symbol: string,
-        _type: BigNumber,
-    ): ContractTxFunctionObj<void> {
-        const self = (this as any) as TokenizedRegistryContract;
-        assert.isString('_token', _token);
-        assert.isString('_asset', _asset);
-        assert.isString('_name', _name);
-        assert.isString('_symbol', _symbol);
-        assert.isBigNumber('_type', _type);
+            _token: string,
+            _asset: string,
+            _name: string,
+            _symbol: string,
+            _type: BigNumber,
+    ): ContractTxFunctionObj<void
+> {
+        const self = this as any as TokenizedRegistryContract;
+            assert.isString('_token', _token);
+            assert.isString('_asset', _asset);
+            assert.isString('_name', _name);
+            assert.isString('_symbol', _symbol);
+            assert.isBigNumber('_type', _type);
         const functionSignature = 'addToken(address,address,string,string,uint256)';
 
         return {
@@ -919,36 +967,41 @@ export class TokenizedRegistryContract extends BaseContract {
             ): PromiseWithTransactionHash<TransactionReceiptWithDecodedLogs> {
                 return self._promiseWithTransactionHash(this.sendTransactionAsync(txData, opts), opts);
             },
-            async estimateGasAsync(txData?: Partial<TxData> | undefined): Promise<number> {
-                const txDataWithDefaults = await self._applyDefaultsToTxDataAsync({
-                    ...txData,
-                    data: this.getABIEncodedTransactionData(),
-                });
+            async estimateGasAsync(
+                txData?: Partial<TxData> | undefined,
+            ): Promise<number> {
+                const txDataWithDefaults = await self._applyDefaultsToTxDataAsync(
+                    { ...txData, data: this.getABIEncodedTransactionData() }
+                );
                 return self._web3Wrapper.estimateGasAsync(txDataWithDefaults);
             },
-            async callAsync(callData: Partial<CallData> = {}, defaultBlock?: BlockParam): Promise<void> {
+            async callAsync(
+                callData: Partial<CallData> = {},
+                defaultBlock?: BlockParam,
+            ): Promise<void
+            > {
                 BaseContract._assertCallParams(callData, defaultBlock);
-                const rawCallResult = await self._performCallAsync(
-                    { ...callData, data: this.getABIEncodedTransactionData() },
-                    defaultBlock,
-                );
+                const rawCallResult = await self._performCallAsync({ ...callData, data: this.getABIEncodedTransactionData() }, defaultBlock);
                 const abiEncoder = self._lookupAbiEncoder(functionSignature);
-                return abiEncoder.strictDecodeReturnValue<void>(rawCallResult);
+                return abiEncoder.strictDecodeReturnValue<void
+            >(rawCallResult);
             },
             getABIEncodedTransactionData(): string {
-                return self._strictEncodeArguments(functionSignature, [
-                    _token.toLowerCase(),
-                    _asset.toLowerCase(),
-                    _name,
-                    _symbol,
-                    _type,
-                ]);
+                return self._strictEncodeArguments(functionSignature, [_token.toLowerCase(),
+            _asset.toLowerCase(),
+            _name,
+            _symbol,
+            _type
+            ]);
             },
-        };
-    }
-    public removeToken(_token: string): ContractTxFunctionObj<void> {
-        const self = (this as any) as TokenizedRegistryContract;
-        assert.isString('_token', _token);
+        }
+    };
+    public removeToken(
+            _token: string,
+    ): ContractTxFunctionObj<void
+> {
+        const self = this as any as TokenizedRegistryContract;
+            assert.isString('_token', _token);
         const functionSignature = 'removeToken(address)';
 
         return {
@@ -971,31 +1024,39 @@ export class TokenizedRegistryContract extends BaseContract {
             ): PromiseWithTransactionHash<TransactionReceiptWithDecodedLogs> {
                 return self._promiseWithTransactionHash(this.sendTransactionAsync(txData, opts), opts);
             },
-            async estimateGasAsync(txData?: Partial<TxData> | undefined): Promise<number> {
-                const txDataWithDefaults = await self._applyDefaultsToTxDataAsync({
-                    ...txData,
-                    data: this.getABIEncodedTransactionData(),
-                });
+            async estimateGasAsync(
+                txData?: Partial<TxData> | undefined,
+            ): Promise<number> {
+                const txDataWithDefaults = await self._applyDefaultsToTxDataAsync(
+                    { ...txData, data: this.getABIEncodedTransactionData() }
+                );
                 return self._web3Wrapper.estimateGasAsync(txDataWithDefaults);
             },
-            async callAsync(callData: Partial<CallData> = {}, defaultBlock?: BlockParam): Promise<void> {
+            async callAsync(
+                callData: Partial<CallData> = {},
+                defaultBlock?: BlockParam,
+            ): Promise<void
+            > {
                 BaseContract._assertCallParams(callData, defaultBlock);
-                const rawCallResult = await self._performCallAsync(
-                    { ...callData, data: this.getABIEncodedTransactionData() },
-                    defaultBlock,
-                );
+                const rawCallResult = await self._performCallAsync({ ...callData, data: this.getABIEncodedTransactionData() }, defaultBlock);
                 const abiEncoder = self._lookupAbiEncoder(functionSignature);
-                return abiEncoder.strictDecodeReturnValue<void>(rawCallResult);
+                return abiEncoder.strictDecodeReturnValue<void
+            >(rawCallResult);
             },
             getABIEncodedTransactionData(): string {
-                return self._strictEncodeArguments(functionSignature, [_token.toLowerCase()]);
+                return self._strictEncodeArguments(functionSignature, [_token.toLowerCase()
+            ]);
             },
-        };
-    }
-    public setTokenName(_token: string, _name: string): ContractTxFunctionObj<void> {
-        const self = (this as any) as TokenizedRegistryContract;
-        assert.isString('_token', _token);
-        assert.isString('_name', _name);
+        }
+    };
+    public setTokenName(
+            _token: string,
+            _name: string,
+    ): ContractTxFunctionObj<void
+> {
+        const self = this as any as TokenizedRegistryContract;
+            assert.isString('_token', _token);
+            assert.isString('_name', _name);
         const functionSignature = 'setTokenName(address,string)';
 
         return {
@@ -1018,31 +1079,40 @@ export class TokenizedRegistryContract extends BaseContract {
             ): PromiseWithTransactionHash<TransactionReceiptWithDecodedLogs> {
                 return self._promiseWithTransactionHash(this.sendTransactionAsync(txData, opts), opts);
             },
-            async estimateGasAsync(txData?: Partial<TxData> | undefined): Promise<number> {
-                const txDataWithDefaults = await self._applyDefaultsToTxDataAsync({
-                    ...txData,
-                    data: this.getABIEncodedTransactionData(),
-                });
+            async estimateGasAsync(
+                txData?: Partial<TxData> | undefined,
+            ): Promise<number> {
+                const txDataWithDefaults = await self._applyDefaultsToTxDataAsync(
+                    { ...txData, data: this.getABIEncodedTransactionData() }
+                );
                 return self._web3Wrapper.estimateGasAsync(txDataWithDefaults);
             },
-            async callAsync(callData: Partial<CallData> = {}, defaultBlock?: BlockParam): Promise<void> {
+            async callAsync(
+                callData: Partial<CallData> = {},
+                defaultBlock?: BlockParam,
+            ): Promise<void
+            > {
                 BaseContract._assertCallParams(callData, defaultBlock);
-                const rawCallResult = await self._performCallAsync(
-                    { ...callData, data: this.getABIEncodedTransactionData() },
-                    defaultBlock,
-                );
+                const rawCallResult = await self._performCallAsync({ ...callData, data: this.getABIEncodedTransactionData() }, defaultBlock);
                 const abiEncoder = self._lookupAbiEncoder(functionSignature);
-                return abiEncoder.strictDecodeReturnValue<void>(rawCallResult);
+                return abiEncoder.strictDecodeReturnValue<void
+            >(rawCallResult);
             },
             getABIEncodedTransactionData(): string {
-                return self._strictEncodeArguments(functionSignature, [_token.toLowerCase(), _name]);
+                return self._strictEncodeArguments(functionSignature, [_token.toLowerCase(),
+            _name
+            ]);
             },
-        };
-    }
-    public setTokenSymbol(_token: string, _symbol: string): ContractTxFunctionObj<void> {
-        const self = (this as any) as TokenizedRegistryContract;
-        assert.isString('_token', _token);
-        assert.isString('_symbol', _symbol);
+        }
+    };
+    public setTokenSymbol(
+            _token: string,
+            _symbol: string,
+    ): ContractTxFunctionObj<void
+> {
+        const self = this as any as TokenizedRegistryContract;
+            assert.isString('_token', _token);
+            assert.isString('_symbol', _symbol);
         const functionSignature = 'setTokenSymbol(address,string)';
 
         return {
@@ -1065,315 +1135,275 @@ export class TokenizedRegistryContract extends BaseContract {
             ): PromiseWithTransactionHash<TransactionReceiptWithDecodedLogs> {
                 return self._promiseWithTransactionHash(this.sendTransactionAsync(txData, opts), opts);
             },
-            async estimateGasAsync(txData?: Partial<TxData> | undefined): Promise<number> {
-                const txDataWithDefaults = await self._applyDefaultsToTxDataAsync({
-                    ...txData,
-                    data: this.getABIEncodedTransactionData(),
-                });
+            async estimateGasAsync(
+                txData?: Partial<TxData> | undefined,
+            ): Promise<number> {
+                const txDataWithDefaults = await self._applyDefaultsToTxDataAsync(
+                    { ...txData, data: this.getABIEncodedTransactionData() }
+                );
                 return self._web3Wrapper.estimateGasAsync(txDataWithDefaults);
             },
-            async callAsync(callData: Partial<CallData> = {}, defaultBlock?: BlockParam): Promise<void> {
+            async callAsync(
+                callData: Partial<CallData> = {},
+                defaultBlock?: BlockParam,
+            ): Promise<void
+            > {
                 BaseContract._assertCallParams(callData, defaultBlock);
-                const rawCallResult = await self._performCallAsync(
-                    { ...callData, data: this.getABIEncodedTransactionData() },
-                    defaultBlock,
-                );
+                const rawCallResult = await self._performCallAsync({ ...callData, data: this.getABIEncodedTransactionData() }, defaultBlock);
                 const abiEncoder = self._lookupAbiEncoder(functionSignature);
-                return abiEncoder.strictDecodeReturnValue<void>(rawCallResult);
+                return abiEncoder.strictDecodeReturnValue<void
+            >(rawCallResult);
             },
             getABIEncodedTransactionData(): string {
-                return self._strictEncodeArguments(functionSignature, [_token.toLowerCase(), _symbol]);
+                return self._strictEncodeArguments(functionSignature, [_token.toLowerCase(),
+            _symbol
+            ]);
             },
-        };
-    }
-    public getTokenAddressBySymbol(_symbol: string): ContractFunctionObj<string> {
-        const self = (this as any) as TokenizedRegistryContract;
-        assert.isString('_symbol', _symbol);
+        }
+    };
+    public getTokenAddressBySymbol(
+            _symbol: string,
+    ): ContractFunctionObj<string
+> {
+        const self = this as any as TokenizedRegistryContract;
+            assert.isString('_symbol', _symbol);
         const functionSignature = 'getTokenAddressBySymbol(string)';
 
         return {
-            async callAsync(callData: Partial<CallData> = {}, defaultBlock?: BlockParam): Promise<string> {
+            async callAsync(
+                callData: Partial<CallData> = {},
+                defaultBlock?: BlockParam,
+            ): Promise<string
+            > {
                 BaseContract._assertCallParams(callData, defaultBlock);
-                const rawCallResult = await self._performCallAsync(
-                    { ...callData, data: this.getABIEncodedTransactionData() },
-                    defaultBlock,
-                );
+                const rawCallResult = await self._performCallAsync({ ...callData, data: this.getABIEncodedTransactionData() }, defaultBlock);
                 const abiEncoder = self._lookupAbiEncoder(functionSignature);
-                return abiEncoder.strictDecodeReturnValue<string>(rawCallResult);
+                return abiEncoder.strictDecodeReturnValue<string
+            >(rawCallResult);
             },
             getABIEncodedTransactionData(): string {
-                return self._strictEncodeArguments(functionSignature, [_symbol]);
+                return self._strictEncodeArguments(functionSignature, [_symbol
+            ]);
             },
-        };
-    }
-    public getTokenAddressByName(_name: string): ContractFunctionObj<string> {
-        const self = (this as any) as TokenizedRegistryContract;
-        assert.isString('_name', _name);
+        }
+    };
+    public getTokenAddressByName(
+            _name: string,
+    ): ContractFunctionObj<string
+> {
+        const self = this as any as TokenizedRegistryContract;
+            assert.isString('_name', _name);
         const functionSignature = 'getTokenAddressByName(string)';
 
         return {
-            async callAsync(callData: Partial<CallData> = {}, defaultBlock?: BlockParam): Promise<string> {
+            async callAsync(
+                callData: Partial<CallData> = {},
+                defaultBlock?: BlockParam,
+            ): Promise<string
+            > {
                 BaseContract._assertCallParams(callData, defaultBlock);
-                const rawCallResult = await self._performCallAsync(
-                    { ...callData, data: this.getABIEncodedTransactionData() },
-                    defaultBlock,
-                );
+                const rawCallResult = await self._performCallAsync({ ...callData, data: this.getABIEncodedTransactionData() }, defaultBlock);
                 const abiEncoder = self._lookupAbiEncoder(functionSignature);
-                return abiEncoder.strictDecodeReturnValue<string>(rawCallResult);
+                return abiEncoder.strictDecodeReturnValue<string
+            >(rawCallResult);
             },
             getABIEncodedTransactionData(): string {
-                return self._strictEncodeArguments(functionSignature, [_name]);
+                return self._strictEncodeArguments(functionSignature, [_name
+            ]);
             },
-        };
-    }
+        }
+    };
     public getTokenByAddress(
-        _token: string,
-    ): ContractFunctionObj<{
-        token: string;
-        asset: string;
-        name: string;
-        symbol: string;
-        tokenType: BigNumber;
-        index: BigNumber;
-    }> {
-        const self = (this as any) as TokenizedRegistryContract;
-        assert.isString('_token', _token);
+            _token: string,
+    ): ContractFunctionObj<{token: string;asset: string;name: string;symbol: string;tokenType: BigNumber;index: BigNumber}
+> {
+        const self = this as any as TokenizedRegistryContract;
+            assert.isString('_token', _token);
         const functionSignature = 'getTokenByAddress(address)';
 
         return {
             async callAsync(
                 callData: Partial<CallData> = {},
                 defaultBlock?: BlockParam,
-            ): Promise<{
-                token: string;
-                asset: string;
-                name: string;
-                symbol: string;
-                tokenType: BigNumber;
-                index: BigNumber;
-            }> {
+            ): Promise<{token: string;asset: string;name: string;symbol: string;tokenType: BigNumber;index: BigNumber}
+            > {
                 BaseContract._assertCallParams(callData, defaultBlock);
-                const rawCallResult = await self._performCallAsync(
-                    { ...callData, data: this.getABIEncodedTransactionData() },
-                    defaultBlock,
-                );
+                const rawCallResult = await self._performCallAsync({ ...callData, data: this.getABIEncodedTransactionData() }, defaultBlock);
                 const abiEncoder = self._lookupAbiEncoder(functionSignature);
-                return abiEncoder.strictDecodeReturnValue<{
-                    token: string;
-                    asset: string;
-                    name: string;
-                    symbol: string;
-                    tokenType: BigNumber;
-                    index: BigNumber;
-                }>(rawCallResult);
+                return abiEncoder.strictDecodeReturnValue<{token: string;asset: string;name: string;symbol: string;tokenType: BigNumber;index: BigNumber}
+            >(rawCallResult);
             },
             getABIEncodedTransactionData(): string {
-                return self._strictEncodeArguments(functionSignature, [_token.toLowerCase()]);
+                return self._strictEncodeArguments(functionSignature, [_token.toLowerCase()
+            ]);
             },
-        };
-    }
+        }
+    };
     public getTokenByName(
-        _name: string,
-    ): ContractFunctionObj<{
-        token: string;
-        asset: string;
-        name: string;
-        symbol: string;
-        tokenType: BigNumber;
-        index: BigNumber;
-    }> {
-        const self = (this as any) as TokenizedRegistryContract;
-        assert.isString('_name', _name);
+            _name: string,
+    ): ContractFunctionObj<{token: string;asset: string;name: string;symbol: string;tokenType: BigNumber;index: BigNumber}
+> {
+        const self = this as any as TokenizedRegistryContract;
+            assert.isString('_name', _name);
         const functionSignature = 'getTokenByName(string)';
 
         return {
             async callAsync(
                 callData: Partial<CallData> = {},
                 defaultBlock?: BlockParam,
-            ): Promise<{
-                token: string;
-                asset: string;
-                name: string;
-                symbol: string;
-                tokenType: BigNumber;
-                index: BigNumber;
-            }> {
+            ): Promise<{token: string;asset: string;name: string;symbol: string;tokenType: BigNumber;index: BigNumber}
+            > {
                 BaseContract._assertCallParams(callData, defaultBlock);
-                const rawCallResult = await self._performCallAsync(
-                    { ...callData, data: this.getABIEncodedTransactionData() },
-                    defaultBlock,
-                );
+                const rawCallResult = await self._performCallAsync({ ...callData, data: this.getABIEncodedTransactionData() }, defaultBlock);
                 const abiEncoder = self._lookupAbiEncoder(functionSignature);
-                return abiEncoder.strictDecodeReturnValue<{
-                    token: string;
-                    asset: string;
-                    name: string;
-                    symbol: string;
-                    tokenType: BigNumber;
-                    index: BigNumber;
-                }>(rawCallResult);
+                return abiEncoder.strictDecodeReturnValue<{token: string;asset: string;name: string;symbol: string;tokenType: BigNumber;index: BigNumber}
+            >(rawCallResult);
             },
             getABIEncodedTransactionData(): string {
-                return self._strictEncodeArguments(functionSignature, [_name]);
+                return self._strictEncodeArguments(functionSignature, [_name
+            ]);
             },
-        };
-    }
+        }
+    };
     public getTokenBySymbol(
-        _symbol: string,
-    ): ContractFunctionObj<{
-        token: string;
-        asset: string;
-        name: string;
-        symbol: string;
-        tokenType: BigNumber;
-        index: BigNumber;
-    }> {
-        const self = (this as any) as TokenizedRegistryContract;
-        assert.isString('_symbol', _symbol);
+            _symbol: string,
+    ): ContractFunctionObj<{token: string;asset: string;name: string;symbol: string;tokenType: BigNumber;index: BigNumber}
+> {
+        const self = this as any as TokenizedRegistryContract;
+            assert.isString('_symbol', _symbol);
         const functionSignature = 'getTokenBySymbol(string)';
 
         return {
             async callAsync(
                 callData: Partial<CallData> = {},
                 defaultBlock?: BlockParam,
-            ): Promise<{
-                token: string;
-                asset: string;
-                name: string;
-                symbol: string;
-                tokenType: BigNumber;
-                index: BigNumber;
-            }> {
+            ): Promise<{token: string;asset: string;name: string;symbol: string;tokenType: BigNumber;index: BigNumber}
+            > {
                 BaseContract._assertCallParams(callData, defaultBlock);
-                const rawCallResult = await self._performCallAsync(
-                    { ...callData, data: this.getABIEncodedTransactionData() },
-                    defaultBlock,
-                );
+                const rawCallResult = await self._performCallAsync({ ...callData, data: this.getABIEncodedTransactionData() }, defaultBlock);
                 const abiEncoder = self._lookupAbiEncoder(functionSignature);
-                return abiEncoder.strictDecodeReturnValue<{
-                    token: string;
-                    asset: string;
-                    name: string;
-                    symbol: string;
-                    tokenType: BigNumber;
-                    index: BigNumber;
-                }>(rawCallResult);
+                return abiEncoder.strictDecodeReturnValue<{token: string;asset: string;name: string;symbol: string;tokenType: BigNumber;index: BigNumber}
+            >(rawCallResult);
             },
             getABIEncodedTransactionData(): string {
-                return self._strictEncodeArguments(functionSignature, [_symbol]);
+                return self._strictEncodeArguments(functionSignature, [_symbol
+            ]);
             },
-        };
-    }
-    public getTokenAddresses(): ContractFunctionObj<string[]> {
-        const self = (this as any) as TokenizedRegistryContract;
+        }
+    };
+    public getTokenAddresses(
+    ): ContractFunctionObj<string[]
+> {
+        const self = this as any as TokenizedRegistryContract;
         const functionSignature = 'getTokenAddresses()';
 
         return {
-            async callAsync(callData: Partial<CallData> = {}, defaultBlock?: BlockParam): Promise<string[]> {
+            async callAsync(
+                callData: Partial<CallData> = {},
+                defaultBlock?: BlockParam,
+            ): Promise<string[]
+            > {
                 BaseContract._assertCallParams(callData, defaultBlock);
-                const rawCallResult = await self._performCallAsync(
-                    { ...callData, data: this.getABIEncodedTransactionData() },
-                    defaultBlock,
-                );
+                const rawCallResult = await self._performCallAsync({ ...callData, data: this.getABIEncodedTransactionData() }, defaultBlock);
                 const abiEncoder = self._lookupAbiEncoder(functionSignature);
-                return abiEncoder.strictDecodeReturnValue<string[]>(rawCallResult);
+                return abiEncoder.strictDecodeReturnValue<string[]
+            >(rawCallResult);
             },
             getABIEncodedTransactionData(): string {
                 return self._strictEncodeArguments(functionSignature, []);
             },
-        };
-    }
+        }
+    };
     public getTokens(
-        _start: BigNumber,
-        _count: BigNumber,
-        _tokenType: BigNumber,
-    ): ContractFunctionObj<
-        Array<{ token: string; asset: string; name: string; symbol: string; tokenType: BigNumber; index: BigNumber }>
-    > {
-        const self = (this as any) as TokenizedRegistryContract;
-        assert.isBigNumber('_start', _start);
-        assert.isBigNumber('_count', _count);
-        assert.isBigNumber('_tokenType', _tokenType);
+            _start: BigNumber,
+            _count: BigNumber,
+            _tokenType: BigNumber,
+    ): ContractFunctionObj<Array<{token: string;asset: string;name: string;symbol: string;tokenType: BigNumber;index: BigNumber}>
+> {
+        const self = this as any as TokenizedRegistryContract;
+            assert.isBigNumber('_start', _start);
+            assert.isBigNumber('_count', _count);
+            assert.isBigNumber('_tokenType', _tokenType);
         const functionSignature = 'getTokens(uint256,uint256,uint256)';
 
         return {
             async callAsync(
                 callData: Partial<CallData> = {},
                 defaultBlock?: BlockParam,
-            ): Promise<
-                Array<{
-                    token: string;
-                    asset: string;
-                    name: string;
-                    symbol: string;
-                    tokenType: BigNumber;
-                    index: BigNumber;
-                }>
+            ): Promise<Array<{token: string;asset: string;name: string;symbol: string;tokenType: BigNumber;index: BigNumber}>
             > {
                 BaseContract._assertCallParams(callData, defaultBlock);
-                const rawCallResult = await self._performCallAsync(
-                    { ...callData, data: this.getABIEncodedTransactionData() },
-                    defaultBlock,
-                );
+                const rawCallResult = await self._performCallAsync({ ...callData, data: this.getABIEncodedTransactionData() }, defaultBlock);
                 const abiEncoder = self._lookupAbiEncoder(functionSignature);
-                return abiEncoder.strictDecodeReturnValue<
-                    Array<{
-                        token: string;
-                        asset: string;
-                        name: string;
-                        symbol: string;
-                        tokenType: BigNumber;
-                        index: BigNumber;
-                    }>
-                >(rawCallResult);
+                return abiEncoder.strictDecodeReturnValue<Array<{token: string;asset: string;name: string;symbol: string;tokenType: BigNumber;index: BigNumber}>
+            >(rawCallResult);
             },
             getABIEncodedTransactionData(): string {
-                return self._strictEncodeArguments(functionSignature, [_start, _count, _tokenType]);
+                return self._strictEncodeArguments(functionSignature, [_start,
+            _count,
+            _tokenType
+            ]);
             },
-        };
-    }
-    public isTokenType(_token: string, _tokenType: BigNumber): ContractFunctionObj<boolean> {
-        const self = (this as any) as TokenizedRegistryContract;
-        assert.isString('_token', _token);
-        assert.isBigNumber('_tokenType', _tokenType);
+        }
+    };
+    public isTokenType(
+            _token: string,
+            _tokenType: BigNumber,
+    ): ContractFunctionObj<boolean
+> {
+        const self = this as any as TokenizedRegistryContract;
+            assert.isString('_token', _token);
+            assert.isBigNumber('_tokenType', _tokenType);
         const functionSignature = 'isTokenType(address,uint256)';
 
         return {
-            async callAsync(callData: Partial<CallData> = {}, defaultBlock?: BlockParam): Promise<boolean> {
+            async callAsync(
+                callData: Partial<CallData> = {},
+                defaultBlock?: BlockParam,
+            ): Promise<boolean
+            > {
                 BaseContract._assertCallParams(callData, defaultBlock);
-                const rawCallResult = await self._performCallAsync(
-                    { ...callData, data: this.getABIEncodedTransactionData() },
-                    defaultBlock,
-                );
+                const rawCallResult = await self._performCallAsync({ ...callData, data: this.getABIEncodedTransactionData() }, defaultBlock);
                 const abiEncoder = self._lookupAbiEncoder(functionSignature);
-                return abiEncoder.strictDecodeReturnValue<boolean>(rawCallResult);
+                return abiEncoder.strictDecodeReturnValue<boolean
+            >(rawCallResult);
             },
             getABIEncodedTransactionData(): string {
-                return self._strictEncodeArguments(functionSignature, [_token.toLowerCase(), _tokenType]);
+                return self._strictEncodeArguments(functionSignature, [_token.toLowerCase(),
+            _tokenType
+            ]);
             },
-        };
-    }
-    public getTokenAsset(_token: string, _tokenType: BigNumber): ContractFunctionObj<string> {
-        const self = (this as any) as TokenizedRegistryContract;
-        assert.isString('_token', _token);
-        assert.isBigNumber('_tokenType', _tokenType);
+        }
+    };
+    public getTokenAsset(
+            _token: string,
+            _tokenType: BigNumber,
+    ): ContractFunctionObj<string
+> {
+        const self = this as any as TokenizedRegistryContract;
+            assert.isString('_token', _token);
+            assert.isBigNumber('_tokenType', _tokenType);
         const functionSignature = 'getTokenAsset(address,uint256)';
 
         return {
-            async callAsync(callData: Partial<CallData> = {}, defaultBlock?: BlockParam): Promise<string> {
+            async callAsync(
+                callData: Partial<CallData> = {},
+                defaultBlock?: BlockParam,
+            ): Promise<string
+            > {
                 BaseContract._assertCallParams(callData, defaultBlock);
-                const rawCallResult = await self._performCallAsync(
-                    { ...callData, data: this.getABIEncodedTransactionData() },
-                    defaultBlock,
-                );
+                const rawCallResult = await self._performCallAsync({ ...callData, data: this.getABIEncodedTransactionData() }, defaultBlock);
                 const abiEncoder = self._lookupAbiEncoder(functionSignature);
-                return abiEncoder.strictDecodeReturnValue<string>(rawCallResult);
+                return abiEncoder.strictDecodeReturnValue<string
+            >(rawCallResult);
             },
             getABIEncodedTransactionData(): string {
-                return self._strictEncodeArguments(functionSignature, [_token.toLowerCase(), _tokenType]);
+                return self._strictEncodeArguments(functionSignature, [_token.toLowerCase(),
+            _tokenType
+            ]);
             },
-        };
-    }
+        }
+    };
 
     /**
      * Subscribe to an event type emitted by the TokenizedRegistry contract.
@@ -1450,21 +1480,13 @@ export class TokenizedRegistryContract extends BaseContract {
         logDecodeDependencies?: { [contractName: string]: ContractAbi },
         deployedBytecode: string | undefined = TokenizedRegistryContract.deployedBytecode,
     ) {
-        super(
-            'TokenizedRegistry',
-            TokenizedRegistryContract.ABI(),
-            address,
-            supportedProvider,
-            txDefaults,
-            logDecodeDependencies,
-            deployedBytecode,
-        );
+        super('TokenizedRegistry', TokenizedRegistryContract.ABI(), address, supportedProvider, txDefaults, logDecodeDependencies, deployedBytecode);
         classUtils.bindAll(this, ['_abiEncoderByFunctionSignature', 'address', '_web3Wrapper']);
-        this._subscriptionManager = new SubscriptionManager<TokenizedRegistryEventArgs, TokenizedRegistryEvents>(
+this._subscriptionManager = new SubscriptionManager<TokenizedRegistryEventArgs, TokenizedRegistryEvents>(
             TokenizedRegistryContract.ABI(),
             this._web3Wrapper,
         );
-        TokenizedRegistryContract.ABI().forEach((item, index) => {
+TokenizedRegistryContract.ABI().forEach((item, index) => {
             if (item.type === 'function') {
                 const methodAbi = item as MethodAbi;
                 this._methodABIIndex[methodAbi.name] = index;

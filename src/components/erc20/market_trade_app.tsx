@@ -3,7 +3,7 @@ import { useSelector } from 'react-redux';
 import { Route, Switch } from 'react-router';
 import { ThemeProvider } from 'styled-components';
 
-import { ERC20_APP_BASE_PATH, MARKET_APP_BASE_PATH } from '../../common/constants';
+import { MARKET_APP_BASE_PATH } from '../../common/constants';
 import { AdBlockDetector } from '../common/adblock_detector';
 import { GeneralLayoutContainer } from '../general_layout';
 import { getERC20Theme } from '../../store/selectors';
@@ -17,7 +17,7 @@ const toolbar = <ToolbarContentContainer />;
 const MarketTrade = lazy(() => import('./pages/market_trade'));
 
 
-const Erc20App = () => {
+const MarketTradeApp = () => {
     const themeColor = useSelector(getERC20Theme);
     return (
         <ThemeProvider theme={themeColor}>
@@ -25,7 +25,7 @@ const Erc20App = () => {
                 <AdBlockDetector />
                 <Switch>
                     <Suspense fallback={<PageLoading />}>
-                        <Route exact={true} path={`${MARKET_APP_BASE_PATH}/`} component={Marketplace} />
+                        <Route exact={true} path={`${MARKET_APP_BASE_PATH}/`} component={MarketTrade} />
                     </Suspense>
                 </Switch>
             </GeneralLayoutContainer>
@@ -33,4 +33,4 @@ const Erc20App = () => {
     );
 };
 
-export { Erc20App as default };
+export { MarketTradeApp as default };

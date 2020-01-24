@@ -8,8 +8,8 @@ import * as actions from '../actions';
 import { RootAction } from '../reducers';
 
 const parsedUrl = new URL(window.location.href.replace('#/', ''));
-const base = parsedUrl.searchParams.get('base') || getAvailableMarkets()[0].base;
-const quote = parsedUrl.searchParams.get('quote') || getAvailableMarkets()[0].quote;
+const base = parsedUrl.searchParams.get('base') || getAvailableMarkets()[6].base;
+const quote = parsedUrl.searchParams.get('quote') || getAvailableMarkets()[6].quote;
 let currencyPair;
 try {
     currencyPair = getCurrencyPairByTokensSymbol(base, quote);

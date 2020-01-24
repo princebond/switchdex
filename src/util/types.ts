@@ -9,6 +9,8 @@ import { TokenMetaData } from '../common/tokens_meta_data';
 import { TokenIEOMetaData } from '../common/tokens_meta_data_ieo';
 import { ExtraArgument } from '../store/index';
 import { Theme, ThemeModalStyle, ThemeProperties } from '../themes/commons';
+import { Styles } from 'react-modal';
+import { MarketSellSwapQuote, MarketBuySwapQuote } from '@0x/asset-swapper';
 
 export interface TabItem {
     active: boolean;
@@ -119,6 +121,13 @@ export enum Web3State {
     Locked = 'Locked',
 }
 
+export enum SwapQuoteState {
+    Done = 'Done',
+    Error = 'Error',
+    Loading = 'Loading',
+    NotLoaded = 'NotLoaded',
+}
+
 export enum BZXLoadingState {
     Done = 'Done',
     Error = 'Error',
@@ -153,6 +162,14 @@ export interface RelayerState {
     readonly accountMarketStats?: AccountMarketStat[];
     readonly feeRecipient?: string;
     readonly feePercentage?: number;
+}
+
+export interface SwapState {
+    readonly baseToken: Token;
+    readonly quoteToken: Token;
+    readonly quote?: MarketBuySwapQuote | MarketSellSwapQuote;
+    readonly isBuy?: boolean;
+    readonly quoteState: SwapQuoteState;
 }
 
 export interface UIState {
@@ -197,6 +214,7 @@ export interface StoreState {
     readonly market: MarketState;
     readonly collectibles: CollectiblesState;
     readonly bzx: BZXState;
+    readonly swap: SwapState;
 }
 
 export enum StepKind {
@@ -581,6 +599,7 @@ export enum ModalDisplay {
 
 export enum MARKETPLACES {
     ERC20 = 'ERC20',
+    MarketTrade = 'MarketTrade',
     ERC721 = 'ERC721',
     LaunchPad = 'LAUNCHPAD',
     Margin = 'MARGIN',
@@ -661,7 +680,7 @@ export interface Filter {
 
 export interface PartialTheme {
     componentsTheme?: Partial<ThemeProperties>;
-    modalTheme?: Partial<ThemeModalStyle>;
+    modalTheme?: Partial<Styles>;
 }
 
 export interface GeneralConfig {

@@ -20,6 +20,7 @@ import * as orderHelper from './orders';
 import { getExpirationTimeFromDate, getExpirationTimeOrdersFromConfig } from './time_utils';
 import { tokenAmountInUnitsToBigNumber, unitsInTokenAmount } from './tokens';
 import { OrderSide, UIOrder } from './types';
+import { AssetData, ERC20BridgeAssetData, AssetProxyId } from '@0x/types';
 
 interface BuildSellCollectibleOrderParams {
     collectibleAddress: string;
@@ -51,6 +52,10 @@ interface BuildMarketLimitMatchingOrderParams {
     price: BigNumber;
     orders: UIOrder[];
 }
+
+export const isBridgeAssetData = (decodedAssetData: AssetData): decodedAssetData is ERC20BridgeAssetData => {
+    return decodedAssetData.assetProxyId === AssetProxyId.ERC20Bridge;
+};
 
 export const buildSellCollectibleOrder = async (params: BuildSellCollectibleOrderParams, side: OrderSide) => {
     const {
