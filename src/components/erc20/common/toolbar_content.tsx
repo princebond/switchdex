@@ -14,10 +14,11 @@ import {
     setERC20Theme,
     setThemeName,
 } from '../../../store/actions';
-import { getGeneralConfig, getThemeName, getCurrentMarketPlace } from '../../../store/selectors';
+import { getCurrentMarketPlace, getGeneralConfig, getThemeName } from '../../../store/selectors';
 import { Theme, themeBreakPoints } from '../../../themes/commons';
 import { getThemeFromConfigDex } from '../../../themes/theme_meta_data_utils';
 import { isMobile } from '../../../util/screen';
+import { MARKETPLACES } from '../../../util/types';
 import { Button } from '../../common/button';
 import { withWindowWidth } from '../../common/hoc/withWindowWidth';
 import { LogoIcon } from '../../common/icons/logo_icon';
@@ -25,7 +26,6 @@ import { MenuBurguer } from '../../common/icons/menu_burguer';
 import { WalletConnectionContentContainer } from '../account/wallet_connection_content';
 
 import { MarketsDropdownStatsContainer } from './markets_dropdown_stats';
-import { MARKETPLACES } from '../../../util/types';
 import { SwapDropdownContainer } from './swap_dropdown';
 
 interface DispatchProps {
@@ -124,8 +124,12 @@ const ToolbarContent = (props: Props) => {
         dispatch(openFiatOnRampChooseModal(true));
     };
 
-    const dropdownHeader = marketplace === MARKETPLACES.MarketTrade ? <SwapDropdownHeader shouldCloseDropdownBodyOnClick={false} className={'swap-dropdown'} /> :
-        <MarketsDropdownHeader shouldCloseDropdownBodyOnClick={false} className={'markets-dropdown'} />;
+    const dropdownHeader =
+        marketplace === MARKETPLACES.MarketTrade ? (
+            <SwapDropdownHeader shouldCloseDropdownBodyOnClick={false} className={'swap-dropdown'} />
+        ) : (
+            <MarketsDropdownHeader shouldCloseDropdownBodyOnClick={false} className={'markets-dropdown'} />
+        );
 
     let startContent;
     if (isMobile(props.windowWidth)) {

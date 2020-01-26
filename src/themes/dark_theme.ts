@@ -1,6 +1,7 @@
+import { Styles } from 'react-modal';
+
 import { ThemeProperties } from './commons';
 import { DefaultTheme } from './default_theme';
-import { Styles } from 'react-modal';
 
 const modalThemeStyle: Styles = {
     content: {

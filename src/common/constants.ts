@@ -1,7 +1,7 @@
+import { ERC20BridgeSource, SwapQuoteRequestOpts } from '@0x/asset-swapper';
 import { BigNumber } from '@0x/utils';
 
 import { Network, ProviderType } from '../util/types';
-import { SwapQuoteRequestOpts, ERC20BridgeSource } from '@0x/asset-swapper';
 import { ChainId } from '../util/types/swap';
 
 export const ERC20_APP_BASE_PATH = '/erc20';
@@ -177,8 +177,6 @@ export const PROVIDER_TYPE_TO_NAME: { [key in ProviderType]: string } = {
 export const ONE_SECOND_MS = 1000;
 
 export const QUOTE_ORDER_EXPIRATION_BUFFER_MS = ONE_SECOND_MS * 30; // Ignore orders that expire in 30 seconds
-
-
 
 export const ASSET_SWAPPER_MARKET_ORDERS_OPTS: Partial<SwapQuoteRequestOpts> = {
     noConflicts: true,

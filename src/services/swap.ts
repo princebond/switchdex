@@ -1,7 +1,3 @@
-import { getRelayer } from "./relayer";
-import { getWeb3Wrapper } from "./web3_wrapper";
-import { BigNumber, RevertError } from "@0x/utils";
-import { TxData, SupportedProvider, Web3Wrapper } from "@0x/web3-wrapper";
 import {
     ExtensionContractType,
     MarketBuySwapQuote,
@@ -11,11 +7,24 @@ import {
     SwapQuoteConsumer,
     SwapQuoter,
 } from '@0x/asset-swapper';
-import { CHAIN_ID, FEE_RECIPIENT, FEE_PERCENTAGE, QUOTE_ORDER_EXPIRATION_BUFFER_MS, ASSET_SWAPPER_MARKET_ORDERS_OPTS } from "../common/constants";
-import { assetDataUtils } from "@0x/order-utils";
-import { isBridgeAssetData } from "../util/orders";
-import { CalculateSwapQuoteParams, GetSwapQuoteResponse } from "../util/types/swap";
-import { getKnownTokens } from "../util/known_tokens";
+import { OrderPrunerPermittedFeeTypes } from '@0x/asset-swapper/lib/src/types';
+import { assetDataUtils } from '@0x/order-utils';
+import { BigNumber, RevertError } from '@0x/utils';
+import { SupportedProvider, TxData, Web3Wrapper } from '@0x/web3-wrapper';
+
+import {
+    ASSET_SWAPPER_MARKET_ORDERS_OPTS,
+    CHAIN_ID,
+    FEE_PERCENTAGE,
+    FEE_RECIPIENT,
+    QUOTE_ORDER_EXPIRATION_BUFFER_MS,
+} from '../common/constants';
+import { getKnownTokens } from '../util/known_tokens';
+import { isBridgeAssetData } from '../util/orders';
+import { CalculateSwapQuoteParams, GetSwapQuoteResponse } from '../util/types/swap';
+
+import { getRelayer } from './relayer';
+import { getWeb3Wrapper } from './web3_wrapper';
 
 // Adapted from https://github.com/0xProject/0x-api/blob/master/src/services/swap_service.ts
 export class SwapService {
@@ -28,28 +37,32 @@ export class SwapService {
         const swapQuoterOpts = {
             chainId: CHAIN_ID,
             expiryBufferMs: QUOTE_ORDER_EXPIRATION_BUFFER_MS,
+            permittedOrderFeeTypes: new Set<OrderPrunerPermittedFeeTypes>([
+                OrderPrunerPermittedFeeTypes.NoFees,
+                //  OrderPrunerPermittedFeeTypes.MakerDenominatedTakerFee,
+                OrderPrunerPermittedFeeTypes.TakerDenominatedTakerFee,
+            ]),
         };
         this._swapQuoter = new SwapQuoter(this._provider, orderbook, swapQuoterOpts);
         this._swapQuoteConsumer = new SwapQuoteConsumer(this._provider);
         this._web3Wrapper = new Web3Wrapper(this._provider);
-
     }
-    public getSwapQuoteConsumer(){
+    public getSwapQuoteConsumer() {
         return this._swapQuoteConsumer;
     }
-    public async executeSwapQuote(isETHSell: boolean, quote: MarketBuySwapQuote | MarketSellSwapQuote){
+    public async executeSwapQuote(isETHSell: boolean, quote: MarketBuySwapQuote | MarketSellSwapQuote) {
         // If ETH was specified as the token to sell then we use the Forwarder
         const extensionContractType = isETHSell ? ExtensionContractType.Forwarder : ExtensionContractType.None;
-        return await this._swapQuoteConsumer.executeSwapQuoteOrThrowAsync(quote, {
+        return this._swapQuoteConsumer.executeSwapQuoteOrThrowAsync(quote, {
             useExtensionContract: extensionContractType,
             extensionContractOpts: {
                 // Apply the Fee Recipient for the Forwarder
                 feeRecipient: FEE_RECIPIENT,
-                feePercentage: FEE_PERCENTAGE
+                feePercentage: FEE_PERCENTAGE,
             },
-        })
+        });
     }
-    public async getSwapQuote(params: CalculateSwapQuoteParams): Promise<MarketBuySwapQuote | MarketSellSwapQuote>{
+    public async getSwapQuote(params: CalculateSwapQuoteParams): Promise<MarketBuySwapQuote | MarketSellSwapQuote> {
         const date = new Date().getTime();
         let swapQuote;
         const {
@@ -83,10 +96,9 @@ export class SwapService {
             throw new Error('sellAmount or buyAmount required');
         }
         const attributedSwapQuote = this._attributeSwapQuoteOrders(swapQuote);
-        console.log((new Date().getTime()-date)/1000);
+        console.log((new Date().getTime() - date) / 1000);
         return attributedSwapQuote;
     }
-
 
     public async calculateSwapQuoteAsync(params: CalculateSwapQuoteParams): Promise<GetSwapQuoteResponse> {
         let swapQuote;
@@ -141,7 +153,7 @@ export class SwapService {
             extensionContractOpts: {
                 // Apply the Fee Recipient for the Forwarder
                 feeRecipient: FEE_RECIPIENT,
-                feePercentage: FEE_PERCENTAGE
+                feePercentage: FEE_PERCENTAGE,
             },
         });
 
@@ -160,13 +172,10 @@ export class SwapService {
         const sellTokenDecimals = await this._fetchTokenDecimalsIfRequiredAsync(sellTokenAddress);
         const unitMakerAssetAmount = Web3Wrapper.toUnitAmount(makerAssetAmount, buyTokenDecimals);
         const unitTakerAssetAMount = Web3Wrapper.toUnitAmount(totalTakerAssetAmount, sellTokenDecimals);
-        const price = buyAmount === undefined ?
-            unitMakerAssetAmount
-                .dividedBy(unitTakerAssetAMount)
-                .decimalPlaces(sellTokenDecimals) :
-            unitTakerAssetAMount
-                .dividedBy(unitMakerAssetAmount)
-                .decimalPlaces(buyTokenDecimals);
+        const price =
+            buyAmount === undefined
+                ? unitMakerAssetAmount.dividedBy(unitTakerAssetAMount).decimalPlaces(sellTokenDecimals)
+                : unitTakerAssetAMount.dividedBy(unitMakerAssetAmount).decimalPlaces(buyTokenDecimals);
 
         const apiSwapQuote: GetSwapQuoteResponse = {
             price,
@@ -248,34 +257,28 @@ export class SwapService {
         // so we must encode this ourselves
         const known_tokens = getKnownTokens();
         let decimals = 18;
-        //let decimals = findTokenDecimalsIfExists(tokenAddress, CHAIN_ID);
-        try{
-          decimals =  known_tokens.getTokenByAddress(tokenAddress).decimals;
-        }catch(e){
+        // let decimals = findTokenDecimalsIfExists(tokenAddress, CHAIN_ID);
+        try {
+            decimals = known_tokens.getTokenByAddress(tokenAddress).decimals;
+        } catch (e) {
             //
         }
-        
+
         return decimals;
     }
 }
 
-
-
-
-
-
 let swapService: SwapService;
-export const  getAssetSwapper = async (): Promise<SwapService> => {
+export const getAssetSwapper = async (): Promise<SwapService> => {
     const relayer = getRelayer();
     const web3Wrapper = await getWeb3Wrapper();
 
     if (!swapService) {
-        swapService = new SwapService(relayer.getOrderbook(),web3Wrapper.getProvider());
+        swapService = new SwapService(relayer.getOrderbook(), web3Wrapper.getProvider());
     }
 
     return swapService;
 };
-
 
 const throwIfRevertError = (result: string): void => {
     let revertError;

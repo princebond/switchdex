@@ -1,5 +1,5 @@
 import { assetDataUtils } from '@0x/order-utils';
-import { SignedOrder, ERC721AssetData } from '@0x/types';
+import { ERC721AssetData, SignedOrder } from '@0x/types';
 
 import { COLLECTIBLE_ADDRESS } from '../common/constants';
 import { getRelayer, Relayer } from '../services/relayer';

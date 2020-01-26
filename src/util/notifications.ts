@@ -39,7 +39,7 @@ export const getOrderSideFromFillEvent = (
     }
     const { makerAssetData, takerAssetData } = fillEvent.args;
     const wethToken = knownTokens.getWethToken();
-    const makerTokenAddress = (assetDataUtils.decodeAssetDataOrThrow(makerAssetData) as ERC20AssetData).tokenAddress
+    const makerTokenAddress = (assetDataUtils.decodeAssetDataOrThrow(makerAssetData) as ERC20AssetData).tokenAddress;
     const takerTokenAddress = (assetDataUtils.decodeAssetDataOrThrow(takerAssetData) as ERC20AssetData).tokenAddress;
     const wethAssetData = assetDataUtils.encodeERC20AssetData(wethToken.address);
     let orderSide: OrderSide = OrderSide.Buy;

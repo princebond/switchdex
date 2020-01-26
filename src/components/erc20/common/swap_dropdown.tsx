@@ -1,17 +1,16 @@
-import { BigNumber } from '@0x/utils';
 import React, { HTMLAttributes } from 'react';
 import { connect } from 'react-redux';
 import styled from 'styled-components';
 
 import { marketFilters } from '../../../common/markets';
-import {  goToHome, changeSwapBaseToken } from '../../../store/actions';
-import {  getMarkets, getMarketsStats, getSwapBaseToken, getSwapQuoteToken } from '../../../store/selectors';
+import { changeSwapBaseToken, goToHome } from '../../../store/actions';
+import { getSwapBaseToken, getSwapQuoteToken } from '../../../store/selectors';
 import { themeBreakPoints, themeDimensions } from '../../../themes/commons';
 import { getKnownTokens } from '../../../util/known_tokens';
-import { filterMarketsByString, filterMarketsByTokenSymbol, marketToString } from '../../../util/markets';
 import { isMobile } from '../../../util/screen';
+import { filterTokensByString } from '../../../util/swap';
 import { formatTokenSymbol } from '../../../util/tokens';
-import { CurrencyPair, Filter, Market, RelayerMarketStats, StoreState, Token } from '../../../util/types';
+import { Filter, StoreState, Token } from '../../../util/types';
 import { CardBase } from '../../common/card_base';
 import { Dropdown } from '../../common/dropdown';
 import { withWindowWidth } from '../../common/hoc/withWindowWidth';
@@ -19,7 +18,6 @@ import { ChevronDownIcon } from '../../common/icons/chevron_down_icon';
 import { MagnifierIcon } from '../../common/icons/magnifier_icon';
 import { TokenIcon } from '../../common/icons/token_icon';
 import { CustomTDFirst, CustomTDLast, Table, TBody, THead, THFirst, THLast, TR } from '../../common/table';
-import { filterTokensByString } from '../../../util/swap';
 
 interface PropsDivElement extends HTMLAttributes<HTMLDivElement> {}
 
@@ -260,7 +258,7 @@ class SwapDropdown extends React.Component<Props, State> {
     private readonly _dropdown = React.createRef<Dropdown>();
 
     public render = () => {
-        const {  baseToken, windowWidth, ...restProps } = this.props;
+        const { baseToken, windowWidth, ...restProps } = this.props;
 
         const header = (
             <MarketsDropdownHeader>
@@ -343,10 +341,10 @@ class SwapDropdown extends React.Component<Props, State> {
     };
 
     private readonly _getMarkets = () => {
-        const { baseToken, quoteToken, } = this.props;
+        const { baseToken, quoteToken } = this.props;
         const { search } = this.state;
 
-        if (!baseToken  || !quoteToken) {
+        if (!baseToken || !quoteToken) {
             return null;
         }
         const known_tokens = getKnownTokens().getTokens();
@@ -373,9 +371,7 @@ class SwapDropdown extends React.Component<Props, State> {
                                                 primaryColor={token.primaryColor}
                                                 icon={token.icon}
                                             />
-                                            <TokenLabel>
-                                                {baseSymbol}
-                                            </TokenLabel>
+                                            <TokenLabel>{baseSymbol}</TokenLabel>
                                         </TokenIconAndLabel>
                                     </CustomTDFirstStyled>
                                 </TRStyled>
@@ -391,7 +387,7 @@ class SwapDropdown extends React.Component<Props, State> {
 
     private readonly _setSelectedToken: any = (token: Token) => {
         this.props.changeSwapBaseToken(token);
-       // this.props.goToHome();
+        // this.props.goToHome();
         if (this._dropdown.current) {
             this._dropdown.current.closeDropdown();
         }
@@ -412,8 +408,6 @@ const mapDispatchToProps = (dispatch: any): DispatchProps => {
     };
 };
 
-const SwapDropdownContainer = withWindowWidth(
-    connect(mapStateToProps, mapDispatchToProps)(SwapDropdown),
-);
+const SwapDropdownContainer = withWindowWidth(connect(mapStateToProps, mapDispatchToProps)(SwapDropdown));
 
 export { SwapDropdown, SwapDropdownContainer };

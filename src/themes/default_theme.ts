@@ -1,5 +1,6 @@
-import { Theme, ThemeProperties } from './commons';
 import { Styles } from 'react-modal';
+
+import { Theme, ThemeProperties } from './commons';
 
 const modalThemeStyle: Styles = {
     content: {

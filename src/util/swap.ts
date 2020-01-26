@@ -1,7 +1,4 @@
-import { Token } from "./types";
-
-
-
+import { Token } from './types';
 
 export const filterTokensByString = (tokens: Token[], str: string): Token[] => {
     return tokens.filter(token => {

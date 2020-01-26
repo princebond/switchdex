@@ -9,9 +9,9 @@ import {
     INSTANT_APP_BASE_PATH,
     LAUNCHPAD_APP_BASE_PATH,
     MARGIN_APP_BASE_PATH,
+    MARKET_APP_BASE_PATH,
     USE_RELAYER_MARKET_UPDATES,
     ZERO,
-    MARKET_APP_BASE_PATH,
 } from '../common/constants';
 import { isWeth } from '../util/known_tokens';
 import {
@@ -100,12 +100,10 @@ export const getMarketStats = (state: StoreState) => state.market.marketStats;
 export const getMarketsStats = (state: StoreState) => state.market.marketsStats;
 export const getFeeRecipient = (state: StoreState) => state.relayer.feeRecipient;
 export const getFeePercentage = (state: StoreState) => state.relayer.feePercentage;
-export const getSwapQuoteToken  = (state: StoreState) => state.swap.quoteToken;
+export const getSwapQuoteToken = (state: StoreState) => state.swap.quoteToken;
 export const getSwapBaseToken = (state: StoreState) => state.swap.baseToken;
 export const getSwapQuote = (state: StoreState) => state.swap.quote;
 export const getSwapQuoteState = (state: StoreState) => state.swap.quoteState;
-
-
 
 export const getCurrentMarketPlace = createSelector(getCurrentRoutePath, (currentRoute: string) => {
     if (currentRoute.includes(ERC20_APP_BASE_PATH)) {
@@ -121,7 +119,7 @@ export const getCurrentMarketPlace = createSelector(getCurrentRoutePath, (curren
     } else if (currentRoute.includes(FIAT_RAMP_APP_BASE_PATH)) {
         return MARKETPLACES.FiatRamp;
     } else if (currentRoute.includes(MARKET_APP_BASE_PATH)) {
-            return MARKETPLACES.MarketTrade;
+        return MARKETPLACES.MarketTrade;
     } else {
         return MARKETPLACES.ERC20;
     }
@@ -248,7 +246,6 @@ export const getSwapQuoteTokenBalance = createSelector(
     (tokenBalances: TokenBalance[], wethTokenBalance: TokenBalance | null, quoteToken: Token | null) =>
         searchToken({ tokenBalances, wethTokenBalance, tokenToFind: quoteToken }),
 );
-
 
 export const getOpenOrders = createSelector(getOrders, getWeb3State, (orders, web3State) => {
     switch (web3State) {

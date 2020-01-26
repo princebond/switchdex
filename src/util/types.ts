@@ -1,16 +1,16 @@
+import { MarketBuySwapQuote, MarketSellSwapQuote } from '@0x/asset-swapper';
 import { SignedOrder } from '@0x/connect';
 import { OrderStatus } from '@0x/types';
 import { BigNumber } from '@0x/utils';
 import { RouterState } from 'connected-react-router';
+import { Styles } from 'react-modal';
 import { ActionCreator, AnyAction } from 'redux';
 import { ThunkAction } from 'redux-thunk';
 
 import { TokenMetaData } from '../common/tokens_meta_data';
 import { TokenIEOMetaData } from '../common/tokens_meta_data_ieo';
 import { ExtraArgument } from '../store/index';
-import { Theme, ThemeModalStyle, ThemeProperties } from '../themes/commons';
-import { Styles } from 'react-modal';
-import { MarketSellSwapQuote, MarketBuySwapQuote } from '@0x/asset-swapper';
+import { Theme, ThemeProperties } from '../themes/commons';
 
 export interface TabItem {
     active: boolean;
@@ -293,6 +293,8 @@ export interface StepBuySellMarket {
     amount: BigNumber;
     side: OrderSide;
     token: Token;
+    context: 'order' | 'swap';
+    quote?: MarketBuySwapQuote | MarketSellSwapQuote;
 }
 
 export interface StepBuySellLimitMatching {

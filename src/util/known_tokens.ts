@@ -1,5 +1,6 @@
 import { ExchangeFillEventArgs, LogWithDecodedArgs } from '@0x/contract-wrappers';
 import { assetDataUtils } from '@0x/order-utils';
+import { AssetProxyId, ERC20AssetData } from '@0x/types';
 
 import { KNOWN_TOKENS_META_DATA, TokenMetaData } from '../common/tokens_meta_data';
 import { KNOWN_TOKENS_IEO_META_DATA } from '../common/tokens_meta_data_ieo';
@@ -12,7 +13,6 @@ import {
     mapTokensMetaDataToTokenByNetworkId,
 } from './token_meta_data';
 import { Token } from './types';
-import { AssetProxyId, ERC20AssetData } from '@0x/types';
 
 const logger = getLogger('Tokens::known_tokens .ts');
 
@@ -113,8 +113,10 @@ export class KnownTokens {
             return false;
         }
 
-        const makerAssetAddress = (assetDataUtils.decodeAssetDataOrThrow(makerAssetData) as ERC20AssetData).tokenAddress;
-        const takerAssetAddress = (assetDataUtils.decodeAssetDataOrThrow(takerAssetData) as ERC20AssetData).tokenAddress;
+        const makerAssetAddress = (assetDataUtils.decodeAssetDataOrThrow(makerAssetData) as ERC20AssetData)
+            .tokenAddress;
+        const takerAssetAddress = (assetDataUtils.decodeAssetDataOrThrow(takerAssetData) as ERC20AssetData)
+            .tokenAddress;
 
         if (!this.isKnownAddress(makerAssetAddress) || !this.isKnownAddress(takerAssetAddress)) {
             return false;
@@ -179,10 +181,10 @@ export const isWethToken = (token: Token): boolean => {
 export const isERC20AssetData = (assetData: string): boolean => {
     try {
         const asset = assetDataUtils.decodeAssetDataOrThrow(assetData);
-        if(asset.assetProxyId === AssetProxyId.ERC20){
-            return true
-        }else{
-           return false;
+        if (asset.assetProxyId === AssetProxyId.ERC20) {
+            return true;
+        } else {
+            return false;
         }
     } catch (e) {
         return false;

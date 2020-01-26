@@ -29,7 +29,6 @@ export const filterMarketsByString = (markets: Market[], str: string): Market[] 
     });
 };
 
-
 export const filterMarketsStatsByString = (markets: RelayerMarketStats[], str: string): RelayerMarketStats[] => {
     return markets.filter(market => {
         const baseLowerCase = market.base.toLowerCase();

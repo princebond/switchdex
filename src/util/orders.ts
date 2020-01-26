@@ -1,5 +1,6 @@
 import { OrderConfigRequest, OrderConfigResponse } from '@0x/connect';
 import { assetDataUtils, Order, SignedOrder } from '@0x/order-utils';
+import { AssetData, AssetProxyId, ERC20BridgeAssetData } from '@0x/types';
 import { BigNumber, NULL_BYTES } from '@0x/utils';
 
 import {
@@ -20,7 +21,6 @@ import * as orderHelper from './orders';
 import { getExpirationTimeFromDate, getExpirationTimeOrdersFromConfig } from './time_utils';
 import { tokenAmountInUnitsToBigNumber, unitsInTokenAmount } from './tokens';
 import { OrderSide, UIOrder } from './types';
-import { AssetData, ERC20BridgeAssetData, AssetProxyId } from '@0x/types';
 
 interface BuildSellCollectibleOrderParams {
     collectibleAddress: string;

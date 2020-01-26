@@ -1,5 +1,5 @@
-import { BigNumber } from "@0x/utils";
-import { SignedOrder } from "@0x/types";
+import { SignedOrder } from '@0x/types';
+import { BigNumber } from '@0x/utils';
 
 export interface GetSwapQuoteResponse {
     price: BigNumber;

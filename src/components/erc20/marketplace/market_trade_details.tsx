@@ -1,3 +1,4 @@
+import { MarketBuySwapQuote, MarketSellSwapQuote } from '@0x/asset-swapper';
 import { BigNumber, NULL_BYTES } from '@0x/utils';
 import React from 'react';
 import { connect } from 'react-redux';
@@ -5,14 +6,10 @@ import styled, { keyframes } from 'styled-components';
 
 import { ZERO } from '../../../common/constants';
 import { fetchTakerAndMakerFee } from '../../../store/relayer/actions';
-import { getQuoteInUsd, getSwapQuoteState, getEthInUsd, getTokensPrice } from '../../../store/selectors';
+import { getQuoteInUsd, getSwapQuoteState, getTokensPrice } from '../../../store/selectors';
 import { getKnownTokens } from '../../../util/known_tokens';
-
 import { formatTokenSymbol, tokenAmountInUnits, tokenSymbolToDisplayString } from '../../../util/tokens';
-import { OrderFeeData, OrderSide, StoreState, Token, SwapQuoteState, TokenPrice } from '../../../util/types';
-import { MarketBuySwapQuote, MarketSellSwapQuote } from '@0x/asset-swapper';
-import { getMarketPriceEther } from '../../../services/markets';
-
+import { OrderFeeData, OrderSide, StoreState, SwapQuoteState, Token, TokenPrice } from '../../../util/types';
 
 const Row = styled.div`
     align-items: center;
@@ -59,17 +56,16 @@ const Label = styled.label<{ color?: string }>`
 
 const MainLabel = styled(Label)``;
 
-const FeeLabel = styled(Label)`
+/*const FeeLabel = styled(Label)`
     color: ${props => props.theme.componentsTheme.textColorCommon};
     font-weight: normal;
-`;
+`;*/
 
 const CostLabel = styled(Label)`
     font-weight: 700;
 `;
 
-const Wave = styled.div`
-`;
+const Wave = styled.div``;
 
 const WaveKeyframe = keyframes`
     0%, 60%, 100% {
@@ -78,35 +74,34 @@ const WaveKeyframe = keyframes`
     30% {
         transform: translateY(-15px);
     }
-`
+`;
 const Dot = styled.span`
-        color: ${props => props.theme.componentsTheme.textColorCommon};
-        background-color: ${props => props.theme.componentsTheme.textColorCommon};
-    	display:inline-block;
-		width:12px;
-		height:12px;
-		border-radius:50%;
-		margin-right:3px;
-		background: ${props => props.theme.componentsTheme.textColorCommon};
-		animation: ${WaveKeyframe} 1.3s linear infinite;
+    color: ${props => props.theme.componentsTheme.textColorCommon};
+    background-color: ${props => props.theme.componentsTheme.textColorCommon};
+    display: inline-block;
+    width: 12px;
+    height: 12px;
+    border-radius: 50%;
+    margin-right: 3px;
+    background: ${props => props.theme.componentsTheme.textColorCommon};
+    animation: ${WaveKeyframe} 1.3s linear infinite;
 
-		&:nth-child(2) {
-			animation-delay: -1.1s;
-		}
+    &:nth-child(2) {
+        animation-delay: -1.1s;
+    }
 
-		&:nth-child(3) {
-			animation-delay: -0.9s;
-		}
-`
+    &:nth-child(3) {
+        animation-delay: -0.9s;
+    }
+`;
 
-const AnimatedDots = () =>
+const AnimatedDots = () => (
     <Wave>
         <Dot />
         <Dot />
         <Dot />
     </Wave>
-
-
+);
 
 interface OwnProps {
     tokenAmount: BigNumber;
@@ -183,10 +178,10 @@ class MarketTradeDetails extends React.Component<Props, State> {
                 <LabelContainer>
                     <MainLabel>Order Details</MainLabel>
                 </LabelContainer>
-                <Row>
-                    <FeeLabel>Fee</FeeLabel>
-                    <Value>{fee}</Value>
-                </Row>
+                {/* <Row>
+                        <FeeLabel>Fee</FeeLabel>
+                        <Value>{fee}</Value>
+                </Row>*/}
                 <Row>
                     <CostLabel>{costText}</CostLabel>
                     <CostValue>{cost}</CostValue>
@@ -209,29 +204,29 @@ class MarketTradeDetails extends React.Component<Props, State> {
             this.setState({ canOrderBeFilled: false });
             return;
         }
-      
+
         const isSell = orderSide === OrderSide.Sell;
         const bestQuote = quote.bestCaseQuoteInfo;
-
-        // HACK(dekz): we assume takerFeeAssetData is either empty or is consistent through all orders         
+        const worstQuote = quote.worstCaseQuoteInfo;
+        // HACK(dekz): we assume takerFeeAssetData is either empty or is consistent through all orders
         const takerFeeAssetData = quote.takerAssetData;
-        const takerFeeAmount = bestQuote.feeTakerAssetAmount;
+        const takerFeeAmount = worstQuote.feeTakerAssetAmount;
         const quoteTokenAmount = isSell ? bestQuote.makerAssetAmount : bestQuote.takerAssetAmount;
-        const baseTokenAmount = isSell ? bestQuote.takerAssetAmount :  bestQuote.makerAssetAmount;
-        if(!baseTokenAmount.isEqualTo(tokenAmount)){
+        const baseTokenAmount = isSell ? bestQuote.takerAssetAmount : bestQuote.makerAssetAmount;
+        if (!baseTokenAmount.isEqualTo(tokenAmount)) {
             return;
         }
         const quoteTokenAmountUnits = new BigNumber(tokenAmountInUnits(quoteTokenAmount, quoteToken.decimals, 18));
         const baseTokenAmountUnits = new BigNumber(tokenAmountInUnits(tokenAmount, baseToken.decimals, 18));
         const price = quoteTokenAmountUnits.div(baseTokenAmountUnits);
         let geckoPrice;
-        if(tokenPrices){
-            const tokenPriceQuote = tokenPrices.find(t=> t.c_id === quoteToken.c_id);
-            const tokenPriceBase = tokenPrices.find(t=> t.c_id === baseToken.c_id);
-            if(tokenPriceQuote && tokenPriceBase){
-              geckoPrice = tokenPriceBase.price_usd.div(tokenPriceQuote.price_usd);
+        if (tokenPrices) {
+            const tokenPriceQuote = tokenPrices.find(t => t.c_id === quoteToken.c_id);
+            const tokenPriceBase = tokenPrices.find(t => t.c_id === baseToken.c_id);
+            if (tokenPriceQuote && tokenPriceBase) {
+                geckoPrice = tokenPriceBase.price_usd.div(tokenPriceQuote.price_usd);
             }
-         }
+        }
 
         this.setState({
             takerFeeAmount,
@@ -241,7 +236,6 @@ class MarketTradeDetails extends React.Component<Props, State> {
             price,
             geckoPrice,
         });
-
     };
 
     private readonly _getFeeStringForRender = () => {
@@ -251,7 +245,11 @@ class MarketTradeDetails extends React.Component<Props, State> {
         const feeAssetData = takerFeeAssetData;
         const feeAmount = takerFeeAmount;
         if (quoteState === SwapQuoteState.Loading) {
-            return <AnimatedDots />
+            return <AnimatedDots />;
+        }
+
+        if (quoteState === SwapQuoteState.Error) {
+            return '0.00';
         }
 
         if (feeAssetData === NULL_BYTES) {
@@ -268,18 +266,18 @@ class MarketTradeDetails extends React.Component<Props, State> {
 
     private readonly _getCostStringForRender = () => {
         const { canOrderBeFilled } = this.state;
-        const {  quoteToken, quoteState, tokenPrices } = this.props;
+        const { quoteToken, quoteState, tokenPrices } = this.props;
         if (quoteState === SwapQuoteState.Loading) {
-            return <AnimatedDots />
+            return <AnimatedDots />;
         }
 
-        if (!canOrderBeFilled) {
+        if (!canOrderBeFilled || quoteState === SwapQuoteState.Error) {
             return `---`;
         }
         let quoteInUSD;
-        if(tokenPrices){
-            const tokenPrice = tokenPrices.find(t=> t.c_id === quoteToken.c_id);
-            if(tokenPrice){
+        if (tokenPrices) {
+            const tokenPrice = tokenPrices.find(t => t.c_id === quoteToken.c_id);
+            if (tokenPrice) {
                 quoteInUSD = tokenPrice.price_usd;
             }
         }
@@ -300,9 +298,9 @@ class MarketTradeDetails extends React.Component<Props, State> {
         const { tokenAmount, quoteToken, quoteState } = this.props;
 
         if (quoteState === SwapQuoteState.Loading) {
-            return <AnimatedDots />
+            return <AnimatedDots />;
         }
-        if (!canOrderBeFilled) {
+        if (!canOrderBeFilled || quoteState === SwapQuoteState.Error) {
             return `---`;
         }
         if (tokenAmount.eq(0)) {
@@ -321,16 +319,18 @@ class MarketTradeDetails extends React.Component<Props, State> {
         }
     };
     private readonly _getPriceMarketRender = () => {
-         const { quoteToken, quoteState } = this.props;
-         const {geckoPrice} = this.state;
-
-         if (quoteState === SwapQuoteState.Loading) {
-            return <AnimatedDots />
-          }
-         if(geckoPrice.gt(0)){
-               return `${geckoPrice.toFormat(8)} ${formatTokenSymbol(quoteToken.symbol)}`;
-        }         
-         return '---'
+        const { quoteToken, quoteState } = this.props;
+        const { geckoPrice } = this.state;
+        if (quoteState === SwapQuoteState.Error) {
+            return '---';
+        }
+        if (quoteState === SwapQuoteState.Loading) {
+            return <AnimatedDots />;
+        }
+        if (geckoPrice && geckoPrice.gt(0)) {
+            return `${geckoPrice.toFormat(8)} ${formatTokenSymbol(quoteToken.symbol)}`;
+        }
+        return '---';
     };
 }
 

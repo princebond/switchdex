@@ -48,7 +48,6 @@ const InstantApp = lazy(() => import('./components/erc20/instant_app'));
 const FiatApp = lazy(() => import('./components/erc20/fiat_ramp_app'));
 const MarketTradeApp = lazy(() => import('./components/erc20/market_trade_app'));
 
-
 const Web3WrappedApp = (
     <Provider store={store}>
         <ConnectedRouter history={history}>

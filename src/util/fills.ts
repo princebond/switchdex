@@ -23,12 +23,12 @@ export const buildFill = (
     quoteTokenAddress =
         side === OrderSide.Buy
             ? (assetDataUtils.decodeAssetDataOrThrow(args.takerAssetData) as ERC20AssetData).tokenAddress
-            : (assetDataUtils.decodeAssetDataOrThrow(args.makerAssetData) as ERC20AssetData) .tokenAddress;
+            : (assetDataUtils.decodeAssetDataOrThrow(args.makerAssetData) as ERC20AssetData).tokenAddress;
 
     baseTokenAddress =
         side === OrderSide.Buy
-            ? (assetDataUtils.decodeAssetDataOrThrow(args.makerAssetData)  as ERC20AssetData) .tokenAddress
-            : (assetDataUtils.decodeAssetDataOrThrow(args.takerAssetData)  as ERC20AssetData).tokenAddress;
+            ? (assetDataUtils.decodeAssetDataOrThrow(args.makerAssetData) as ERC20AssetData).tokenAddress
+            : (assetDataUtils.decodeAssetDataOrThrow(args.takerAssetData) as ERC20AssetData).tokenAddress;
 
     baseToken = knownTokens.getTokenByAddress(baseTokenAddress);
     quoteToken = knownTokens.getTokenByAddress(quoteTokenAddress);

@@ -1,8 +1,9 @@
-import { SwapState, SwapQuoteState } from "../../util/types";
-import { getKnownTokens } from "../../util/known_tokens";
-import { RootAction } from "../reducers";
+import { getType } from 'typesafe-actions';
+
+import { getKnownTokens } from '../../util/known_tokens';
+import { SwapQuoteState, SwapState } from '../../util/types';
 import * as actions from '../actions';
-import { getType } from "typesafe-actions";
+import { RootAction } from '../reducers';
 
 const know_tokens = getKnownTokens();
 
@@ -18,11 +19,11 @@ export function swap(state: SwapState = initialSwapState, action: RootAction): S
         case getType(actions.setSwapQuote):
             return { ...state, quote: action.payload };
         case getType(actions.setSwapQuoteState):
-            return { ...state,  quoteState: action.payload };
+            return { ...state, quoteState: action.payload };
         case getType(actions.setSwapQuoteToken):
-            return { ...state,  quoteToken: action.payload };
+            return { ...state, quoteToken: action.payload };
         case getType(actions.setSwapBaseToken):
-            return { ...state,  baseToken: action.payload };
+            return { ...state, baseToken: action.payload };
         default:
             return state;
     }

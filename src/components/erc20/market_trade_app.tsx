@@ -13,9 +13,7 @@ import ToolbarContentContainer from './common/toolbar_content';
 
 const toolbar = <ToolbarContentContainer />;
 
-
 const MarketTrade = lazy(() => import('./pages/market_trade'));
-
 
 const MarketTradeApp = () => {
     const themeColor = useSelector(getERC20Theme);
