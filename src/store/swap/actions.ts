@@ -31,13 +31,9 @@ export const calculateSwapQuote: ThunkCreator = (params: CalculateSwapQuoteParam
         try {
             const assetSwapper = await getAssetSwapper();
             const quote = await assetSwapper.getSwapQuote(params);
-            console.log(quote);
-            console.log(quote.bestCaseQuoteInfo.totalTakerAssetAmount.toString());
-            console.log(quote.bestCaseQuoteInfo.takerAssetAmount.toString());
             dispatch(setSwapQuote(quote));
             dispatch(setSwapQuoteState(SwapQuoteState.Done));
         } catch (err) {
-            console.log(err);
             logger.error(`error fetching quote.`, err);
             dispatch(setSwapQuoteState(SwapQuoteState.Error));
             return err;
@@ -54,8 +50,7 @@ export const submitSwapQuote: ThunkCreator = (side: OrderSide, quote: MarketBuyS
 };
 
 export const changeSwapBaseToken: ThunkCreator = (token: Token) => {
-    return async (dispatch, getState) => {
-        const state = getState() as StoreState;
+    return async (dispatch, _getState) => {
         dispatch(setSwapBaseToken(token));
         /* const knownTokens = getKnownTokens();
         try {

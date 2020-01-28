@@ -58,7 +58,7 @@ export class SwapService {
             extensionContractOpts: {
                 // Apply the Fee Recipient for the Forwarder
                 feeRecipient: FEE_RECIPIENT,
-                feePercentage: FEE_PERCENTAGE,
+                feePercentage: Number(FEE_PERCENTAGE),
             },
         });
     }

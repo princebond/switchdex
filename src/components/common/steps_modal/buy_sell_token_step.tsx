@@ -6,7 +6,13 @@ import { connect } from 'react-redux';
 import { ZERO } from '../../../common/constants';
 import { getWeb3Wrapper } from '../../../services/web3_wrapper';
 import { getOrderbookAndUserOrders, submitMarketOrder, submitSwapQuote } from '../../../store/actions';
-import { getEstimatedTxTimeMs, getQuoteToken, getStepsModalCurrentStep, getWallet } from '../../../store/selectors';
+import {
+    getEstimatedTxTimeMs,
+    getQuoteToken,
+    getStepsModalCurrentStep,
+    getSwapQuoteToken,
+    getWallet,
+} from '../../../store/selectors';
 import { addMarketBuySellNotification } from '../../../store/ui/actions';
 import { tokenAmountInUnits, tokenSymbolToDisplayString } from '../../../util/tokens';
 import { OrderSide, StepBuySellMarket, StoreState, Token, Wallet } from '../../../util/types';
@@ -21,6 +27,7 @@ interface StateProps {
     estimatedTxTimeMs: number;
     step: StepBuySellMarket;
     quoteToken: Token;
+    swapQuoteToken: Token;
     wallet: Wallet;
 }
 
@@ -120,7 +127,13 @@ class BuySellTokenStep extends React.Component<Props, State> {
     };
 
     private readonly _getAmountOfQuoteTokenString = (): string => {
-        const { quoteToken } = this.props;
+        let quoteToken;
+        const { context } = this.props.step;
+        if (context === 'order') {
+            quoteToken = this.props.quoteToken;
+        } else {
+            quoteToken = this.props.swapQuoteToken;
+        }
         const quoteTokenSymbol = tokenSymbolToDisplayString(quoteToken.symbol);
         const { amountInReturn } = this.state;
         return `${tokenAmountInUnits(
@@ -136,6 +149,7 @@ const mapStateToProps = (state: StoreState): StateProps => {
         estimatedTxTimeMs: getEstimatedTxTimeMs(state),
         step: getStepsModalCurrentStep(state) as StepBuySellMarket,
         quoteToken: getQuoteToken(state) as Token,
+        swapQuoteToken: getSwapQuoteToken(state) as Token,
         wallet: getWallet(state) as Wallet,
     };
 };

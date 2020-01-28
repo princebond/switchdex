@@ -13,7 +13,7 @@
     lodash "^4.17.11"
     valid-url "^1.0.9"
 
-"@0x/assert@^3.0.3", "@0x/assert@^3.0.4":
+"@0x/assert@^3.0.4":
   version "3.0.4"
   resolved "https://registry.yarnpkg.com/@0x/assert/-/assert-3.0.4.tgz#640bcd42d0b6286d45ee622e5622f71325ec63b4"
   integrity sha512-vmERhbvSXNfpB3lHQfgGWInSJOSR0qPBDFQmTVyCJDLCDOq2T0S+Z95ntZkbuwvKE5LIk6hozu2CJobtR1OfHQ==
@@ -24,19 +24,19 @@
     lodash "^4.17.11"
     valid-url "^1.0.9"
 
-"@0x/asset-swapper@^3.0.3":
-  version "3.0.3"
-  resolved "https://registry.yarnpkg.com/@0x/asset-swapper/-/asset-swapper-3.0.3.tgz#824ba002eacfaa297da9679c5d9e274543882edb"
-  integrity sha512-GzmVhcmm/0eKNna1sGqBUIWfwr6eA6Xja3hvo0cbqlJ6CwhPqE95xyVMFVf9AP236jyjLbVTEFBXkQfsJSD2IA==
+"@0x/asset-swapper@^4.0.1":
+  version "4.0.1"
+  resolved "https://registry.yarnpkg.com/@0x/asset-swapper/-/asset-swapper-4.0.1.tgz#94a1144bc43faf50a4d1621304c7a2c6bba5325d"
+  integrity sha512-V5SOXojOrNYH0P9Wq1wv9MyUZvSTQNs4Txnp1jF3bcrmq6UpvafsStp901UX8M8/QS2ek0z97Cnzxn2S2TapgQ==
   dependencies:
-    "@0x/assert" "^3.0.3"
-    "@0x/contract-addresses" "^4.2.0"
-    "@0x/contract-wrappers" "^13.3.0"
-    "@0x/json-schemas" "^5.0.3"
-    "@0x/order-utils" "^10.1.0"
-    "@0x/orderbook" "^2.0.1"
-    "@0x/utils" "^5.1.2"
-    "@0x/web3-wrapper" "^7.0.3"
+    "@0x/assert" "^3.0.4"
+    "@0x/contract-addresses" "^4.3.0"
+    "@0x/contract-wrappers" "^13.4.0"
+    "@0x/json-schemas" "^5.0.4"
+    "@0x/order-utils" "^10.1.1"
+    "@0x/orderbook" "^2.1.0"
+    "@0x/utils" "^5.2.0"
+    "@0x/web3-wrapper" "^7.0.4"
     heartbeats "^5.0.1"
     lodash "^4.17.11"
 
@@ -73,14 +73,14 @@
     uuid "^3.3.2"
     websocket "^1.0.26"
 
-"@0x/contract-addresses@^4.2.0", "@0x/contract-addresses@^4.3.0":
+"@0x/contract-addresses@^4.3.0":
   version "4.3.0"
   resolved "https://registry.yarnpkg.com/@0x/contract-addresses/-/contract-addresses-4.3.0.tgz#3026a03a7b02e68d30d9ecea6b7520d2af6d6ea6"
   integrity sha512-LT2SFXBgfCQ4/C7cPZdnoWc7/fdlcOab5O6qPPIpk0t1EFOepiIRCluAao8HWgCwuOt3iQAuRV+bdtoYv+Y2Gw==
   dependencies:
     lodash "^4.17.11"
 
-"@0x/contract-wrappers@^13.3.0", "@0x/contract-wrappers@^13.4.0":
+"@0x/contract-wrappers@^13.4.0":
   version "13.4.0"
   resolved "https://registry.yarnpkg.com/@0x/contract-wrappers/-/contract-wrappers-13.4.0.tgz#0b3ba04fb07fd359a22d74c3ce64f22a7934e502"
   integrity sha512-N6EL9xAiGXeMonV/8M/oSoKDmUMvwerOm1E51/r97bM4KL6jrzm7A+o7oCROpbfhwJEDqNgifxzrXJHvn0HpCA==
@@ -112,7 +112,7 @@
     jsonschema "^1.2.0"
     lodash.values "^4.3.0"
 
-"@0x/json-schemas@^5.0.3", "@0x/json-schemas@^5.0.4":
+"@0x/json-schemas@^5.0.4":
   version "5.0.4"
   resolved "https://registry.yarnpkg.com/@0x/json-schemas/-/json-schemas-5.0.4.tgz#c2963b59e72a12362a43c8cfc3c572abd9d567ad"
   integrity sha512-cU/gonynMb6enY5IKUDryD0SeuflAOUDLOjzCVtpibrgUtrjw3BYUKEkj0eUpDvQm5oCT609GOEIVCl3iZ7fPw==
@@ -150,7 +150,7 @@
     ethers "~4.0.4"
     lodash "^4.17.11"
 
-"@0x/orderbook@^2.0.1":
+"@0x/orderbook@^2.0.1", "@0x/orderbook@^2.1.0":
   version "2.1.0"
   resolved "https://registry.yarnpkg.com/@0x/orderbook/-/orderbook-2.1.0.tgz#11746f37e029f09b9c2c9957ed3a1c36e850fd34"
   integrity sha512-kcfFG96m4gFLo+niwG7txkty/mY9uQo7uDFu0JbM5Njss/0XvI84WX5k9HecOTHPWx08RnjSgIRBH5zMvIBuIQ==
@@ -269,7 +269,7 @@
     js-sha3 "^0.7.0"
     lodash "^4.17.11"
 
-"@0x/utils@^5.0.0", "@0x/utils@^5.1.2", "@0x/utils@^5.2.0":
+"@0x/utils@^5.0.0", "@0x/utils@^5.2.0":
   version "5.2.0"
   resolved "https://registry.yarnpkg.com/@0x/utils/-/utils-5.2.0.tgz#313c0fcf18d9614bf7a227fde3a084bdfbc459d4"
   integrity sha512-/9TFzg+PcEmVPVDkWQ2tziZKnh5UjzoI1GksERT1kK8aNmPK1rm0UBQgDi0Y+0hwCLSEdq4qz0sjvhY9JdQSWw==
@@ -305,7 +305,7 @@
     websocket "^1.0.28"
     xhr2-cookies "1.1.0"
 
-"@0x/web3-wrapper@^7.0.0", "@0x/web3-wrapper@^7.0.3", "@0x/web3-wrapper@^7.0.4":
+"@0x/web3-wrapper@^7.0.0", "@0x/web3-wrapper@^7.0.4":
   version "7.0.4"
   resolved "https://registry.yarnpkg.com/@0x/web3-wrapper/-/web3-wrapper-7.0.4.tgz#f07cb154bc43d0ba5b7137200aa216ba49ca033c"
   integrity sha512-FpiDgIzO0Y/yPrmO2nM7SoInLOm3LM6imK8If1yqvsI133emMB5jTvxNW7sGK1dgB/wLdQsFRjsp2XnAxuM6TQ==

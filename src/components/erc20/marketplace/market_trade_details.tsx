@@ -10,6 +10,7 @@ import { getQuoteInUsd, getSwapQuoteState, getTokensPrice } from '../../../store
 import { getKnownTokens } from '../../../util/known_tokens';
 import { formatTokenSymbol, tokenAmountInUnits, tokenSymbolToDisplayString } from '../../../util/tokens';
 import { OrderFeeData, OrderSide, StoreState, SwapQuoteState, Token, TokenPrice } from '../../../util/types';
+import { Tooltip } from '../../common/tooltip';
 
 const Row = styled.div`
     align-items: center;
@@ -39,6 +40,10 @@ const CostValue = styled(Value)`
     font-weight: bold;
 `;
 
+const StyledTooltip = styled(Tooltip)`
+    margin-left: 5px;
+`;
+
 const LabelContainer = styled.div`
     align-items: flex-end;
     display: flex;
@@ -63,6 +68,7 @@ const MainLabel = styled(Label)``;
 
 const CostLabel = styled(Label)`
     font-weight: 700;
+    display: flex;
 `;
 
 const Wave = styled.div``;
@@ -143,6 +149,7 @@ class MarketTradeDetails extends React.Component<Props, State> {
         takerFeeAssetData: NULL_BYTES,
         quoteTokenAmount: ZERO,
         canOrderBeFilled: true,
+        maxAmount: ZERO,
         price: ZERO,
         geckoPrice: ZERO,
     };
@@ -167,7 +174,7 @@ class MarketTradeDetails extends React.Component<Props, State> {
     };
 
     public render = () => {
-        const fee = this._getFeeStringForRender();
+        // const fee = this._getFeeStringForRender();
         const cost = this._getCostStringForRender();
         const costText = this._getCostLabelStringForRender();
         const priceMedianText = this._getMedianPriceStringForRender();
@@ -183,7 +190,10 @@ class MarketTradeDetails extends React.Component<Props, State> {
                         <Value>{fee}</Value>
                 </Row>*/}
                 <Row>
-                    <CostLabel>{costText}</CostLabel>
+                    <CostLabel>
+                        {costText}
+                        <StyledTooltip description="Estimated cost without gas and trade fees" />
+                    </CostLabel>
                     <CostValue>{cost}</CostValue>
                 </Row>
                 <Row>
@@ -199,7 +209,7 @@ class MarketTradeDetails extends React.Component<Props, State> {
     };
 
     private readonly _updateOrderDetailsState = async () => {
-        const { quote, orderSide, tokenAmount, baseToken, quoteToken, tokenPrices } = this.props;
+        const { quote, orderSide, baseToken, quoteToken, tokenPrices } = this.props;
         if (!quote) {
             this.setState({ canOrderBeFilled: false });
             return;
@@ -213,12 +223,10 @@ class MarketTradeDetails extends React.Component<Props, State> {
         const takerFeeAmount = worstQuote.feeTakerAssetAmount;
         const quoteTokenAmount = isSell ? bestQuote.makerAssetAmount : bestQuote.takerAssetAmount;
         const baseTokenAmount = isSell ? bestQuote.takerAssetAmount : bestQuote.makerAssetAmount;
-        if (!baseTokenAmount.isEqualTo(tokenAmount)) {
-            return;
-        }
         const quoteTokenAmountUnits = new BigNumber(tokenAmountInUnits(quoteTokenAmount, quoteToken.decimals, 18));
-        const baseTokenAmountUnits = new BigNumber(tokenAmountInUnits(tokenAmount, baseToken.decimals, 18));
+        const baseTokenAmountUnits = new BigNumber(tokenAmountInUnits(baseTokenAmount, baseToken.decimals, 18));
         const price = quoteTokenAmountUnits.div(baseTokenAmountUnits);
+
         let geckoPrice;
         if (tokenPrices) {
             const tokenPriceQuote = tokenPrices.find(t => t.c_id === quoteToken.c_id);
@@ -238,7 +246,7 @@ class MarketTradeDetails extends React.Component<Props, State> {
         });
     };
 
-    private readonly _getFeeStringForRender = () => {
+    /* private readonly _getFeeStringForRender = () => {
         const { takerFeeAmount, takerFeeAssetData } = this.state;
         const { quoteState } = this.props;
         // If its a Limit order the user is paying a maker fee
@@ -291,7 +299,7 @@ class MarketTradeDetails extends React.Component<Props, State> {
         } else {
             return `${costAmount} ${formatTokenSymbol(quoteToken.symbol)}`;
         }
-    };
+    };*/
     private readonly _getMedianPriceStringForRender = () => {
         const { canOrderBeFilled, price } = this.state;
 

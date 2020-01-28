@@ -187,4 +187,6 @@ export const ASSET_SWAPPER_MARKET_ORDERS_OPTS: Partial<SwapQuoteRequestOpts> = {
     numSamples: 10,
     runLimit: 4096,
     bridgeSlippage: 0.0005,
+    dustFractionThreshold: 0.0025,
+    sampleDistributionBase: 1.05,
 };

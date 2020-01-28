@@ -1,6 +1,6 @@
 import { MarketBuySwapQuote, MarketSellSwapQuote } from '@0x/asset-swapper';
 import { BigNumber } from '@0x/utils';
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { connect, useDispatch, useSelector } from 'react-redux';
 import styled from 'styled-components';
 
@@ -12,6 +12,7 @@ import {
     getSwapBaseToken,
     getSwapBaseTokenBalance,
     getSwapQuote,
+    getSwapQuoteState,
     getSwapQuoteToken,
     getSwapQuoteTokenBalance,
     getTotalEthBalance,
@@ -26,6 +27,7 @@ import {
     CurrencyPair,
     OrderSide,
     StoreState,
+    SwapQuoteState,
     TokenBalance,
     Web3State,
 } from '../../../util/types';
@@ -33,8 +35,8 @@ import { CalculateSwapQuoteParams } from '../../../util/types/swap';
 import { BigNumberInput } from '../../common/big_number_input';
 import { Button } from '../../common/button';
 import { CardBase } from '../../common/card_base';
-import { CardTabSelector } from '../../common/card_tab_selector';
-import { ErrorCard, ErrorIcons, FontSize } from '../../common/error_card';
+import { ErrorCard, FontSize } from '../../common/error_card';
+import { useDebounce } from '../../common/hooks/debounce_hook';
 
 import { MarketTradeDetailsContainer } from './market_trade_details';
 
@@ -139,24 +141,6 @@ const LabelAvaible = styled.label<{ color?: string }>`
     margin: 0;
 `;
 
-const MinLabel = styled.label<{ color?: string }>`
-    color: ${props => props.color || props.theme.componentsTheme.textColorCommon};
-    font-size: 10px;
-    font-weight: 500;
-    line-height: normal;
-    margin: 0;
-`;
-
-const InnerTabs = styled(CardTabSelector)`
-    font-size: 14px;
-`;
-
-const FieldContainer = styled.div`
-    height: ${themeDimensions.fieldHeight};
-    margin-bottom: 25px;
-    position: relative;
-`;
-
 const FieldAmountContainer = styled.div`
     height: ${themeDimensions.fieldHeight};
     margin-bottom: 5px;
@@ -216,6 +200,7 @@ const MarketTrade = (props: Props) => {
     const swapQuote = useSelector(getSwapQuote);
     const quoteToken = useSelector(getSwapQuoteToken);
     const baseToken = useSelector(getSwapBaseToken);
+    const swapQuoteState = useSelector(getSwapQuoteState);
     const dispatch = useDispatch();
     const decimals = baseToken.decimals;
 
@@ -224,6 +209,7 @@ const MarketTrade = (props: Props) => {
     const amount = makerAmountState;
     const isMakerAmountEmpty = amount === null || amount.isZero();
     let isMaxAmount = false;
+
     const isSell = tabState === OrderSide.Sell;
     if (swapQuote && quoteTokenBalance && baseTokenBalance) {
         isMaxAmount = isSell
@@ -236,7 +222,7 @@ const MarketTrade = (props: Props) => {
     const isOrderTypeMarketIsEmpty = isMakerAmountEmpty || isMaxAmount;
     const baseSymbol = formatTokenSymbol(baseToken.symbol);
     const btnPrefix = tabState === OrderSide.Buy ? 'Buy ' : 'Sell ';
-    const btnText = errorState && errorState.btnMsg ? 'Error' : btnPrefix + baseSymbol;
+    const btnText = errorState && errorState.btnMsg ? errorState.btnMsg : btnPrefix + baseSymbol;
     const _reset = () => {
         setMakerAmountState(new BigNumber(0));
         setPriceState(new BigNumber(0));
@@ -255,9 +241,47 @@ const MarketTrade = (props: Props) => {
         dispatch(calculateSwapQuote(params));
     };
 
+    const debouncedAmount = useDebounce(makerAmountState, 500);
+    useEffect(() => {
+        if (swapQuoteState === SwapQuoteState.Error) {
+            setErrorState({
+                cardMsg: 'Error fetching quote',
+                btnMsg: 'Try again',
+            });
+            setTimeout(() => {
+                setErrorState({
+                    ...errorState,
+                    btnMsg: null,
+                });
+            }, TIMEOUT_BTN_ERROR);
+
+            setTimeout(() => {
+                setErrorState({
+                    ...errorState,
+                    cardMsg: null,
+                });
+            }, TIMEOUT_CARD_ERROR);
+        } else {
+            if (errorState.cardMsg !== null) {
+                setErrorState({
+                    cardMsg: null,
+                    btnMsg: null,
+                });
+            }
+        }
+    }, [swapQuoteState]);
+
+    useEffect(() => {
+        if (debouncedAmount) {
+            onCalculateSwapQuote(debouncedAmount, tabState);
+        }
+    }, [debouncedAmount]);
+
     const changeTab = (tab: OrderSide) => () => {
         setTabState(tab);
-        onCalculateSwapQuote(makerAmountState, tab);
+        if (makerAmountState.isGreaterThan(0)) {
+            onCalculateSwapQuote(makerAmountState, tab);
+        }
     };
 
     const onSubmit = async () => {
@@ -293,11 +317,9 @@ const MarketTrade = (props: Props) => {
     };
     const onUpdateMakerAmount = (newValue: BigNumber) => {
         setMakerAmountState(newValue);
-        onCalculateSwapQuote(newValue, tabState);
     };
 
     const getAmountAvailableLabel = () => {
-        const { baseTokenBalance, quoteTokenBalance, totalEthBalance } = props;
         if (tabState === OrderSide.Sell) {
             if (baseTokenBalance) {
                 const tokenBalanceAmount = isWeth(baseTokenBalance.token.symbol)
@@ -309,7 +331,7 @@ const MarketTrade = (props: Props) => {
                     baseTokenBalance.token.displayDecimals,
                 );
                 const symbol = formatTokenSymbol(baseTokenBalance.token.symbol);
-                return `Available: ${baseBalanceString}  ${symbol}`;
+                return `Balance: ${baseBalanceString}  ${symbol}`;
             } else {
                 return null;
             }
@@ -324,7 +346,7 @@ const MarketTrade = (props: Props) => {
                     quoteTokenBalance.token.displayDecimals,
                 );
                 const symbol = formatTokenSymbol(quoteTokenBalance.token.symbol);
-                return `Available: ${quoteBalanceString}  ${symbol}`;
+                return `Balance: ${quoteBalanceString}  ${symbol}`;
             } else {
                 return null;
             }
@@ -393,9 +415,7 @@ const MarketTrade = (props: Props) => {
                     </Button>
                 </Content>
             </BuySellWrapper>
-            {errorState.cardMsg ? (
-                <ErrorCard fontSize={FontSize.Large} text={errorState.cardMsg} icon={ErrorIcons.Sad} />
-            ) : null}
+            {errorState.cardMsg ? <ErrorCard fontSize={FontSize.Large} text={errorState.cardMsg} /> : null}
         </>
     );
 };

@@ -17,7 +17,7 @@ import { withWindowWidth } from '../../common/hoc/withWindowWidth';
 import { ChevronDownIcon } from '../../common/icons/chevron_down_icon';
 import { MagnifierIcon } from '../../common/icons/magnifier_icon';
 import { TokenIcon } from '../../common/icons/token_icon';
-import { CustomTDFirst, CustomTDLast, Table, TBody, THead, THFirst, THLast, TR } from '../../common/table';
+import { CustomTDFirst, Table, TBody, THead, THFirst, TR } from '../../common/table';
 
 interface PropsDivElement extends HTMLAttributes<HTMLDivElement> {}
 
@@ -103,32 +103,6 @@ const MarketsFiltersLabel = styled.h2`
     }
 `;
 
-const TokenFiltersTabs = styled.div`
-    align-items: center;
-    display: flex;
-    margin-right: 10px;
-`;
-
-const TokenFiltersTab = styled.span<TokenFiltersTabProps>`
-    color: ${props =>
-        props.active ? props.theme.componentsTheme.textColorCommon : props.theme.componentsTheme.lightGray};
-    cursor: pointer;
-    font-size: 14px;
-    font-weight: 500;
-    line-height: 1.2;
-    user-select: none;
-
-    &:after {
-        color: ${props => props.theme.componentsTheme.lightGray};
-        content: '/';
-        margin: 0 6px;
-    }
-
-    &:last-child:after {
-        display: none;
-    }
-`;
-
 const searchFieldHeight = '32px';
 const searchFieldWidth = '142px';
 
@@ -208,16 +182,7 @@ const THFirstStyled = styled(THFirst)`
     }
 `;
 
-const THLastStyled = styled(THLast)`
-    ${verticalCellPadding};
-    ${tableHeaderFontWeight}
-`;
-
 const CustomTDFirstStyled = styled(CustomTDFirst)`
-    ${verticalCellPadding};
-`;
-
-const CustomTDLastStyled = styled(CustomTDLast)`
     ${verticalCellPadding};
 `;
 
