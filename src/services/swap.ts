@@ -47,10 +47,10 @@ export class SwapService {
         this._swapQuoteConsumer = new SwapQuoteConsumer(this._provider);
         this._web3Wrapper = new Web3Wrapper(this._provider);
     }
-    public getSwapQuoteConsumer() {
+    public getSwapQuoteConsumer(): SwapQuoteConsumer {
         return this._swapQuoteConsumer;
     }
-    public async executeSwapQuote(isETHSell: boolean, quote: MarketBuySwapQuote | MarketSellSwapQuote) {
+    public async executeSwapQuote(isETHSell: boolean, quote: MarketBuySwapQuote | MarketSellSwapQuote): Promise<string> {
         // If ETH was specified as the token to sell then we use the Forwarder
         const extensionContractType = isETHSell ? ExtensionContractType.Forwarder : ExtensionContractType.None;
         return this._swapQuoteConsumer.executeSwapQuoteOrThrowAsync(quote, {
@@ -62,8 +62,7 @@ export class SwapService {
             },
         });
     }
-    public async getSwapQuote(params: CalculateSwapQuoteParams): Promise<MarketBuySwapQuote | MarketSellSwapQuote> {
-        const date = new Date().getTime();
+    public async getSwapQuoteAsync(params: CalculateSwapQuoteParams): Promise<MarketBuySwapQuote | MarketSellSwapQuote> {
         let swapQuote;
         const {
             sellAmount,
@@ -96,7 +95,6 @@ export class SwapService {
             throw new Error('sellAmount or buyAmount required');
         }
         const attributedSwapQuote = this._attributeSwapQuoteOrders(swapQuote);
-        console.log((new Date().getTime() - date) / 1000);
         return attributedSwapQuote;
     }
 

@@ -42,11 +42,6 @@ interface State {
     isUserOnDropdown: boolean;
 }
 
-interface TokenFiltersTabProps {
-    active: boolean;
-    onClick: number;
-}
-
 interface MarketRowProps {
     active: boolean;
 }
@@ -282,10 +277,6 @@ class SwapDropdown extends React.Component<Props, State> {
 
     private readonly _removeUserOnDropdown = () => {
         this.setState({ isUserOnDropdown: false });
-    };
-
-    private readonly _setTokensFilterTab: any = (filter: Filter) => {
-        this.setState({ selectedFilter: filter });
     };
 
     private readonly _getSearchField = () => {

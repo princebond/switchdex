@@ -7,6 +7,9 @@ import { RootAction } from '../reducers';
 
 const know_tokens = getKnownTokens();
 
+/*const parsedUrl = new URL(window.location.href.replace('#/', ''));
+const baseToken = parsedUrl.searchParams.get('token') || know_tokens.getTokens()[0];*/
+
 const initialSwapState: SwapState = {
     baseToken: know_tokens.getTokens()[0],
     quoteToken: know_tokens.getWethToken(),

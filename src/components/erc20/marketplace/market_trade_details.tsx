@@ -6,10 +6,9 @@ import styled, { keyframes } from 'styled-components';
 
 import { ZERO } from '../../../common/constants';
 import { fetchTakerAndMakerFee } from '../../../store/relayer/actions';
-import { getQuoteInUsd, getSwapQuoteState, getTokensPrice } from '../../../store/selectors';
-import { getKnownTokens } from '../../../util/known_tokens';
-import { formatTokenSymbol, tokenAmountInUnits, tokenSymbolToDisplayString } from '../../../util/tokens';
-import { OrderFeeData, OrderSide, StoreState, SwapQuoteState, Token, TokenPrice } from '../../../util/types';
+import { getQuoteInUsd, getSwapQuoteState, getTokensPrice, getWeb3State } from '../../../store/selectors';
+import { formatTokenSymbol, tokenAmountInUnits } from '../../../util/tokens';
+import { OrderFeeData, OrderSide, StoreState, SwapQuoteState, Token, TokenPrice, Web3State } from '../../../util/types';
 import { Tooltip } from '../../common/tooltip';
 
 const Row = styled.div`
@@ -121,6 +120,7 @@ interface OwnProps {
 interface StateProps {
     qouteInUSD: BigNumber | undefined | null;
     quoteState: SwapQuoteState;
+    web3State: Web3State;
     tokenPrices: TokenPrice[] | null;
 }
 
@@ -161,6 +161,7 @@ class MarketTradeDetails extends React.Component<Props, State> {
             newProps.tokenAmount !== prevProps.tokenAmount ||
             newProps.quote !== prevProps.quote ||
             newProps.orderSide !== prevProps.orderSide ||
+            newProps.quoteState !== prevProps.quoteState ||
             newProps.quoteState !== prevProps.quoteState
         ) {
             if (newProps.quoteState === SwapQuoteState.Done) {
@@ -175,12 +176,12 @@ class MarketTradeDetails extends React.Component<Props, State> {
 
     public render = () => {
         // const fee = this._getFeeStringForRender();
-        const cost = this._getCostStringForRender();
-        const costText = this._getCostLabelStringForRender();
-        const priceMedianText = this._getMedianPriceStringForRender();
-        const priceMarketTrackerText = this._getPriceMarketRender();
+         const cost = this._getCostStringForRender();
+         const costText = this._getCostLabelStringForRender();
+         const priceMedianText = this._getMedianPriceStringForRender();
+         const priceMarketTrackerText = this._getPriceMarketRender();
 
-        return (
+         return (
             <>
                 <LabelContainer>
                     <MainLabel>Order Details</MainLabel>
@@ -270,7 +271,7 @@ class MarketTradeDetails extends React.Component<Props, State> {
             feeToken.decimals,
             feeToken.displayDecimals,
         )} ${tokenSymbolToDisplayString(feeToken.symbol)}`;
-    };
+    };*/
 
     private readonly _getCostStringForRender = () => {
         const { canOrderBeFilled } = this.state;
@@ -299,7 +300,7 @@ class MarketTradeDetails extends React.Component<Props, State> {
         } else {
             return `${costAmount} ${formatTokenSymbol(quoteToken.symbol)}`;
         }
-    };*/
+    };
     private readonly _getMedianPriceStringForRender = () => {
         const { canOrderBeFilled, price } = this.state;
 
@@ -347,6 +348,7 @@ const mapStateToProps = (state: StoreState): StateProps => {
         qouteInUSD: getQuoteInUsd(state),
         quoteState: getSwapQuoteState(state),
         tokenPrices: getTokensPrice(state),
+        web3State: getWeb3State(state),
     };
 };
 

@@ -2,10 +2,11 @@ import { MarketBuySwapQuote, MarketSellSwapQuote } from '@0x/asset-swapper';
 import { BigNumber } from '@0x/utils';
 import React, { useEffect, useState } from 'react';
 import { connect, useDispatch, useSelector } from 'react-redux';
+import { useLocation } from 'react-router';
 import styled from 'styled-components';
 
 import { ZERO } from '../../../common/constants';
-import { calculateSwapQuote, startSwapMarketSteps } from '../../../store/actions';
+import { calculateSwapQuote, setSwapBaseToken, startSwapMarketSteps } from '../../../store/actions';
 import {
     getCurrencyPair,
     getOrderPriceSelected,
@@ -19,7 +20,7 @@ import {
     getWeb3State,
 } from '../../../store/selectors';
 import { themeDimensions } from '../../../themes/commons';
-import { isWeth } from '../../../util/known_tokens';
+import { getKnownTokens, isWeth } from '../../../util/known_tokens';
 import { formatTokenSymbol, tokenAmountInUnits, unitsInTokenAmount } from '../../../util/tokens';
 import {
     ButtonIcons,
@@ -35,8 +36,9 @@ import { CalculateSwapQuoteParams } from '../../../util/types/swap';
 import { BigNumberInput } from '../../common/big_number_input';
 import { Button } from '../../common/button';
 import { CardBase } from '../../common/card_base';
-import { ErrorCard, FontSize } from '../../common/error_card';
+import { ErrorCard, FontSize} from '../../common/error_card';
 import { useDebounce } from '../../common/hooks/debounce_hook';
+import { Web3StateButton } from '../../common/web3StateButton';
 
 import { MarketTradeDetailsContainer } from './market_trade_details';
 
@@ -188,6 +190,12 @@ const BigInputNumberTokenLabel = (props: { tokenSymbol: string }) => (
 const TIMEOUT_BTN_ERROR = 2000;
 const TIMEOUT_CARD_ERROR = 4000;
 
+// A custom hook that builds on useLocation to parse
+// the query string for you.
+const useQuery = () => {
+    return new URLSearchParams(useLocation().search);
+};
+
 const MarketTrade = (props: Props) => {
     const [tabState, setTabState] = useState(OrderSide.Buy);
     const [errorState, setErrorState] = useState<{ btnMsg: null | string; cardMsg: null | string }>({
@@ -202,7 +210,31 @@ const MarketTrade = (props: Props) => {
     const baseToken = useSelector(getSwapBaseToken);
     const swapQuoteState = useSelector(getSwapQuoteState);
     const dispatch = useDispatch();
+    const query = useQuery();
+    const queryToken = query.get('token');
     const decimals = baseToken.decimals;
+    const known_tokens = getKnownTokens();
+    useEffect(() => {
+        const fetchToken = async () => {
+            if (!queryToken) {
+                return;
+            }
+            if (queryToken.toLowerCase() === baseToken.symbol.toLowerCase()
+                || queryToken.toLowerCase() === baseToken.address.toLowerCase()
+            ) {
+                return;
+            }
+            const t = await known_tokens.findTokenOrFetchIt(queryToken);
+            if (t) {
+                if (t === baseToken) {
+                    return;
+                } else {
+                    dispatch(setSwapBaseToken(t));
+                }
+            }
+        };
+        fetchToken();
+    }, [queryToken, baseToken]);
 
     const stepAmount = new BigNumber(1).div(new BigNumber(10).pow(8));
     const stepAmountUnits = unitsInTokenAmount(String(stepAmount), decimals);
@@ -215,8 +247,8 @@ const MarketTrade = (props: Props) => {
         isMaxAmount = isSell
             ? makerAmountState.isGreaterThan(baseTokenBalance.balance)
             : swapQuote.bestCaseQuoteInfo.takerAssetAmount.isGreaterThan(
-                  isWeth(quoteToken.symbol) ? totalEthBalance : quoteTokenBalance.balance,
-              );
+                isWeth(quoteToken.symbol) ? totalEthBalance : quoteTokenBalance.balance,
+            );
     }
 
     const isOrderTypeMarketIsEmpty = isMakerAmountEmpty || isMaxAmount;
@@ -228,16 +260,19 @@ const MarketTrade = (props: Props) => {
         setPriceState(new BigNumber(0));
     };
     const onCalculateSwapQuote = (value: BigNumber, side: OrderSide) => {
-        const isSell = side === OrderSide.Sell;
-        const isETHSell = isSell && isWeth(quoteToken.symbol);
+        const isSelling = side === OrderSide.Sell;
+        const isETHSell = isSelling && isWeth(quoteToken.symbol);
         const params: CalculateSwapQuoteParams = {
-            buyTokenAddress: isSell ? quoteToken.address : baseToken.address,
-            sellTokenAddress: isSell ? baseToken.address : quoteToken.address,
-            buyAmount: isSell ? undefined : value,
-            sellAmount: isSell ? value : undefined,
+            buyTokenAddress: isSelling ? quoteToken.address : baseToken.address,
+            sellTokenAddress: isSelling ? baseToken.address : quoteToken.address,
+            buyAmount: isSelling ? undefined : value,
+            sellAmount: isSelling ? value : undefined,
             from: undefined,
             isETHSell,
         };
+        if (web3State !== Web3State.Done) {
+            return;
+        }
         dispatch(calculateSwapQuote(params));
     };
 
@@ -277,6 +312,12 @@ const MarketTrade = (props: Props) => {
         }
     }, [debouncedAmount]);
 
+    useEffect(() => {
+        if (makerAmountState.isGreaterThan(0)) {
+            onCalculateSwapQuote(makerAmountState, tabState);
+        }
+    }, [baseToken]);
+
     const changeTab = (tab: OrderSide) => () => {
         setTabState(tab);
         if (makerAmountState.isGreaterThan(0)) {
@@ -287,6 +328,7 @@ const MarketTrade = (props: Props) => {
     const onSubmit = async () => {
         const orderSide = tabState;
         const makerAmount = makerAmountState;
+
         if (!swapQuote) {
             return;
         }
@@ -353,6 +395,12 @@ const MarketTrade = (props: Props) => {
         }
     };
 
+    const btnVariant =  errorState.btnMsg
+    ? ButtonVariant.Error
+    : tabState === OrderSide.Buy
+        ? ButtonVariant.Buy
+        : ButtonVariant.Sell;
+
     return (
         <>
             <BuySellWrapper>
@@ -388,6 +436,8 @@ const MarketTrade = (props: Props) => {
                         />
                         <BigInputNumberTokenLabel tokenSymbol={baseToken.symbol} />
                     </FieldAmountContainer>
+                    <Web3StateButton />
+
                     <LabelAvailableContainer>
                         <LabelAvaible>{getAmountAvailableLabel()}</LabelAvaible>
                     </LabelAvailableContainer>
@@ -403,13 +453,7 @@ const MarketTrade = (props: Props) => {
                         disabled={web3State !== Web3State.Done || isOrderTypeMarketIsEmpty}
                         icon={errorState.btnMsg ? ButtonIcons.Warning : undefined}
                         onClick={onSubmit}
-                        variant={
-                            errorState.btnMsg
-                                ? ButtonVariant.Error
-                                : tabState === OrderSide.Buy
-                                ? ButtonVariant.Buy
-                                : ButtonVariant.Sell
-                        }
+                        variant={btnVariant}
                     >
                         {btnText}
                     </Button>

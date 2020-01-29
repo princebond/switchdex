@@ -13,6 +13,7 @@ import {
     openSideBar,
     setERC20Theme,
     setThemeName,
+    goToHomeMarketTrade,
 } from '../../../store/actions';
 import { getCurrentMarketPlace, getGeneralConfig, getThemeName } from '../../../store/selectors';
 import { Theme, themeBreakPoints } from '../../../themes/commons';
@@ -31,6 +32,7 @@ import { SwapDropdownContainer } from './swap_dropdown';
 interface DispatchProps {
     onGoToHome: () => any;
     onGoToWallet: () => any;
+    onGoToHomeMarketTrade: () => any;
 }
 
 interface OwnProps {
@@ -123,6 +125,10 @@ const ToolbarContent = (props: Props) => {
     const handleFiatChooseModal = () => {
         dispatch(openFiatOnRampChooseModal(true));
     };
+    const handleMarketTradeClick: React.EventHandler<React.MouseEvent> = e => {
+        e.preventDefault();
+        props.onGoToHomeMarketTrade();
+    };
 
     const dropdownHeader =
         marketplace === MARKETPLACES.MarketTrade ? (
@@ -151,6 +157,9 @@ const ToolbarContent = (props: Props) => {
                     textColor={props.theme.componentsTheme.logoERC20TextColor}
                 />
                 {dropdownHeader}
+                <MyWalletLink href="/market-trade" onClick={handleMarketTradeClick} className={'market-trade'}>
+                   Market Trade
+                </MyWalletLink>
             </>
         );
     }
@@ -191,6 +200,7 @@ const mapDispatchToProps = (dispatch: any): DispatchProps => {
     return {
         onGoToHome: () => dispatch(goToHome()),
         onGoToWallet: () => dispatch(goToWallet()),
+        onGoToHomeMarketTrade: () => dispatch(goToHomeMarketTrade()),
     };
 };
 

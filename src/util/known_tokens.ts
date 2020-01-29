@@ -1,9 +1,12 @@
 import { ExchangeFillEventArgs, LogWithDecodedArgs } from '@0x/contract-wrappers';
 import { assetDataUtils } from '@0x/order-utils';
 import { AssetProxyId, ERC20AssetData } from '@0x/types';
+import { Web3Wrapper } from '@0x/web3-wrapper';
 
 import { KNOWN_TOKENS_META_DATA, TokenMetaData } from '../common/tokens_meta_data';
 import { KNOWN_TOKENS_IEO_META_DATA } from '../common/tokens_meta_data_ieo';
+import { getERC20ContractWrapper } from '../services/contract_wrappers';
+import { getTokenByAddress } from '../services/tokens';
 import { getLogger } from '../util/logger';
 
 import { mapTokensIEOMetaDataToTokenByNetworkId } from './token_ieo_meta_data';
@@ -91,6 +94,15 @@ export class KnownTokens {
         }
     };
 
+    public isKnownSymbol = (symbol: string): boolean => {
+        try {
+            this.getTokenBySymbol(symbol);
+            return true;
+        } catch (e) {
+            return false;
+        }
+    };
+
     public isIEOKnownAddress = (address: string): boolean => {
         try {
             this.getTokenIEOByAddress(address);
@@ -143,6 +155,90 @@ export class KnownTokens {
     public getTokens = (): Token[] => {
         return this._tokens;
     };
+    public findToken = (data: string | null) => {
+        if (!data) {
+            return null;
+        }
+        if (this.isKnownSymbol(data)) {
+           return this.getTokenBySymbol(data);
+        }
+
+        if (this.isKnownAddress(data)) {
+            return this.getTokenByAddress(data);
+        }
+        return null;
+    }
+    /**
+     * Try to find token, if not exists in current list it will try to
+     * fetch it
+     */
+    public findTokenOrFetchIt = async (data: string | null) => {
+        let token = this.findToken(data);
+        if (!data) {
+            return null;
+        }
+        if (token) {
+            return token;
+        } else {
+            if (Web3Wrapper.isAddress(data)) {
+                token = await this._fetchTokenMetadata(data);
+                if (token) {
+                    return token;
+                } else {
+                    return null;
+                }
+            }
+        }
+        return null;
+    }
+    public pushToken = (token: Token) => {
+        this._tokens.push(token);
+    }
+    // Could be address or symbol
+    public addTokenByAddress = async (data: string) => {
+        if (this.isKnownSymbol(data) || this.isKnownAddress(data)) {
+            return;
+        }
+        if (Web3Wrapper.isAddress(data)) {
+            const token = await this._fetchTokenMetadata(data);
+            if (token) {
+                this._tokens.push(token);
+            }
+        }
+    }
+
+    private readonly _fetchTokenMetadata = async (address: string): Promise<Token | null> => {
+        try {
+            const contract = await getERC20ContractWrapper(address.toLowerCase(), {});
+            const name = await contract.name().callAsync();
+            const symbol = (await contract.symbol().callAsync()).toLowerCase();
+            const decimals =  (await contract.decimals().callAsync()).toNumber();
+            let token: Token = {
+                address,
+                decimals,
+                name,
+                symbol,
+                primaryColor: '#081e6e',
+                displayDecimals: 2,
+            };
+            try {
+                const tokenData = await getTokenByAddress(address.toLowerCase());
+                const thumbImage = tokenData.image.thumb;
+                token = {
+                    ...token,
+                    c_id: tokenData.id,
+                    icon: thumbImage.substring(0, thumbImage.indexOf('?')),
+                    displayDecimals: 2,
+                    minAmount: 0,
+                };
+            } catch (e) {
+                return token;
+            }
+        } catch (e) {
+            return null;
+        }
+        return null;
+    }
 }
 
 let knownTokens: KnownTokens;

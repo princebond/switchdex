@@ -1,9 +1,12 @@
 import { MarketBuySwapQuote, MarketSellSwapQuote } from '@0x/asset-swapper';
+import { push } from 'connected-react-router';
+import queryString from 'query-string';
 import { createAction } from 'typesafe-actions';
 
+import { MARKET_APP_BASE_PATH } from '../../common/constants';
 import { getAssetSwapper } from '../../services/swap';
 import { getLogger } from '../../util/logger';
-import { OrderSide, StoreState, SwapQuoteState, ThunkCreator, Token } from '../../util/types';
+import { OrderSide, SwapQuoteState, ThunkCreator, Token } from '../../util/types';
 import { CalculateSwapQuoteParams } from '../../util/types/swap';
 
 const logger = getLogger('Store::Swap::Actions');
@@ -26,11 +29,10 @@ export const setSwapQuoteState = createAction('swap/QUOTE_STATE_set', resolve =>
 
 export const calculateSwapQuote: ThunkCreator = (params: CalculateSwapQuoteParams) => {
     return async (dispatch, getState) => {
-        const state = getState();
         dispatch(setSwapQuoteState(SwapQuoteState.Loading));
         try {
             const assetSwapper = await getAssetSwapper();
-            const quote = await assetSwapper.getSwapQuote(params);
+            const quote = await assetSwapper.getSwapQuoteAsync(params);
             dispatch(setSwapQuote(quote));
             dispatch(setSwapQuoteState(SwapQuoteState.Done));
         } catch (err) {
@@ -45,57 +47,26 @@ export const submitSwapQuote: ThunkCreator = (side: OrderSide, quote: MarketBuyS
     return async () => {
         const assetSwapper = await getAssetSwapper();
         const isEthSell = side === OrderSide.Buy;
-        await assetSwapper.executeSwapQuote(isEthSell, quote);
+        return assetSwapper.executeSwapQuote(isEthSell, quote);
     };
 };
 
 export const changeSwapBaseToken: ThunkCreator = (token: Token) => {
-    return async (dispatch, _getState) => {
+    return async (dispatch, getState) => {
+        const state = getState();
         dispatch(setSwapBaseToken(token));
-        /* const knownTokens = getKnownTokens();
-        try {
-            const newQuoteToken = knownTokens.getTokenBySymbol(currencyPair.quote);
-            dispatch(
-                setMarketTokens({
-                    baseToken: knownTokens.getTokenBySymbol(currencyPair.base),
-                    quoteToken: newQuoteToken,
-                }),
-            );
-            dispatch(setCurrencyPair(currencyPair));
-
-            // if quote token changed, update quote price
-            if (oldQuoteToken !== newQuoteToken) {
-                try {
-                    await dispatch(updateMarketPriceQuote());
-                } catch (e) {
-                    logger.error(`Failed to get Quote price`);
-                }
-            }
-        } catch (e) {
-            logger.error(`Failed to set token market ${e}`);
-        }
-        if (USE_RELAYER_MARKET_UPDATES) {
-            // tslint:disable-next-line:no-floating-promises
-            dispatch(fetchPastMarketFills());
-            // tslint:disable-next-line:no-floating-promises
-            dispatch(updateMarketStats());
-        }
-
-        // tslint:disable-next-line:no-floating-promises
-        dispatch(getOrderbookAndUserOrders());
 
         const newSearch = queryString.stringify({
             ...queryString.parse(state.router.location.search),
-            base: currencyPair.base,
-            quote: currencyPair.quote,
+            token: token.symbol,
         });
 
         dispatch(
             push({
                 ...state.router.location,
-                pathname: `${ERC20_APP_BASE_PATH}/`,
+                pathname: `${MARKET_APP_BASE_PATH}/`,
                 search: newSearch,
             }),
-        );*/
+        );
     };
 };
