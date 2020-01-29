@@ -7,12 +7,17 @@ import styled from 'styled-components';
 import {
     goToHome,
     goToHomeLaunchpad,
+    goToHomeMarginLend,
+    goToHomeMarketTrade,
     goToWallet,
     logoutWallet,
-    openFiatOnRampModal,
+    openFiatOnRampChooseModal,
     openSideBar,
+    setERC20Theme,
+    setThemeName,
 } from '../../../store/actions';
-import { getEthAccount } from '../../../store/selectors';
+import { getEthAccount, getThemeName } from '../../../store/selectors';
+import { getThemeFromConfigDex } from '../../../themes/theme_meta_data_utils';
 import { connectToExplorer, viewOnFabrx } from '../../../util/external_services';
 import { truncateAddress } from '../../../util/number_utils';
 import { viewAddressOnEtherscan } from '../../../util/transaction_link';
@@ -25,13 +30,13 @@ const ListContainer = styled.ul`
 `;
 
 const ListItem = styled.li`
-    color: white;
+    color: ${props => props.theme.componentsTheme.textColorCommon};
     padding: 16px;
     cursor: pointer;
 `;
 
 const ListItemFlex = styled(ListItem)`
-    color: white;
+    color: ${props => props.theme.componentsTheme.textColorCommon};
     padding: 16px;
     cursor: pointer;
     display: flex;
@@ -40,16 +45,24 @@ const ListItemFlex = styled(ListItem)`
 const MenuContainer = styled.div`
     height: 100%;
     z-index: 1000;
-    background-color: black;
+    background-color: ${props => props.theme.componentsTheme.cardBackgroundColor};
     width: 250px;
 `;
 
 export const MobileWalletConnectionContent = () => {
     const ethAccount = useSelector(getEthAccount);
+    const themeName = useSelector(getThemeName);
     const dispatch = useDispatch();
 
     const openFabrx = () => {
         viewOnFabrx(ethAccount);
+    };
+
+    const handleThemeClick = () => {
+        const themeN = themeName === 'DARK_THEME' ? 'LIGHT_THEME' : 'DARK_THEME';
+        dispatch(setThemeName(themeN));
+        const theme = getThemeFromConfigDex(themeN);
+        dispatch(setERC20Theme(theme));
     };
 
     const onGoToHome = () => {
@@ -62,10 +75,15 @@ export const MobileWalletConnectionContent = () => {
         dispatch(openSideBar(false));
     };
 
-    /*const onGoToMarginLend = () => {
+    const onGoToMarketTrade = () => {
+        dispatch(goToHomeMarketTrade());
+        dispatch(openSideBar(false));
+    };
+
+    const onGoToMarginLend = () => {
         dispatch(goToHomeMarginLend());
         dispatch(openSideBar(false));
-    };*/
+    };
 
     const onGoToWallet = () => {
         dispatch(goToWallet());
@@ -77,7 +95,7 @@ export const MobileWalletConnectionContent = () => {
     };
 
     const onClickFiatOnRampModal = () => {
-        dispatch(openFiatOnRampModal(true));
+        dispatch(openFiatOnRampChooseModal(true));
         dispatch(openSideBar(false));
     };
 
@@ -99,8 +117,9 @@ export const MobileWalletConnectionContent = () => {
             <ListContainer>
                 <ListItem onClick={onGoToHome}>Home</ListItem>
                 <ListItem onClick={onGoToWallet}>Wallet</ListItem>
+                <ListItem onClick={onGoToMarketTrade}>Market Trade</ListItem>
                 <ListItem onClick={onGoToLaunchpad}>Launchpad</ListItem>
-                {/*<ListItem onClick={onGoToMarginLend}>Lend</ListItem>*/}
+                <ListItem onClick={onGoToMarginLend}>Lend</ListItem>
                 <hr />
                 <CopyToClipboard text={ethAccount ? ethAccount : ''}>
                     <ListItemFlex>
@@ -115,6 +134,7 @@ export const MobileWalletConnectionContent = () => {
                     </ListItemFlex>
                 </CopyToClipboard>
                 <ListItem onClick={onClickFiatOnRampModal}>Buy ETH</ListItem>
+                <ListItem onClick={handleThemeClick}>{themeName === 'DARK_THEME' ? '☼' : '🌑'}</ListItem>
                 <ListItem onClick={viewAccountExplorer}>View Address on Etherscan</ListItem>
                 <ListItem onClick={connectToExplorer}>Track DEX volume</ListItem>
                 <ListItem onClick={openFabrx}>Set Alerts</ListItem>

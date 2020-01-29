@@ -1,8 +1,8 @@
-import { SignedOrder } from '0x.js';
+import { SignedOrder } from '@0x/order-utils';
 import React from 'react';
 import styled from 'styled-components';
 
-import { FEE_RECIPIENT, INSTANT_FEE_PERCENTAGE } from '../../../common/constants';
+import { CHAIN_ID, FEE_RECIPIENT, INSTANT_FEE_PERCENTAGE } from '../../../common/constants';
 import { getWeb3Wrapper } from '../../../services/web3_wrapper';
 import { getKnownTokens } from '../../../util/known_tokens';
 import { getKnownTokensIEO } from '../../../util/known_tokens_ieo';
@@ -17,7 +17,7 @@ const load0xInstantScript = (callback: any) => {
 
     if (!existingScript) {
         const script = document.createElement('script');
-        script.src = 'https://instant.0x.org/instant.js';
+        script.src = 'https://instant.0xproject.com/v3/instant.js';
         script.id = 'zerox';
         document.body.appendChild(script);
 
@@ -77,7 +77,7 @@ export class ZeroXInstantWidget extends React.Component<Props, State> {
     public render = () => {
         const {
             orderSource,
-            networkId = 1,
+            networkId = CHAIN_ID,
             tokenAddress,
             walletDisplayName = Wallet.Metamask,
             buttonVariant = ButtonVariant.Buy,
@@ -95,7 +95,6 @@ export class ZeroXInstantWidget extends React.Component<Props, State> {
                 const knownTokens = getKnownTokens();
                 token = knownTokens.getTokenByAddress(tokenAddress);
             }
-
             const erc20TokenAssetData = zeroExInstant.assetDataForERC20TokenAddress(token.address);
             const additionalAssetMetaDataMap = {
                 [erc20TokenAssetData]: {
@@ -112,7 +111,7 @@ export class ZeroXInstantWidget extends React.Component<Props, State> {
                 {
                     provider: (await getWeb3Wrapper()).getProvider(),
                     orderSource,
-                    networkId,
+                    chainId: networkId,
                     affiliateInfo: {
                         feeRecipient: FEE_RECIPIENT,
                         feePercentage,
@@ -131,9 +130,7 @@ export class ZeroXInstantWidget extends React.Component<Props, State> {
                     <BuyButton onClick={openZeroXinstantModal} variant={buttonVariant}>
                         {btnName}
                     </BuyButton>
-                ) : (
-                    ''
-                )}
+                ) : null}
             </>
         );
     };

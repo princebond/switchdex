@@ -15,7 +15,7 @@ const CollectibleAssetWrapper = styled.div`
     border-bottom: 1px solid ${props => props.theme.componentsTheme.cardBorderColor};
     cursor: pointer;
     display: flex;
-    padding: 12px ${props => props.theme.modalTheme.content.padding};
+    padding: 12px ${props => props.theme.modalTheme.content && props.theme.modalTheme.content.padding};
 
     &:hover {
         background-color: rgba(0, 0, 0, 0.03);
@@ -43,6 +43,7 @@ const TextContainer = styled.div`
     display: flex;
     flex-grow: 1;
     padding: 0 10px 0 0;
+    overflow: hidden;
 `;
 
 const Title = styled.h3`

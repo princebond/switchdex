@@ -1,4 +1,4 @@
-import { OrderStatus } from '0x.js';
+import { OrderStatus } from '@0x/types';
 import React from 'react';
 import { connect } from 'react-redux';
 import styled from 'styled-components';
@@ -17,10 +17,11 @@ import { CustomTD, Table, TH, THead, TR } from '../../common/table';
 import { CancelOrderButtonContainer } from './cancel_order_button';
 
 const OrderHistoryCard = styled(Card)`
-    max-height: 220px;
+    height: 100%;
     overflow: auto;
     @media (max-width: ${themeBreakPoints.sm}) {
         margin-top: 10px;
+        max-height: 400px;
     }
 `;
 
@@ -76,7 +77,9 @@ class OrderHistory extends React.Component<Props> {
         let content: React.ReactNode;
         switch (web3State) {
             case Web3State.Locked:
-            case Web3State.NotInstalled: {
+            case Web3State.NotInstalled:
+            case Web3State.Connect:
+            case Web3State.Connecting: {
                 content = <EmptyContent alignAbsoluteCenter={true} text="Connect Wallet to show your orders" />;
                 break;
             }

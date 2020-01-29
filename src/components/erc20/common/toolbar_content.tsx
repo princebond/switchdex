@@ -1,27 +1,38 @@
 import React from 'react';
-import { connect, useDispatch } from 'react-redux';
-import ReactSVG from 'react-svg';
+import { connect, useDispatch, useSelector } from 'react-redux';
 import styled, { withTheme } from 'styled-components';
 
-import { ReactComponent as LogoSvg } from '../../../assets/icons/veridex_logo.svg';
-import { Config } from '../../../common/config';
 import { UI_GENERAL_TITLE } from '../../../common/constants';
 import { Logo } from '../../../components/common/logo';
 import { separatorTopbar, ToolbarContainer } from '../../../components/common/toolbar';
 import { NotificationsDropdownContainer } from '../../../components/notifications/notifications_dropdown';
-import { goToHome, goToWallet, openSideBar } from '../../../store/actions';
+import {
+    goToHome,
+    goToWallet,
+    openFiatOnRampChooseModal,
+    openSideBar,
+    setERC20Theme,
+    setThemeName,
+    goToHomeMarketTrade,
+} from '../../../store/actions';
+import { getCurrentMarketPlace, getGeneralConfig, getThemeName } from '../../../store/selectors';
 import { Theme, themeBreakPoints } from '../../../themes/commons';
+import { getThemeFromConfigDex } from '../../../themes/theme_meta_data_utils';
 import { isMobile } from '../../../util/screen';
+import { MARKETPLACES } from '../../../util/types';
 import { Button } from '../../common/button';
 import { withWindowWidth } from '../../common/hoc/withWindowWidth';
+import { LogoIcon } from '../../common/icons/logo_icon';
 import { MenuBurguer } from '../../common/icons/menu_burguer';
 import { WalletConnectionContentContainer } from '../account/wallet_connection_content';
 
-import { MarketsDropdownContainer } from './markets_dropdown';
+import { MarketsDropdownStatsContainer } from './markets_dropdown_stats';
+import { SwapDropdownContainer } from './swap_dropdown';
 
 interface DispatchProps {
     onGoToHome: () => any;
     onGoToWallet: () => any;
+    onGoToHomeMarketTrade: () => any;
 }
 
 interface OwnProps {
@@ -50,13 +61,14 @@ const LogoHeader = styled(Logo)`
     ${separatorTopbar}
 `;
 
-const LogoSVGStyled = styled(LogoSvg)`
-    path {
-        fill: ${props => props.theme.componentsTheme.logoERC20Color};
-    }
+const MarketsDropdownHeader = styled<any>(MarketsDropdownStatsContainer)`
+    align-items: center;
+    display: flex;
+
+    ${separatorTopbar}
 `;
 
-const MarketsDropdownHeader = styled<any>(MarketsDropdownContainer)`
+const SwapDropdownHeader = styled<any>(SwapDropdownContainer)`
     align-items: center;
     display: flex;
 
@@ -76,6 +88,19 @@ const WalletDropdown = styled(WalletConnectionContentContainer)`
 
 const StyledButton = styled(Button)`
     background-color: ${props => props.theme.componentsTheme.topbarBackgroundColor};
+    color: ${props => props.theme.componentsTheme.textColorCommon};
+    &:hover {
+        text-decoration: underline;
+    }
+`;
+
+const MenuStyledButton = styled(Button)`
+    background-color: ${props => props.theme.componentsTheme.topbarBackgroundColor};
+    color: ${props => props.theme.componentsTheme.textColorCommon};
+`;
+
+const StyledMenuBurguer = styled(MenuBurguer)`
+    fill: ${props => props.theme.componentsTheme.textColorCommon};
 `;
 
 const ToolbarContent = (props: Props) => {
@@ -83,19 +108,44 @@ const ToolbarContent = (props: Props) => {
         e.preventDefault();
         props.onGoToHome();
     };
-    const generalConfig = Config.getConfig().general;
-    const logo = generalConfig && generalConfig.icon ? <ReactSVG src={generalConfig.icon} /> : <LogoSVGStyled />;
+    const generalConfig = useSelector(getGeneralConfig);
+    const themeName = useSelector(getThemeName);
+    const marketplace = useSelector(getCurrentMarketPlace);
+    const logo = generalConfig && generalConfig.icon ? <LogoIcon icon={generalConfig.icon} /> : null;
     const dispatch = useDispatch();
     const setOpenSideBar = () => {
         dispatch(openSideBar(true));
     };
+    const handleThemeClick = () => {
+        const themeN = themeName === 'DARK_THEME' ? 'LIGHT_THEME' : 'DARK_THEME';
+        dispatch(setThemeName(themeN));
+        const theme = getThemeFromConfigDex(themeN);
+        dispatch(setERC20Theme(theme));
+    };
+    const handleFiatChooseModal = () => {
+        dispatch(openFiatOnRampChooseModal(true));
+    };
+    const handleMarketTradeClick: React.EventHandler<React.MouseEvent> = e => {
+        e.preventDefault();
+        props.onGoToHomeMarketTrade();
+    };
+
+    const dropdownHeader =
+        marketplace === MARKETPLACES.MarketTrade ? (
+            <SwapDropdownHeader shouldCloseDropdownBodyOnClick={false} className={'swap-dropdown'} />
+        ) : (
+            <MarketsDropdownHeader shouldCloseDropdownBodyOnClick={false} className={'markets-dropdown'} />
+        );
 
     let startContent;
     if (isMobile(props.windowWidth)) {
         startContent = (
-            <StyledButton onClick={setOpenSideBar}>
-                <MenuBurguer />
-            </StyledButton>
+            <>
+                <MenuStyledButton onClick={setOpenSideBar}>
+                    <StyledMenuBurguer />
+                </MenuStyledButton>
+                {dropdownHeader}
+            </>
         );
     } else {
         startContent = (
@@ -106,7 +156,10 @@ const ToolbarContent = (props: Props) => {
                     text={(generalConfig && generalConfig.title) || UI_GENERAL_TITLE}
                     textColor={props.theme.componentsTheme.logoERC20TextColor}
                 />
-                <MarketsDropdownHeader shouldCloseDropdownBodyOnClick={false} />
+                {dropdownHeader}
+                <MyWalletLink href="/market-trade" onClick={handleMarketTradeClick} className={'market-trade'}>
+                   Market Trade
+                </MyWalletLink>
             </>
         );
     }
@@ -125,11 +178,17 @@ const ToolbarContent = (props: Props) => {
     } else {
         endContent = (
             <>
-                <MyWalletLink href="/my-wallet" onClick={handleMyWalletClick}>
+                <StyledButton onClick={handleThemeClick} className={'theme-switcher'}>
+                    {themeName === 'DARK_THEME' ? '☼' : '🌑'}
+                </StyledButton>
+                <StyledButton onClick={handleFiatChooseModal} className={'buy-eth'}>
+                    Buy ETH
+                </StyledButton>
+                <MyWalletLink href="/my-wallet" onClick={handleMyWalletClick} className={'my-wallet'}>
                     My Wallet
                 </MyWalletLink>
-                <WalletDropdown />
-                <NotificationsDropdownContainer />
+                <WalletDropdown className={'wallet-dropdown'} />
+                <NotificationsDropdownContainer className={'notifications'} />
             </>
         );
     }
@@ -141,16 +200,10 @@ const mapDispatchToProps = (dispatch: any): DispatchProps => {
     return {
         onGoToHome: () => dispatch(goToHome()),
         onGoToWallet: () => dispatch(goToWallet()),
+        onGoToHomeMarketTrade: () => dispatch(goToHomeMarketTrade()),
     };
 };
 
-const ToolbarContentContainer = withWindowWidth(
-    withTheme(
-        connect(
-            null,
-            mapDispatchToProps,
-        )(ToolbarContent),
-    ),
-);
+const ToolbarContentContainer = withWindowWidth(withTheme(connect(null, mapDispatchToProps)(ToolbarContent)));
 
 export { ToolbarContent, ToolbarContentContainer as default };

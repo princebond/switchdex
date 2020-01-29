@@ -1,8 +1,19 @@
 // tslint:disable:max-file-line-count
-import { BigNumber, MetamaskSubprovider, signatureUtils } from '0x.js';
+import { ERC20TokenContract, ERC721TokenContract } from '@0x/contract-wrappers';
+import { signatureUtils } from '@0x/order-utils';
+import { MetamaskSubprovider } from '@0x/subproviders';
+import { BigNumber } from '@0x/utils';
 import { createAction, createAsyncAction } from 'typesafe-actions';
 
-import { COLLECTIBLE_ADDRESS, FEE_RECIPIENT, NETWORK_ID, START_BLOCK_LIMIT } from '../../common/constants';
+import {
+    COLLECTIBLE_ADDRESS,
+    FEE_RECIPIENT,
+    NETWORK_ID,
+    START_BLOCK_LIMIT,
+    UNLIMITED_ALLOWANCE_IN_BASE_UNITS,
+    USE_RELAYER_MARKET_UPDATES,
+    ZERO,
+} from '../../common/constants';
 import { ConvertBalanceMustNotBeEqualException } from '../../exceptions/convert_balance_must_not_be_equal_exception';
 import { SignedOrderException } from '../../exceptions/signed_order_exception';
 import { subscribeToAllFillEvents, subscribeToFillEvents } from '../../services/exchange';
@@ -17,7 +28,7 @@ import { getKnownTokens, isWeth } from '../../util/known_tokens';
 import { getKnownTokensIEO } from '../../util/known_tokens_ieo';
 import { getLogger } from '../../util/logger';
 import { buildOrderFilledNotification } from '../../util/notifications';
-import { buildDutchAuctionCollectibleOrder, buildSellCollectibleOrder } from '../../util/orders';
+import { buildSellCollectibleOrder } from '../../util/orders';
 import { providerFactory } from '../../util/provider_factory';
 import { getTransactionOptions } from '../../util/transactions';
 import {
@@ -47,10 +58,12 @@ import {
 } from '../market/actions';
 import {
     fetchAllIEOOrders,
+    fetchPastFills,
     fetchUserIEOOrders,
     getOrderBook,
     getOrderbookAndUserOrders,
     initializeRelayerData,
+    subscribeToRelayerWebsocketFillEvents,
 } from '../relayer/actions';
 import {
     getCurrencyPair,
@@ -150,48 +163,14 @@ export const toggleTokenLock: ThunkCreator<Promise<any>> = (
         const contractWrappers = await getContractWrappers();
         const web3Wrapper = await getWeb3Wrapper();
 
-        let tx: string;
-        if (isUnlocked) {
-            if (isProxy) {
-                tx = await contractWrappers.erc20Token.setProxyAllowanceAsync(
-                    token.address,
-                    ethAccount,
-                    new BigNumber('0'),
-                    getTransactionOptions(gasPrice),
-                );
-            } else {
-                if (address) {
-                    tx = await contractWrappers.erc20Token.setAllowanceAsync(
-                        token.address,
-                        ethAccount,
-                        address,
-                        new BigNumber('0'),
-                        getTransactionOptions(gasPrice),
-                    );
-                } else {
-                    throw Error('No available path to lock token, missing address parameter');
-                }
-            }
-        } else {
-            if (isProxy) {
-                tx = await contractWrappers.erc20Token.setUnlimitedProxyAllowanceAsync(
-                    token.address,
-                    ethAccount,
-                    getTransactionOptions(gasPrice),
-                );
-            } else {
-                if (address) {
-                    tx = await contractWrappers.erc20Token.setUnlimitedAllowanceAsync(
-                        token.address,
-                        ethAccount,
-                        address,
-                        getTransactionOptions(gasPrice),
-                    );
-                } else {
-                    throw Error('No available path to unlock token, missing address parameter');
-                }
-            }
-        }
+        const erc20Token = new ERC20TokenContract(token.address, contractWrappers.getProvider());
+        const amount = isUnlocked ? ZERO : UNLIMITED_ALLOWANCE_IN_BASE_UNITS;
+        const tx = await erc20Token
+            .approve(contractWrappers.contractAddresses.erc20Proxy, amount)
+            .sendTransactionAsync({
+                from: ethAccount,
+                ...getTransactionOptions(gasPrice),
+            });
 
         web3Wrapper.awaitTransactionSuccessAsync(tx).then(() => {
             // tslint:disable-next-line:no-floating-promises
@@ -224,13 +203,11 @@ export const transferToken: ThunkCreator<Promise<any>> = (
                 gasPrice: getTransactionOptions(gasPrice).gasPrice,
             });
         } else {
-            txHash = await contractWrappers.erc20Token.transferAsync(
-                token.address,
-                ethAccount.toLowerCase(),
-                address.toLowerCase(),
-                amount,
-                getTransactionOptions(gasPrice),
-            );
+            const erc20Token = new ERC20TokenContract(token.address, contractWrappers.getProvider());
+            txHash = await erc20Token.transfer(address.toLowerCase(), amount).sendTransactionAsync({
+                from: ethAccount,
+                ...getTransactionOptions(gasPrice),
+            });
         }
 
         const tx = web3Wrapper.awaitTransactionSuccessAsync(txHash);
@@ -295,23 +272,20 @@ export const updateWethBalance: ThunkCreator<Promise<any>> = (newWethBalance: Bi
         const ethAccount = getEthAccount(state);
         const gasPrice = getGasPriceInWei(state);
         const wethBalance = getWethBalance(state);
-        const wethAddress = getKnownTokens().getWethToken().address;
 
         let txHash: string;
+        const wethToken = contractWrappers.weth9;
         if (wethBalance.isLessThan(newWethBalance)) {
-            txHash = await contractWrappers.etherToken.depositAsync(
-                wethAddress,
-                newWethBalance.minus(wethBalance),
-                ethAccount,
-                getTransactionOptions(gasPrice),
-            );
+            txHash = await wethToken.deposit().sendTransactionAsync({
+                value: newWethBalance.minus(wethBalance),
+                from: ethAccount,
+                ...getTransactionOptions(gasPrice),
+            });
         } else if (wethBalance.isGreaterThan(newWethBalance)) {
-            txHash = await contractWrappers.etherToken.withdrawAsync(
-                wethAddress,
-                wethBalance.minus(newWethBalance),
-                ethAccount,
-                getTransactionOptions(gasPrice),
-            );
+            txHash = await wethToken.withdraw(wethBalance.minus(newWethBalance)).sendTransactionAsync({
+                from: ethAccount,
+                ...getTransactionOptions(gasPrice),
+            });
         } else {
             throw new ConvertBalanceMustNotBeEqualException(wethBalance, newWethBalance);
         }
@@ -467,10 +441,17 @@ export const setConnectedDexFills: ThunkCreator<Promise<any>> = (ethAccount: str
         const blockNumber = await web3Wrapper.getBlockNumberAsync();
 
         const lastBlockChecked = localStorage.getLastBlockChecked(ethAccount);
-        const fromBlock =
-            lastBlockChecked !== null ? lastBlockChecked + 1 : Math.max(blockNumber - START_BLOCK_LIMIT, 1);
-        //   const fromBlock = Math.max(blockNumber - START_BLOCK_LIMIT, 1);
-        // lastBlockChecked !== null ? lastBlockChecked + 1 : Math.max(blockNumber - START_BLOCK_LIMIT, 1);
+        let limitBlocksToFetch = START_BLOCK_LIMIT;
+        if (lastBlockChecked) {
+            limitBlocksToFetch = blockNumber - lastBlockChecked;
+            if (limitBlocksToFetch > START_BLOCK_LIMIT) {
+                limitBlocksToFetch = START_BLOCK_LIMIT;
+            }
+        }
+        /*const fromBlock =
+            lastBlockChecked !== null ? lastBlockChecked + 1 : Math.max(blockNumber - START_BLOCK_LIMIT, 1);*/
+        const fromBlock = Math.max(blockNumber - limitBlocksToFetch, 1);
+        // lastBlockChecked !r== null ? lastBlockChecked + 1 : Math.max(blockNumbe - START_BLOCK_LIMIT, 1);
 
         const toBlock = blockNumber;
 
@@ -643,7 +624,7 @@ const initWalletBeginCommon: ThunkCreator<Promise<any>> = (wallet: Wallet) => {
         }
     };
 };
-
+export let isInitedERC20 = false;
 const initWalletERC20: ThunkCreator<Promise<any>> = () => {
     return async (dispatch, getState, { getWeb3Wrapper }) => {
         const web3Wrapper = await getWeb3Wrapper();
@@ -658,13 +639,14 @@ const initWalletERC20: ThunkCreator<Promise<any>> = () => {
             const state = getState();
             const knownTokens = getKnownTokens();
             const ethAccount = getEthAccount(state);
+
             const tokenBalances = await tokensToTokenBalances(knownTokens.getTokens(), ethAccount);
 
             const currencyPair = getCurrencyPair(state);
             const baseToken = knownTokens.getTokenBySymbol(currencyPair.base);
             const quoteToken = knownTokens.getTokenBySymbol(currencyPair.quote);
-
             dispatch(setMarketTokens({ baseToken, quoteToken }));
+
             dispatch(setTokenBalances(tokenBalances));
 
             // tslint:disable-next-line:no-floating-promises
@@ -677,14 +659,24 @@ const initWalletERC20: ThunkCreator<Promise<any>> = () => {
                 // For executing this method (setConnectedUserNotifications) is necessary that the setMarkets method is already dispatched, otherwise it wont work (redux-thunk problem), so it's need to be dispatched here
                 // tslint:disable-next-line:no-floating-promises
                 dispatch(setConnectedUserNotifications(ethAccount));
-                // tslint:disable-next-line:no-floating-promises
-                dispatch(setConnectedDexFills(FEE_RECIPIENT, ethAccount));
+                if (!USE_RELAYER_MARKET_UPDATES) {
+                    // tslint:disable-next-line:no-floating-promises
+                    dispatch(setConnectedDexFills(FEE_RECIPIENT, ethAccount));
+                }
+
+                if (USE_RELAYER_MARKET_UPDATES) {
+                    // tslint:disable-next-line:no-floating-promises
+                    dispatch(subscribeToRelayerWebsocketFillEvents());
+                    // tslint:disable-next-line:no-floating-promises
+                    dispatch(fetchPastFills());
+                }
             } catch (error) {
                 // Relayer error
                 logger.error('The fetch markets from the relayer failed', error);
             }
             // tslint:disable-next-line:no-floating-promises
             dispatch(updateMarketPriceQuote());
+            isInitedERC20 = true;
         }
     };
 };
@@ -735,14 +727,11 @@ export const unlockCollectible: ThunkCreator<Promise<string>> = (collectible: Co
         const contractWrappers = await getContractWrappers();
         const gasPrice = getGasPriceInWei(state);
         const ethAccount = getEthAccount(state);
-        const defaultParams = getTransactionOptions(gasPrice);
+        const erc721Token = new ERC721TokenContract(COLLECTIBLE_ADDRESS, contractWrappers.getProvider());
 
-        const tx = await contractWrappers.erc721Token.setProxyApprovalForAllAsync(
-            COLLECTIBLE_ADDRESS,
-            ethAccount,
-            true,
-            defaultParams,
-        );
+        const tx = await erc721Token
+            .setApprovalForAll(contractWrappers.contractAddresses.erc721Proxy, true)
+            .sendTransactionAsync({ from: ethAccount, ...getTransactionOptions(gasPrice) });
         return tx;
     };
 };
@@ -777,20 +766,21 @@ export const createSignedCollectibleOrder: ThunkCreator = (
             const exchangeAddress = contractWrappers.exchange.address;
             let order;
             if (endPrice) {
+                throw new Error('DutchAuction currently unsupported');
                 // DutchAuction sell
-                const senderAddress = contractWrappers.dutchAuction.address;
-                order = await buildDutchAuctionCollectibleOrder({
-                    account: ethAccount,
-                    amount: new BigNumber('1'),
-                    price: startPrice,
-                    endPrice,
-                    expirationDate,
-                    wethAddress,
-                    collectibleAddress: COLLECTIBLE_ADDRESS,
-                    collectibleId,
-                    exchangeAddress,
-                    senderAddress,
-                });
+                // const senderAddress = contractWrappers.dutchAuction.address;
+                // order = await buildDutchAuctionCollectibleOrder({
+                //     account: ethAccount,
+                //     amount: new BigNumber('1'),
+                //     price: startPrice,
+                //     endPrice,
+                //     expirationDate,
+                //     wethAddress,
+                //     collectibleAddress: COLLECTIBLE_ADDRESS,
+                //     collectibleId,
+                //     exchangeAddress,
+                //     senderAddress,
+                // });
             } else {
                 // Normal Sell
                 order = await buildSellCollectibleOrder(
@@ -817,7 +807,7 @@ export const createSignedCollectibleOrder: ThunkCreator = (
 };
 /**
  *  Initializes the app with a default state if the user does not have metamask, with permissions rejected
- *  or if the user did not connected metamask to the dApp. Takes the info from the NETWORK_ID configured in the env vars
+ *  or if the user diNd not connected metamask to the dApp. Takes the info from the ETWORK_ID configured in the env vars
  */
 export const initializeAppNoMetamaskOrLocked: ThunkCreator = () => {
     return async (dispatch, getState) => {
@@ -908,7 +898,7 @@ export const initializeAppWallet: ThunkCreator = () => {
         }
         const wallet = getWallet(state);
         if (!wallet) {
-            dispatch(setWeb3State(Web3State.Connecting));
+            dispatch(setWeb3State(Web3State.Connect));
         }
 
         const currencyPair = getCurrencyPair(state);
@@ -934,6 +924,7 @@ export const initializeAppWallet: ThunkCreator = () => {
 
                 // tslint:disable-next-line:no-floating-promises
                 await dispatch(fetchMarkets());
+
                 // tslint:disable-next-line:no-floating-promises
                 await dispatch(updateMarketPriceTokens());
                 // tslint:disable-next-line: no-floating-promises
@@ -953,6 +944,12 @@ export const initializeAppWallet: ThunkCreator = () => {
         }
         // tslint:disable-next-line:no-floating-promises
         dispatch(updateMarketPriceEther());
+        if (USE_RELAYER_MARKET_UPDATES) {
+            // tslint:disable-next-line:no-floating-promises
+            dispatch(subscribeToRelayerWebsocketFillEvents());
+            // tslint:disable-next-line:no-floating-promises
+            dispatch(fetchPastFills());
+        }
     };
 };
 

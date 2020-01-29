@@ -1,32 +1,57 @@
-import { BigNumber, MetamaskSubprovider, signatureUtils } from '0x.js';
+import { MarketBuySwapQuote, MarketSellSwapQuote } from '@0x/asset-swapper';
+import { ERC721TokenContract } from '@0x/contract-wrappers';
+import { eip712Utils, signatureUtils } from '@0x/order-utils';
+import { MetamaskSubprovider } from '@0x/subproviders';
+import { EIP712TypedData } from '@0x/types';
+import { BigNumber } from '@0x/utils';
+import { Web3Wrapper } from '@0x/web3-wrapper';
 import { createAction } from 'typesafe-actions';
 
-import { COLLECTIBLE_ADDRESS } from '../../common/constants';
+import { Config } from '../../common/config';
+import { CHAIN_ID, COLLECTIBLE_ADDRESS, FEE_PERCENTAGE, FEE_RECIPIENT, ZERO } from '../../common/constants';
+import { getAvailableMarkets, updateAvailableMarkets } from '../../common/markets';
 import { InsufficientOrdersAmountException } from '../../exceptions/insufficient_orders_amount_exception';
 import { InsufficientTokenBalanceException } from '../../exceptions/insufficient_token_balance_exception';
 import { SignedOrderException } from '../../exceptions/signed_order_exception';
-import { isWeth } from '../../util/known_tokens';
-import { buildLimitOrder, buildMarketLimitMatchingOrders, buildMarketOrders, isDutchAuction } from '../../util/orders';
+import { getConfigFromNameOrDomain } from '../../services/config';
+import { LocalStorage } from '../../services/local_storage';
+import { Theme } from '../../themes/commons';
+import { getThemeFromConfigDex } from '../../themes/theme_meta_data_utils';
+import { getCurrencyPairByTokensSymbol } from '../../util/known_currency_pairs';
+import { getKnownTokens, isWeth } from '../../util/known_tokens';
+import {
+    buildLimitOrder,
+    buildLimitOrderIEO,
+    buildMarketLimitMatchingOrders,
+    buildMarketOrders,
+    isDutchAuction,
+} from '../../util/orders';
 import {
     createBasicBuyCollectibleSteps,
     createBuySellLimitMatchingSteps,
     createBuySellLimitSteps,
     createBuySellMarketSteps,
-    createDutchBuyCollectibleSteps,
     createLendingTokenSteps,
     createSellCollectibleSteps,
+    createSwapMarketSteps,
 } from '../../util/steps_modals_generation';
-import { tokenAmountInUnitsToBigNumber } from '../../util/tokens';
+import { tokenAmountInUnits, tokenAmountInUnitsToBigNumber } from '../../util/tokens';
 import {
     Collectible,
+    ConfigData,
+    ConfigFile,
+    ConfigRelayerData,
     Fill,
+    GeneralConfig,
     iTokenData,
     MarketFill,
     Notification,
     NotificationKind,
+    OrderFeeData,
     OrderSide,
     Step,
     StepKind,
+    StepSubmitConfig,
     StepToggleTokenLock,
     StepTransferToken,
     StepUnLendingToken,
@@ -36,6 +61,8 @@ import {
     TokenBalance,
     TokenIEO,
 } from '../../util/types';
+import { setCurrencyPair } from '../market/actions';
+import { setFeePercentage, setFeeRecipient } from '../relayer/actions';
 import * as selectors from '../selectors';
 
 export const setHasUnreadNotifications = createAction('ui/UNREAD_NOTIFICATIONS_set', resolve => {
@@ -114,6 +141,38 @@ export const openFiatOnRampModal = createAction('ui/OPEN_FIAT_ON_RAMP_set', reso
     return (isOpen: boolean) => resolve(isOpen);
 });
 
+export const openFiatOnRampChooseModal = createAction('ui/OPEN_FIAT_ON_RAMP_CHOOSE_set', resolve => {
+    return (isOpen: boolean) => resolve(isOpen);
+});
+
+export const setERC20Theme = createAction('ui/ERC20_THEME_set', resolve => {
+    return (theme: Theme) => resolve(theme);
+});
+
+export const setThemeName = createAction('ui/THEME_NAME_set', resolve => {
+    return (themeName: string | undefined) => resolve(themeName);
+});
+
+export const setERC20Layout = createAction('ui/ERC20_LAYOUT_set', resolve => {
+    return (layout: string) => resolve(layout);
+});
+
+export const setDynamicLayout = createAction('ui/DYNAMIC_LAYOUT_set', resolve => {
+    return (isDynamic: boolean) => resolve(isDynamic);
+});
+
+export const setGeneralConfig = createAction('ui/GENERAL_CONFIG_set', resolve => {
+    return (generalConfig: GeneralConfig | undefined) => resolve(generalConfig);
+});
+
+export const setConfigData = createAction('ui/CONFIG_DATA_set', resolve => {
+    return (config: ConfigData) => resolve(config);
+});
+
+export const setFiatType = createAction('ui/FIAT_TYPE_set', resolve => {
+    return (fiatType: 'APPLE_PAY' | 'CREDIT_CARD' | 'DEBIT_CARD') => resolve(fiatType);
+});
+
 export const startToggleTokenLockSteps: ThunkCreator = (token: Token, isUnlocked: boolean) => {
     return async dispatch => {
         const toggleTokenLockStep = isUnlocked ? getLockTokenStep(token) : getUnlockTokenStep(token);
@@ -173,13 +232,13 @@ export const startSellCollectibleSteps: ThunkCreator = (
     return async (dispatch, getState, { getContractWrappers }) => {
         const state = getState();
 
-        const contractWrapers = await getContractWrappers();
+        const contractWrappers = await getContractWrappers();
         const ethAccount = selectors.getEthAccount(state);
 
-        const isUnlocked = await contractWrapers.erc721Token.isProxyApprovedForAllAsync(
-            COLLECTIBLE_ADDRESS,
-            ethAccount,
-        );
+        const erc721Token = new ERC721TokenContract(COLLECTIBLE_ADDRESS, contractWrappers.getProvider());
+        const isUnlocked = await erc721Token
+            .isApprovedForAll(ethAccount, contractWrappers.contractAddresses.erc721Proxy)
+            .callAsync();
         const sellCollectibleSteps: Step[] = createSellCollectibleSteps(
             collectible,
             startingPrice,
@@ -202,19 +261,22 @@ export const startBuyCollectibleSteps: ThunkCreator = (collectible: Collectible,
 
         let buyCollectibleSteps;
         if (isDutchAuction(collectible.order)) {
-            const state = getState();
-            const contractWrappers = await getContractWrappers();
+            throw new Error('DutchAuction currently unsupported');
+            // const state = getState();
+            // const contractWrappers = await getContractWrappers();
 
-            const wethTokenBalance = selectors.getWethTokenBalance(state) as TokenBalance;
+            // const wethTokenBalance = selectors.getWethTokenBalance(state) as TokenBalance;
 
-            const { currentAmount } = await contractWrappers.dutchAuction.getAuctionDetailsAsync(collectible.order);
+            // const { currentAmount } = await contractWrappers.dutchAuction.getAuctionDetails.callAsync(
+            //     collectible.order,
+            // );
 
-            buyCollectibleSteps = createDutchBuyCollectibleSteps(
-                collectible.order,
-                collectible,
-                wethTokenBalance,
-                currentAmount,
-            );
+            // buyCollectibleSteps = createDutchBuyCollectibleSteps(
+            //     collectible.order,
+            //     collectible,
+            //     wethTokenBalance,
+            //     currentAmount,
+            // );
         } else {
             buyCollectibleSteps = createBasicBuyCollectibleSteps(collectible.order, collectible);
         }
@@ -229,7 +291,7 @@ export const startBuySellLimitSteps: ThunkCreator = (
     amount: BigNumber,
     price: BigNumber,
     side: OrderSide,
-    makerFee: BigNumber,
+    orderFeeData: OrderFeeData,
 ) => {
     return async (dispatch, getState) => {
         const state = getState();
@@ -246,7 +308,7 @@ export const startBuySellLimitSteps: ThunkCreator = (
             amount,
             price,
             side,
-            makerFee,
+            orderFeeData,
         );
 
         dispatch(setStepsModalCurrentStep(buySellLimitFlow[0]));
@@ -255,11 +317,24 @@ export const startBuySellLimitSteps: ThunkCreator = (
     };
 };
 
+export const startDexConfigSteps: ThunkCreator = (config: ConfigFile) => {
+    return async (dispatch, _getState) => {
+        const submitConfigStep: StepSubmitConfig = {
+            kind: StepKind.SubmitConfig,
+            config,
+        };
+
+        dispatch(setStepsModalCurrentStep(submitConfigStep));
+        dispatch(setStepsModalPendingSteps([]));
+        dispatch(setStepsModalDoneSteps([]));
+    };
+};
+
 export const startBuySellLimitIEOSteps: ThunkCreator = (
     amount: BigNumber,
     price: BigNumber,
     side: OrderSide,
-    makerFee: BigNumber,
+    orderFeeData: OrderFeeData,
     baseToken: Token,
     quoteToken: Token,
 ) => {
@@ -276,7 +351,7 @@ export const startBuySellLimitIEOSteps: ThunkCreator = (
             amount,
             price,
             side,
-            makerFee,
+            orderFeeData,
             true,
         );
 
@@ -290,7 +365,7 @@ export const startBuySellLimitMatchingSteps: ThunkCreator = (
     amount: BigNumber,
     price: BigNumber,
     side: OrderSide,
-    takerFee: BigNumber,
+    orderFeeData: OrderFeeData,
 ) => {
     return async (dispatch, getState) => {
         const state = getState();
@@ -305,7 +380,7 @@ export const startBuySellLimitMatchingSteps: ThunkCreator = (
 
         const allOrders =
             side === OrderSide.Buy ? selectors.getOpenSellOrders(state) : selectors.getOpenBuyOrders(state);
-        const { orders, amounts, amountFill, amountsMaker } = buildMarketLimitMatchingOrders(
+        const { ordersToFill, amounts, amountFill, amountsMaker } = buildMarketLimitMatchingOrders(
             {
                 amount,
                 price,
@@ -314,7 +389,7 @@ export const startBuySellLimitMatchingSteps: ThunkCreator = (
             side,
         );
 
-        if (orders.length === 0) {
+        if (ordersToFill.length === 0) {
             return 0;
         }
         const totalFilledAmount = amounts.reduce((total: BigNumber, currentValue: BigNumber) => {
@@ -367,7 +442,7 @@ export const startBuySellLimitMatchingSteps: ThunkCreator = (
             side,
             price,
             price_avg,
-            takerFee,
+            orderFeeData,
         );
 
         dispatch(setStepsModalCurrentStep(buySellLimitMatchingFlow[0]));
@@ -423,7 +498,11 @@ export const startUnLendingTokenSteps: ThunkCreator = (
     };
 };
 
-export const startBuySellMarketSteps: ThunkCreator = (amount: BigNumber, side: OrderSide, takerFee: BigNumber) => {
+export const startBuySellMarketSteps: ThunkCreator = (
+    amount: BigNumber,
+    side: OrderSide,
+    orderFeeData: OrderFeeData,
+) => {
     return async (dispatch, getState) => {
         const state = getState();
         const baseToken = selectors.getBaseToken(state) as Token;
@@ -436,7 +515,8 @@ export const startBuySellMarketSteps: ThunkCreator = (amount: BigNumber, side: O
         const baseTokenBalance = selectors.getBaseTokenBalance(state);
 
         const orders = side === OrderSide.Buy ? selectors.getOpenSellOrders(state) : selectors.getOpenBuyOrders(state);
-        const { amounts, canBeFilled } = buildMarketOrders(
+        // tslint:disable-next-line:no-unused-variable
+        const [_ordersToFill, filledAmounts, canBeFilled] = buildMarketOrders(
             {
                 amount,
                 orders,
@@ -447,9 +527,9 @@ export const startBuySellMarketSteps: ThunkCreator = (amount: BigNumber, side: O
             throw new InsufficientOrdersAmountException();
         }
 
-        const totalFilledAmount = amounts.reduce((total: BigNumber, currentValue: BigNumber) => {
+        const totalFilledAmount = filledAmounts.reduce((total: BigNumber, currentValue: BigNumber) => {
             return total.plus(currentValue);
-        }, new BigNumber(0));
+        }, ZERO);
 
         const price = totalFilledAmount.div(amount);
 
@@ -482,7 +562,70 @@ export const startBuySellMarketSteps: ThunkCreator = (amount: BigNumber, side: O
             amount,
             side,
             price,
-            takerFee,
+            orderFeeData,
+        );
+
+        dispatch(setStepsModalCurrentStep(buySellMarketFlow[0]));
+        dispatch(setStepsModalPendingSteps(buySellMarketFlow.slice(1)));
+        dispatch(setStepsModalDoneSteps([]));
+    };
+};
+
+export const startSwapMarketSteps: ThunkCreator = (
+    amount: BigNumber,
+    side: OrderSide,
+    quote: MarketSellSwapQuote | MarketBuySwapQuote,
+) => {
+    return async (dispatch, getState) => {
+        const state = getState();
+        const baseToken = selectors.getSwapBaseToken(state) as Token;
+        const quoteToken = selectors.getSwapQuoteToken(state) as Token;
+        const tokenBalances = selectors.getTokenBalances(state) as TokenBalance[];
+        const wethTokenBalance = selectors.getWethTokenBalance(state) as TokenBalance;
+        const ethBalance = selectors.getEthBalance(state);
+        const totalEthBalance = selectors.getTotalEthBalance(state);
+        const quoteTokenBalance = selectors.getSwapQuoteTokenBalance(state);
+        const baseTokenBalance = selectors.getSwapBaseTokenBalance(state);
+
+        if (side === OrderSide.Sell) {
+            // When selling, user should have enough BASE Token
+            if (baseTokenBalance && baseTokenBalance.balance.isLessThan(amount)) {
+                throw new InsufficientTokenBalanceException(baseToken.symbol);
+            }
+        } else {
+            const totalFilledAmount = quote.bestCaseQuoteInfo.takerAssetAmount;
+            // When buying and
+            // if quote token is weth, should have enough ETH + WETH balance, or
+            // if quote token is not weth, should have enough quote token balance
+            const isEthAndWethNotEnoughBalance =
+                isWeth(quoteToken.symbol) && totalEthBalance.isLessThan(totalFilledAmount);
+            const ifOtherQuoteTokenAndNotEnoughBalance =
+                !isWeth(quoteToken.symbol) &&
+                quoteTokenBalance &&
+                quoteTokenBalance.balance.isLessThan(totalFilledAmount);
+            if (isEthAndWethNotEnoughBalance || ifOtherQuoteTokenAndNotEnoughBalance) {
+                throw new InsufficientTokenBalanceException(quoteToken.symbol);
+            }
+        }
+        const bestQuote = quote.bestCaseQuoteInfo;
+        const isSell = side === OrderSide.Sell;
+        const quoteTokenAmount = isSell ? bestQuote.makerAssetAmount : bestQuote.takerAssetAmount;
+        const baseTokenAmount = isSell ? bestQuote.takerAssetAmount : bestQuote.makerAssetAmount;
+
+        const quoteTokenAmountUnits = new BigNumber(tokenAmountInUnits(quoteTokenAmount, quoteToken.decimals, 18));
+        const baseTokenAmountUnits = new BigNumber(tokenAmountInUnits(baseTokenAmount, baseToken.decimals, 18));
+        const price = quoteTokenAmountUnits.div(baseTokenAmountUnits);
+
+        const buySellMarketFlow: Step[] = createSwapMarketSteps(
+            baseToken,
+            quoteToken,
+            tokenBalances,
+            wethTokenBalance,
+            ethBalance,
+            amount,
+            side,
+            price,
+            quote,
         );
 
         dispatch(setStepsModalCurrentStep(buySellMarketFlow[0]));
@@ -553,7 +696,7 @@ export const createSignedOrderIEO: ThunkCreator = (amount: BigNumber, price: Big
             const web3Wrapper = await getWeb3Wrapper();
             const contractWrappers = await getContractWrappers();
 
-            const order = await buildLimitOrder(
+            const order = await buildLimitOrderIEO(
                 {
                     account: ethAccount,
                     amount,
@@ -565,9 +708,58 @@ export const createSignedOrderIEO: ThunkCreator = (amount: BigNumber, price: Big
                 side,
                 baseToken.endDate,
             );
-
             const provider = new MetamaskSubprovider(web3Wrapper.getProvider());
             return signatureUtils.ecSignOrderAsync(provider, order, ethAccount);
+        } catch (error) {
+            throw new SignedOrderException(error.message);
+        }
+    };
+};
+
+export const createConfigSignature: ThunkCreator = (message: string) => {
+    return async (_dispatch, getState, { getWeb3Wrapper }) => {
+        const state = getState();
+        const ethAccount = selectors.getEthAccount(state);
+        try {
+            const web3Wrapper = await getWeb3Wrapper();
+            const provider = new MetamaskSubprovider(web3Wrapper.getProvider());
+
+            const msgParams: EIP712TypedData = {
+                types: {
+                    EIP712Domain: [
+                        { name: 'name', type: 'string' },
+                        { name: 'version', type: 'string' },
+                        { name: 'chainId', type: 'uint256' },
+                        { name: 'verifyingContract', type: 'address' },
+                    ],
+                    Message: [
+                        { name: 'message', type: 'string' },
+                        { name: 'terms', type: 'string' },
+                    ],
+                },
+                primaryType: 'Message',
+                domain: {
+                    name: 'Veridex',
+                    version: '1',
+                    chainId: CHAIN_ID,
+                    verifyingContract: '0xCcCCccccCCCCcCCCCCCcCcCccCcCCCcCcccccccC',
+                },
+                message: {
+                    message: 'I want to create/edit this DEX. Veridex terms apply',
+                    terms: 'verisafe.io/terms-and-conditions',
+                },
+            };
+            const web3Metamask = new Web3Wrapper(provider);
+
+            const typedData = eip712Utils.createTypedData(
+                msgParams.primaryType,
+                msgParams.types,
+                msgParams.message,
+                // @ts-ignore
+                msgParams.domain,
+            );
+            const signature = await web3Metamask.signTypedDataAsync(ethAccount.toLowerCase(), typedData);
+            return { signature, message: JSON.stringify(typedData), owner: ethAccount };
         } catch (error) {
             throw new SignedOrderException(error.message);
         }
@@ -620,7 +812,6 @@ export const addTransferTokenNotification: ThunkCreator = (
             ]),
         );
     };
-    // tslint:disable-next-line: max-file-line-count
 };
 
 export const addLendingTokenNotification: ThunkCreator = (
@@ -644,7 +835,6 @@ export const addLendingTokenNotification: ThunkCreator = (
             ]),
         );
     };
-    // tslint:disable-next-line: max-file-line-count
 };
 
 export const addUnLendingTokenNotification: ThunkCreator = (
@@ -667,6 +857,76 @@ export const addUnLendingTokenNotification: ThunkCreator = (
                 },
             ]),
         );
+    };
+    // tslint:disable-next-line: max-file-line-count
+};
+
+export const initTheme: ThunkCreator = (themeName: string | null) => {
+    return async dispatch => {
+        if (themeName) {
+            dispatch(setThemeName(themeName));
+            const theme = getThemeFromConfigDex(themeName);
+            dispatch(setERC20Theme(theme));
+        } else {
+            dispatch(setThemeName(Config.getConfig().theme_name));
+            const theme = getThemeFromConfigDex();
+            dispatch(setERC20Theme(theme));
+        }
+    };
+};
+
+export const initConfigData: ThunkCreator = (queryString: string | undefined, domain: string | undefined) => {
+    return async dispatch => {
+        try {
+            let configRelayerData: ConfigRelayerData | undefined;
+            if (domain) {
+                configRelayerData = await getConfigFromNameOrDomain({ domain });
+            }
+            if (queryString) {
+                const name = queryString.toLowerCase();
+                configRelayerData = await getConfigFromNameOrDomain({ name });
+            }
+            if (!configRelayerData) {
+                return;
+            }
+            const configFile: ConfigFile = JSON.parse(configRelayerData.config);
+            const configData: ConfigData = { ...configRelayerData, config: configFile };
+            dispatch(setConfigData(configData));
+            const configInstance = Config.getInstance();
+            configInstance._setConfig(configFile);
+            const known_tokens = getKnownTokens();
+            known_tokens.updateTokens(Config.getConfig().tokens);
+            updateAvailableMarkets(Config.getConfig().pairs);
+            // Sometimes the markets only are available after the config arrive
+            const parsedUrl = new URL(window.location.href.replace('#/', ''));
+            const base = parsedUrl.searchParams.get('base') || getAvailableMarkets()[0].base;
+            const quote = parsedUrl.searchParams.get('quote') || getAvailableMarkets()[0].quote;
+            let currencyPair;
+            try {
+                currencyPair = getCurrencyPairByTokensSymbol(base, quote);
+            } catch (e) {
+                currencyPair = getCurrencyPairByTokensSymbol(
+                    getAvailableMarkets()[0].base,
+                    getAvailableMarkets()[0].quote,
+                );
+            }
+            dispatch(setCurrencyPair(currencyPair));
+            dispatch(setGeneralConfig(Config.getConfig().general));
+            const localStorage = new LocalStorage(window.localStorage);
+            const themeName = localStorage.getThemeName() || Config.getConfig().theme_name;
+            dispatch(initTheme(themeName));
+            let feeRecipient = FEE_RECIPIENT;
+            let feePercentage = FEE_PERCENTAGE;
+            const general = Config.getConfig().general;
+            if (general) {
+                feeRecipient = general.feeRecipient || FEE_RECIPIENT;
+                feePercentage = general.feePercentage || FEE_PERCENTAGE;
+            }
+            dispatch(setFeeRecipient(feeRecipient));
+            dispatch(setFeePercentage(feePercentage));
+        } catch (e) {
+            return;
+        }
     };
     // tslint:disable-next-line: max-file-line-count
 };

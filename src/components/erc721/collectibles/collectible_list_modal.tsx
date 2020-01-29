@@ -39,17 +39,17 @@ const modalContentHeight = '400px';
 
 const ModalContent = styled.div`
     height: ${modalContentHeight};
-    margin-left: -${props => props.theme.modalTheme.content.padding};
-    margin-right: -${props => props.theme.modalTheme.content.padding};
-    margin-top: -${props => props.theme.modalTheme.content.padding};
+    margin-left: -${props => props.theme.modalTheme.content && props.theme.modalTheme.content.padding};
+    margin-right: -${props => props.theme.modalTheme.content && props.theme.modalTheme.content.padding};
+    margin-top: -${props => props.theme.modalTheme.content && props.theme.modalTheme.content.padding};
     overflow: auto;
     width: 360px;
 `;
 
 const ModalTitleWrapper = styled.div`
     border-bottom: 1px solid ${props => props.theme.componentsTheme.borderColor};
-    margin: -3px -${props => props.theme.modalTheme.content.padding} 15px;
-    padding: 0 ${props => props.theme.modalTheme.content.padding} 13px;
+    margin: -3px -${props => props.theme.modalTheme.content && props.theme.modalTheme.content.padding} 15px;
+    padding: 0 ${props => props.theme.modalTheme.content && props.theme.modalTheme.content.padding} 13px;
 `;
 
 const ModalTitleTop = styled.div`
@@ -147,11 +147,6 @@ const mapDispatchToProps = (dispatch: any): DispatchProps => {
     };
 };
 
-const CollectibleListModal = withTheme(
-    connect(
-        mapStateToProps,
-        mapDispatchToProps,
-    )(CollectibleListModalContainer),
-);
+const CollectibleListModal = withTheme(connect(mapStateToProps, mapDispatchToProps)(CollectibleListModalContainer));
 
 export { CollectibleListModal };

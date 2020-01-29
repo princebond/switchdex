@@ -1,9 +1,13 @@
-import { BigNumber, SignedOrder } from '0x.js';
+import { MarketBuySwapQuote, MarketSellSwapQuote } from '@0x/asset-swapper';
+import { assetDataUtils } from '@0x/order-utils';
+import { ERC20AssetData, SignedOrder } from '@0x/types';
+import { BigNumber } from '@0x/utils';
 
 import { isWeth, isZrx } from './known_tokens';
 import {
     Collectible,
     iTokenData,
+    OrderFeeData,
     OrderSide,
     Step,
     StepBuyCollectible,
@@ -23,30 +27,37 @@ export const createBuySellLimitSteps = (
     amount: BigNumber,
     price: BigNumber,
     side: OrderSide,
-    makerFee: BigNumber,
+    orderFeeData: OrderFeeData,
     is_ieo?: boolean,
 ): Step[] => {
     const buySellLimitFlow: Step[] = [];
-    let unlockBaseOrQuoteTokenStep;
+    let unlockTokenStep;
 
     // unlock base and quote tokens if necessary
 
-    unlockBaseOrQuoteTokenStep =
+    unlockTokenStep =
         side === OrderSide.Buy
             ? // If it's a buy -> the quote token has to be unlocked
               getUnlockTokenStepIfNeeded(quoteToken, tokenBalances, wethTokenBalance)
             : // If it's a sell -> the base token has to be unlocked
               getUnlockTokenStepIfNeeded(baseToken, tokenBalances, wethTokenBalance);
 
-    if (unlockBaseOrQuoteTokenStep) {
-        buySellLimitFlow.push(unlockBaseOrQuoteTokenStep);
+    if (unlockTokenStep) {
+        buySellLimitFlow.push(unlockTokenStep);
     }
 
-    // unlock zrx (for fees) if it's not one of the traded tokens and if the maker fee is positive
-    if (!isZrx(baseToken.symbol) && !isZrx(quoteToken.symbol) && makerFee.isGreaterThan(0)) {
-        const unlockZrxStep = getUnlockZrxStepIfNeeded(tokenBalances);
-        if (unlockZrxStep) {
-            buySellLimitFlow.push(unlockZrxStep);
+    if (orderFeeData.makerFee.isGreaterThan(0)) {
+        const { tokenAddress } = assetDataUtils.decodeAssetDataOrThrow(
+            orderFeeData.makerFeeAssetData,
+        ) as ERC20AssetData;
+        if (!unlockTokenStep || unlockTokenStep.token.address !== tokenAddress) {
+            const unlockFeeTokenStep = getUnlockFeeAssetStepIfNeeded(
+                [...tokenBalances, wethTokenBalance],
+                tokenAddress,
+            );
+            if (unlockFeeTokenStep) {
+                buySellLimitFlow.push(unlockFeeTokenStep);
+            }
         }
     }
 
@@ -80,7 +91,7 @@ export const createBuySellLimitMatchingSteps = (
     side: OrderSide,
     price: BigNumber,
     price_avg: BigNumber,
-    takerFee: BigNumber,
+    orderFeeData: OrderFeeData,
 ): Step[] => {
     const buySellLimitMatchingFlow: Step[] = [];
     const isBuy = side === OrderSide.Buy;
@@ -102,11 +113,18 @@ export const createBuySellLimitMatchingSteps = (
         buySellLimitMatchingFlow.push(unlockTokenStep as Step);
     }
 
-    // unlock zrx (for fees) if the taker fee is positive
-    if (!isZrx(tokenToUnlock.symbol) && takerFee.isGreaterThan(0)) {
-        const unlockZrxStep = getUnlockZrxStepIfNeeded(tokenBalances);
-        if (unlockZrxStep) {
-            buySellLimitMatchingFlow.push(unlockZrxStep);
+    if (orderFeeData.makerFee.isGreaterThan(0)) {
+        const { tokenAddress } = assetDataUtils.decodeAssetDataOrThrow(
+            orderFeeData.makerFeeAssetData,
+        ) as ERC20AssetData;
+        if (!unlockTokenStep || unlockTokenStep.token.address !== tokenAddress) {
+            const unlockFeeTokenStep = getUnlockFeeAssetStepIfNeeded(
+                [...tokenBalances, wethTokenBalance],
+                tokenAddress,
+            );
+            if (unlockFeeTokenStep) {
+                buySellLimitMatchingFlow.push(unlockFeeTokenStep);
+            }
         }
     }
 
@@ -208,7 +226,7 @@ export const createBuySellMarketSteps = (
     amount: BigNumber,
     side: OrderSide,
     price: BigNumber,
-    takerFee: BigNumber,
+    orderFeeData: OrderFeeData,
 ): Step[] => {
     const buySellMarketFlow: Step[] = [];
     const isBuy = side === OrderSide.Buy;
@@ -230,11 +248,16 @@ export const createBuySellMarketSteps = (
         buySellMarketFlow.push(unlockTokenStep as Step);
     }
 
-    // unlock zrx (for fees) if the taker fee is positive
-    if (!isZrx(tokenToUnlock.symbol) && takerFee.isGreaterThan(0)) {
-        const unlockZrxStep = getUnlockZrxStepIfNeeded(tokenBalances);
-        if (unlockZrxStep) {
-            buySellMarketFlow.push(unlockZrxStep);
+    // unlock fees if the taker fee is positive
+    if (orderFeeData.takerFee.isGreaterThan(0)) {
+        const { tokenAddress } = assetDataUtils.decodeAssetDataOrThrow(
+            orderFeeData.takerFeeAssetData,
+        ) as ERC20AssetData;
+        if (!unlockTokenStep || (unlockTokenStep && unlockTokenStep.token.address !== tokenAddress)) {
+            const unlockFeeStep = getUnlockFeeAssetStepIfNeeded([...tokenBalances, wethTokenBalance], tokenAddress);
+            if (unlockFeeStep) {
+                buySellMarketFlow.push(unlockFeeStep);
+            }
         }
     }
 
@@ -251,7 +274,70 @@ export const createBuySellMarketSteps = (
         amount,
         side,
         token: baseToken,
+        context: 'order',
     });
+    return buySellMarketFlow;
+};
+
+export const createSwapMarketSteps = (
+    baseToken: Token,
+    quoteToken: Token,
+    tokenBalances: TokenBalance[],
+    wethTokenBalance: TokenBalance,
+    ethBalance: BigNumber,
+    amount: BigNumber,
+    side: OrderSide,
+    price: BigNumber,
+    quote: MarketBuySwapQuote | MarketSellSwapQuote,
+): Step[] => {
+    const buySellMarketFlow: Step[] = [];
+    const isBuy = side === OrderSide.Buy;
+    const tokenToUnlock = isBuy ? quoteToken : baseToken;
+
+    const unlockTokenStep = getUnlockTokenStepIfNeeded(tokenToUnlock, tokenBalances, wethTokenBalance);
+    // Unlock token step should be added if it:
+    // 1) it's a sell, or
+    const isSell = unlockTokenStep && side === OrderSide.Sell;
+    // 2) is a buy and
+    // base token is not weth and is locked, or
+    // base token is weth, is locked and there is not enouth plain ETH to fill the order
+    const isBuyWithWethConditions =
+        isBuy &&
+        unlockTokenStep &&
+        (!isWeth(tokenToUnlock.symbol) ||
+            (isWeth(tokenToUnlock.symbol) && ethBalance.isLessThan(quote.bestCaseQuoteInfo.takerAssetAmount)));
+    if (isSell || isBuyWithWethConditions) {
+        buySellMarketFlow.push(unlockTokenStep as Step);
+    }
+
+    // unlock fees if the taker fee is positive
+    if (quote.bestCaseQuoteInfo.feeTakerAssetAmount.isGreaterThan(0)) {
+        const { tokenAddress } = assetDataUtils.decodeAssetDataOrThrow(quote.takerAssetData) as ERC20AssetData;
+        if (!unlockTokenStep || (unlockTokenStep && unlockTokenStep.token.address !== tokenAddress)) {
+            const unlockFeeStep = getUnlockFeeAssetStepIfNeeded([...tokenBalances, wethTokenBalance], tokenAddress);
+            if (unlockFeeStep) {
+                buySellMarketFlow.push(unlockFeeStep);
+            }
+        }
+    }
+
+    // wrap the necessary ether if necessary
+    if (isWeth(quoteToken.symbol)) {
+        const wrapEthStep = getWrapEthStepIfNeeded(amount, price, side, wethTokenBalance, ethBalance);
+        if (wrapEthStep) {
+            buySellMarketFlow.push(wrapEthStep);
+        }
+    }
+
+    buySellMarketFlow.push({
+        kind: StepKind.BuySellMarket,
+        amount,
+        side,
+        token: baseToken,
+        context: 'swap',
+        quote,
+    });
+
     return buySellMarketFlow;
 };
 
@@ -383,6 +469,25 @@ export const getWrapEthStepIfNeeded = (
     } else {
         return null;
     }
+};
+
+export const getUnlockFeeAssetStepIfNeeded = (
+    tokenBalances: TokenBalance[],
+    feeTokenAddress: string,
+): StepToggleTokenLock | null => {
+    const balance = tokenBalances.find(tokenBalance => tokenBalance.token.address === feeTokenAddress);
+    if (!balance) {
+        throw new Error(`Unknown fee token: ${feeTokenAddress}`);
+    }
+    if (!balance.isUnlocked) {
+        return {
+            kind: StepKind.ToggleTokenLock,
+            token: balance.token,
+            isUnlocked: false,
+            context: 'order',
+        };
+    }
+    return null;
 };
 
 export const getUnlockZrxStepIfNeeded = (tokenBalances: TokenBalance[]): StepToggleTokenLock | null => {
