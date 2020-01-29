@@ -33,14 +33,18 @@ const Erc721App = () => {
                 <CheckWalletStateModalContainer />
                 <FiatOnRampModalContainer />
                 <Switch>
-                    <Route exact={true} path={`${ERC721_APP_BASE_PATH}/`} component={AllCollectibles} />
-                    <Route exact={true} path={`${ERC721_APP_BASE_PATH}/my-collectibles`} component={MyCollectibles} />
+                    <Route exact={true} path={`${ERC721_APP_BASE_PATH}/:collection`}>
+                       {({ match }) => match && <AllCollectibles collection={match.params.collection} />}
+                    </Route>
+                    <Route exact={true} path={`${ERC721_APP_BASE_PATH}/:category/my-collectibles`}>
+                             {({ match }) => match && <MyCollectibles collection={match.params.collection} />}
+                    </Route>
                     <Route
                         exact={true}
-                        path={`${ERC721_APP_BASE_PATH}/list-collectibles`}
+                        path={`${ERC721_APP_BASE_PATH}/:category/list-collectibles`}
                         component={ListCollectibles}
                     />
-                    <Route path={`${ERC721_APP_BASE_PATH}/collectible/:id`}>
+                    <Route path={`${ERC721_APP_BASE_PATH}/:category/collectible/:id`}>
                         {({ match }) => match && <IndividualCollectible collectibleId={match.params.id} />}
                     </Route>
                 </Switch>
