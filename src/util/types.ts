@@ -648,11 +648,12 @@ export interface CollectiblesState {
     readonly allCollectibles: { [tokenId: string]: Collectible };
     readonly allCollectiblesFetchStatus: AllCollectiblesFetchStatus;
     readonly collectibleSelected: Collectible | null;
+    readonly collectionSelected: CollectibleCollection;
 }
 
 export interface CollectibleMetadataSource {
-    fetchAllUserCollectiblesAsync(userAddress: string): Promise<Collectible[]>;
-    fetchCollectiblesAsync(tokenIds: string[]): Promise<Collectible[]>;
+    fetchAllUserCollectiblesAsync(userAddress: string, collectibleAddress: string): Promise<Collectible[]>;
+    fetchCollectiblesAsync(tokenIds: string[], collectibleAddress: string): Promise<Collectible[]>;
 }
 
 export type ThunkCreator<R = Promise<any>> = ActionCreator<ThunkAction<R, StoreState, ExtraArgument, AnyAction>>;
@@ -815,10 +816,20 @@ export interface TokenMetadataBZX {
     index: number;
 }
 
-export interface CollectibleCategory{
+export interface CollectibleCollectionMetadata{
+    name: string;
+    addresses:  { [key: string]: string };
+    description: string;
+    icon: string;
+    symbol: string;
+}
+
+export interface CollectibleCollection{
     name: string;
     address: string;
     description: string;
+    icon: string;
+    symbol: string;
 }
 
 // tslint:disable-next-line: class-name

@@ -8,7 +8,7 @@ import { cancelSignedOrder } from '../../services/orders';
 import { getLogger } from '../../util/logger';
 import { calculateWorstCaseProtocolFee, isDutchAuction } from '../../util/orders';
 import { getTransactionOptions } from '../../util/transactions';
-import { Collectible, ThunkCreator } from '../../util/types';
+import { Collectible, ThunkCreator, CollectibleCollection } from '../../util/types';
 import { getEthAccount, getGasPriceInWei } from '../selectors';
 
 const logger = getLogger('Collectibles::Actions');
@@ -27,6 +27,10 @@ export const fetchAllCollectiblesAsync = createAsyncAction(
 
 export const selectCollectible = createAction('collectibles/selectCollectible', resolve => {
     return (collectible: Collectible | null) => resolve(collectible);
+});
+
+export const setCollectibleCollection = createAction('collectibles/COLLECTIBLE_COLLECTION_set', resolve => {
+    return (collectibleCollection: CollectibleCollection) => resolve(collectibleCollection);
 });
 
 export const getAllCollectibles: ThunkCreator = () => {

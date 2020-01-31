@@ -10,7 +10,7 @@ import { separatorTopbar, ToolbarContainer } from '../../common/toolbar';
 import { NotificationsDropdownContainer } from '../../notifications/notifications_dropdown';
 import { WalletConnectionContentContainer } from '../account/wallet_connection_content';
 import { CollectiblesSearch } from '../collectibles/collectibles_search';
-import { CategoryCollectiblesDropdownContainer } from './category_collectibles_dropdown';
+import {  CollectiblesCollectionDropdownContainer } from './collectibles_collection_dropdown';
 
 interface DispatchProps {
     onGoToHome: () => any;
@@ -58,7 +58,7 @@ const WalletDropdown = styled(WalletConnectionContentContainer)`
 `;
 
 
-const CategoryCollectiblesDropdownHeader = styled<any>(CategoryCollectiblesDropdownContainer)`
+const CollectiblesCollectionDropdownHeader = styled<any>(CollectiblesCollectionDropdownContainer)`
     align-items: center;
     display: flex;
 
@@ -78,7 +78,7 @@ const ToolbarContent = (props: Props) => {
             text="VeriCollectibles"
             textColor={props.theme.componentsTheme.logoERC721TextColor}
         />
-        <CategoryCollectiblesDropdownHeader shouldCloseDropdownBodyOnClick={false} />
+         <CollectiblesCollectionDropdownHeader shouldCloseDropdownBodyOnClick={false} />
         </>
     );
 

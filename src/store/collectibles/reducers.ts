@@ -3,9 +3,12 @@ import { getType } from 'typesafe-actions';
 import { AllCollectiblesFetchStatus, Collectible, CollectiblesState } from '../../util/types';
 import * as actions from '../actions';
 import { RootAction } from '../reducers';
+import { getCollectibleCollections } from '../../common/collections';
+
 
 const initialCollectibles: CollectiblesState = {
     collectibleSelected: null,
+    collectionSelected: getCollectibleCollections()[0],
     allCollectibles: {},
     allCollectiblesFetchStatus: AllCollectiblesFetchStatus.Request,
 };

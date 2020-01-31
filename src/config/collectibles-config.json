@@ -1,0 +1,17 @@
+{
+
+    "collections": [
+        {
+            "symbol": "axie",
+            "name": "CryptoKitties",
+            "icon": "",
+            "description": "CryptoKitties is a state of the art blockchain-based game, enabling users to trade and sell their cards freely, with the same level of ownership as if they were real, tangible cards.",
+            "addresses": {
+                "mainnet": "0xf5b0a3efb8e8e4c201e2a935f110eaaf3ffecb8d"
+            }
+    }]
+
+
+
+
+}

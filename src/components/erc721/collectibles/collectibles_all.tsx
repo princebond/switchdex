@@ -3,11 +3,11 @@ import { connect } from 'react-redux';
 import styled from 'styled-components';
 
 import { ERC721_APP_BASE_PATH } from '../../../common/constants';
-import { getAllCollectiblesFetchStatus, getUsersCollectiblesAvailableToList } from '../../../store/selectors';
+import { getAllCollectiblesFetchStatus, getUsersCollectiblesAvailableToList, getCollectibleCollectionSelected } from '../../../store/selectors';
 import { themeBreakPoints } from '../../../themes/commons';
 import { CollectibleFilterType } from '../../../util/filterable_collectibles';
 import { CollectibleSortType } from '../../../util/sortable_collectibles';
-import { AllCollectiblesFetchStatus, Collectible, StoreState } from '../../../util/types';
+import { AllCollectiblesFetchStatus, Collectible, StoreState, CollectibleCollection } from '../../../util/types';
 import { CenteredWrapper } from '../../common/centered_wrapper';
 import { ViewAll } from '../../common/view_all';
 import { SellCollectiblesButton } from '../marketplace/sell_collectibles_button';
@@ -24,6 +24,7 @@ interface OwnProps {
 interface StateProps {
     collectibles: { [key: string]: Collectible };
     fetchStatus: AllCollectiblesFetchStatus;
+    collectibleCollection: CollectibleCollection;
 }
 
 type Props = StateProps & OwnProps;
@@ -107,10 +108,10 @@ const CollectiblesCardListStyled = styled(CollectiblesCardList)`
 
 export class CollectiblesAll extends React.Component<Props> {
     public render = () => {
-        const { title, description, fetchStatus } = this.props;
+        const { description, fetchStatus, collectibleCollection } = this.props;
         const collectibles = Object.keys(this.props.collectibles).map(key => this.props.collectibles[key]);
         const isLoading = fetchStatus !== AllCollectiblesFetchStatus.Success;
-
+        const title = collectibleCollection.name;
         return (
             <CenteredWrapper>
                 <HeaderWrapper>
@@ -157,6 +158,7 @@ const allMapStateToProps = (state: StoreState): StateProps => {
     return {
         collectibles: getUsersCollectiblesAvailableToList(state),
         fetchStatus: getAllCollectiblesFetchStatus(state),
+        collectibleCollection: getCollectibleCollectionSelected(state),
     };
 };
 export const AllCollectiblesContainer = connect(allMapStateToProps)(CollectiblesAll);
