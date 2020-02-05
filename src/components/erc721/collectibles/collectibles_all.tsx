@@ -108,10 +108,12 @@ const CollectiblesCardListStyled = styled(CollectiblesCardList)`
 
 export class CollectiblesAll extends React.Component<Props> {
     public render = () => {
-        const { description, fetchStatus, collectibleCollection } = this.props;
+        const { fetchStatus, collectibleCollection } = this.props;
         const collectibles = Object.keys(this.props.collectibles).map(key => this.props.collectibles[key]);
         const isLoading = fetchStatus !== AllCollectiblesFetchStatus.Success;
         const title = collectibleCollection.name;
+        const description = collectibleCollection.description;
+        const collectionPath = collectibleCollection.name.toLowerCase();
         return (
             <CenteredWrapper>
                 <HeaderWrapper>
@@ -125,7 +127,7 @@ export class CollectiblesAll extends React.Component<Props> {
                     <SubSectionTitle>Recently listed</SubSectionTitle>
                     <ViewAll
                         text="View all"
-                        to={`${ERC721_APP_BASE_PATH}/list-collectibles?filter=${CollectibleFilterType.ShowAll}&sort=${CollectibleSortType.NewestAdded}`}
+                        to={`${ERC721_APP_BASE_PATH}/${collectionPath}/list-collectibles?filter=${CollectibleFilterType.ShowAll}&sort=${CollectibleSortType.NewestAdded}`}
                     />
                 </SubSectionTitleWrapper>
                 <CollectiblesCardListStyled
@@ -139,7 +141,7 @@ export class CollectiblesAll extends React.Component<Props> {
                     <SubSectionTitle>Most valued</SubSectionTitle>
                     <ViewAll
                         text="View all"
-                        to={`${ERC721_APP_BASE_PATH}/list-collectibles?filter=${CollectibleFilterType.ShowAll}&sort=${CollectibleSortType.PriceHighToLow}`}
+                        to={`${ERC721_APP_BASE_PATH}/${collectionPath}/list-collectibles?filter=${CollectibleFilterType.ShowAll}&sort=${CollectibleSortType.PriceHighToLow}`}
                     />
                 </SubSectionTitleWrapper>
                 <CollectiblesCardListStyled

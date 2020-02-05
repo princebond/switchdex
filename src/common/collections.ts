@@ -6,6 +6,18 @@ import { CHAIN_ID } from "./constants";
 
 let collectibleCollection: CollectibleCollection[] = [];
 
+const getContractFromChainId = (addresses: Addresses) => {
+    switch (CHAIN_ID) {
+        case 1:
+            return addresses.mainnet;
+        case 3:
+            return addresses.ropsten;
+        case 42:
+             return addresses.kovan;
+        default:
+           return null;
+    }
+}
 
 collectibleCollection = collectibleCollectionConfig.collections.filter(c=> getContractFromChainId(c.addresses) !== null).map(c => {
     return {
@@ -28,15 +40,3 @@ export const getCollectibleCollections = (): CollectibleCollection[] => {
 }
 
 
-export const getContractFromChainId = (addresses: Addresses) => {
-    switch (CHAIN_ID) {
-        case 1:
-            return addresses.mainnet;
-        case 3:
-            return addresses.ropsten;
-        case 42:
-             return addresses.kovan;
-        default:
-           return null;
-    }
-}

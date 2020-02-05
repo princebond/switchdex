@@ -35,3 +35,7 @@ export const filterCollectibleCollectionsByString = (collectibleCollections: Col
         return `${nameLowerCase}`.indexOf(str.toLowerCase()) !== -1;
     });
 };
+
+export const getPathNameCollection = (collectibleCollection: CollectibleCollection) => {
+    return collectibleCollection.name.toLowerCase();
+}

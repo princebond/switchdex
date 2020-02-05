@@ -9,9 +9,14 @@
             "addresses": {
                 "mainnet": "0xf5b0a3efb8e8e4c201e2a935f110eaaf3ffecb8d"
             }
+        },
+         {
+                "symbol": "mumo",
+                "name": "MutantMonsters",
+                "icon": "",
+                "description": "Mutant Monsters.",
+                "addresses": {
+                    "mainnet": "0x3910d4afdf276a0dc8af632ccfceccf5ba04a3b7"
+        }
     }]
-
-
-
-
 }

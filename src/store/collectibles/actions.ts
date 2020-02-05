@@ -9,7 +9,8 @@ import { getLogger } from '../../util/logger';
 import { calculateWorstCaseProtocolFee, isDutchAuction } from '../../util/orders';
 import { getTransactionOptions } from '../../util/transactions';
 import { Collectible, ThunkCreator, CollectibleCollection } from '../../util/types';
-import { getEthAccount, getGasPriceInWei } from '../selectors';
+import { getEthAccount, getGasPriceInWei, getCollectibleCollectionSelected } from '../selectors';
+import { goToHome } from '../actions';
 
 const logger = getLogger('Collectibles::Actions');
 
@@ -40,7 +41,8 @@ export const getAllCollectibles: ThunkCreator = () => {
             const state = getState();
             const ethAccount = getEthAccount(state);
             const collectiblesMetadataGateway = getCollectiblesMetadataGateway();
-            const collectibles = await collectiblesMetadataGateway.fetchAllCollectibles(ethAccount);
+            const collection = getCollectibleCollectionSelected(state);
+            const collectibles = await collectiblesMetadataGateway.fetchAllCollectibles(collection.address, ethAccount);
             dispatch(fetchAllCollectiblesAsync.success({ collectibles }));
         } catch (err) {
             logger.error('There was a problem fetching the collectibles', err);
@@ -117,5 +119,12 @@ export const cancelOrderCollectible: ThunkCreator = (order: any) => {
             // tslint:disable-next-line:no-floating-promises
             dispatch(getAllCollectibles());
         });
+    };
+};
+
+export const changeCollection: ThunkCreator = (collection: CollectibleCollection) => {
+    return async (dispatch) => {
+        dispatch(setCollectibleCollection(collection));
+        dispatch(goToHome());
     };
 };

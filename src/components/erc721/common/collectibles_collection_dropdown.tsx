@@ -3,12 +3,11 @@ import { connect } from 'react-redux';
 import styled from 'styled-components';
 
 import { marketFilters } from '../../../common/markets';
-import { changeMarket, goToHome, setCollectibleCollection } from '../../../store/actions';
-import { getBaseToken, getCurrencyPair, getMarkets, getCollectibleCollectionSelected } from '../../../store/selectors';
+import { goToHome, setCollectibleCollection, changeCollection } from '../../../store/actions';
+import { getCollectibleCollectionSelected } from '../../../store/selectors';
 import { themeDimensions } from '../../../themes/commons';
-import { getKnownTokens } from '../../../util/known_tokens';
-import { filterMarketsByString, filterMarketsByTokenSymbol } from '../../../util/markets';
-import { CurrencyPair, Filter, Market, StoreState, Token,  CollectibleCollection } from '../../../util/types';
+
+import { Filter,  StoreState,   CollectibleCollection } from '../../../util/types';
 import { CardBase } from '../../common/card_base';
 import { Dropdown } from '../../common/dropdown';
 import { ChevronDownIcon } from '../../common/icons/chevron_down_icon';
@@ -87,11 +86,7 @@ const CollectibleCollectionsFiltersLabel = styled.h2`
     margin: 0 auto 0 0;
 `;
 
-const TokenFiltersTabs = styled.div`
-    align-items: center;
-    display: flex;
-    margin-right: 10px;
-`;
+
 
 const CollectibleCollectionFiltersTab = styled.span<CollectibleCollectionFiltersTabProps>`
     color: ${props =>
@@ -249,7 +244,6 @@ class CollectiblesCollectionDropdown extends React.Component<Props, State> {
             <CollectiblesCategoryDropdownBody>
                { <CollectibleCollectionsFilters onMouseOver={this._setUserOnDropdown} onMouseOut={this._removeUserOnDropdown}>
                     <CollectibleCollectionsFiltersLabel>Collectibles</CollectibleCollectionsFiltersLabel>
-                    {/*this._getTokensFilterTabs()*/}
                     {this._getSearchField()}
                 </CollectibleCollectionsFilters> }
                 <TableWrapper>{this._getCollectibleCollections()}</TableWrapper>
@@ -274,27 +268,6 @@ class CollectiblesCollectionDropdown extends React.Component<Props, State> {
         this.setState({ isUserOnDropdown: false });
     };
 
-    /*private readonly _getTokensFilterTabs = () => {
-        return (
-            <TokenFiltersTabs>
-                {marketFilters.map((filter: Filter, index) => {
-                    return (
-                        <CollectibleCollectionFiltersTab
-                            active={filter === this.state.selectedFilter}
-                            key={index}
-                            onClick={this._setTokensFilterTab.bind(this, filter)}
-                        >
-                            {filter.text}
-                        </CollectibleCollectionFiltersTab>
-                    );
-                })}
-            </TokenFiltersTabs>
-        );
-    };
-
-    private readonly _setTokensFilterTab: any = (filter: Filter) => {
-        this.setState({ selectedFilter: filter });
-    };*/
 
     private readonly _getSearchField = () => {
         return (
@@ -318,21 +291,17 @@ class CollectiblesCollectionDropdown extends React.Component<Props, State> {
         const { search, selectedFilter } = this.state;
 
         const collections = getCollectibleCollections();
+       
 
         const filteredCollectibleCollection =
             selectedFilter == null || selectedFilter.value === null
                 ? collections
                 : filterCollectibleCollectionsByName(collections, selectedFilter.value);
 
-        const searchedCollections = filterCollectibleCollectionsByString(filteredCollectibleCollection, search);
-
+      //  const searchedCollections = filterCollectibleCollectionsByString(filteredCollectibleCollection, search);
+       const searchedCollections = collections;
         return (
             <Table>
-                <THead>
-                    <TR>
-                        <THFirstStyled styles={{ textAlign: 'left' }}>Collectibles</THFirstStyled>
-                    </TR>
-                </THead>
                 <TBody>
                     {searchedCollections.map((collection, index) => {
                         const isActive = collection === collectibleCollection;
@@ -378,7 +347,7 @@ const mapStateToProps = (state: StoreState): PropsToken => {
 
 const mapDispatchToProps = (dispatch: any): DispatchProps => {
     return {
-        changeCollectibleCollection: (collection: CollectibleCollection) => dispatch(setCollectibleCollection(collection)),
+        changeCollectibleCollection: (collection: CollectibleCollection) => dispatch(changeCollection(collection)),
         goToHome: () => dispatch(goToHome()),
     };
 };

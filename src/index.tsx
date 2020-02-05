@@ -63,7 +63,6 @@ const Web3WrappedApp = (
                         <Route path={ERC721_APP_BASE_PATH} component={Erc721App} />
                         <Route path={FIAT_RAMP_APP_BASE_PATH} component={FiatApp} />
                         <Route path={MARKET_APP_BASE_PATH} component={MarketTradeApp} />
-                        {/* <Route path={ERC721_APP_BASE_PATH} component={Erc721App} />*/}
                         <Route component={RedirectToHome} />
                     </Switch>
                 </Suspense>

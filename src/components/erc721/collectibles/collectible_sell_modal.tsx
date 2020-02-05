@@ -6,11 +6,11 @@ import styled, { css, withTheme } from 'styled-components';
 
 import { ZERO } from '../../../common/constants';
 import { selectCollectible } from '../../../store/collectibles/actions';
-import { getSelectedCollectible } from '../../../store/selectors';
+import { getSelectedCollectible, getCollectibleCollectionSelected } from '../../../store/selectors';
 import { startSellCollectibleSteps } from '../../../store/ui/actions';
 import { Theme, themeDimensions } from '../../../themes/commons';
 import { todayInSeconds, tomorrow } from '../../../util/time_utils';
-import { ButtonVariant, Collectible, OrderSide, StoreState } from '../../../util/types';
+import { ButtonVariant, Collectible, OrderSide, StoreState, CollectibleCollection } from '../../../util/types';
 import { BigNumberInput } from '../../common/big_number_input';
 import { Button } from '../../common/button';
 import { CloseModalButton } from '../../common/icons/close_modal_button';
@@ -18,6 +18,7 @@ import { OutsideUrlIcon } from '../../common/icons/outside_url_icon';
 
 interface StateProps {
     currentCollectible: Collectible | null;
+    collectibleCollection: CollectibleCollection;
 }
 
 interface DispatchProps {
@@ -283,12 +284,12 @@ class CollectibleSellModalContainer extends React.Component<Props> {
     };
 
     public render = () => {
-        const { theme, currentCollectible } = this.props;
+        const { theme, currentCollectible, collectibleCollection } = this.props;
         const { startPrice, endingPrice, shouldIncludeEndPrice } = this.state;
         const dayInSeconds = 60 * 60 * 24;
         const today = todayInSeconds();
         const expirationDates = [today + dayInSeconds, today + dayInSeconds * 5, today + dayInSeconds * 7];
-
+        const collectionName = collectibleCollection.name;
         return (
             <Modal isOpen={currentCollectible !== null} style={theme.modalTheme} onRequestClose={this._closeModal}>
                 <ModalTitleWrapper>
@@ -310,18 +311,18 @@ class CollectibleSellModalContainer extends React.Component<Props> {
                                     href={currentCollectible ? currentCollectible.assetUrl : ''}
                                     target="_blank"
                                 >
-                                    <CollectibleLinkText>CryptoKitties</CollectibleLinkText>
+                              <CollectibleLinkText>{collectionName}</CollectibleLinkText>
                                     {OutsideUrlIcon()}
                                 </CollectibleLink>
                             </div>
-                            <div>
+                           {/* <div>
                                 <CollectibleMainInfoSubtitle>Last Sale Price</CollectibleMainInfoSubtitle>
                                 <CollectibleMainInfoValue>2.0624 ETH</CollectibleMainInfoValue>
-                            </div>
+                           </div>*/}
                         </CollectibleMainInfo>
                     </CollectibleMainInfoWrapper>
                     <FormRow>
-                        <CollectibleLabel>Enter a starting price</CollectibleLabel>
+                        <CollectibleLabel>Enter price</CollectibleLabel>
                         <FieldContainer>
                             <BigInputNumberStyled
                                 decimals={18}
@@ -336,7 +337,7 @@ class CollectibleSellModalContainer extends React.Component<Props> {
                             </TokenContainer>
                         </FieldContainer>
                     </FormRow>
-                    <FormRow>
+                    {/*<FormRow>
                         <CollectibleLabel>Include ending price</CollectibleLabel>
                         <SwitchWrapper isActive={this.state.shouldIncludeEndPrice}>
                             <SwitchInput
@@ -346,8 +347,8 @@ class CollectibleSellModalContainer extends React.Component<Props> {
                             />
                             <Switch />
                         </SwitchWrapper>
-                    </FormRow>
-                    {shouldIncludeEndPrice ? (
+                    </FormRow>*/}
+                    {/*shouldIncludeEndPrice ? (
                         <FormRow>
                             <CollectibleLabel>Enter ending price</CollectibleLabel>
                             <FieldContainer>
@@ -364,7 +365,7 @@ class CollectibleSellModalContainer extends React.Component<Props> {
                                 </TokenContainer>
                             </FieldContainer>
                         </FormRow>
-                    ) : null}
+                    ) : null*/}
                     <FormRow>
                         <CollectibleLabel>Set Expiration Date</CollectibleLabel>
                         <SelectStyled onChange={this._updateExpDate}>
@@ -451,6 +452,7 @@ class CollectibleSellModalContainer extends React.Component<Props> {
 const mapStateToProps = (state: StoreState): StateProps => {
     return {
         currentCollectible: getSelectedCollectible(state),
+        collectibleCollection: getCollectibleCollectionSelected(state),
     };
 };
 
