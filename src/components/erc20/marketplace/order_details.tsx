@@ -22,7 +22,7 @@ const Row = styled.div`
     z-index: 1;
 
     &:last-of-type {
-        margin-bottom: 20px;
+        margin-bottom: 10px;
     }
 `;
 
@@ -30,7 +30,7 @@ const Value = styled.div`
     color: ${props => props.theme.componentsTheme.textColorCommon};
     flex-shrink: 0;
     font-feature-settings: 'tnum' 1;
-    font-size: 14px;
+    font-size: 12px;
     line-height: 1.2;
     white-space: nowrap;
 `;
@@ -49,7 +49,7 @@ const LabelContainer = styled.div`
 
 const Label = styled.label<{ color?: string }>`
     color: ${props => props.color || props.theme.componentsTheme.textColorCommon};
-    font-size: 14px;
+    font-size: 12px;
     font-weight: 500;
     line-height: normal;
     margin: 0;
@@ -131,9 +131,9 @@ class OrderDetails extends React.Component<Props, State> {
 
         return (
             <>
-                <LabelContainer>
+              {/*  <LabelContainer>
                     <MainLabel>Order Details</MainLabel>
-                </LabelContainer>
+              </LabelContainer>*/}
                 <Row>
                     <FeeLabel>Fee</FeeLabel>
                     <Value>{fee}</Value>
@@ -263,7 +263,7 @@ class OrderDetails extends React.Component<Props, State> {
     private readonly _getCostLabelStringForRender = () => {
         const { qouteInUSD, orderSide } = this.props;
         if (qouteInUSD) {
-            return orderSide === OrderSide.Sell ? 'Total (USD)' : 'Cost (USD)';
+            return orderSide === OrderSide.Sell ? 'Total' : 'Cost';
         } else {
             return orderSide === OrderSide.Sell ? 'Total' : 'Cost';
         }

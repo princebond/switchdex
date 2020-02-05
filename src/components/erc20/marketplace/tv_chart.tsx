@@ -11,9 +11,9 @@ import { RELAYER_URL } from '../../../common/constants';
 import { UDFCompatibleDatafeed } from '../../../datafeeds/udf/lib/udf-compatible-datafeed';
 
 const ChartContainer = styled.div`
-    height: 430px;
+    height: 370px;
     width: 100%;
-    padding: 5px;
+    padding: 0px;
 `;
 
 export interface ChartContainerProps {
@@ -75,7 +75,7 @@ export default class TVChartContainer extends React.PureComponent<Partial<ChartC
             library_path: this.props.libraryPath as string,
             timeframe: '3M',
             locale: getLanguageFromURL() || 'en',
-            disabled_features: ['use_localstorage_for_settings', 'left_toolbar', 'context_menus', 'header_widget'],
+            disabled_features: ['use_localstorage_for_settings', 'left_toolbar', 'context_menus', 'header_widget', 'bottom_toolbar'],
             enabled_features: [],
             charts_storage_url: this.props.chartsStorageUrl,
             charts_storage_api_version: this.props.chartsStorageApiVersion,

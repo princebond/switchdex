@@ -38,6 +38,8 @@ const StyledDiv = styled.div`
 
 const MarketPlaceDiv = styled.div`
     display: block;
+    padding: 0px;
+    margin: 0px;
 `;
 
 const Grid = styled(Responsive)`
@@ -140,6 +142,7 @@ const Marketplace = () => {
     const layouts = JSON.parse(useSelector(getERC20Layout));
     const isDynamicLayout = useSelector(getDynamicLayout);
     const ethAccount = useSelector(getEthAccount);
+    console.log(layouts);
     /**
      * TODO: Remove this workaround. In some states, react-grid-layoyt is not
      * finding the correct way to get the correct width.
@@ -164,11 +167,11 @@ const Marketplace = () => {
         setBreakPoint(br);
     };
     const onTakeTutorial = () => {
-        document.body.style.minHeight = '200vh';
-        const root = document.getElementById('root');
+       // document.body.style.minHeight = '200vh';
+       /* const root = document.getElementById('root');
         if (root) {
             root.style.minHeight = '200vh';
-        }
+        }*/
         setIsRun(true);
     };
 
@@ -183,11 +186,11 @@ const Marketplace = () => {
 
         if (finishedStatuses.includes(status)) {
             setIsRun(false);
-            document.body.style.minHeight = '100vh';
-            const root = document.getElementById('root');
+           // document.body.style.minHeight = '100vh';
+           /* const root = document.getElementById('root');
             if (root) {
                 root.style.minHeight = '100vh';
-            }
+            }*/
         }
     };
     /*
@@ -289,7 +292,7 @@ const Marketplace = () => {
                     steps={ethAccount ? allSteps : noWalletSteps}
                     callback={handleJoyrideCallback}
                     continuous={true}
-                    disableOverlay={true}
+                    disableOverlay={false}
                     showSkipButton={true}
                     scrollToFirstStep={true}
                     disableScrollParentFix={false}

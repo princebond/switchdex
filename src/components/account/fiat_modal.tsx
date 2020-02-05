@@ -29,6 +29,8 @@ const ModalContent = styled.div`
     height: 810px;
     @media (max-width: ${themeBreakPoints.sm}) {
         width: inherit;
+        width: 100%;
+        height: 100%;
     }
 `;
 
@@ -59,7 +61,7 @@ const ApplePayLink = styled.a`
     }
 `;
 
-export const FiatOnRampModal: React.FC<Props> = props => {
+export const FiatOnRampModal: React.FC<Props> =  props => {
     const { theme } = props;
     const dispatch = useDispatch();
     const size = useWindowSize();
@@ -70,6 +72,7 @@ export const FiatOnRampModal: React.FC<Props> = props => {
     const reset = () => {
         dispatch(openFiatOnRampModal(false));
     };
+
     let fiat_link: string = 'link';
     let description;
     const frame_width = isMobile(size.width) ? `${size.width - 10}px` : '500px';
@@ -93,6 +96,13 @@ export const FiatOnRampModal: React.FC<Props> = props => {
     Once payment is completed, you can check your payment status on Coindirect and deposit history in your ethereum wallet.<br />
     If you have any questions, please contact: support@coindirect.com`;
             break;
+      /*  case 'CREDIT_CARD':
+
+            fiat_link =  `https://buy-staging.moonpay.io?apiKey=${MOONPAY_API_KEY}&enabledPaymentMethods=credit_debit_card,sepa_bank_transfer,gbp_bank_transfer&currencyCode=eth`;
+            description = `Disclaimer  <br />
+        Veridex now enables easy purchase of Ether using credit & debit cards, through Moonpay! <br />
+        Once payment is completed, you can check your payment status on Moonpay and deposit history in your ethereum wallet.<br />`
+                break;*/
 
         default:
             break;
@@ -109,7 +119,7 @@ export const FiatOnRampModal: React.FC<Props> = props => {
     return (
         <Modal isOpen={isOpen} style={theme.modalTheme}>
             <CloseModalButton onClick={reset} />
-            <ModalContent style={{ height: `${size.height - 10}px` }}>
+            <ModalContent style={{ height: `${size.height}px` }}>
                 <Title>BUY ETH {toolTip}</Title>
                 {loading && fiatType !== 'APPLE_PAY' && <LoadingWrapper minHeight="120px" />}
                 {fiatType === 'APPLE_PAY' ? (

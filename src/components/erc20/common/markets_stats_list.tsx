@@ -22,9 +22,8 @@ import { CurrencyPair, Filter, Market, RelayerMarketStats, StoreState, Token, We
 import { Card } from '../../common/card';
 import { EmptyContent } from '../../common/empty_content';
 import { MagnifierIcon } from '../../common/icons/magnifier_icon';
-import { TokenIcon } from '../../common/icons/token_icon';
 import { LoadingWrapper } from '../../common/loading';
-import { CustomTDFirst, CustomTDLast, Table, TBody, THead, THFirst, THLast, TR } from '../../common/table';
+import { CustomTD, CustomTDLast, Table, TBody, THead, THFirst, THLast, TR } from '../../common/table';
 
 interface PropsDivElement extends HTMLAttributes<HTMLDivElement> {}
 
@@ -62,7 +61,6 @@ const rowHeight = '48px';
 
 const MarketStatsListCard = styled(Card)`
     height: 100%;
-    overflow: auto;
     margin-top: 5px;
 `;
 
@@ -85,9 +83,7 @@ const TokenFiltersTab = styled.span<TokenFiltersTabProps>`
     color: ${props =>
         props.active ? props.theme.componentsTheme.textColorCommon : props.theme.componentsTheme.lightGray};
     cursor: pointer;
-    font-size: 14px;
-    font-weight: 500;
-    line-height: 1.2;
+    font-size: 12px;
     user-select: none;
 
     &:after {
@@ -107,7 +103,7 @@ const searchFieldWidth = '142px';
 const SearchWrapper = styled.div`
     height: ${searchFieldHeight};
     position: relative;
-    width: ${searchFieldWidth};
+    width: 100%;
 `;
 
 const SearchField = styled.input`
@@ -115,7 +111,7 @@ const SearchField = styled.input`
     border-radius: ${themeDimensions.borderRadius};
     border: 1px solid ${props => props.theme.componentsTheme.marketsSearchFieldBorderColor};
     color: ${props => props.theme.componentsTheme.marketsSearchFieldTextColor};
-    font-size: 13px;
+    font-size: 12px;
     height: ${searchFieldHeight};
     left: 0;
     outline: none;
@@ -141,9 +137,14 @@ const MagnifierIconWrapper = styled.div`
 `;
 
 const TableWrapper = styled.div`
-    max-height: 520px;
+    max-height: 100%;
     overflow: auto;
     position: relative;
+`;
+
+const PriceChange = styled.span<{ value: Number }>`
+   color: ${ props => props.value > 0 ? props.theme.componentsTheme.green : (props.value < 0 ? props.theme.componentsTheme.red : null) };
+   display: block;
 `;
 
 const verticalCellPadding = `
@@ -152,7 +153,6 @@ const verticalCellPadding = `
 `;
 
 const tableHeaderFontWeight = `
-    font-weight: 700;
 `;
 
 const TRStyled = styled(TR)<MarketRowProps>`
@@ -174,23 +174,27 @@ const TRStyled = styled(TR)<MarketRowProps>`
 const THFirstStyled = styled(THFirst)`
     ${verticalCellPadding}
     ${tableHeaderFontWeight}
-
+    font-size: ${props => props.theme.componentsTheme.marketStatsTHFontSize};
     &, &:last-child {
-        padding-left: 21.6px;
+        padding-left: 12px;
     }
 `;
 
 const THLastStyled = styled(THLast)`
     ${verticalCellPadding};
     ${tableHeaderFontWeight}
+    font-size: ${props => props.theme.componentsTheme.marketStatsTHFontSize};
 `;
 
-const CustomTDFirstStyled = styled(CustomTDFirst)`
+const CustomTDFirstStyled = styled(CustomTD)`
     ${verticalCellPadding};
+    padding-left: 0px;
+    font-size: ${props => props.theme.componentsTheme.marketStatsTDFontSize};
 `;
 
 const CustomTDLastStyled = styled(CustomTDLast)`
     ${verticalCellPadding};
+    font-size: ${props => props.theme.componentsTheme.marketStatsTDFontSize};
 `;
 
 const TokenIconAndLabel = styled.div`
@@ -205,9 +209,7 @@ const TokenIconAndLabel = styled.div`
 
 const TokenLabel = styled.div`
     color: ${props => props.theme.componentsTheme.textColorCommon};
-    font-size: 14px;
-    font-weight: 700;
-    line-height: 1.2;
+    font-size: 12px;
     margin: 0 0 0 12px;
 `;
 
@@ -231,9 +233,10 @@ class MarketsStatsList extends React.Component<Props, State> {
                 content = (
                     <>
                         <MarketsFilters>
-                            {/*  <MarketsFiltersLabel>Markets</MarketsFiltersLabel>*/}
-                            {this._getTokensFilterTabs()}
                             {this._getSearchField()}
+                        </MarketsFilters>
+                        <MarketsFilters>
+                            {this._getTokensFilterTabs()}
                         </MarketsFilters>
                         <TableWrapper>{this._getMarkets()}</TableWrapper>
                     </>
@@ -260,7 +263,7 @@ class MarketsStatsList extends React.Component<Props, State> {
             }
         }
 
-        return <MarketStatsListCard title="Markets">{content}</MarketStatsListCard>;
+        return <MarketStatsListCard title="Markets" disableOverflowBody={true}>{content}</MarketStatsListCard>;
     };
 
     private readonly _getTokensFilterTabs = () => {
@@ -320,10 +323,9 @@ class MarketsStatsList extends React.Component<Props, State> {
             <Table>
                 <THead>
                     <TR>
-                        <THFirstStyled styles={{ textAlign: 'left' }}>Market</THFirstStyled>
+                        <THFirstStyled styles={{ textAlign: 'left'}}>Market</THFirstStyled>
                         <THLastStyled styles={{ textAlign: 'center' }}>Last Price</THLastStyled>
                         {/*  <THLastStyled styles={{ textAlign: 'center' }}>Change (%)</THLastStyled>*/}
-                        <THLastStyled styles={{ textAlign: 'center' }}>Volume 24H</THLastStyled>
                     </TR>
                 </THead>
                 <TBody>
@@ -351,11 +353,6 @@ class MarketsStatsList extends React.Component<Props, State> {
                             <TRStyled active={isActive} key={index} onClick={setSelectedMarket}>
                                 <CustomTDFirstStyled styles={{ textAlign: 'left', borderBottom: true }}>
                                     <TokenIconAndLabel>
-                                        <TokenIcon
-                                            symbol={token.symbol}
-                                            primaryColor={token.primaryColor}
-                                            icon={token.icon}
-                                        />
                                         <TokenLabel>
                                             {baseSymbol} / {quoteSymbol}
                                         </TokenLabel>
@@ -363,15 +360,13 @@ class MarketsStatsList extends React.Component<Props, State> {
                                 </CustomTDFirstStyled>
                                 <CustomTDLastStyled styles={{ textAlign: 'center', borderBottom: true, tabular: true }}>
                                     {this._getLastPrice(market, marketStats)}
+                                    {this._getLastPriceChange( marketStats)}
                                 </CustomTDLastStyled>
                                 {/*<CustomTDLastStyled
                                     styles={{ textAlign: 'center', borderBottom: true, tabular: true, color }}
                                 >
                                     {this._getPriceChange(marketStats)}
                                 </CustomTDLastStyled>*/}
-                                <CustomTDLastStyled styles={{ textAlign: 'center', borderBottom: true, tabular: true }}>
-                                    {this._getVolume(marketStats)}
-                                </CustomTDLastStyled>
                             </TRStyled>
                         );
                     })}
@@ -391,6 +386,13 @@ class MarketsStatsList extends React.Component<Props, State> {
         }
 
         return '-';
+    };
+    private readonly _getLastPriceChange: any = ( marketStat: RelayerMarketStats) => {
+        if (marketStat && marketStat.last_price_change_24) {
+          return <PriceChange value={marketStat.last_price_change_24}>{`${new BigNumber(marketStat.last_price_change_24).times(100).toFixed(2)} %`}</PriceChange>;
+        }
+
+        return <PriceChange value={0}>{`${new BigNumber(0).toFixed(2)} %`}</PriceChange>;
     };
     /*private readonly _getPriceChange: any = (marketStat: RelayerMarketStats) => {
         if (marketStat && marketStat.last_price_change) {

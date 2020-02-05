@@ -69,7 +69,7 @@ export const FieldContainer = styled.div`
     position: relative;
 `;
 
-const defaultLayouts = {
+/*const defaultLayouts = {
     a: { i: 'a', x: 0, y: 0, w: 4, h: 4 },
     b: { i: 'b', x: 4, y: 0, w: 8, h: 4 },
     c: { i: 'c', x: 0, y: 4, w: 3, h: 1 },
@@ -78,10 +78,19 @@ const defaultLayouts = {
     f: { i: 'f', x: 6, y: 4, w: 6, h: 1 },
     g: { i: 'g', x: 6, y: 5, w: 6, h: 2 },
     h: { i: 'h', x: 6, y: 7, w: 6, h: 1 },
+};*/
+
+const defaultLayouts = {
+    a: {w: 2, h: 6, x: 0, y: 0, i: 'a'},
+    b:  {w: 6, h: 3, x: 2, y: 0, i: 'b'},
+    d:  {w: 4, h: 3, x: 8, y: 3, i: 'd'},
+    e:  {w: 2, h: 3, x: 8, y: 0, i: 'e'},
+    f:  {w: 6, h: 3, x: 2, y: 3, i: 'f'},
+    g:  {w: 2, h: 3, x: 10, y: 0, i: 'g'},
 };
 
 const resetLayouts = {
-    lg: [
+   /* lg: [
         { i: 'a', x: 0, y: 0, w: 4, h: 4 },
         { i: 'b', x: 4, y: 0, w: 8, h: 4 },
         { i: 'c', x: 0, y: 4, w: 3, h: 1 },
@@ -90,11 +99,20 @@ const resetLayouts = {
         { i: 'f', x: 6, y: 4, w: 6, h: 1 },
         { i: 'g', x: 6, y: 5, w: 6, h: 2 },
         { i: 'h', x: 6, y: 7, w: 6, h: 1 },
+    ],*/
+    lg: [
+        {w: 2, h: 6, x: 0, y: 0, i: 'a'},
+        {w: 6, h: 3, x: 2, y: 0, i: 'b'},
+        {w: 4, h: 3, x: 8, y: 3, i: 'd'},
+        {w: 2, h: 3, x: 8, y: 0, i: 'e'},
+        {w: 6, h: 3, x: 2, y: 3, i: 'f'},
+        {w: 2, h: 3, x: 10, y: 0, i: 'g'},
     ],
 };
 
 // const defaultBreakPoints = ['lg', 'md', 'xs', 'sm', 'xs', 'xss'];
-type keyType = 'a' | 'b' | 'c' | 'd' | 'e' | 'f' | 'g' | 'h';
+// type keyType = 'a' | 'b' | 'c' | 'd' | 'e' | 'f' | 'g' | 'h';
+type keyType = 'a' | 'b' | 'd' | 'e' | 'f' | 'g';
 const mutateLayoutsByReference = (layouts: ReactGridLayout.Layouts, isSet: boolean, key: keyType) => {
     if (isSet) {
         Object.keys(layouts).forEach(lay => {
@@ -129,23 +147,23 @@ export const LayoutDropdownContainer = (props: any) => {
 
     const [isMarketList, setMarketList] = useState(getLayoutValue(layouts, 'a'));
     const [isMarketDetails, setMarketDetails] = useState(getLayoutValue(layouts, 'b'));
-    const [isWalletBalance, setWalletBalance] = useState(getLayoutValue(layouts, 'c'));
+   // const [isWalletBalance, setWalletBalance] = useState(getLayoutValue(layouts, 'c'));
     const [isBuySell, setBuySell] = useState(getLayoutValue(layouts, 'd'));
     const [isOrderBook, setOrderBook] = useState(getLayoutValue(layouts, 'e'));
     const [isOrderHistory, setOrderHistory] = useState(getLayoutValue(layouts, 'f'));
     const [isMarketFills, setMarketFills] = useState(getLayoutValue(layouts, 'g'));
-    const [is0xLastTrades, set0xLastTrades] = useState(getLayoutValue(layouts, 'h'));
+   // const [is0xLastTrades, set0xLastTrades] = useState(getLayoutValue(layouts, 'h'));
 
     const onResetLayout = () => {
         dispatch(setERC20Layout(JSON.stringify(resetLayouts)));
         setMarketList(true);
         setMarketDetails(true);
-        setWalletBalance(true);
+      //  setWalletBalance(true);
         setBuySell(true);
         setOrderBook(true);
         setOrderHistory(true);
         setMarketFills(true);
-        set0xLastTrades(true);
+       // set0xLastTrades(true);
     };
 
     const onMarketListChecked = () => {
@@ -159,11 +177,11 @@ export const LayoutDropdownContainer = (props: any) => {
         dispatch(setERC20Layout(JSON.stringify(layouts)));
     };
 
-    const onWalletBalanceChecked = () => {
+    /*const onWalletBalanceChecked = () => {
         setWalletBalance(!isWalletBalance);
         mutateLayoutsByReference(layouts, !isWalletBalance, 'c');
         dispatch(setERC20Layout(JSON.stringify(layouts)));
-    };
+    };*/
 
     const onBuySellChecked = () => {
         setBuySell(!isBuySell);
@@ -187,11 +205,11 @@ export const LayoutDropdownContainer = (props: any) => {
         mutateLayoutsByReference(layouts, !isMarketFills, 'g');
         dispatch(setERC20Layout(JSON.stringify(layouts)));
     };
-    const on0xLastTradesChecked = () => {
+    /*const on0xLastTradesChecked = () => {
         set0xLastTrades(!is0xLastTrades);
         mutateLayoutsByReference(layouts, !is0xLastTrades, 'h');
         dispatch(setERC20Layout(JSON.stringify(layouts)));
-    };
+    };*/
 
     const body = (
         <>
@@ -208,12 +226,12 @@ export const LayoutDropdownContainer = (props: any) => {
                         <input type="checkbox" checked={isMarketDetails} onChange={onMarketDetailsChecked} />
                     </FieldContainer>
                 </LabelContainer>
-                <LabelContainer>
+                {/*<LabelContainer>
                     <Label>Wallet Balances</Label>
                     <FieldContainer>
                         <input type="checkbox" checked={isWalletBalance} onChange={onWalletBalanceChecked} />
                     </FieldContainer>
-                </LabelContainer>
+                </LabelContainer>*/}
                 <LabelContainer>
                     <Label>Buy/Sell Card</Label>
                     <FieldContainer>
@@ -238,12 +256,12 @@ export const LayoutDropdownContainer = (props: any) => {
                         <input type="checkbox" checked={isMarketFills} onChange={onMarketFillsChecked} />
                     </FieldContainer>
                 </LabelContainer>
-                <LabelContainer>
+                {/*<LabelContainer>
                     <Label>0x Last Trades</Label>
                     <FieldContainer>
                         <input type="checkbox" checked={is0xLastTrades} onChange={on0xLastTradesChecked} />
                     </FieldContainer>
-                </LabelContainer>
+                </LabelContainer>*/}
                 <ButtonContainer>
                     <StyledButton onClick={onResetLayout} variant={ButtonVariant.Tertiary}>
                         Reset Layout

@@ -13,9 +13,11 @@ import {
     getCurrentMarketTodayHighPrice,
     getCurrentMarketTodayLowerPrice,
     getCurrentMarketTodayQuoteVolume,
+    getERC20Theme,
     getQuoteToken,
     getWeb3State,
 } from '../../../store/selectors';
+import { Theme } from '../../../themes/commons';
 import { formatMarketToString, marketToString } from '../../../util/markets';
 import { isMobile } from '../../../util/screen';
 import { formatTokenName, formatTokenSymbol, tokenAmountInUnits } from '../../../util/tokens';
@@ -32,10 +34,19 @@ const MarketDetailCard = styled(Card)`
     height: 100%;
     overflow: auto;
     margin-top: 5px;
+    padding: 0px;
 `;
 
 const StyledHr = styled.hr`
     border-color: ${props => props.theme.componentsTheme.dropdownBorderColor};
+`;
+
+const TD = styled(CustomTD)`
+    font-size: ${props => props.theme.componentsTheme.marketDetailsTDFontSize};
+`;
+
+const THStyled = styled(TH)`
+    font-size: ${props => props.theme.componentsTheme.marketDetailsTHFontSize};
 `;
 
 interface StateProps {
@@ -48,6 +59,7 @@ interface StateProps {
     volume: BigNumber | null;
     closedOrders: number | null;
     lastPrice: string | null;
+    theme: Theme;
 }
 
 interface DispatchProps {
@@ -70,7 +82,7 @@ interface MarketStats {
     lastPrice: string | null;
 }
 
-const statsToRow = (marketStats: MarketStats, baseToken: Token, quoteToken: Token, currencyPair: CurrencyPair) => {
+const statsToRow = (marketStats: MarketStats, baseToken: Token, quoteToken: Token, currencyPair: CurrencyPair, theme: Theme) => {
     const lastPrice = marketStats.lastPrice
         ? new BigNumber(marketStats.lastPrice).toFixed(currencyPair.config.pricePrecision)
         : '-';
@@ -90,37 +102,39 @@ const statsToRow = (marketStats: MarketStats, baseToken: Token, quoteToken: Toke
                 ).toString()} ${formatTokenSymbol(quoteToken.symbol)}`) ||
             '- ';
     }
+    const tdFontSize = theme.componentsTheme.marketStatsTDFontSize;
 
     return (
         <TR>
-            <CustomTD>{formatTokenName(baseToken.name)}</CustomTD>
-            <CustomTD styles={{ textAlign: 'right', tabular: true }}>{lastPrice}</CustomTD>
-            <CustomTD styles={{ textAlign: 'right', tabular: true }}>
+            <TD>{formatTokenName(baseToken.name)}</TD>
+            <TD styles={{ textAlign: 'right', tabular: true, fontSize: tdFontSize }}>{lastPrice}</TD>
+            <TD styles={{ textAlign: 'right', tabular: true, fontSize: tdFontSize }}>
                 {(marketStats.highPrice && marketStats.highPrice.toFixed(currencyPair.config.pricePrecision)) || '-'}
-            </CustomTD>
-            <CustomTD styles={{ textAlign: 'right', tabular: true }}>
+            </TD>
+            <TD styles={{ textAlign: 'right', tabular: true, fontSize: tdFontSize }}>
                 {(marketStats.lowerPrice && marketStats.lowerPrice.toFixed(currencyPair.config.pricePrecision)) || '-'}
-            </CustomTD>
-            <CustomTD styles={{ textAlign: 'right', tabular: true }}>{volume}</CustomTD>
-            <CustomTD styles={{ textAlign: 'right', tabular: true }}>{marketStats.closedOrders || '-'}</CustomTD>
+            </TD>
+            <TD styles={{ textAlign: 'right', tabular: true, fontSize: tdFontSize }}>{volume}</TD>
+            <TD styles={{ textAlign: 'right', tabular: true, fontSize: tdFontSize }}>{marketStats.closedOrders || '-'}</TD>
         </TR>
     );
 };
 
-const DesktopTable = (marketStats: MarketStats, baseToken: Token, quoteToken: Token, currencyPair: CurrencyPair) => {
+const DesktopTable = (marketStats: MarketStats, baseToken: Token, quoteToken: Token, currencyPair: CurrencyPair, theme: Theme) => {
+    const thFontSize = theme.componentsTheme.marketStatsTHFontSize;
     return (
         <Table isResponsive={true}>
             <THead>
                 <TR>
-                    <TH>Project</TH>
-                    <TH styles={{ textAlign: 'right' }}>Last Price</TH>
-                    <TH styles={{ textAlign: 'right' }}>Max Price 24H</TH>
-                    <TH styles={{ textAlign: 'right' }}>Min Price 24H</TH>
-                    <TH styles={{ textAlign: 'right' }}>Volume 24H</TH>
-                    <TH styles={{ textAlign: 'right' }}>Orders Closed</TH>
+                    <THStyled  styles={{ fontSize: thFontSize }}>Project</THStyled >
+                    <THStyled  styles={{ textAlign: 'right', fontSize: thFontSize }}>Last Price</THStyled >
+                    <THStyled  styles={{ textAlign: 'right', fontSize: thFontSize }}>Max Price 24H</THStyled >
+                    <THStyled  styles={{ textAlign: 'right', fontSize: thFontSize }}>Min Price 24H</THStyled >
+                    <THStyled  styles={{ textAlign: 'right', fontSize: thFontSize }}>Volume 24H</THStyled >
+                    <THStyled  styles={{ textAlign: 'right', fontSize: thFontSize }}>Orders Closed</THStyled >
                 </TR>
             </THead>
-            <tbody>{statsToRow(marketStats, baseToken, quoteToken, currencyPair)}</tbody>
+            <tbody>{statsToRow(marketStats, baseToken, quoteToken, currencyPair, theme)}</tbody>
         </Table>
     );
 };
@@ -134,33 +148,33 @@ const MobileTable = (marketStats: MarketStats, baseToken: Token, quoteToken: Tok
         <Table isResponsive={true}>
             <tbody>
                 <TR>
-                    <TH>Project</TH>
-                    <CustomTD styles={{ textAlign: 'right', tabular: true }}>
+                    <THStyled >Project</THStyled >
+                    <TD styles={{ textAlign: 'right', tabular: true }}>
                         {formatTokenName(baseToken.name)}
-                    </CustomTD>
+                    </TD>
                 </TR>
                 <TR>
-                    <TH>Last Price</TH>
-                    <CustomTD styles={{ textAlign: 'right', tabular: true }}>{lastPrice || '-'}</CustomTD>
+                    <THStyled >Last Price</THStyled >
+                    <TD styles={{ textAlign: 'right', tabular: true }}>{lastPrice || '-'}</TD>
                 </TR>
                 <TR>
-                    <TH>Max Price 24H</TH>
-                    <CustomTD styles={{ textAlign: 'right', tabular: true }}>
+                    <THStyled >Max Price 24H</THStyled >
+                    <TD styles={{ textAlign: 'right', tabular: true }}>
                         {(marketStats.highPrice && marketStats.highPrice.toFixed(currencyPair.config.pricePrecision)) ||
                             '-'}
-                    </CustomTD>
+                    </TD>
                 </TR>
                 <TR>
-                    <TH>Min Price 24H</TH>
-                    <CustomTD styles={{ textAlign: 'right', tabular: true }}>
+                    <THStyled >Min Price 24H</THStyled >
+                    <TD styles={{ textAlign: 'right', tabular: true }}>
                         {(marketStats.lowerPrice &&
                             marketStats.lowerPrice.toFixed(currencyPair.config.pricePrecision)) ||
                             '-'}
-                    </CustomTD>
+                    </TD>
                 </TR>
                 <TR>
-                    <TH>Volume 24H</TH>
-                    <CustomTD styles={{ textAlign: 'right', tabular: true }}>
+                    <THStyled >Volume 24H</THStyled >
+                    <TD styles={{ textAlign: 'right', tabular: true }}>
                         {(marketStats.volume &&
                             `${tokenAmountInUnits(
                                 marketStats.volume,
@@ -168,13 +182,13 @@ const MobileTable = (marketStats: MarketStats, baseToken: Token, quoteToken: Tok
                                 quoteToken.displayDecimals,
                             ).toString()} ${formatTokenSymbol(quoteToken.symbol)}`) ||
                             '-'}{' '}
-                    </CustomTD>
+                    </TD>
                 </TR>
                 <TR>
-                    <TH>Orders Closed</TH>
-                    <CustomTD styles={{ textAlign: 'right', tabular: true }}>
+                    <THStyled >Orders Closed</THStyled >
+                    <TD styles={{ textAlign: 'right', tabular: true }}>
                         {marketStats.closedOrders || '-'}
-                    </CustomTD>
+                    </TD>
                 </TR>
             </tbody>
         </Table>
@@ -183,7 +197,7 @@ const MobileTable = (marketStats: MarketStats, baseToken: Token, quoteToken: Tok
 
 class MarketDetails extends React.Component<Props> {
     public render = () => {
-        const { baseToken, quoteToken, web3State, currencyPair, isTradingGraphic = true } = this.props;
+        const { baseToken, quoteToken, web3State, currencyPair, isTradingGraphic = true, theme } = this.props;
         let content: React.ReactNode;
         const defaultBehaviour = () => {
             if (web3State !== Web3State.Error && (!baseToken || !quoteToken)) {
@@ -204,7 +218,7 @@ class MarketDetails extends React.Component<Props> {
 
                 isMobile(windowWidth)
                     ? (tableMarketDetails = MobileTable(marketStats, baseToken, quoteToken, currencyPair))
-                    : (tableMarketDetails = DesktopTable(marketStats, baseToken, quoteToken, currencyPair));
+                    : (tableMarketDetails = DesktopTable(marketStats, baseToken, quoteToken, currencyPair, theme));
 
                 content = (
                     <>
@@ -255,6 +269,7 @@ const mapStateToProps = (state: StoreState): StateProps => {
         volume: getCurrentMarketTodayQuoteVolume(state),
         closedOrders: getCurrentMarketTodayClosedOrders(state),
         lastPrice: getCurrentMarketLastPrice(state),
+        theme: getERC20Theme(state),
     };
 };
 const mapDispatchToProps = (dispatch: any): DispatchProps => {

@@ -3,6 +3,7 @@ import { getType } from 'typesafe-actions';
 
 import { getAvailableMarkets } from '../../common/markets';
 import { getCurrencyPairByTokensSymbol } from '../../util/known_currency_pairs';
+import { getKnownTokens } from '../../util/known_tokens';
 import { MarketState } from '../../util/types';
 import * as actions from '../actions';
 import { RootAction } from '../reducers';
@@ -25,10 +26,12 @@ const getMakerAddresses = () => {
     return makerAddresses.map(a => a.toLowerCase());
 };
 
+const known_tokens = getKnownTokens();
+
 const initialMarketState: MarketState = {
     currencyPair,
-    baseToken: null,
-    quoteToken: null,
+    baseToken: known_tokens.getTokenBySymbol(currencyPair.base),
+    quoteToken: known_tokens.getTokenBySymbol(currencyPair.quote),
     markets: null,
     ethInUsd: null,
     tokensPrice: null,

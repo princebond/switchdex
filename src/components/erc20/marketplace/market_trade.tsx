@@ -68,7 +68,7 @@ const BuySellWrapper = styled(CardBase)`
 const Content = styled.div`
     display: flex;
     flex-direction: column;
-    padding: 20px ${themeDimensions.horizontalPadding};
+    padding: 20px;
 `;
 
 const TabsContainer = styled.div`

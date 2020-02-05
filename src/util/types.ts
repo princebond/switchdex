@@ -475,6 +475,7 @@ export interface RelayerMarketStats {
     price_min_24: number;
     last_price: number;
     last_price_change: number;
+    last_price_change_24: number;
     last_price_usd: string;
     utc_date: string;
     utc_timestamp: number;

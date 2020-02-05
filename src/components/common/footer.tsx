@@ -15,9 +15,10 @@ import { SocialIcon } from './icons/social_icon';
 interface Props extends HTMLAttributes<HTMLDivElement> {}
 
 const FooterWrapper = styled.div`
-    display: block;
+    display: flex;
+    flex-direction: row;
     align-items: center;
-    justify-content: center;
+    justify-content: space-evenly;
     width: 100%;
     background-color: ${props => props.theme.componentsTheme.background};
 `;
@@ -191,7 +192,7 @@ export const Footer: React.FC<Props> = props => {
                 <br className="break" />
 
                 <HrefStyled href="https://www.verisafe.io/privacy-policy" target="_blank" rel="noopener noreferrer">
-                    Privay Policy
+                    Privacy Policy
                 </HrefStyled>
                 <HrefStyled
                     href="https://steemit.com/veridex/@joaocampos/tutorial-to-use-veridex-at-dex-verisafe-io-https-dex-verisafe-io"
@@ -203,11 +204,6 @@ export const Footer: React.FC<Props> = props => {
                 <HrefStyled href="https://my.verisafe.io/help-support/" target="_blank" rel="noopener noreferrer">
                     Listings
                 </HrefStyled>
-            </LinksContainer>
-            <LinksContainer>
-                {/*<HrefStyled href={`/dex-wizard`} onClick={handleDexWizardClick}>
-                    Dex Wizard
-                 </HrefStyled> */}
                 <StyledButton onClick={handleThemeClick} className={'theme-switcher-footer'}>
                     {themeName === 'DARK_THEME' ? '☼' : '🌑'}
                 </StyledButton>
@@ -215,6 +211,17 @@ export const Footer: React.FC<Props> = props => {
                     Buy ETH
                 </StyledButton>
             </LinksContainer>
+            {/*<LinksContainer>
+                <HrefStyled href={`/dex-wizard`} onClick={handleDexWizardClick}>
+                    Dex Wizard
+                 </HrefStyled>
+                <StyledButton onClick={handleThemeClick} className={'theme-switcher-footer'}>
+                    {themeName === 'DARK_THEME' ? '☼' : '🌑'}
+                </StyledButton>
+                <StyledButton onClick={handleFiatChooseModal} className={'buy-eth-footer'}>
+                    Buy ETH
+                </StyledButton>
+                </LinksContainer> */}
             {socialButtons && <SocialsContainer>{socialButtons()}</SocialsContainer>}
         </FooterWrapper>
     );

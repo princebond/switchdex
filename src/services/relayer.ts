@@ -368,3 +368,23 @@ export const startWebsocketMarketsSubscription = (cb_onmessage: any): WebSocket 
 
     return socket;
 };
+
+export const postMoonpaySignature = async (payload: {url: string}): Promise<string | null> => {
+    const headers = new Headers({
+        'content-type': 'application/json',
+    });
+
+    const init: RequestInit = {
+        method: 'POST',
+        headers,
+        body: JSON.stringify(payload),
+    };
+    const relayer_url = new URL(RELAYER_URL);
+
+    const response = await fetch(`${relayer_url.origin}/v1/moonpay/signature`, init);
+    if (response.ok) {
+        return await response.json() as string;
+    } else {
+        return null;
+    }
+};
