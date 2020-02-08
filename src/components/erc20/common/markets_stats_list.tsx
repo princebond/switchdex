@@ -61,7 +61,7 @@ const rowHeight = '48px';
 
 const MarketStatsListCard = styled(Card)`
     height: 100%;
-    margin-top: 5px;
+    margin-top: 0px;
 `;
 
 const MarketsFilters = styled.div`
@@ -98,7 +98,7 @@ const TokenFiltersTab = styled.span<TokenFiltersTabProps>`
 `;
 
 const searchFieldHeight = '32px';
-const searchFieldWidth = '142px';
+const searchFieldWidth = '100%';
 
 const SearchWrapper = styled.div`
     height: ${searchFieldHeight};
@@ -143,8 +143,9 @@ const TableWrapper = styled.div`
 `;
 
 const PriceChange = styled.span<{ value: Number }>`
-   color: ${ props => props.value > 0 ? props.theme.componentsTheme.green : (props.value < 0 ? props.theme.componentsTheme.red : null) };
-   display: block;
+    color: ${props =>
+        props.value > 0 ? props.theme.componentsTheme.green : props.value < 0 ? props.theme.componentsTheme.red : null};
+    display: block;
 `;
 
 const verticalCellPadding = `
@@ -232,12 +233,8 @@ class MarketsStatsList extends React.Component<Props, State> {
             } else {
                 content = (
                     <>
-                        <MarketsFilters>
-                            {this._getSearchField()}
-                        </MarketsFilters>
-                        <MarketsFilters>
-                            {this._getTokensFilterTabs()}
-                        </MarketsFilters>
+                        <MarketsFilters>{this._getSearchField()}</MarketsFilters>
+                        <MarketsFilters>{this._getTokensFilterTabs()}</MarketsFilters>
                         <TableWrapper>{this._getMarkets()}</TableWrapper>
                     </>
                 );
@@ -263,7 +260,7 @@ class MarketsStatsList extends React.Component<Props, State> {
             }
         }
 
-        return <MarketStatsListCard title="Markets" disableOverflowBody={true}>{content}</MarketStatsListCard>;
+        return <MarketStatsListCard disableOverflowBody={true}>{content}</MarketStatsListCard>;
     };
 
     private readonly _getTokensFilterTabs = () => {
@@ -292,7 +289,7 @@ class MarketsStatsList extends React.Component<Props, State> {
         return (
             <SearchWrapper>
                 <MagnifierIconWrapper>{MagnifierIcon()}</MagnifierIconWrapper>
-                <SearchField onChange={this._handleChange} value={this.state.search} />
+                <SearchField onChange={this._handleChange} value={this.state.search} placeholder={'Search Market'} />
             </SearchWrapper>
         );
     };
@@ -323,7 +320,7 @@ class MarketsStatsList extends React.Component<Props, State> {
             <Table>
                 <THead>
                     <TR>
-                        <THFirstStyled styles={{ textAlign: 'left'}}>Market</THFirstStyled>
+                        <THFirstStyled styles={{ textAlign: 'left' }}>Market</THFirstStyled>
                         <THLastStyled styles={{ textAlign: 'center' }}>Last Price</THLastStyled>
                         {/*  <THLastStyled styles={{ textAlign: 'center' }}>Change (%)</THLastStyled>*/}
                     </TR>
@@ -360,7 +357,7 @@ class MarketsStatsList extends React.Component<Props, State> {
                                 </CustomTDFirstStyled>
                                 <CustomTDLastStyled styles={{ textAlign: 'center', borderBottom: true, tabular: true }}>
                                     {this._getLastPrice(market, marketStats)}
-                                    {this._getLastPriceChange( marketStats)}
+                                    {this._getLastPriceChange(marketStats)}
                                 </CustomTDLastStyled>
                                 {/*<CustomTDLastStyled
                                     styles={{ textAlign: 'center', borderBottom: true, tabular: true, color }}
@@ -387,9 +384,13 @@ class MarketsStatsList extends React.Component<Props, State> {
 
         return '-';
     };
-    private readonly _getLastPriceChange: any = ( marketStat: RelayerMarketStats) => {
+    private readonly _getLastPriceChange: any = (marketStat: RelayerMarketStats) => {
         if (marketStat && marketStat.last_price_change_24) {
-          return <PriceChange value={marketStat.last_price_change_24}>{`${new BigNumber(marketStat.last_price_change_24).times(100).toFixed(2)} %`}</PriceChange>;
+            return (
+                <PriceChange value={marketStat.last_price_change_24}>{`${new BigNumber(marketStat.last_price_change_24)
+                    .times(100)
+                    .toFixed(2)} %`}</PriceChange>
+            );
         }
 
         return <PriceChange value={0}>{`${new BigNumber(0).toFixed(2)} %`}</PriceChange>;

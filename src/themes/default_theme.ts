@@ -50,6 +50,7 @@ const lightThemeColors: ThemeProperties = {
     buttonTorusBackgroundColor: '#3a96ff',
     cardImageBackgroundColor: '#EBF0F5',
     cardBackgroundColor: '#fff',
+    cardHeaderBackgroundColor: '#fff',
     cardBorderColor: '#dedede',
     cardTitleColor: '#000',
     cardTitleOwnerColor: '#3CB34F',

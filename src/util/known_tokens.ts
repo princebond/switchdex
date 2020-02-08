@@ -160,23 +160,23 @@ export class KnownTokens {
             return null;
         }
         if (this.isKnownSymbol(data)) {
-           return this.getTokenBySymbol(data);
+            return this.getTokenBySymbol(data);
         }
 
         if (this.isKnownAddress(data)) {
             return this.getTokenByAddress(data);
         }
         return null;
-    }
+    };
     /**
      * Try to find token, if not exists in current list it will try to
      * fetch it
      */
     public findTokenOrFetchIt = async (data: string | null) => {
-        let token = this.findToken(data);
         if (!data) {
             return null;
         }
+        let token = this.findToken(data);
         if (token) {
             return token;
         } else {
@@ -190,37 +190,51 @@ export class KnownTokens {
             }
         }
         return null;
-    }
+    };
     public pushToken = (token: Token) => {
         this._tokens.push(token);
-    }
+    };
     // Could be address or symbol
     public addTokenByAddress = async (data: string) => {
         if (this.isKnownSymbol(data) || this.isKnownAddress(data)) {
-            return;
+            return null;
         }
         if (Web3Wrapper.isAddress(data)) {
             const token = await this._fetchTokenMetadata(data);
             if (token) {
                 this._tokens.push(token);
+                return token;
+            } else {
+                return null;
             }
         }
-    }
+    };
+    /**
+     * Adds metadata from Coingecko
+     */
+    public fetchTokenMetadaFromGecko = async (token: Token): Promise<Token> => {
+        try {
+            const tokenData = await getTokenByAddress(token.address.toLowerCase());
+            const thumbImage = tokenData.image.thumb;
+            token = {
+                ...token,
+                c_id: tokenData.id,
+                icon: thumbImage.substring(0, thumbImage.indexOf('?')),
+                displayDecimals: 2,
+                minAmount: 0,
+            };
+            return token;
+        } catch (e) {
+            return token;
+        }
+    };
 
     private readonly _fetchTokenMetadata = async (address: string): Promise<Token | null> => {
         try {
-            const contract = await getERC20ContractWrapper(address.toLowerCase(), {});
-            const name = await contract.name().callAsync();
-            const symbol = (await contract.symbol().callAsync()).toLowerCase();
-            const decimals =  (await contract.decimals().callAsync()).toNumber();
-            let token: Token = {
-                address,
-                decimals,
-                name,
-                symbol,
-                primaryColor: '#081e6e',
-                displayDecimals: 2,
-            };
+            let token = await getTokenMetadaDataFromContract(address);
+            if (!token) {
+                return null;
+            }
             try {
                 const tokenData = await getTokenByAddress(address.toLowerCase());
                 const thumbImage = tokenData.image.thumb;
@@ -231,14 +245,14 @@ export class KnownTokens {
                     displayDecimals: 2,
                     minAmount: 0,
                 };
+                return token;
             } catch (e) {
                 return token;
             }
         } catch (e) {
             return null;
         }
-        return null;
-    }
+    };
 }
 
 let knownTokens: KnownTokens;
@@ -284,5 +298,26 @@ export const isERC20AssetData = (assetData: string): boolean => {
         }
     } catch (e) {
         return false;
+    }
+};
+
+export const getTokenMetadaDataFromContract = async (address: string): Promise<Token | null> => {
+    try {
+        const contract = await getERC20ContractWrapper(address.toLowerCase(), {});
+        const name = await contract.name().callAsync();
+        const symbol = (await contract.symbol().callAsync()).toLowerCase();
+        const decimals = Number(await contract.decimals().callAsync());
+        const token: Token = {
+            address: address.toLowerCase(),
+            decimals,
+            name,
+            symbol,
+            primaryColor: '#081e6e',
+            displayDecimals: 2,
+            minAmount: 0,
+        };
+        return token;
+    } catch (e) {
+        return null;
     }
 };

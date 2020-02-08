@@ -6,6 +6,7 @@ import { ConfigIEO } from '../common/config';
 import { KNOWN_TOKENS_META_DATA } from '../common/tokens_meta_data';
 import { KNOWN_TOKENS_IEO_META_DATA, TokenIEOMetaData } from '../common/tokens_meta_data_ieo';
 
+import { getTokenMetadaDataFromContract } from './known_tokens';
 import { getLogger } from './logger';
 import { mapTokensBotToTokenIEO, mapTokensIEOMetaDataToTokenByNetworkId } from './token_ieo_meta_data';
 import { TokenIEO } from './types';
@@ -111,6 +112,23 @@ export class KnownTokensIEO {
         } catch (e) {
             return false;
         }
+    };
+    public addTokenByAddress = async (address: string, makerAddress: string): Promise<TokenIEO | null> => {
+        if (this.isKnownAddress(address.toLowerCase())) {
+            return null;
+        }
+        const token = await getTokenMetadaDataFromContract(address);
+        if (!token) {
+            return null;
+        }
+        const tokenToAdd = {
+            ...token,
+            social: {},
+            owners: [makerAddress],
+            feePercentage: '0.05',
+        };
+        this._tokens.push(tokenToAdd);
+        return tokenToAdd;
     };
 
     /**

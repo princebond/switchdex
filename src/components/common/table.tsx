@@ -61,7 +61,8 @@ export const TH = styled.th<TableTDProps>`
     border-top: ${props =>
         props.styles && props.styles.borderTop ? `1px solid ${props.theme.componentsTheme.tableBorderColor}` : 'none'};
     color: ${props => (props.styles && props.styles.color ? props.styles.color : props.theme.componentsTheme.thColor)};
-    font-size: ${props => (props.styles && props.styles.fontSize ? props.styles.fontSize : props.theme.componentsTheme.thFontSize)};
+    font-size: ${props =>
+        props.styles && props.styles.fontSize ? props.styles.fontSize : props.theme.componentsTheme.thFontSize};
     font-weight: 500;
     letter-spacing: 0.5px;
     line-height: 1.2;
@@ -85,7 +86,8 @@ export const CustomTD = styled.td<TableTDProps>`
         props.styles && props.styles.borderTop ? `1px solid ${props.theme.componentsTheme.tableBorderColor}` : 'none'};
     color: ${props => (props.styles && props.styles.color ? props.styles.color : props.theme.componentsTheme.tdColor)};
     font-feature-settings: 'tnum' ${props => (props.styles && props.styles.tabular ? '1' : '0')};
-    font-size: ${props => (props.styles && props.styles.fontSize ? props.styles.fontSize : props.theme.componentsTheme.tdFontSize)};
+    font-size: ${props =>
+        props.styles && props.styles.fontSize ? props.styles.fontSize : props.theme.componentsTheme.tdFontSize};
     font-weight: ${props => (props.styles && props.styles.fontWeight ? props.styles.fontWeight : 'normal')};
     line-height: ${props => (props.styles && props.styles.lineWeight ? props.styles.lineWeight : '1.2')};
     padding: 5px ${themeDimensions.horizontalPadding} 5px 0;

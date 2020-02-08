@@ -5,7 +5,7 @@ import { DefaultTheme } from './default_theme';
 
 const modalThemeStyle: Styles = {
     content: {
-        backgroundColor: '#202123',
+        backgroundColor: '#02112c',
         borderColor: '#000',
         bottom: 'auto',
         display: 'flex',
@@ -28,7 +28,7 @@ const modalThemeStyle: Styles = {
         zIndex: 12345,
     },
 };
-
+// cardBackgroundColor: '#02112c',
 const darkThemeColors: ThemeProperties = {
     background: '#000',
     backgroundERC721: '#000',
@@ -51,6 +51,7 @@ const darkThemeColors: ThemeProperties = {
     buttonTextColor: '#fff',
     cardImageBackgroundColor: '#EBF0F5',
     cardBackgroundColor: '#02112c',
+    cardHeaderBackgroundColor: '#081b3d',
     cardBorderColor: '#000',
     cardTitleColor: '#fff',
     cardTitleOwnerColor: '#3CB34F',
@@ -120,7 +121,6 @@ const darkThemeColors: ThemeProperties = {
     topbarBorderColor: '#000',
     topbarSeparatorColor: '#5A5A5A',
     ...fontSizes,
-
 };
 
 export class DarkTheme extends DefaultTheme {

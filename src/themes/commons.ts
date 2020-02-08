@@ -26,6 +26,7 @@ export interface ThemeProperties {
     buttonTorusBackgroundColor: string;
     buttonTextColor: string;
     cardImageBackgroundColor: string;
+    cardHeaderBackgroundColor: string;
     cardBackgroundColor: string;
     cardBorderColor: string;
     cardTitleColor: string;
@@ -142,7 +143,7 @@ export interface ThemeMetaData {
 
 export const themeDimensions = {
     borderRadius: '4px',
-    fieldHeight: '46px',
+    fieldHeight: '36px',
     footerHeight: '38px',
     horizontalPadding: '5px',
     mainPadding: '5px',
@@ -173,17 +174,17 @@ export enum SpinnerSize {
 }
 
 export const fontSizes = {
-        // FontSizes
-        tdFontSize: '12px',
-        thFontSize: '12px',
-        orderbookTDFontSize: '10px',
-        orderbookTHFontSize: '11px',
-        marketFillsTDFontSize: '10px',
-        marketFillsTHFontSize: '11px',
-        marketListTHFontSize: '11px',
-        marketListTDFontSize: '10px',
-        marketStatsTHFontSize: '11px',
-        marketStatsTDFontSize: '10px',
-        marketDetailsTHFontSize: '11px',
-        marketDetailsTDFontSize: '10px',
+    // FontSizes
+    tdFontSize: '12px',
+    thFontSize: '12px',
+    orderbookTDFontSize: '11px',
+    orderbookTHFontSize: '11px',
+    marketFillsTDFontSize: '11px',
+    marketFillsTHFontSize: '11px',
+    marketListTHFontSize: '11px',
+    marketListTDFontSize: '11px',
+    marketStatsTHFontSize: '11px',
+    marketStatsTDFontSize: '11px',
+    marketDetailsTHFontSize: '12px',
+    marketDetailsTDFontSize: '12px',
 };

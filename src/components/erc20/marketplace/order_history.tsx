@@ -118,7 +118,7 @@ class OrderHistory extends React.Component<Props> {
             }
         }
 
-        return <OrderHistoryCard title="My Open Orders">{content}</OrderHistoryCard>;
+        return <OrderHistoryCard title="Open Orders">{content}</OrderHistoryCard>;
     };
 }
 

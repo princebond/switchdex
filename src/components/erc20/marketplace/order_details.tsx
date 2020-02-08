@@ -40,12 +40,12 @@ const CostValue = styled(Value)`
     font-weight: bold;
 `;
 
-const LabelContainer = styled.div`
+/*const LabelContainer = styled.div`
     align-items: flex-end;
     display: flex;
     justify-content: space-between;
     margin: 5px 0 10px 0;
-`;
+`;*/
 
 const Label = styled.label<{ color?: string }>`
     color: ${props => props.color || props.theme.componentsTheme.textColorCommon};
@@ -55,12 +55,12 @@ const Label = styled.label<{ color?: string }>`
     margin: 0;
 `;
 
-const MainLabel = styled(Label)``;
+// const MainLabel = styled(Label)``;
 
-const FeeLabel = styled(Label)`
+/*const FeeLabel = styled(Label)`
     color: ${props => props.theme.componentsTheme.textColorCommon};
     font-weight: normal;
-`;
+`;*/
 
 const CostLabel = styled(Label)`
     font-weight: 700;
@@ -131,13 +131,13 @@ class OrderDetails extends React.Component<Props, State> {
 
         return (
             <>
-              {/*  <LabelContainer>
+                {/*  <LabelContainer>
                     <MainLabel>Order Details</MainLabel>
-              </LabelContainer>*/}
+              </LabelContainer>
                 <Row>
                     <FeeLabel>Fee</FeeLabel>
                     <Value>{fee}</Value>
-                </Row>
+              </Row>*/}
                 <Row>
                     <CostLabel>{costText}</CostLabel>
                     <CostValue>{cost}</CostValue>

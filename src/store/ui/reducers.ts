@@ -26,14 +26,13 @@ const initialLayouts = {
           //   {i: 't', x: 16, y: 14, w: 4, h: 2},
       ],*/
     lg: [
-        {w: 2, h: 6, x: 0, y: 0, i: 'a'},
-        {w: 6, h: 3, x: 2, y: 0, i: 'b'},
-        {w: 4, h: 3, x: 8, y: 3, i: 'd'},
-        {w: 2, h: 3, x: 8, y: 0, i: 'e'},
-        {w: 6, h: 3, x: 2, y: 3, i: 'f'},
-        {w: 2, h: 3, x: 10, y: 0, i: 'g'},
+        { w: 2, h: 56, x: 0, y: 0, i: 'a' },
+        { w: 6, h: 37, x: 2, y: 0, i: 'b' },
+        { w: 4, h: 26, x: 8, y: 30, i: 'd' },
+        { w: 2, h: 30, x: 8, y: 0, i: 'e' },
+        { w: 6, h: 19, x: 2, y: 37, i: 'f' },
+        { w: 2, h: 30, x: 10, y: 0, i: 'g' },
     ],
-
 };
 
 const localStorage = new LocalStorage(window.localStorage);
@@ -48,6 +47,7 @@ const initialUIState: UIState = {
     orderPriceSelected: null,
     sidebarOpen: false,
     fiatType: 'APPLE_PAY',
+    startTour: false,
     openFiatOnRampModal: false,
     openFiatOnRampChooseModal: false,
     erc20Layout: localStorage.getErc20Layout() || JSON.stringify(initialLayouts),
@@ -106,6 +106,8 @@ export function ui(state: UIState = initialUIState, action: RootAction): UIState
             return { ...state, erc20Layout: action.payload };
         case getType(actions.setDynamicLayout):
             return { ...state, isDynamicLayout: action.payload };
+        case getType(actions.setTour):
+            return { ...state, startTour: action.payload };
         case getType(actions.setFiatType):
             return { ...state, fiatType: action.payload };
         case getType(actions.addNotifications): {

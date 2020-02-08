@@ -12,6 +12,9 @@ const parsedUrl = new URL(window.location.href.replace('#/', ''));
 const base = parsedUrl.searchParams.get('base') || getAvailableMarkets()[0].base;
 const quote = parsedUrl.searchParams.get('quote') || getAvailableMarkets()[0].quote;
 let currencyPair;
+
+const known_tokens = getKnownTokens();
+
 try {
     currencyPair = getCurrencyPairByTokensSymbol(base, quote);
 } catch (e) {
@@ -25,8 +28,6 @@ const getMakerAddresses = () => {
     const makerAddresses = makerAddressesString.split(',');
     return makerAddresses.map(a => a.toLowerCase());
 };
-
-const known_tokens = getKnownTokens();
 
 const initialMarketState: MarketState = {
     currencyPair,

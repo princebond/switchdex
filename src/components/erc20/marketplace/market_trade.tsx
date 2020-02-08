@@ -36,7 +36,7 @@ import { CalculateSwapQuoteParams } from '../../../util/types/swap';
 import { BigNumberInput } from '../../common/big_number_input';
 import { Button } from '../../common/button';
 import { CardBase } from '../../common/card_base';
-import { ErrorCard, FontSize} from '../../common/error_card';
+import { ErrorCard, FontSize } from '../../common/error_card';
 import { useDebounce } from '../../common/hooks/debounce_hook';
 import { Web3StateButton } from '../../common/web3StateButton';
 
@@ -219,8 +219,9 @@ const MarketTrade = (props: Props) => {
             if (!queryToken) {
                 return;
             }
-            if (queryToken.toLowerCase() === baseToken.symbol.toLowerCase()
-                || queryToken.toLowerCase() === baseToken.address.toLowerCase()
+            if (
+                queryToken.toLowerCase() === baseToken.symbol.toLowerCase() ||
+                queryToken.toLowerCase() === baseToken.address.toLowerCase()
             ) {
                 return;
             }
@@ -247,8 +248,8 @@ const MarketTrade = (props: Props) => {
         isMaxAmount = isSell
             ? makerAmountState.isGreaterThan(baseTokenBalance.balance)
             : swapQuote.bestCaseQuoteInfo.takerAssetAmount.isGreaterThan(
-                isWeth(quoteToken.symbol) ? totalEthBalance : quoteTokenBalance.balance,
-            );
+                  isWeth(quoteToken.symbol) ? totalEthBalance : quoteTokenBalance.balance,
+              );
     }
 
     const isOrderTypeMarketIsEmpty = isMakerAmountEmpty || isMaxAmount;
@@ -395,9 +396,9 @@ const MarketTrade = (props: Props) => {
         }
     };
 
-    const btnVariant =  errorState.btnMsg
-    ? ButtonVariant.Error
-    : tabState === OrderSide.Buy
+    const btnVariant = errorState.btnMsg
+        ? ButtonVariant.Error
+        : tabState === OrderSide.Buy
         ? ButtonVariant.Buy
         : ButtonVariant.Sell;
 

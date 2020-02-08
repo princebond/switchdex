@@ -61,11 +61,9 @@ export const FiatOnRampModal = (props: Props) => {
         // https://gist.github.com/vfaramond/db042057d022169b872ce2b25b914d68
         const isSafari = navigator.userAgent.indexOf('Safari') > -1;
         if (!document.cookie.match(/^(.*;)?\s*moonpay-fixed\s*=\s*[^;]+(.*)?$/) && isSafari && fiatType === 'cards') {
-            document.cookie =
-              'moonpay-fixed=fixed; expires=Tue, 19 Jan 2038 03:14:07 UTC; path=/';
+            document.cookie = 'moonpay-fixed=fixed; expires=Tue, 19 Jan 2038 03:14:07 UTC; path=/';
             window.location.replace('https://buy.moonpay.io/safari_fix');
-          }
-
+        }
     }, []);
     const frame_width = isMobile(size.width) ? `${size.width - 10}` : '500';
     switch (fiatType) {

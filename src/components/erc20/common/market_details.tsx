@@ -18,7 +18,7 @@ import {
     getWeb3State,
 } from '../../../store/selectors';
 import { Theme } from '../../../themes/commons';
-import { formatMarketToString, marketToString } from '../../../util/markets';
+import { marketToString } from '../../../util/markets';
 import { isMobile } from '../../../util/screen';
 import { formatTokenName, formatTokenSymbol, tokenAmountInUnits } from '../../../util/tokens';
 import { CurrencyPair, StoreState, Token, Web3State } from '../../../util/types';
@@ -33,7 +33,7 @@ const TVChartContainer = React.lazy(() => import('../marketplace/tv_chart'));
 const MarketDetailCard = styled(Card)`
     height: 100%;
     overflow: auto;
-    margin-top: 5px;
+    margin-top: 0px;
     padding: 0px;
 `;
 
@@ -82,7 +82,13 @@ interface MarketStats {
     lastPrice: string | null;
 }
 
-const statsToRow = (marketStats: MarketStats, baseToken: Token, quoteToken: Token, currencyPair: CurrencyPair, theme: Theme) => {
+const statsToRow = (
+    marketStats: MarketStats,
+    baseToken: Token,
+    quoteToken: Token,
+    currencyPair: CurrencyPair,
+    theme: Theme,
+) => {
     const lastPrice = marketStats.lastPrice
         ? new BigNumber(marketStats.lastPrice).toFixed(currencyPair.config.pricePrecision)
         : '-';
@@ -115,23 +121,31 @@ const statsToRow = (marketStats: MarketStats, baseToken: Token, quoteToken: Toke
                 {(marketStats.lowerPrice && marketStats.lowerPrice.toFixed(currencyPair.config.pricePrecision)) || '-'}
             </TD>
             <TD styles={{ textAlign: 'right', tabular: true, fontSize: tdFontSize }}>{volume}</TD>
-            <TD styles={{ textAlign: 'right', tabular: true, fontSize: tdFontSize }}>{marketStats.closedOrders || '-'}</TD>
+            <TD styles={{ textAlign: 'right', tabular: true, fontSize: tdFontSize }}>
+                {marketStats.closedOrders || '-'}
+            </TD>
         </TR>
     );
 };
 
-const DesktopTable = (marketStats: MarketStats, baseToken: Token, quoteToken: Token, currencyPair: CurrencyPair, theme: Theme) => {
+const DesktopTable = (
+    marketStats: MarketStats,
+    baseToken: Token,
+    quoteToken: Token,
+    currencyPair: CurrencyPair,
+    theme: Theme,
+) => {
     const thFontSize = theme.componentsTheme.marketStatsTHFontSize;
     return (
         <Table isResponsive={true}>
             <THead>
                 <TR>
-                    <THStyled  styles={{ fontSize: thFontSize }}>Project</THStyled >
-                    <THStyled  styles={{ textAlign: 'right', fontSize: thFontSize }}>Last Price</THStyled >
-                    <THStyled  styles={{ textAlign: 'right', fontSize: thFontSize }}>Max Price 24H</THStyled >
-                    <THStyled  styles={{ textAlign: 'right', fontSize: thFontSize }}>Min Price 24H</THStyled >
-                    <THStyled  styles={{ textAlign: 'right', fontSize: thFontSize }}>Volume 24H</THStyled >
-                    <THStyled  styles={{ textAlign: 'right', fontSize: thFontSize }}>Orders Closed</THStyled >
+                    <THStyled styles={{ fontSize: thFontSize }}>Project</THStyled>
+                    <THStyled styles={{ textAlign: 'right', fontSize: thFontSize }}>Last Price</THStyled>
+                    <THStyled styles={{ textAlign: 'right', fontSize: thFontSize }}>Max Price 24H</THStyled>
+                    <THStyled styles={{ textAlign: 'right', fontSize: thFontSize }}>Min Price 24H</THStyled>
+                    <THStyled styles={{ textAlign: 'right', fontSize: thFontSize }}>Volume 24H</THStyled>
+                    <THStyled styles={{ textAlign: 'right', fontSize: thFontSize }}>Orders Closed</THStyled>
                 </TR>
             </THead>
             <tbody>{statsToRow(marketStats, baseToken, quoteToken, currencyPair, theme)}</tbody>
@@ -148,24 +162,22 @@ const MobileTable = (marketStats: MarketStats, baseToken: Token, quoteToken: Tok
         <Table isResponsive={true}>
             <tbody>
                 <TR>
-                    <THStyled >Project</THStyled >
-                    <TD styles={{ textAlign: 'right', tabular: true }}>
-                        {formatTokenName(baseToken.name)}
-                    </TD>
+                    <THStyled>Project</THStyled>
+                    <TD styles={{ textAlign: 'right', tabular: true }}>{formatTokenName(baseToken.name)}</TD>
                 </TR>
                 <TR>
-                    <THStyled >Last Price</THStyled >
+                    <THStyled>Last Price</THStyled>
                     <TD styles={{ textAlign: 'right', tabular: true }}>{lastPrice || '-'}</TD>
                 </TR>
                 <TR>
-                    <THStyled >Max Price 24H</THStyled >
+                    <THStyled>Max Price 24H</THStyled>
                     <TD styles={{ textAlign: 'right', tabular: true }}>
                         {(marketStats.highPrice && marketStats.highPrice.toFixed(currencyPair.config.pricePrecision)) ||
                             '-'}
                     </TD>
                 </TR>
                 <TR>
-                    <THStyled >Min Price 24H</THStyled >
+                    <THStyled>Min Price 24H</THStyled>
                     <TD styles={{ textAlign: 'right', tabular: true }}>
                         {(marketStats.lowerPrice &&
                             marketStats.lowerPrice.toFixed(currencyPair.config.pricePrecision)) ||
@@ -173,7 +185,7 @@ const MobileTable = (marketStats: MarketStats, baseToken: Token, quoteToken: Tok
                     </TD>
                 </TR>
                 <TR>
-                    <THStyled >Volume 24H</THStyled >
+                    <THStyled>Volume 24H</THStyled>
                     <TD styles={{ textAlign: 'right', tabular: true }}>
                         {(marketStats.volume &&
                             `${tokenAmountInUnits(
@@ -185,10 +197,8 @@ const MobileTable = (marketStats: MarketStats, baseToken: Token, quoteToken: Tok
                     </TD>
                 </TR>
                 <TR>
-                    <THStyled >Orders Closed</THStyled >
-                    <TD styles={{ textAlign: 'right', tabular: true }}>
-                        {marketStats.closedOrders || '-'}
-                    </TD>
+                    <THStyled>Orders Closed</THStyled>
+                    <TD styles={{ textAlign: 'right', tabular: true }}>{marketStats.closedOrders || '-'}</TD>
                 </TR>
             </tbody>
         </Table>
@@ -248,13 +258,9 @@ class MarketDetails extends React.Component<Props> {
                 }
             }
         }
-        const title = `Market Stats: ${formatMarketToString(currencyPair)}`;
+        // const title = `Market Stats: ${formatMarketToString(currencyPair)}`;
 
-        return (
-            <MarketDetailCard title={title} minHeightBody={'90px'}>
-                {content}
-            </MarketDetailCard>
-        );
+        return <MarketDetailCard minHeightBody={'90px'}>{content}</MarketDetailCard>;
     };
 }
 

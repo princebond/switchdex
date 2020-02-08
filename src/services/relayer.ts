@@ -314,6 +314,31 @@ export const getUserIEOSignedOrders = async (
     }
 };
 
+interface TokenMetadata {
+    address: string;
+    name: string;
+    symbol: string;
+    decimals: number;
+}
+
+export const getTokenMetaData = async (address: string): Promise<TokenMetadata | null> => {
+    const headers = new Headers({
+        'content-type': 'application/json',
+    });
+    const init: RequestInit = {
+        method: 'GET',
+        headers,
+    };
+    const relayer_url = new URL(RELAYER_URL);
+
+    const response = await fetch(`${relayer_url.origin}/v1/token-metadata/${address.toLowerCase()}`, init);
+    if (response.ok) {
+        return (await response.json()) as TokenMetadata;
+    } else {
+        return null;
+    }
+};
+
 export const getAllIEOSignedOrders = async (): Promise<SignedOrder[]> => {
     const headers = new Headers({
         'content-type': 'application/json',
@@ -369,7 +394,7 @@ export const startWebsocketMarketsSubscription = (cb_onmessage: any): WebSocket 
     return socket;
 };
 
-export const postMoonpaySignature = async (payload: {url: string}): Promise<string | null> => {
+export const postMoonpaySignature = async (payload: { url: string }): Promise<{ urlWithSignature: string } | null> => {
     const headers = new Headers({
         'content-type': 'application/json',
     });
@@ -383,7 +408,7 @@ export const postMoonpaySignature = async (payload: {url: string}): Promise<stri
 
     const response = await fetch(`${relayer_url.origin}/v1/moonpay/signature`, init);
     if (response.ok) {
-        return await response.json() as string;
+        return (await response.json()) as { urlWithSignature: string };
     } else {
         return null;
     }

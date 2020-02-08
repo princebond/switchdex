@@ -1,4 +1,5 @@
 import { SignedOrder } from '@0x/types';
+import { Web3Wrapper } from '@0x/web3-wrapper';
 import React, { useEffect, useState } from 'react';
 import { useSelector } from 'react-redux';
 import { useLocation } from 'react-router-dom';
@@ -85,6 +86,7 @@ export const ZeroXInstantComponent = (props: Props) => {
         const isEIO = query.get('isEIO');
         const isBot = query.get('isBot');
         const makerAddresses = query.get('addresses');
+        const makerAddress = query.get('makerAddress');
         const affiliate = query.get('affiliate');
         const affiliatePercentage = query.get('affiliatePercentage');
         let additionalAssetMetaDataMap = {};
@@ -96,13 +98,32 @@ export const ZeroXInstantComponent = (props: Props) => {
             if (tokenName) {
                 isBot
                     ? (token = knownTokensIEO.getTokenBotByName(tokenName))
-                    : (isEIO ? token = knownTokensIEO.getTokenByName(tokenName) : token = knownTokens.getTokenByName(tokenName));
+                    : isEIO
+                    ? (token = knownTokensIEO.getTokenByName(tokenName))
+                    : (token = knownTokens.getTokenByName(tokenName));
             }
             if (tokenSymbol) {
                 isBot
                     ? (token = knownTokensIEO.getTokenBotBySymbol(tokenSymbol))
-                    : (isEIO ? token = knownTokensIEO.getTokenBySymbol(tokenSymbol) : token = knownTokens.getTokenBySymbol(tokenSymbol));
+                    : isEIO
+                    ? (token = knownTokensIEO.getTokenBySymbol(tokenSymbol))
+                    : (token = knownTokens.getTokenBySymbol(tokenSymbol));
             }
+            // Allows for any token address launch automatically an IEO with maker address
+            if (
+                tokenName &&
+                makerAddress &&
+                Web3Wrapper.isAddress(tokenName) &&
+                Web3Wrapper.isAddress(makerAddress) &&
+                isEIO
+            ) {
+                if (knownTokensIEO.isKnownAddress(tokenName)) {
+                    token = knownTokensIEO.getTokenByAddress(tokenName);
+                } else {
+                    token = (await knownTokensIEO.addTokenByAddress(tokenName, makerAddress)) as TokenIEO;
+                }
+            }
+
             if (token) {
                 const isTokenIEO = knownTokens.isIEOKnownAddress(token.address);
                 if (isTokenIEO) {

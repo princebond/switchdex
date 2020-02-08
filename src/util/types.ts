@@ -180,11 +180,12 @@ export interface UIState {
     readonly userFills: Fill[];
     readonly hasUnreadNotifications: boolean;
     readonly stepsModal: StepsModalState;
+    readonly startTour: boolean;
     readonly orderPriceSelected: BigNumber | null;
     readonly sidebarOpen: boolean;
     readonly openFiatOnRampModal: boolean;
     readonly openFiatOnRampChooseModal: boolean;
-    readonly fiatType: 'APPLE_PAY' | 'CREDIT_CARD' | 'DEBIT_CARD';
+    readonly fiatType: 'APPLE_PAY' | 'CREDIT_CARD' | 'DEBIT_CARD' | 'CARDS';
     readonly erc20Theme: Theme;
     readonly erc20Layout: string;
     readonly isDynamicLayout: boolean;

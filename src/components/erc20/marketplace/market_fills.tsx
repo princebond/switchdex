@@ -9,7 +9,7 @@ import { themeBreakPoints } from '../../../themes/commons';
 import { getCurrencyPairByTokensSymbol } from '../../../util/known_currency_pairs';
 import { isWeth } from '../../../util/known_tokens';
 import { marketToStringFromTokens } from '../../../util/markets';
-import { tokenAmountInUnits } from '../../../util/tokens';
+import { formatTokenSymbol, tokenAmountInUnits } from '../../../util/tokens';
 import { CurrencyPair, Fill, MarketFill, OrderSide, StoreState, Token, Web3State } from '../../../util/types';
 import { Card } from '../../common/card';
 import { EmptyContent } from '../../common/empty_content';
@@ -39,11 +39,11 @@ interface DispatchProps {
 type Props = StateProps & DispatchProps;
 
 const CustomTDFills = styled(CustomTD)`
- font-size: ${props => props.theme.componentsTheme.marketFillsTDFontSize};
+    font-size: ${props => props.theme.componentsTheme.marketFillsTDFontSize};
 `;
 const CustomTH = styled(TH)`
-font-size:${props => props.theme.componentsTheme.marketFillsTHFontSize};
-text-transform: none;
+    font-size: ${props => props.theme.componentsTheme.marketFillsTHFontSize};
+    text-transform: none;
 `;
 
 export const SideTD = styled(CustomTDFills)<{ side: OrderSide }>`
@@ -52,18 +52,14 @@ export const SideTD = styled(CustomTDFills)<{ side: OrderSide }>`
 `;
 
 const fillToRow = (fill: Fill, index: number) => {
-    const sideLabel = fill.side === OrderSide.Sell ? 'Sell' : 'Buy';
     let amountBase;
-    let amountQuote;
     if (USE_RELAYER_MARKET_UPDATES) {
         amountBase = fill.amountBase.toFixed(fill.tokenBase.displayDecimals);
-        amountQuote = fill.amountQuote.toFixed(fill.tokenQuote.displayDecimals);
     } else {
         amountBase = tokenAmountInUnits(fill.amountBase, fill.tokenBase.decimals, fill.tokenBase.displayDecimals);
-        amountQuote = tokenAmountInUnits(fill.amountQuote, fill.tokenQuote.decimals, fill.tokenQuote.displayDecimals);
     }
 
-    const displayAmountBase = `${amountBase} ${fill.tokenBase.symbol.toUpperCase()}`;
+    const displayAmountBase = `${amountBase} ${formatTokenSymbol(fill.tokenBase.symbol)}`;
     let currencyPair: CurrencyPair;
     try {
         currencyPair = getCurrencyPairByTokensSymbol(fill.tokenBase.symbol, fill.tokenQuote.symbol);
@@ -74,7 +70,9 @@ const fillToRow = (fill: Fill, index: number) => {
 
     return (
         <TR key={index}>
-            <SideTD styles={{ textAlign: 'right', tabular: true}} side={fill.side}>{price}</SideTD>
+            <SideTD styles={{ textAlign: 'right', tabular: true }} side={fill.side}>
+                {price}
+            </SideTD>
             <CustomTDFills styles={{ textAlign: 'right', tabular: true }}>{displayAmountBase}</CustomTDFills>
             <CustomTDFills styles={{ textAlign: 'right', tabular: true }}>
                 {fill.timestamp.toISOString().slice(-13, -5)}
@@ -134,11 +132,7 @@ class MarketFills extends React.Component<Props> {
             }
         }
 
-        return (
-            <MarketTradesList title="Market History" minHeightBody={'190px'}>
-                {content}
-            </MarketTradesList>
-        );
+        return <MarketTradesList minHeightBody={'190px'}>{content}</MarketTradesList>;
     };
 }
 

@@ -11,6 +11,7 @@ interface Props extends HTMLAttributes<HTMLDivElement> {
     children: React.ReactNode;
     minHeightBody?: string;
     disableOverflowBody?: boolean;
+    disableOverflowYBody?: boolean;
 }
 
 const CardWrapper = styled(CardBase)`
@@ -27,6 +28,7 @@ const CardWrapper = styled(CardBase)`
 const CardHeader = styled.div`
     align-items: center;
     border-bottom: 1px solid ${props => props.theme.componentsTheme.cardBorderColor};
+    background-color: ${props => props.theme.componentsTheme.cardHeaderBackgroundColor};
     display: flex;
     flex-grow: 0;
     flex-shrink: 0;
@@ -47,7 +49,8 @@ const CardTitle = styled.h1`
 const CardBody = styled.div<{ minHeightBody?: string; disableOverflowBody?: boolean }>`
     margin: 0;
     min-height: ${props => props.minHeightBody};
-    overflow-x: ${props => props.disableOverflowBody ? 'hidden' : 'auto'};
+    overflow-x: ${props => (props.disableOverflowBody ? 'hidden' : 'auto')};
+    overflow-y: ${props => (props.disableOverflowBody ? 'hidden' : 'auto')};
     padding: ${themeDimensions.verticalPadding} ${themeDimensions.horizontalPadding};
     position: relative;
 `;
@@ -67,7 +70,9 @@ export const Card: React.FC<Props> = props => {
                     {action ? action : null}
                 </CardHeader>
             ) : null}
-            <CardBody minHeightBody={minHeightBody} disableOverflowBody={disableOverflowBody}>{children}</CardBody>
+            <CardBody minHeightBody={minHeightBody} disableOverflowBody={disableOverflowBody}>
+                {children}
+            </CardBody>
         </CardWrapper>
     );
 };

@@ -17,7 +17,6 @@ import {
 import {
     getAccountMarketStatsFromRelayer,
     getAllIEOSignedOrders,
-    getFillsFromRelayer,
     getMarketFillsFromRelayer,
     getRelayer,
     postIEOSignedOrder,
@@ -70,7 +69,7 @@ import {
     getWeb3State,
     getWethTokenBalance,
 } from '../selectors';
-import { addFills, addMarketFills, addNotifications, setFills, setMarketFills } from '../ui/actions';
+import { addMarketFills, addNotifications, setMarketFills } from '../ui/actions';
 
 const logger = getLogger('Store::Market::Actions');
 
@@ -322,9 +321,7 @@ export const submitLimitMatchingOrder: ThunkCreator = (amount: BigNumber, price:
                 .multipliedBy(feePercentange)
                 .integerValue(BigNumber.ROUND_UP);
 
-            const totalEthAmount = amount
-                .plus(protocolFee)
-                .plus(affiliateFeeAmount);
+            const totalEthAmount = amount.plus(protocolFee).plus(affiliateFeeAmount);
 
             const isEthBalanceEnough = ethBalance.isGreaterThan(totalEthAmount);
             // HACK(dekz): Forwarder not currently deployed in Ganache
@@ -599,7 +596,10 @@ export const subscribeToRelayerWebsocketFillEvents: ThunkCreator<Promise<void>> 
                             takerAddress: fill.takerAddress,
                             market: fill.pair,
                         };
-                        dispatch(addFills([newFill]));
+                        /* We are not using 0x market trades anymore
+
+                           dispatch(addFills([newFill]));
+                        */
                         dispatch(
                             addMarketFills({
                                 [fill.pair]: [newFill],
@@ -633,11 +633,12 @@ export const fetchPastFills: ThunkCreator<Promise<void>> = () => {
         dispatch(setMarketFills(localStorage.getMarketFills(ethAccount)));*/
 
         try {
-            const fillsResponse = await getFillsFromRelayer();
             const currencyPair = getCurrencyPair(state);
             const market = marketToString(currencyPair);
             const marketFillsResponse = await getMarketFillsFromRelayer(market);
             const known_tokens = getKnownTokens();
+            /* As we take
+            const fillsResponse = await getFillsFromRelayer();
             if (fillsResponse) {
                 const fills = fillsResponse.records;
                 if (fills.length > 0) {
@@ -652,7 +653,7 @@ export const fetchPastFills: ThunkCreator<Promise<void>> = () => {
                         dispatch(setFills(filteredFills));
                     }
                 }
-            }
+            }*/
             if (marketFillsResponse) {
                 const fills = marketFillsResponse.records;
                 if (fills.length > 0) {

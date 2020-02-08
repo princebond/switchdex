@@ -1,4 +1,5 @@
 import { BigNumber } from '@0x/utils';
+import { Web3Wrapper } from '@0x/web3-wrapper';
 import React from 'react';
 import { connect } from 'react-redux';
 import styled from 'styled-components';
@@ -205,6 +206,7 @@ const parsedUrl = new URL(window.location.href.replace('#/', ''));
 const tokenName = parsedUrl.searchParams.get('token');
 const symbol = parsedUrl.searchParams.get('symbol');
 const bot = parsedUrl.searchParams.get('bot');
+const makerAddress = parsedUrl.searchParams.get('maker-address');
 
 class IEOOrder extends React.Component<Props, State> {
     public state: State = {
@@ -221,6 +223,17 @@ class IEOOrder extends React.Component<Props, State> {
     public componentDidMount = async () => {
         const known_tokens = getKnownTokensIEO();
         let token;
+        if (tokenName && makerAddress && Web3Wrapper.isAddress(tokenName) && Web3Wrapper.isAddress(makerAddress)) {
+            if (known_tokens.isKnownAddress(tokenName)) {
+                await this.props.onFetchBaseTokenIEO(known_tokens.getTokenByAddress(tokenName));
+            } else {
+                token = await known_tokens.addTokenByAddress(tokenName, makerAddress);
+                if (token) {
+                    await this.props.onFetchBaseTokenIEO(token);
+                }
+            }
+        }
+
         if (tokenName) {
             bot
                 ? (token = known_tokens.getTokenBotByName(tokenName))
@@ -259,6 +272,17 @@ class IEOOrder extends React.Component<Props, State> {
                     ? (token = known_tokens.getTokenBotBySymbol(symbol))
                     : (token = known_tokens.getTokenBySymbol(symbol));
                 await this.props.onFetchBaseTokenIEO(token);
+            }
+
+            if (tokenName && makerAddress && Web3Wrapper.isAddress(tokenName) && Web3Wrapper.isAddress(makerAddress)) {
+                if (known_tokens.isKnownAddress(tokenName)) {
+                    await this.props.onFetchBaseTokenIEO(known_tokens.getTokenByAddress(tokenName));
+                } else {
+                    token = await known_tokens.addTokenByAddress(tokenName, makerAddress);
+                    if (token) {
+                        await this.props.onFetchBaseTokenIEO(token);
+                    }
+                }
             }
 
             if (!token) {

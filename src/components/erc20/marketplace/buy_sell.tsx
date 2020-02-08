@@ -88,7 +88,7 @@ const BuySellWrapper = styled(CardBase)`
 const Content = styled.div`
     display: flex;
     flex-direction: column;
-    padding: 20px;
+    padding: 10px;
 `;
 
 const TabsContainer = styled.div`
@@ -116,7 +116,7 @@ const TabButton = styled.div<{ isSelected: boolean; side: OrderSide }>`
     cursor: ${props => (props.isSelected ? 'default' : 'pointer')};
     display: flex;
     font-weight: 600;
-    height: 47px;
+    height: 35px;
     justify-content: center;
     width: 50%;
 
@@ -351,13 +351,13 @@ class BuySell extends React.Component<Props, State> {
                                 </FieldContainer>
                             </>
                         )}
-                       <OrderDetailsContainer
+                        <OrderDetailsContainer
                             orderType={orderType}
                             orderSide={tab}
                             tokenAmount={amount}
-                            tokenPrice={price || new BigNumber(0)}
+                            tokenPrice={price || new BigNumber(1).div(new BigNumber(10).pow(pricePrecision))}
                             currencyPair={currencyPair}
-                      />
+                        />
                         <Button
                             disabled={
                                 web3State !== Web3State.Done || isOrderTypeLimitIsEmpty || isOrderTypeMarketIsEmpty
