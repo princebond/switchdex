@@ -90,6 +90,7 @@ import {
     setNotifications,
     setUserFills,
     setUserMarketFills,
+    setNotKnownToken,
 } from '../ui/actions';
 
 const logger = getLogger('Blockchain::Actions');
@@ -649,6 +650,7 @@ const initWalletERC20: ThunkCreator<Promise<any>> = () => {
                 if (market) {
                     dispatch(setCurrencyPair(market));
                 }
+                dispatch(setNotKnownToken(true))
             }
             const state = getState();
             const ethAccount = getEthAccount(state);
@@ -926,6 +928,7 @@ export const initializeAppWallet: ThunkCreator = () => {
                     symbol: tokenData.symbol.toLowerCase(),
                     primaryColor: '#081e6e',
                     displayDecimals: 2,
+                    listed: false,
                 };
                 tokenToAdd = await knownTokens.fetchTokenMetadaFromGecko(tokenToAdd);
                 knownTokens.pushToken(tokenToAdd);
@@ -933,6 +936,7 @@ export const initializeAppWallet: ThunkCreator = () => {
                 if (market) {
                     dispatch(setCurrencyPair(market));
                 }
+                dispatch(setNotKnownToken(true))
             }
         }
 

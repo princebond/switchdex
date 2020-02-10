@@ -16,6 +16,7 @@ import {
     mapTokensMetaDataToTokenByNetworkId,
 } from './token_meta_data';
 import { Token } from './types';
+import { getTokenMetaData } from '../services/relayer';
 
 const logger = getLogger('Tokens::known_tokens .ts');
 
@@ -315,6 +316,29 @@ export const getTokenMetadaDataFromContract = async (address: string): Promise<T
             primaryColor: '#081e6e',
             displayDecimals: 2,
             minAmount: 0,
+            listed: false,
+        };
+        return token;
+    } catch (e) {
+        return null;
+    }
+};
+
+export const getTokenMetadaDataFromServer = async (address: string): Promise<Token | null> => {
+    try {
+        const tokenData = await getTokenMetaData(address.toLowerCase());
+        if(!tokenData){
+            return null;
+        }
+        const token: Token = {
+            address: address.toLowerCase(),
+            decimals: Number(tokenData.decimals),
+            name: tokenData.name,
+            symbol: tokenData.symbol,
+            primaryColor: '#081e6e',
+            displayDecimals: 2,
+            minAmount: 0,
+            listed: false,
         };
         return token;
     } catch (e) {

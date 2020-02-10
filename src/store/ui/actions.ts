@@ -177,6 +177,11 @@ export const setFiatType = createAction('ui/FIAT_TYPE_set', resolve => {
     return (fiatType: 'APPLE_PAY' | 'CREDIT_CARD' | 'DEBIT_CARD' | 'CARDS') => resolve(fiatType);
 });
 
+export const setNotKnownToken = createAction('ui/NOT_KNOWN_TOKEN_set', resolve => {
+    return (isNotKnownToken: boolean) => resolve(isNotKnownToken);
+});
+
+
 export const startToggleTokenLockSteps: ThunkCreator = (token: Token, isUnlocked: boolean) => {
     return async dispatch => {
         const toggleTokenLockStep = isUnlocked ? getLockTokenStep(token) : getUnlockTokenStep(token);

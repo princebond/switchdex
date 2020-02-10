@@ -46,6 +46,7 @@ export interface Token {
     verisafe_sticker?: string;
     price_usd?: BigNumber | null;
     price_usd_24h_change?: BigNumber | null;
+    listed: boolean;
 }
 
 export interface TokenIEO {
@@ -79,6 +80,7 @@ export interface TokenIEO {
     };
     feePercentage?: string;
     endDate?: string | number;
+    listed: boolean;
 }
 
 export interface TokenPrice {

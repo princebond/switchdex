@@ -8,7 +8,7 @@ import { CHAIN_ID, FEE_RECIPIENT, INSTANT_FEE_PERCENTAGE, RELAYER_URL } from '..
 import { getERC20ContractWrapper } from '../../../services/contract_wrappers';
 import { getAllOrders } from '../../../services/orders';
 import { getUserIEOSignedOrders } from '../../../services/relayer';
-import { getFeePercentage, getFeeRecipient } from '../../../store/selectors';
+import { getFeePercentage, getFeeRecipient, getEthAccount } from '../../../store/selectors';
 import { getKnownTokens } from '../../../util/known_tokens';
 import { getKnownTokensIEO } from '../../../util/known_tokens_ieo';
 import { Token, TokenIEO, Wallet } from '../../../util/types';
