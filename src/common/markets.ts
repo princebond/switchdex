@@ -27,10 +27,10 @@ export const getAvailableMarkets = (): CurrencyPair[] => {
 };
 
 export const addAvailableMarket = (token: Token): CurrencyPair | null => {
-    const availableMarkets = getAvailableMarkets();
+    const availableMarketsData = getAvailableMarkets();
     const known_tokens = getKnownTokens();
     const wethToken = known_tokens.getWethToken();
-    if (!availableMarkets.find(c => c.base === token.symbol.toLowerCase())) {
+    if (!availableMarketsData.find(c => c.base === token.symbol.toLowerCase())) {
         const marketToAdd = {
             base: token.symbol.toLowerCase(),
             quote: wethToken.symbol,
@@ -42,7 +42,7 @@ export const addAvailableMarket = (token: Token): CurrencyPair | null => {
                 quotePrecision: UI_DECIMALS_DISPLAYED_PRICE_ETH,
             },
         };
-        availableMarkets.push(marketToAdd);
+        availableMarketsData.push(marketToAdd);
         return marketToAdd;
     } else {
         return null;

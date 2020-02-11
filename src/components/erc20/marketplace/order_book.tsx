@@ -439,10 +439,9 @@ class OrderBookTable extends React.Component<Props, StateOrderBook> {
                     }
                     <TotalRow isBottom={true}>
                         <THTotal as="div" styles={{ textAlign: 'left' }}>{`Asks`}</THTotal>
-                        <CustomTH
-                            as="div"
-                            styles={{ textAlign: 'right' }}
-                        >{`Total: ${totalBase} ${baseSymbol}`}</CustomTH>
+                        <CustomTH as="div" styles={{ textAlign: 'right' }}>
+                            {`Total: ${totalBase} ${baseSymbol}`}
+                        </CustomTH>
                     </TotalRow>
                     <GridRowTop as="div">
                         <CustomTH as="div" styles={{ textAlign: 'right', borderBottom: true }}>
@@ -515,10 +514,9 @@ class OrderBookTable extends React.Component<Props, StateOrderBook> {
                     </ItemsScroll>
                     <TotalRow isTop={true}>
                         <THTotal as="div" styles={{ textAlign: 'left' }}>{`Bids`}</THTotal>
-                        <CustomTH
-                            as="div"
-                            styles={{ textAlign: 'right' }}
-                        >{`Total: ${totalQuote} ${quoteSymbol}`}</CustomTH>{' '}
+                        <CustomTH as="div" styles={{ textAlign: 'right' }}>
+                            {`Total: ${totalQuote} ${quoteSymbol}`}
+                        </CustomTH>{' '}
                     </TotalRow>
                 </>
             );

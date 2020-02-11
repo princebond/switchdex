@@ -18,6 +18,7 @@ import {
     RelayerMarketStats,
     Token,
 } from '../util/types';
+
 // tslint:disable-next-line
 const uuidv1 = require('uuid/v1');
 const logger = getLogger('Services::Relayer');
@@ -40,10 +41,14 @@ export class Relayer {
     }
 
     public async getAllOrdersAsync(baseTokenAssetData: string, quoteTokenAssetData: string): Promise<SignedOrder[]> {
+        /*
+        @Note Somehow this is failing and not getting buy orders at first, so we opt in to do two awaits in concurrent
         const [sellOrders, buyOrders] = await Promise.all([
-            this._getOrdersAsync(baseTokenAssetData, quoteTokenAssetData),
-            this._getOrdersAsync(quoteTokenAssetData, baseTokenAssetData),
-        ]);
+                this._getOrdersAsync(baseTokenAssetData, quoteTokenAssetData),
+                this._getOrdersAsync(quoteTokenAssetData, baseTokenAssetData),
+            ]);*/
+        const sellOrders = await this._getOrdersAsync(baseTokenAssetData, quoteTokenAssetData);
+        const buyOrders = await this._getOrdersAsync(quoteTokenAssetData, baseTokenAssetData);
         return [...sellOrders, ...buyOrders];
     }
 

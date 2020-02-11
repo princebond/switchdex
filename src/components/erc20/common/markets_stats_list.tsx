@@ -15,7 +15,6 @@ import {
     getWeb3State,
 } from '../../../store/selectors';
 import { themeBreakPoints, themeDimensions } from '../../../themes/commons';
-import { getKnownTokens } from '../../../util/known_tokens';
 import { filterMarketsByString, filterMarketsByTokenSymbol, marketToString } from '../../../util/markets';
 import { formatTokenSymbol } from '../../../util/tokens';
 import { CurrencyPair, Filter, Market, RelayerMarketStats, StoreState, Token, Web3State } from '../../../util/types';
@@ -142,7 +141,7 @@ const TableWrapper = styled.div`
     position: relative;
 `;
 
-const PriceChange = styled.span<{ value: Number }>`
+const PriceChange = styled.span<{ value: number }>`
     color: ${props =>
         props.value > 0 ? props.theme.componentsTheme.green : props.value < 0 ? props.theme.componentsTheme.red : null};
     display: block;
@@ -331,9 +330,6 @@ class MarketsStatsList extends React.Component<Props, State> {
                             market.currencyPair.base === currencyPair.base &&
                             market.currencyPair.quote === currencyPair.quote;
                         const setSelectedMarket = () => this._setSelectedMarket(market.currencyPair);
-
-                        const token = getKnownTokens().getTokenBySymbol(market.currencyPair.base);
-
                         const baseSymbol = formatTokenSymbol(market.currencyPair.base).toUpperCase();
                         const quoteSymbol = formatTokenSymbol(market.currencyPair.quote).toUpperCase();
                         const marketStats =
@@ -355,7 +351,7 @@ class MarketsStatsList extends React.Component<Props, State> {
                                         </TokenLabel>
                                     </TokenIconAndLabel>
                                 </CustomTDFirstStyled>
-                                <CustomTDLastStyled styles={{ textAlign: 'center', borderBottom: true, tabular: true }}>
+                                <CustomTDLastStyled styles={{ textAlign: 'right', borderBottom: true, tabular: true }}>
                                     {this._getLastPrice(market, marketStats)}
                                     {this._getLastPriceChange(marketStats)}
                                 </CustomTDLastStyled>
@@ -402,13 +398,13 @@ class MarketsStatsList extends React.Component<Props, State> {
 
         return '-';
     };*/
-    private readonly _getVolume: any = (marketStat: RelayerMarketStats) => {
+    /*private readonly _getVolume: any = (marketStat: RelayerMarketStats) => {
         if (marketStat && marketStat.quote_volume_24) {
             return new BigNumber(marketStat.quote_volume_24).toFixed(2);
         }
 
         return '-';
-    };
+    };*/
 }
 
 const mapStateToProps = (state: StoreState): PropsToken => {

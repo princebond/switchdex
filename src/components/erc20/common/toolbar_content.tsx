@@ -42,21 +42,6 @@ interface OwnProps {
 
 type Props = DispatchProps & OwnProps;
 
-const MyWalletLink = styled.a`
-    align-items: center;
-    color: ${props => props.theme.componentsTheme.myWalletLinkColor};
-    display: flex;
-    font-size: 16px;
-    font-weight: 500;
-    text-decoration: none;
-
-    &:hover {
-        text-decoration: underline;
-    }
-
-    ${separatorTopbar}
-`;
-
 const LogoHeader = styled(Logo)`
     ${separatorTopbar}
 `;

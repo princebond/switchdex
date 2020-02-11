@@ -6,6 +6,7 @@ import { Web3Wrapper } from '@0x/web3-wrapper';
 import { KNOWN_TOKENS_META_DATA, TokenMetaData } from '../common/tokens_meta_data';
 import { KNOWN_TOKENS_IEO_META_DATA } from '../common/tokens_meta_data_ieo';
 import { getERC20ContractWrapper } from '../services/contract_wrappers';
+import { getTokenMetaData } from '../services/relayer';
 import { getTokenByAddress } from '../services/tokens';
 import { getLogger } from '../util/logger';
 
@@ -15,8 +16,7 @@ import {
     mapTokensMetaDataFromForm,
     mapTokensMetaDataToTokenByNetworkId,
 } from './token_meta_data';
-import { Token } from './types';
-import { getTokenMetaData } from '../services/relayer';
+import { Token, TokenIEO } from './types';
 
 const logger = getLogger('Tokens::known_tokens .ts');
 
@@ -195,6 +195,9 @@ export class KnownTokens {
     public pushToken = (token: Token) => {
         this._tokens.push(token);
     };
+    public pushTokenIEO = (token: TokenIEO) => {
+        this._tokensIEO.push(token);
+    };
     // Could be address or symbol
     public addTokenByAddress = async (data: string) => {
         if (this.isKnownSymbol(data) || this.isKnownAddress(data)) {
@@ -217,14 +220,15 @@ export class KnownTokens {
         try {
             const tokenData = await getTokenByAddress(token.address.toLowerCase());
             const thumbImage = tokenData.image.thumb;
-            token = {
+            let t;
+            t = {
                 ...token,
                 c_id: tokenData.id,
                 icon: thumbImage.substring(0, thumbImage.indexOf('?')),
                 displayDecimals: 2,
                 minAmount: 0,
             };
-            return token;
+            return t;
         } catch (e) {
             return token;
         }
@@ -327,7 +331,7 @@ export const getTokenMetadaDataFromContract = async (address: string): Promise<T
 export const getTokenMetadaDataFromServer = async (address: string): Promise<Token | null> => {
     try {
         const tokenData = await getTokenMetaData(address.toLowerCase());
-        if(!tokenData){
+        if (!tokenData) {
             return null;
         }
         const token: Token = {

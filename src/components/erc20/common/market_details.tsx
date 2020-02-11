@@ -17,14 +17,15 @@ import {
     getQuoteToken,
     getWeb3State,
 } from '../../../store/selectors';
-import { Theme } from '../../../themes/commons';
+import { Theme, themeBreakPoints } from '../../../themes/commons';
 import { marketToString } from '../../../util/markets';
 import { isMobile } from '../../../util/screen';
-import { formatTokenName, formatTokenSymbol, tokenAmountInUnits } from '../../../util/tokens';
+import { formatTokenName, formatTokenSymbol, getEtherscanLinkForToken, tokenAmountInUnits } from '../../../util/tokens';
 import { CurrencyPair, StoreState, Token, Web3State } from '../../../util/types';
 import { Card } from '../../common/card';
 import { EmptyContent } from '../../common/empty_content';
 import { withWindowWidth } from '../../common/hoc/withWindowWidth';
+import { TokenIcon } from '../../common/icons/token_icon';
 import { LoadingWrapper } from '../../common/loading';
 import { CustomTD, Table, TH, THead, TR } from '../../common/table';
 
@@ -37,12 +38,36 @@ const MarketDetailCard = styled(Card)`
     padding: 0px;
 `;
 
+const TokenIconStyled = styled(TokenIcon)`
+    margin-right: 2px;
+`;
+
+const TokenEtherscanLink = styled.a`
+    align-items: center;
+    color: ${props => props.theme.componentsTheme.myWalletLinkColor};
+    display: flex;
+    font-size: 14px;
+    font-weight: 500;
+    text-decoration: none;
+
+    &:hover {
+        text-decoration: underline;
+    }
+    @media (max-width: ${themeBreakPoints.sm}) {
+        display: inline;
+    }
+`;
+
 const StyledHr = styled.hr`
     border-color: ${props => props.theme.componentsTheme.dropdownBorderColor};
 `;
 
 const TD = styled(CustomTD)`
     font-size: ${props => props.theme.componentsTheme.marketDetailsTDFontSize};
+`;
+const TDToken = styled(TD)`
+    display: flex;
+    flex-direction: row;
 `;
 
 const THStyled = styled(TH)`
@@ -112,7 +137,17 @@ const statsToRow = (
 
     return (
         <TR>
-            <TD>{formatTokenName(baseToken.name)}</TD>
+            <TDToken>
+                {' '}
+                <TokenIconStyled
+                    symbol={baseToken.symbol}
+                    primaryColor={baseToken.primaryColor}
+                    icon={baseToken.icon}
+                />
+                <TokenEtherscanLink href={getEtherscanLinkForToken(baseToken)} target={'_blank'}>
+                    {formatTokenName(baseToken.name)}
+                </TokenEtherscanLink>
+            </TDToken>
             <TD styles={{ textAlign: 'right', tabular: true, fontSize: tdFontSize }}>{lastPrice}</TD>
             <TD styles={{ textAlign: 'right', tabular: true, fontSize: tdFontSize }}>
                 {(marketStats.highPrice && marketStats.highPrice.toFixed(currencyPair.config.pricePrecision)) || '-'}

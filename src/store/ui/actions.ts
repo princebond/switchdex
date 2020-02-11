@@ -102,7 +102,7 @@ export const setUserMarketFills = createAction('ui/FILLS_USER_MARKET_set', resol
 });
 
 export const setTour = createAction('ui/TOUR_set', resolve => {
-    return (setTour: boolean) => resolve(setTour);
+    return (setIsTour: boolean) => resolve(setIsTour);
 });
 
 export const setUserFills = createAction('ui/FILLS_USER_set', resolve => {
@@ -180,7 +180,6 @@ export const setFiatType = createAction('ui/FIAT_TYPE_set', resolve => {
 export const setNotKnownToken = createAction('ui/NOT_KNOWN_TOKEN_set', resolve => {
     return (isNotKnownToken: boolean) => resolve(isNotKnownToken);
 });
-
 
 export const startToggleTokenLockSteps: ThunkCreator = (token: Token, isUnlocked: boolean) => {
     return async dispatch => {

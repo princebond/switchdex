@@ -123,7 +123,7 @@ class OrderDetails extends React.Component<Props, State> {
     };
 
     public render = () => {
-        const fee = this._getFeeStringForRender();
+        // const fee = this._getFeeStringForRender();
         const cost = this._getCostStringForRender();
         const costText = this._getCostLabelStringForRender();
         const priceMedianText = this._getMedianPriceStringForRender();
@@ -163,7 +163,11 @@ class OrderDetails extends React.Component<Props, State> {
             const { quote, base } = currencyPair;
             const quoteToken = getKnownTokens().getTokenBySymbol(quote);
             const baseToken = getKnownTokens().getTokenBySymbol(base);
-            const priceInQuoteBaseUnits = Web3Wrapper.toBaseUnitAmount(tokenPrice, quoteToken.decimals);
+            // TODO: Check if this precision is enough, price was giving error on precision
+            const priceInQuoteBaseUnits = Web3Wrapper.toBaseUnitAmount(
+                new BigNumber(tokenPrice.toFixed(18)),
+                quoteToken.decimals,
+            );
             const baseTokenAmountInUnits = Web3Wrapper.toUnitAmount(tokenAmount, baseToken.decimals);
             const quoteTokenAmount = baseTokenAmountInUnits.multipliedBy(priceInQuoteBaseUnits);
             const { makerFee, makerFeeAssetData, takerFee, takerFeeAssetData } = await onFetchTakerAndMakerFee(
@@ -223,7 +227,7 @@ class OrderDetails extends React.Component<Props, State> {
 
     private readonly _getCostStringForRender = () => {
         const { canOrderBeFilled } = this.state;
-        const { orderType, qouteInUSD } = this.props;
+        const { orderType } = this.props;
         if (orderType === OrderType.Market && !canOrderBeFilled) {
             return `---`;
         }
@@ -231,14 +235,15 @@ class OrderDetails extends React.Component<Props, State> {
         const { quote } = this.props.currencyPair;
         const quoteToken = getKnownTokens().getTokenBySymbol(quote);
         const { quoteTokenAmount } = this.state;
-        const quoteTokenAmountUnits = tokenAmountInUnits(quoteTokenAmount, quoteToken.decimals);
+        //  const quoteTokenAmountUnits = tokenAmountInUnits(quoteTokenAmount, quoteToken.decimals);
         const costAmount = tokenAmountInUnits(quoteTokenAmount, quoteToken.decimals, quoteToken.displayDecimals);
-        if (qouteInUSD) {
+        return `${costAmount} ${formatTokenSymbol(quote)}`;
+        /*if (qouteInUSD) {
             const quotePriceAmountUSD = new BigNumber(quoteTokenAmountUnits).multipliedBy(qouteInUSD);
             return `${costAmount} ${formatTokenSymbol(quote)} (${quotePriceAmountUSD.toFixed(2)} $)`;
         } else {
             return `${costAmount} ${formatTokenSymbol(quote)}`;
-        }
+        }*/
     };
     private readonly _getMedianPriceStringForRender = () => {
         const { canOrderBeFilled } = this.state;

@@ -4,7 +4,7 @@ import styled from 'styled-components';
 
 import { Config } from '../../common/config';
 import { GIT_COMMIT } from '../../common/constants';
-import { goToListedTokens } from '../../store/actions';
+import { goToListedTokens, goToListings } from '../../store/actions';
 import { themeBreakPoints, themeDimensions } from '../../themes/commons';
 
 import { SocialIcon } from './icons/social_icon';
@@ -171,6 +171,10 @@ export const Footer: React.FC<Props> = props => {
         dispatch(goToDexWizard());
     };*/
 
+    const handleListingsClick: React.EventHandler<React.MouseEvent> = e => {
+        e.preventDefault();
+        dispatch(goToListings());
+    };
     const handleListTokensClick: React.EventHandler<React.MouseEvent> = e => {
         e.preventDefault();
         dispatch(goToListedTokens());
@@ -205,7 +209,7 @@ export const Footer: React.FC<Props> = props => {
                     Tutorial
                 </HrefStyled>
                 <Pipe>|</Pipe>
-                <HrefStyled href="https://my.verisafe.io/help-support/" target="_blank" rel="noopener noreferrer">
+                <HrefStyled href={`/listings`} onClick={handleListingsClick}>
                     Listings
                 </HrefStyled>
                 {/*<StyledButton onClick={handleThemeClick} className={'theme-switcher-footer'}>

@@ -5,11 +5,18 @@ import { useDispatch, useSelector } from 'react-redux';
 import styled from 'styled-components';
 
 import { setERC20Layout, setTour } from '../../../store/actions';
-import { getDynamicLayout, getERC20Layout, getEthAccount, getTourStarted, getBaseToken } from '../../../store/selectors';
+import {
+    getBaseToken,
+    getDynamicLayout,
+    getERC20Layout,
+    getEthAccount,
+    getTourStarted,
+} from '../../../store/selectors';
 import { isMobile } from '../../../util/screen';
 import { FiatOnRampModalContainer } from '../../account/fiat_modal';
 import { FiatChooseModalContainer } from '../../account/fiat_onchoose_modal';
 import { CheckWalletStateModalContainer } from '../../common/check_wallet_state_modal_container';
+import { ErrorCard, FontSize } from '../../common/error_card';
 import { useWindowSize } from '../../common/hooks/window_size_hook';
 import { Content } from '../common/content_wrapper';
 import { MarketDetailsContainer } from '../common/market_details';
@@ -22,8 +29,6 @@ import { OrderBookTableContainer } from '../marketplace/order_book';
 import { OrderFillsContainer } from '../marketplace/order_fills';
 import { OrderHistoryContainer } from '../marketplace/order_history';
 import { WalletBalanceContainer } from '../marketplace/wallet_balance';
-import { ErrorCard, FontSize, ErrorIcons } from '../../common/error_card';
-import { error } from 'util';
 
 // const ResponsiveReactGridLayout = WidthProvider(Responsive);
 
@@ -145,7 +150,7 @@ const Marketplace = () => {
     const ethAccount = useSelector(getEthAccount);
     const startTour = useSelector(getTourStarted);
     const baseToken = useSelector(getBaseToken);
-    const isListed = (baseToken && baseToken.listed) || true;
+    const isListed = baseToken ? baseToken.listed : true;
     /**
      * TODO: Remove this workaround. In some states, react-grid-layoyt is not
      * finding the correct way to get the correct width.
@@ -197,12 +202,12 @@ const Marketplace = () => {
     const isMarketFills = layout.find(l => l.i === 'g') ? true : false;
     const isOrderFills = layout.find(l => l.i === 'h') ? true : false;
     let content;
-    const msg = 'Token insert by User. Please proceed with cautions and do your own research';
+    const msg = 'Token inserted by User. Please proceed with caution and do your own research!';
 
     if (isMobile(size.width)) {
         content = (
             <Content>
-               {!isListed && <ErrorCard fontSize={FontSize.Large} text={msg} />}
+                {!isListed && <ErrorCard fontSize={FontSize.Large} text={msg} />}
                 <BuySellContainer />
                 <OrderBookTableContainer />
                 <MarketDetailsContainer isTradingGraphic={false} />
@@ -225,7 +230,7 @@ const Marketplace = () => {
         if (isMarketDetails) {
             cards.push(
                 <div key="b" className="market-details">
-                   {!isListed && <ErrorCard fontSize={FontSize.Large} text={msg} />}
+                    {!isListed && <ErrorCard fontSize={FontSize.Large} text={msg} />}
                     <MarketDetailsContainer isTradingGraphic={true} />
                 </div>,
             );

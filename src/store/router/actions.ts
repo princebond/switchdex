@@ -102,6 +102,19 @@ export const goToListedTokens: ThunkCreator = () => {
     };
 };
 
+export const goToListings: ThunkCreator = () => {
+    return async (dispatch, getState) => {
+        const state = getState();
+
+        dispatch(
+            push({
+                ...state.router.location,
+                pathname: `${ERC20_APP_BASE_PATH}/listings`,
+            }),
+        );
+    };
+};
+
 export const goToWallet: ThunkCreator = () => {
     return async (dispatch, getState) => {
         const state = getState();
