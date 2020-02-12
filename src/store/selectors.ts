@@ -105,6 +105,7 @@ export const getSwapBaseToken = (state: StoreState) => state.swap.baseToken;
 export const getSwapQuote = (state: StoreState) => state.swap.quote;
 export const getSwapQuoteState = (state: StoreState) => state.swap.quoteState;
 export const getCollectibleCollectionSelected = (state: StoreState) => state.collectibles.collectionSelected;
+export const getTourStarted = (state: StoreState) => state.ui.startTour;
 
 export const getCurrentMarketPlace = createSelector(getCurrentRoutePath, (currentRoute: string) => {
     if (currentRoute.includes(ERC20_APP_BASE_PATH)) {
