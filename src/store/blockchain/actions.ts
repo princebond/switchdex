@@ -92,6 +92,7 @@ import {
     setUserFills,
     setUserMarketFills,
 } from '../ui/actions';
+import { getCollectibleCollections } from '../../common/collections';
 
 const logger = getLogger('Blockchain::Actions');
 
@@ -720,7 +721,16 @@ const initWalletMargin: ThunkCreator<Promise<any>> = () => {
 
 const initWalletERC721: ThunkCreator<Promise<any>> = () => {
     return async (dispatch, getState, { getWeb3Wrapper }) => {
-        const web3Wrapper = await getWeb3Wrapper();
+        const web3Wrapper = await getWeb3Wrapper();       
+      /*  const collectiblePath = Location.pathname.split('/');
+        const collections = getCollectibleCollections()
+        if(collectiblePath.length > 1){
+            
+        }else{
+
+        }*/
+
+
         if (web3Wrapper) {
             const state = getState();
             const ethAccount = getEthAccount(state);

@@ -33,6 +33,9 @@ const Erc721App = () => {
                 <CheckWalletStateModalContainer />
                 <FiatOnRampModalContainer />
                 <Switch>
+                   <Route exact={true} path={`${ERC721_APP_BASE_PATH}`}>
+                       {({ match }) => match && <AllCollectibles />}
+                    </Route>
                     <Route exact={true} path={`${ERC721_APP_BASE_PATH}/:collection`}>
                        {({ match }) => match && <AllCollectibles />}
                     </Route>

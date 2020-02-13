@@ -8,6 +8,7 @@ import { getCollectibleCollections } from '../../common/collections';
 
 const initialCollectibles: CollectiblesState = {
     collectibleSelected: null,
+    isCollectionLoaded: false,
     collectionSelected: getCollectibleCollections()[0],
     allCollectibles: {},
     allCollectiblesFetchStatus: AllCollectiblesFetchStatus.Request,
@@ -24,6 +25,8 @@ export function collectibles(state: CollectiblesState = initialCollectibles, act
             return { ...state, allCollectibles, allCollectiblesFetchStatus };
         case getType(actions.selectCollectible):
             return { ...state, collectibleSelected: action.payload };
+        case getType(actions.setCollectionLoaded):
+            return { ...state, isCollectionLoaded: action.payload };
         case getType(actions.setCollectibleCollection):
             return { ...state, collectionSelected: action.payload };
         default:

@@ -34,6 +34,10 @@ export const setCollectibleCollection = createAction('collectibles/COLLECTIBLE_C
     return (collectibleCollection: CollectibleCollection) => resolve(collectibleCollection);
 });
 
+export const setCollectionLoaded = createAction('collectibles/COLLECTIBLE_COLLECTION_LOADED_set', resolve => {
+    return (isLoaded: boolean) => resolve(isLoaded);
+});
+
 export const getAllCollectibles: ThunkCreator = () => {
     return async (dispatch, getState, { getCollectiblesMetadataGateway, getWeb3Wrapper }) => {
         dispatch(fetchAllCollectiblesAsync.request());

@@ -650,6 +650,7 @@ export enum ConvertBalanceState {
 
 export interface CollectiblesState {
     readonly allCollectibles: { [tokenId: string]: Collectible };
+    readonly isCollectionLoaded: boolean;
     readonly allCollectiblesFetchStatus: AllCollectiblesFetchStatus;
     readonly collectibleSelected: Collectible | null;
     readonly collectionSelected: CollectibleCollection;

@@ -39,4 +39,8 @@ export const getCollectibleCollections = (): CollectibleCollection[] => {
     return collectibleCollection;
 }
 
+export const findCollectibleCollectionsByName = (id: string)=> {
 
+
+
+}
