@@ -2,20 +2,17 @@ import React, { HTMLAttributes } from 'react';
 import { connect } from 'react-redux';
 import styled from 'styled-components';
 
-import { marketFilters } from '../../../common/markets';
-import { goToHome, setCollectibleCollection, changeCollection } from '../../../store/actions';
+import { getCollectibleCollections } from '../../../common/collections';
+import { changeCollection, goToHome } from '../../../store/actions';
 import { getCollectibleCollectionSelected } from '../../../store/selectors';
 import { themeDimensions } from '../../../themes/commons';
-
-import { Filter,  StoreState,   CollectibleCollection } from '../../../util/types';
+import { filterCollectibleCollectionsByString } from '../../../util/collectibles';
+import { CollectibleCollection, StoreState } from '../../../util/types';
 import { CardBase } from '../../common/card_base';
 import { Dropdown } from '../../common/dropdown';
 import { ChevronDownIcon } from '../../common/icons/chevron_down_icon';
 import { MagnifierIcon } from '../../common/icons/magnifier_icon';
-import { TokenIcon } from '../../common/icons/token_icon';
-import { CustomTDFirst, CustomTDLast, Table, TBody, THead, THFirst, THLast, TR } from '../../common/table';
-import { getCollectibleCollections } from '../../../common/collections';
-import { filterCollectibleCollectionsByName, filterCollectibleCollectionsByString } from '../../../util/collectibles';
+import { CustomTDFirst, Table, TBody, TR } from '../../common/table';
 
 interface PropsDivElement extends HTMLAttributes<HTMLDivElement> {}
 
@@ -31,14 +28,8 @@ interface PropsToken {
 type Props = PropsDivElement & PropsToken & DispatchProps;
 
 interface State {
-    selectedFilter: Filter;
     search: string;
     isUserOnDropdown: boolean;
-}
-
-interface CollectibleCollectionFiltersTabProps {
-    active: boolean;
-    onClick: number;
 }
 
 interface MarketRowProps {
@@ -86,27 +77,6 @@ const CollectibleCollectionsFiltersLabel = styled.h2`
     margin: 0 auto 0 0;
 `;
 
-
-
-const CollectibleCollectionFiltersTab = styled.span<CollectibleCollectionFiltersTabProps>`
-    color: ${props =>
-        props.active ? props.theme.componentsTheme.textColorCommon : props.theme.componentsTheme.lightGray};
-    cursor: pointer;
-    font-size: 14px;
-    font-weight: 500;
-    line-height: 1.2;
-    user-select: none;
-
-    &:after {
-        color: ${props => props.theme.componentsTheme.lightGray};
-        content: '/';
-        margin: 0 6px;
-    }
-
-    &:last-child:after {
-        display: none;
-    }
-`;
 
 const searchFieldHeight = '32px';
 const searchFieldWidth = '142px';
@@ -158,9 +128,6 @@ const verticalCellPadding = `
     padding-top: 10px;
 `;
 
-const tableHeaderFontWeight = `
-    font-weight: 700;
-`;
 
 const TRStyled = styled(TR)<MarketRowProps>`
     background-color: ${props => (props.active ? props.theme.componentsTheme.rowActive : 'transparent')};
@@ -177,26 +144,9 @@ const TRStyled = styled(TR)<MarketRowProps>`
     }
 `;
 
-// Has a special left-padding: needs a specific selector to override the theme
-const THFirstStyled = styled(THFirst)`
-    ${verticalCellPadding}
-    ${tableHeaderFontWeight}
 
-    &, &:last-child {
-        padding-left: 21.6px;
-    }
-`;
-
-const THLastStyled = styled(THLast)`
-    ${verticalCellPadding};
-    ${tableHeaderFontWeight}
-`;
 
 const CustomTDFirstStyled = styled(CustomTDFirst)`
-    ${verticalCellPadding};
-`;
-
-const CustomTDLastStyled = styled(CustomTDLast)`
     ${verticalCellPadding};
 `;
 
@@ -214,14 +164,8 @@ const CollectibleCollectionLabel = styled.div`
     margin: 0 0 0 12px;
 `;
 
-const DropdownTokenIcon = styled(TokenIcon)`
-    margin-right: 10px;
-    vertical-align: top;
-`;
-
 class CollectiblesCollectionDropdown extends React.Component<Props, State> {
     public readonly state: State = {
-        selectedFilter: marketFilters[0],
         search: '',
         isUserOnDropdown: false,
     };
@@ -229,23 +173,26 @@ class CollectiblesCollectionDropdown extends React.Component<Props, State> {
     private readonly _dropdown = React.createRef<Dropdown>();
 
     public render = () => {
-        const {  collectibleCollection, ...restProps } = this.props;
+        const { collectibleCollection, ...restProps } = this.props;
 
         const header = (
             <CollectibleCollectionsDropdownHeader>
-                <CollectibleCollectionsDropdownHeaderText>
-                         ☰
-                </CollectibleCollectionsDropdownHeaderText>
+                <CollectibleCollectionsDropdownHeaderText>☰</CollectibleCollectionsDropdownHeaderText>
                 <ChevronDownIcon />
             </CollectibleCollectionsDropdownHeader>
         );
 
         const body = (
             <CollectiblesCategoryDropdownBody>
-               { <CollectibleCollectionsFilters onMouseOver={this._setUserOnDropdown} onMouseOut={this._removeUserOnDropdown}>
-                    <CollectibleCollectionsFiltersLabel>Collectibles</CollectibleCollectionsFiltersLabel>
-                    {this._getSearchField()}
-                </CollectibleCollectionsFilters> }
+                {
+                    <CollectibleCollectionsFilters
+                        onMouseOver={this._setUserOnDropdown}
+                        onMouseOut={this._removeUserOnDropdown}
+                    >
+                        <CollectibleCollectionsFiltersLabel>Collectibles</CollectibleCollectionsFiltersLabel>
+                        {this._getSearchField()}
+                    </CollectibleCollectionsFilters>
+                }
                 <TableWrapper>{this._getCollectibleCollections()}</TableWrapper>
             </CollectiblesCategoryDropdownBody>
         );
@@ -268,7 +215,6 @@ class CollectiblesCollectionDropdown extends React.Component<Props, State> {
         this.setState({ isUserOnDropdown: false });
     };
 
-
     private readonly _getSearchField = () => {
         return (
             <SearchWrapper>
@@ -288,18 +234,10 @@ class CollectiblesCollectionDropdown extends React.Component<Props, State> {
 
     private readonly _getCollectibleCollections = () => {
         const { collectibleCollection } = this.props;
-        const { search, selectedFilter } = this.state;
+        const { search } = this.state;
 
         const collections = getCollectibleCollections();
-       
-
-        const filteredCollectibleCollection =
-            selectedFilter == null || selectedFilter.value === null
-                ? collections
-                : filterCollectibleCollectionsByName(collections, selectedFilter.value);
-
-      //  const searchedCollections = filterCollectibleCollectionsByString(filteredCollectibleCollection, search);
-       const searchedCollections = collections;
+        const searchedCollections = filterCollectibleCollectionsByString(collections, search);
         return (
             <Table>
                 <TBody>
@@ -307,18 +245,15 @@ class CollectiblesCollectionDropdown extends React.Component<Props, State> {
                         const isActive = collection === collectibleCollection;
                         const setSelectedCollection = () => this._setSelectedCollectibleCollection(collection);
 
-
                         return (
                             <TRStyled active={isActive} key={index} onClick={setSelectedCollection}>
                                 <CustomTDFirstStyled styles={{ textAlign: 'left', borderBottom: true }}>
                                     <CollectibleCollectionIconAndLabel>
-                                        <TokenIcon
+                                        {/* <TokenIcon
                                             symbol={collection.symbol}
                                             icon={collection.icon}
-                                        />
-                                        <CollectibleCollectionLabel>
-                                            {collection.name}
-                                        </CollectibleCollectionLabel>
+                                       /> */}
+                                        <CollectibleCollectionLabel>{collection.name}</CollectibleCollectionLabel>
                                     </CollectibleCollectionIconAndLabel>
                                 </CustomTDFirstStyled>
                             </TRStyled>
@@ -336,7 +271,6 @@ class CollectiblesCollectionDropdown extends React.Component<Props, State> {
             this._dropdown.current.closeDropdown();
         }
     };
-
 }
 
 const mapStateToProps = (state: StoreState): PropsToken => {

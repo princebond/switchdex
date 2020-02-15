@@ -659,6 +659,7 @@ export interface CollectiblesState {
 export interface CollectibleMetadataSource {
     fetchAllUserCollectiblesAsync(userAddress: string, collectibleAddress: string): Promise<Collectible[]>;
     fetchCollectiblesAsync(tokenIds: string[], collectibleAddress: string): Promise<Collectible[]>;
+    fetchCollectionAsync(collectibleCollectionAddress: string): Promise<CollectibleCollection | null>;
 }
 
 export type ThunkCreator<R = Promise<any>> = ActionCreator<ThunkAction<R, StoreState, ExtraArgument, AnyAction>>;
@@ -821,15 +822,16 @@ export interface TokenMetadataBZX {
     index: number;
 }
 
-export interface CollectibleCollectionMetadata{
+export interface CollectibleCollectionMetadata {
     name: string;
-    addresses:  { [key: string]: string };
+    addresses: { [key: string]: string };
     description: string;
     icon: string;
     symbol: string;
 }
 
-export interface CollectibleCollection{
+export interface CollectibleCollection {
+    slug: string;
     name: string;
     address: string;
     description: string;

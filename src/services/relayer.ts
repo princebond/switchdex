@@ -409,6 +409,7 @@ export const postMoonpaySignature = async (payload: { url: string }): Promise<{ 
         headers,
         body: JSON.stringify(payload),
     };
+    console.log(init.body);
     const relayer_url = new URL(RELAYER_URL);
 
     const response = await fetch(`${relayer_url.origin}/v1/moonpay/signature`, init);

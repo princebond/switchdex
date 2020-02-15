@@ -1,7 +1,6 @@
 import { assetDataUtils } from '@0x/order-utils';
 import { ERC721AssetData, SignedOrder } from '@0x/types';
 
-import { COLLECTIBLE_ADDRESS } from '../common/constants';
 import { getRelayer, Relayer } from '../services/relayer';
 import { getKnownTokens } from '../util/known_tokens';
 import { getLogger } from '../util/logger';
@@ -63,7 +62,10 @@ export class CollectiblesMetadataGateway {
         );
         for (let chunkBegin = 0; chunkBegin < tokenIds.length; chunkBegin += 10) {
             const tokensIdsChunk = tokenIds.slice(chunkBegin, chunkBegin + 10);
-            const collectiblesChunkFetched = await this._source.fetchCollectiblesAsync(tokensIdsChunk, collectibleAddress);
+            const collectiblesChunkFetched = await this._source.fetchCollectiblesAsync(
+                tokensIdsChunk,
+                collectibleAddress,
+            );
             const collectiblesChunkWithOrders = collectiblesChunkFetched.map(collectible => ({
                 ...collectible,
                 order: tokenIdToOrder[collectible.tokenId],

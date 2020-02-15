@@ -10,10 +10,8 @@ interface OwnProps {
 
 type Props = OwnProps;
 
-
-
 export const ListCollectibles = (props: Props) => (
     <Content>
-        <AllCollectiblesListContainer title={COLLECTIBLE_NAME}/>
+        <AllCollectiblesListContainer title={COLLECTIBLE_NAME} />
     </Content>
 );

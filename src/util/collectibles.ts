@@ -23,19 +23,23 @@ export const getCollectiblePrice = (collectible: Collectible): BigNumber | null 
     // }
 };
 
-export const filterCollectibleCollectionsByName = (collectibleCollections: CollectibleCollection[], name: string): CollectibleCollection[] => {
-    return collectibleCollections.filter(
-        collection => collection.name === name,
-    );
+export const filterCollectibleCollectionsByName = (
+    collectibleCollections: CollectibleCollection[],
+    name: string,
+): CollectibleCollection[] => {
+    return collectibleCollections.filter(collection => collection.name === name);
 };
 
-export const filterCollectibleCollectionsByString = (collectibleCollections: CollectibleCollection[], str: string): CollectibleCollection[] => {
+export const filterCollectibleCollectionsByString = (
+    collectibleCollections: CollectibleCollection[],
+    str: string,
+): CollectibleCollection[] => {
     return collectibleCollections.filter(collection => {
-        const nameLowerCase = collection.name;
-        return `${nameLowerCase}`.indexOf(str.toLowerCase()) !== -1;
+        const nameLowerCase = collection.name.toLowerCase();
+        return `${nameLowerCase}`.indexOf(str.toLowerCase()) > -1;
     });
 };
 
 export const getPathNameCollection = (collectibleCollection: CollectibleCollection) => {
     return collectibleCollection.name.toLowerCase();
-}
+};

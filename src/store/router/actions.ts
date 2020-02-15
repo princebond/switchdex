@@ -11,7 +11,7 @@ import {
 import { CollectibleFilterType } from '../../util/filterable_collectibles';
 import { CollectibleSortType } from '../../util/sortable_collectibles';
 import { ThunkCreator } from '../../util/types';
-import { getCurrentRoutePath, getCollectibleCollectionSelected } from '../selectors';
+import { getCollectibleCollectionSelected, getCurrentRoutePath } from '../selectors';
 
 export const goToHome: ThunkCreator = () => {
     return async (dispatch, getState) => {
@@ -49,7 +49,6 @@ export const goToHomeLaunchpad: ThunkCreator = () => {
         );
     };
 };
-
 
 export const goToHomeMarginLend: ThunkCreator = () => {
     return async (dispatch, getState) => {
@@ -136,12 +135,11 @@ const goToHomeErc721 = () => {
         dispatch(
             push({
                 ...state.router.location,
-                pathname: `${ERC721_APP_BASE_PATH}/${collection.name.toLowerCase()}/`,
+                pathname: `${ERC721_APP_BASE_PATH}/${collection.slug}`,
             }),
         );
     };
 };
-
 
 export const goToMyCollectibles = () => {
     return async (dispatch: any, getState: any) => {

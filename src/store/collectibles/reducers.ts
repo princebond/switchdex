@@ -1,10 +1,9 @@
 import { getType } from 'typesafe-actions';
 
+import { getCollectibleCollections } from '../../common/collections';
 import { AllCollectiblesFetchStatus, Collectible, CollectiblesState } from '../../util/types';
 import * as actions from '../actions';
 import { RootAction } from '../reducers';
-import { getCollectibleCollections } from '../../common/collections';
-
 
 const initialCollectibles: CollectiblesState = {
     collectibleSelected: null,

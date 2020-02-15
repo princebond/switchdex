@@ -6,15 +6,15 @@ import styled, { css } from 'styled-components';
 import { setCollectiblesListFilterType, setCollectiblesListSortType } from '../../../store/actions';
 import {
     getAllCollectiblesFetchStatus,
+    getCollectibleCollectionSelected,
     getRouterLocationSearch,
     getUserCollectibles,
     getUsersCollectiblesAvailableToList,
-    getCollectibleCollectionSelected,
 } from '../../../store/selectors';
 import { themeBreakPoints } from '../../../themes/commons';
 import { CollectibleFilterType } from '../../../util/filterable_collectibles';
 import { CollectibleSortType } from '../../../util/sortable_collectibles';
-import { AllCollectiblesFetchStatus, Collectible, StoreState, CollectibleCollection } from '../../../util/types';
+import { AllCollectiblesFetchStatus, Collectible, CollectibleCollection, StoreState } from '../../../util/types';
 import { CenteredWrapper } from '../../common/centered_wrapper';
 import { SellCollectiblesButton } from '../marketplace/sell_collectibles_button';
 
@@ -107,7 +107,7 @@ export class CollectiblesList extends React.Component<Props, {}> {
     };
 
     public render = () => {
-        const {search, fetchStatus, collectibleCollection } = this.props;
+        const { search, fetchStatus, collectibleCollection } = this.props;
         const collectibles = Object.keys(this.props.collectibles).map(key => this.props.collectibles[key]);
         const { sortType, filterType } = this._getSortTypeAndFilterTypeFromLocationSearch(search);
         const isLoading = fetchStatus !== AllCollectiblesFetchStatus.Success;

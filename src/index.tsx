@@ -10,12 +10,12 @@ import 'sanitize.css';
 import {
     DEFAULT_BASE_PATH,
     ERC20_APP_BASE_PATH,
+    ERC721_APP_BASE_PATH,
     FIAT_RAMP_APP_BASE_PATH,
     INSTANT_APP_BASE_PATH,
     LAUNCHPAD_APP_BASE_PATH,
     LOGGER_ID,
     MARGIN_APP_BASE_PATH,
-    ERC721_APP_BASE_PATH,
     MARKET_APP_BASE_PATH,
 } from './common/constants';
 import { AppContainer } from './components/app';

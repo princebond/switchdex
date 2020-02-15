@@ -2,10 +2,9 @@ import React from 'react';
 import { connect } from 'react-redux';
 import styled from 'styled-components';
 
-import { COLLECTIBLE_NAME } from '../../../common/constants';
-import { getCollectibleById, getEthAccount, getCollectibleCollectionSelected } from '../../../store/selectors';
+import { getCollectibleById, getCollectibleCollectionSelected, getEthAccount } from '../../../store/selectors';
 import { truncateAddress } from '../../../util/number_utils';
-import { Collectible, StoreState, CollectibleCollection } from '../../../util/types';
+import { Collectible, CollectibleCollection, StoreState } from '../../../util/types';
 import { Card } from '../../common/card';
 import { OutsideUrlIcon } from '../../common/icons/outside_url_icon';
 

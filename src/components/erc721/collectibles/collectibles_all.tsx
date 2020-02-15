@@ -3,11 +3,15 @@ import { connect } from 'react-redux';
 import styled from 'styled-components';
 
 import { ERC721_APP_BASE_PATH } from '../../../common/constants';
-import { getAllCollectiblesFetchStatus, getUsersCollectiblesAvailableToList, getCollectibleCollectionSelected } from '../../../store/selectors';
+import {
+    getAllCollectiblesFetchStatus,
+    getCollectibleCollectionSelected,
+    getUsersCollectiblesAvailableToList,
+} from '../../../store/selectors';
 import { themeBreakPoints } from '../../../themes/commons';
 import { CollectibleFilterType } from '../../../util/filterable_collectibles';
 import { CollectibleSortType } from '../../../util/sortable_collectibles';
-import { AllCollectiblesFetchStatus, Collectible, StoreState, CollectibleCollection } from '../../../util/types';
+import { AllCollectiblesFetchStatus, Collectible, CollectibleCollection, StoreState } from '../../../util/types';
 import { CenteredWrapper } from '../../common/centered_wrapper';
 import { ViewAll } from '../../common/view_all';
 import { SellCollectiblesButton } from '../marketplace/sell_collectibles_button';

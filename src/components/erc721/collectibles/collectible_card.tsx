@@ -5,13 +5,13 @@ import { Link } from 'react-router-dom';
 import styled from 'styled-components';
 
 import { ERC721_APP_BASE_PATH } from '../../../common/constants';
-import { getEthAccount, getCollectibleCollectionSelected } from '../../../store/selectors';
+import { getCollectibleCollectionSelected, getEthAccount } from '../../../store/selectors';
 import { themeDimensions, themeFeatures } from '../../../themes/commons';
-import { Collectible, StoreState, CollectibleCollection } from '../../../util/types';
+import { getPathNameCollection } from '../../../util/collectibles';
+import { Collectible, CollectibleCollection, StoreState } from '../../../util/types';
 
 import { OwnerBadge } from './owner_badge';
 import { PriceBadge } from './price_badge';
-import { getPathNameCollection } from '../../../util/collectibles';
 
 const CollectibleCardWrapper = styled(Link)`
     background: ${props => props.theme.componentsTheme.cardBackgroundColor};

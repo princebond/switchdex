@@ -5,6 +5,7 @@ import { connect } from 'react-redux';
 import styled from 'styled-components';
 
 import { ETH_DECIMALS } from '../../../common/constants';
+import { logoutWallet } from '../../../store/actions';
 import { getEthAccount, getEthBalance } from '../../../store/selectors';
 import { themeDimensions } from '../../../themes/commons';
 import { tokenAmountInUnits } from '../../../util/tokens';
@@ -14,13 +15,10 @@ import { WalletConnectionStatusContainer } from '../../account/wallet_connection
 import { WalletConnectionStatusDot } from '../../account/wallet_connections_status_dot';
 import { CardBase } from '../../common/card_base';
 import { DropdownTextItem } from '../../common/dropdown_text_item';
-import { logoutWallet } from '../../../store/actions';
 
 const truncateAddress = (address: string) => {
     return `${address.slice(0, 7)}...${address.slice(address.length - 5)}`;
 };
-
-
 
 const WalletConnectionWrapper = styled(CardBase)`
     border-radius: ${themeDimensions.borderRadius};
