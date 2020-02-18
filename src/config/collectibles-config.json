@@ -10,6 +10,16 @@
             }
         },
         {
+            "symbol": "vsmr",
+            "name": "VSMR",
+            "icon": "",
+            "description": "Verisafe Masternode Reservation. Reserve your Masternode on the future Verisafe coin with privacy features.",
+            "addresses": {
+                "mainnet": "0xcefbc6085117f3b19c8dd6ce0005040375ce2fef"
+            }
+        },
+
+        {
             "symbol": "card",
             "name": "Gods Unchained",
             "icon": "",
@@ -28,15 +38,6 @@
             }
         },
         {
-            "symbol": "vsmr",
-            "name": "VSMR",
-            "icon": "",
-            "description": "Verisafe Masternode Reservation. Reserve your Masternode on the future Verisafe coin with privacy features",
-            "addresses": {
-                "mainnet": "0xcefbc6085117f3b19c8dd6ce0005040375ce2fef"
-            }
-        },
-        {
             "symbol": "BTB",
             "name": "BlockTimeBuddies",
             "icon": "",
@@ -51,7 +52,7 @@
             "icon": "",
             "description": "0xBitcoinMemes.",
             "addresses": {
-                "mainnet": " 0x6c10511DdEA5f3ED38A0163224198e37b81525bC"
+                "mainnet": "0x6c10511DdEA5f3ED38A0163224198e37b81525bC"
             }
         },
         {
@@ -60,7 +61,7 @@
             "icon": "",
             "description": "The LIT Collective is a store filled with work from various artists and backed by the ERC20 token LITonium.",
             "addresses": {
-                "mainnet": " 0xa8f9a747653ce85cc7277a09a986f7b0eacc8b69"
+                "mainnet": "0xa8f9a747653ce85cc7277a09a986f7b0eacc8b69"
             }
         }
     ]

@@ -77,7 +77,6 @@ const CollectibleCollectionsFiltersLabel = styled.h2`
     margin: 0 auto 0 0;
 `;
 
-
 const searchFieldHeight = '32px';
 const searchFieldWidth = '142px';
 
@@ -128,7 +127,6 @@ const verticalCellPadding = `
     padding-top: 10px;
 `;
 
-
 const TRStyled = styled(TR)<MarketRowProps>`
     background-color: ${props => (props.active ? props.theme.componentsTheme.rowActive : 'transparent')};
     cursor: ${props => (props.active ? 'default' : 'pointer')};
@@ -143,8 +141,6 @@ const TRStyled = styled(TR)<MarketRowProps>`
         border-bottom: none;
     }
 `;
-
-
 
 const CustomTDFirstStyled = styled(CustomTDFirst)`
     ${verticalCellPadding};

@@ -195,13 +195,13 @@ export const getOrderWithTakerAndFeeConfigFromRelayer = async (
                 feeRecipientAddress: FEE_RECIPIENT,
                 senderAddress: ZERO_ADDRESS,
                 makerFeeAssetData: new BigNumber(MAKER_FEE_PERCENTAGE).isGreaterThan('0')
-                    ? orderConfigRequest.makerAssetData
-                    : NULL_BYTES,
-                takerFeeAssetData: new BigNumber(TAKER_FEE_PERCENTAGE).isGreaterThan('0')
                     ? orderConfigRequest.takerAssetData
                     : NULL_BYTES,
-                makerFee: orderConfigRequest.makerAssetAmount.multipliedBy(new BigNumber(MAKER_FEE_PERCENTAGE)),
-                takerFee: orderConfigRequest.takerAssetAmount.multipliedBy(new BigNumber(TAKER_FEE_PERCENTAGE)),
+                takerFeeAssetData: new BigNumber(TAKER_FEE_PERCENTAGE).isGreaterThan('0')
+                    ? orderConfigRequest.makerAssetData
+                    : NULL_BYTES,
+                makerFee: orderConfigRequest.takerAssetAmount.multipliedBy(new BigNumber(MAKER_FEE_PERCENTAGE)),
+                takerFee: orderConfigRequest.makerAssetAmount.multipliedBy(new BigNumber(TAKER_FEE_PERCENTAGE)),
             };
         }
     }

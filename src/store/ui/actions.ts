@@ -64,7 +64,6 @@ import {
 import { setCurrencyPair } from '../market/actions';
 import { setFeePercentage, setFeeRecipient } from '../relayer/actions';
 import * as selectors from '../selectors';
-import { getCollectibleCollectionSelected } from '../selectors';
 
 export const setHasUnreadNotifications = createAction('ui/UNREAD_NOTIFICATIONS_set', resolve => {
     return (hasUnreadNotifications: boolean) => resolve(hasUnreadNotifications);
@@ -243,7 +242,7 @@ export const startSellCollectibleSteps: ThunkCreator = (
 
         const contractWrappers = await getContractWrappers();
         const ethAccount = selectors.getEthAccount(state);
-        const selectedCollection = getCollectibleCollectionSelected(state);
+        const selectedCollection = selectors.getCollectibleCollectionSelected(state);
 
         const erc721Token = new ERC721TokenContract(selectedCollection.address, contractWrappers.getProvider());
         const isUnlocked = await erc721Token

@@ -121,7 +121,6 @@ class BuySellCollectibleStep extends React.Component<Props, State> {
                 await this.props.goToIndividualCollectible(collectible.tokenId);
                 this.props.closeModal();
             } catch (error) {
-                console.log(error);
                 onError(error);
             }
         }

@@ -129,21 +129,21 @@ const CollectibleLinkText = styled.span`
     margin: 0 6px 0 0;
 `;
 
-const CollectibleMainInfoSubtitle = styled.h4`
+/*const CollectibleMainInfoSubtitle = styled.h4`
     color: ${props => props.theme.componentsTheme.textColorCommon};
     font-size: 14px;
     font-weight: 500;
     line-height: 1.2;
     margin: 0 0 10px;
-`;
+`;*/
 
-const CollectibleMainInfoValue = styled.p`
+/*const CollectibleMainInfoValue = styled.p`
     color: ${props => props.theme.componentsTheme.textColorCommon};
     font-size: 14px;
     font-weight: 400;
     line-height: 1.2;
     margin: 0;
-`;
+`;*/
 
 const CollectibleLabel = styled.label`
     color: ${props => props.theme.componentsTheme.textColorCommon};
@@ -216,7 +216,7 @@ const ButtonStyled = styled(Button)`
     width: 100%;
 `;
 
-const SwitchWrapper = styled.div<{ isActive?: boolean }>`
+/*const SwitchWrapper = styled.div<{ isActive?: boolean }>`
     background: ${props => (props.isActive ? '#00ae99' : '#ccc')};
     border-radius: 9px;
     cursor: pointer;
@@ -236,7 +236,7 @@ const Switch = styled.div`
     transition: all 0.15s linear;
     width: 13px;
     z-index: 1;
-`;
+`;*/
 
 /*const SwitchInput = styled.input`
     border-radius: 50%;
@@ -414,7 +414,7 @@ class CollectibleSellModalContainer extends React.Component<Props> {
         return false;
     };
 
-   /* private readonly _updateIncludeEndPrice = (event: any) => {
+    /* private readonly _updateIncludeEndPrice = (event: any) => {
         this.setState({ shouldIncludeEndPrice: event.target.checked });
     };*/
 

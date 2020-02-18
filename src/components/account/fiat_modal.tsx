@@ -78,7 +78,7 @@ export const FiatOnRampModal: React.FC<Props> = props => {
     let fiat_link: string = 'link';
     let description;
     const frame_width = isMobile(size.width) ? `${size.width - 10}px` : '500px';
-    const frame_height = size.height < 710 ? `${size.height - 100}px` : `${size.height - 10}px`;
+    const frame_height = size.height < 710 ? `${size.height - 100}px` : `${size.height - 150}px`;
     switch (fiatType) {
         case 'APPLE_PAY':
             fiat_link = `https://pay.sendwyre.com?destCurrency=ETH&dest=${ethAccount}&paymentMethod=apple-pay&accountId=${WYRE_ID}`;
