@@ -50,10 +50,12 @@ export const TokensForm = ({
     unshift,
     isOpen = false,
     selector,
+    title = '3-Listed Tokens',
 }: {
     unshift: any;
     isOpen?: boolean;
     selector?: string;
+    title?: string;
 }) => {
     const onPush = (e: any) => {
         e.preventDefault();
@@ -63,7 +65,7 @@ export const TokensForm = ({
     const tokenFields = fieldArray.fields;
     return (
         <>
-            <AccordionCollapse title={'3-Listed Tokens'} setIsOpen={isOpen} className={selector}>
+            <AccordionCollapse title={title} setIsOpen={isOpen} className={selector}>
                 <ButtonsContainer>
                     <ButtonContainer>
                         <Button onClick={onPush} variant={ButtonVariant.Buy} disabled={tokenFields.value.length > 10}>
@@ -81,8 +83,7 @@ export const TokensForm = ({
                             <StyledToken key={name}>
                                 <TokenForm name={name} index={index} />
                             </StyledToken>
-                        ))
-                    }
+                        ))}
                 </FieldArray>
             </AccordionCollapse>
         </>

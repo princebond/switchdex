@@ -15,6 +15,7 @@ import {
     initConfigData,
     initializeAppWallet,
     initTheme,
+    initUserConfigData,
     initWallet,
     updateERC20Markets,
     updateMarketPriceEther,
@@ -37,8 +38,9 @@ interface StateProps {
 interface DispatchProps {
     onConnectWallet: (wallet: Wallet) => any;
     onInitTheme: (themeName: string | null) => any;
-    onInitConfig: (name: string | undefined, domain: string | undefined) => any;
     onInitWalletState: () => any;
+    onInitConfig: (name: string | undefined, domain: string | undefined) => any;
+    onInitUserConfig: () => any;
     onUpdateStore: () => any;
     onUpdateMarketPriceEther: () => any;
     onUpdateMarketPriceQuote: () => any;
@@ -57,12 +59,14 @@ class App extends React.Component<Props> {
     private _updateERC20MarketsInterval: number | undefined;
 
     public componentDidMount = () => {
-        const { MARKETPLACE, onInitConfig, onInitTheme } = this.props;
+        const { MARKETPLACE, onInitConfig, onInitTheme, onInitUserConfig } = this.props;
         // no need to init when instant is the marketplace
         // Check if any config is requested
         const parsedUrl = new URL(window.location.href.replace('#/', ''));
         const dex = parsedUrl.searchParams.get('dex');
         const origin = window.location.origin;
+        // TODO investigate if it is better user replace configs from dex as service
+        onInitUserConfig();
         if (origin !== VERIDEX_ORIGIN) {
             onInitConfig(undefined, origin);
         } else if (dex) {
@@ -187,6 +191,7 @@ const mapDispatchToProps = (dispatch: any) => {
     return {
         onInitWalletState: () => dispatch(initializeAppWallet()),
         onInitTheme: (themeName: string | null) => dispatch(initTheme(themeName)),
+        onInitUserConfig: () => dispatch(initUserConfigData()),
         onUpdateStore: () => dispatch(updateStore()),
         onUpdateMarketPriceEther: () => dispatch(updateMarketPriceEther()),
         onUpdateMarketPriceQuote: () => dispatch(updateMarketPriceQuote()),

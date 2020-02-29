@@ -10,17 +10,18 @@ const AccordionSection = styled.div`
 `;
 
 const AccordionButton = styled.div<{ active?: boolean }>`
-    background-color: ${props => (props.active ? '#ccc' : '#eee')};
-    color: #444;
+    background-color: ${props =>
+        props.active ? props.theme.componentsTheme.rowOrderActive : props.theme.componentsTheme.cardBackgroundColor};
+    color: ${props => props.theme.componentsTheme.textColorCommon};
     cursor: pointer;
     padding: 12px;
     display: flex;
     align-items: center;
-    border: none;
+    border: 1px solid ${props => props.theme.componentsTheme.textColorCommon};
     outline: none;
     transition: background-color 0.6s ease;
     :hover {
-        background-color: #ccc;
+        background-color: ${props => props.theme.componentsTheme.rowOrderActive};
     }
 `;
 /* Style the accordion content title */

@@ -2,7 +2,13 @@ import React, { useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import styled from 'styled-components';
 
-import { setDynamicLayout, setERC20Layout, setERC20Theme, setThemeName } from '../../../store/actions';
+import {
+    goToUserDexWizard,
+    setDynamicLayout,
+    setERC20Layout,
+    setERC20Theme,
+    setThemeName,
+} from '../../../store/actions';
 import { getDynamicLayout, getERC20Layout, getThemeName } from '../../../store/selectors';
 import { getThemeFromConfigDex } from '../../../themes/theme_meta_data_utils';
 import { ButtonVariant } from '../../../util/types';
@@ -145,6 +151,11 @@ export const SettingsDropdownContainer = (props: any) => {
         const theme = getThemeFromConfigDex(themeN);
         dispatch(setERC20Theme(theme));
     };
+
+    const handleWizardClick = () => {
+        dispatch(goToUserDexWizard());
+    };
+
     const onDynamicLayout = () => {
         dispatch(setDynamicLayout(!isDynamicLayout));
     };
@@ -281,6 +292,7 @@ export const SettingsDropdownContainer = (props: any) => {
                         Reset Layout
                     </StyledButton>
                 </ButtonContainer>
+                <DropdownTextItem onClick={handleWizardClick} style={{ textAlign: 'center' }} text={'Wizard'} />
             </DropdownBody>
         </>
     );

@@ -60,6 +60,7 @@ import {
     Token,
     TokenBalance,
     TokenIEO,
+    UserConfigData,
 } from '../../util/types';
 import { setCurrencyPair } from '../market/actions';
 import { setFeePercentage, setFeeRecipient } from '../relayer/actions';
@@ -175,6 +176,10 @@ export const setGeneralConfig = createAction('ui/GENERAL_CONFIG_set', resolve =>
 
 export const setConfigData = createAction('ui/CONFIG_DATA_set', resolve => {
     return (config: ConfigData) => resolve(config);
+});
+
+export const setUserConfigData = createAction('ui/USER_CONFIG_DATA_set', resolve => {
+    return (config: UserConfigData) => resolve(config);
 });
 
 export const setFiatType = createAction('ui/FIAT_TYPE_set', resolve => {
@@ -886,6 +891,42 @@ export const initTheme: ThunkCreator = (themeName: string | null) => {
             dispatch(setERC20Theme(theme));
         }
     };
+};
+
+export const initUserConfigData: ThunkCreator = () => {
+    return async (dispatch, getState) => {
+        try {
+            const state = getState();
+            const userConfig = state.ui.userConfigData;
+            if (!userConfig) {
+                return;
+            }
+            const configInstance = Config.getInstance();
+            configInstance._setConfig(userConfig.config);
+            const known_tokens = getKnownTokens();
+            known_tokens.updateTokens(Config.getConfig().tokens);
+            updateAvailableMarkets(Config.getConfig().pairs);
+            // Sometimes the markets only are available after the config arrive
+            const parsedUrl = new URL(window.location.href.replace('#/', ''));
+            const base = parsedUrl.searchParams.get('base') || getAvailableMarkets()[0].base;
+            const quote = parsedUrl.searchParams.get('quote') || getAvailableMarkets()[0].quote;
+            let currencyPair;
+            try {
+                currencyPair = getCurrencyPairByTokensSymbol(base, quote);
+            } catch (e) {
+                currencyPair = getCurrencyPairByTokensSymbol(
+                    getAvailableMarkets()[0].base,
+                    getAvailableMarkets()[0].quote,
+                );
+            }
+            dispatch(setCurrencyPair(currencyPair));
+            const themeName = localStorage.getThemeName() || Config.getConfig().theme_name;
+            dispatch(initTheme(themeName));
+        } catch (e) {
+            return;
+        }
+    };
+    // tslint:disable-next-line: max-file-line-count
 };
 
 export const initConfigData: ThunkCreator = (queryString: string | undefined, domain: string | undefined) => {

@@ -24,7 +24,16 @@ const StyledComponentsTheme = styled.div`
 
 const TooltipStyled = styled(Tooltip)``;
 
-export const ThemeForm = ({ isOpen = false, selector }: { name: string; isOpen?: boolean; selector?: string }) => {
+export const ThemeForm = ({
+    isOpen = false,
+    selector,
+    title = '2-Theme',
+}: {
+    name: string;
+    isOpen?: boolean;
+    selector?: string;
+    title?: string;
+}) => {
     const dispatch = useDispatch();
 
     const options = [
@@ -59,7 +68,7 @@ export const ThemeForm = ({ isOpen = false, selector }: { name: string; isOpen?:
     };
     return (
         <>
-            <AccordionCollapse title={'2-Theme'} setIsOpen={isOpen} className={selector}>
+            <AccordionCollapse title={title} setIsOpen={isOpen} className={selector}>
                 <LabelContainer>
                     <Label>Themes:</Label>
                     <TooltipStyled

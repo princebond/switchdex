@@ -16,17 +16,24 @@ const StyledFilter = styled.div`
     border: 1px solid ${props => props.theme.componentsTheme.cardBorderColor};
 `;
 
-export const MarketFiltersForm = ({ isOpen = false, selector }: { isOpen?: boolean; selector?: string }) => (
+export const MarketFiltersForm = ({
+    isOpen = false,
+    selector,
+    title = '5-Market Quotes',
+}: {
+    isOpen?: boolean;
+    selector?: string;
+    title?: string;
+}) => (
     <>
-        <AccordionCollapse title={'5-Market Quotes'} setIsOpen={isOpen} className={selector}>
+        <AccordionCollapse title={title} setIsOpen={isOpen} className={selector}>
             <FieldArray name="marketFilters">
                 {({ fields }) =>
                     fields.map((name, index) => (
                         <StyledFilter key={name}>
                             <FilterForm name={name} index={index} />
                         </StyledFilter>
-                    ))
-                }
+                    ))}
             </FieldArray>
         </AccordionCollapse>
     </>

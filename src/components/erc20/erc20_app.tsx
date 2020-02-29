@@ -20,6 +20,7 @@ const Marketplace = lazy(() => import('./pages/marketplace'));
 const WizardPage = lazy(() => import('./pages/wizard'));
 const JoinAsMakerPage = lazy(() => import('./pages/join_as_maker'));
 const TokenListingPage = lazy(() => import('./pages/listing'));
+const UserWizardPage = lazy(() => import('./pages/user_wizard'));
 
 const Erc20App = () => {
     const themeColor = useSelector(getERC20Theme);
@@ -34,6 +35,11 @@ const Erc20App = () => {
                         <Route exact={true} path={`${ERC20_APP_BASE_PATH}/join-as-maker`} component={JoinAsMakerPage} />
                         <Route exact={true} path={`${ERC20_APP_BASE_PATH}/listed-tokens`} component={TokensListPage} />
                         <Route exact={true} path={`${ERC20_APP_BASE_PATH}/dex-wizard`} component={WizardPage} />
+                        <Route
+                            exact={true}
+                            path={`${ERC20_APP_BASE_PATH}/user-dex-wizard`}
+                            component={UserWizardPage}
+                        />
                         <Route exact={true} path={`${ERC20_APP_BASE_PATH}/listings`} component={TokenListingPage} />
                         <Route
                             exact={true}

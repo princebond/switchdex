@@ -83,16 +83,18 @@ export const GeneralWizardForm = ({
     name,
     selector,
     isOpen = true,
+    title = '1-General Config',
 }: {
     name: string;
     selector?: string;
     isOpen?: boolean;
+    title?: string;
 }) => {
     const dispatch = useDispatch();
 
     return (
         <>
-            <AccordionCollapse title={'1-General Config'} isOpen={isOpen} className={selector}>
+            <AccordionCollapse title={title} isOpen={isOpen} className={selector}>
                 <LabelContainer>
                     <Label>Title</Label>
                     <TooltipStyled
