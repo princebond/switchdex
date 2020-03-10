@@ -65,6 +65,7 @@ import {
 import { setCurrencyPair } from '../market/actions';
 import { setFeePercentage, setFeeRecipient } from '../relayer/actions';
 import * as selectors from '../selectors';
+import { getUserConfigData } from '../selectors';
 
 export const setHasUnreadNotifications = createAction('ui/UNREAD_NOTIFICATIONS_set', resolve => {
     return (hasUnreadNotifications: boolean) => resolve(hasUnreadNotifications);
@@ -911,7 +912,7 @@ export const initUserConfigData: ThunkCreator = () => {
     return async (dispatch, getState) => {
         try {
             const state = getState();
-            const userConfig = state.ui.userConfigData;
+            const userConfig = getUserConfigData(state);
             if (!userConfig) {
                 return;
             }

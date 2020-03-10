@@ -6,8 +6,9 @@ import { useDispatch, useSelector } from 'react-redux';
 import styled, { withTheme } from 'styled-components';
 
 import { Config } from '../../../common/config';
-import { initUserConfigData, setUserConfigData } from '../../../store/actions';
-import { getConfigData, getERC20Theme, getThemeName } from '../../../store/selectors';
+import { configFile } from '../../../config';
+import { goToHome, initUserConfigData, setUserConfigData } from '../../../store/actions';
+import { getERC20Theme, getThemeName, getUserConfigData } from '../../../store/selectors';
 import { Theme, themeDimensions } from '../../../themes/commons';
 import { getThemeByName } from '../../../themes/theme_meta_data_utils';
 import { ButtonVariant, ConfigFile } from '../../../util/types';
@@ -45,6 +46,10 @@ const PreStyled = styled.pre`
     color: ${props => props.theme.componentsTheme.textColorCommon};
 `;
 
+const ButtonDefault = styled(Button)`
+    display: inline;
+    margin-left: 5px;
+`;
 const Introduction = styled.p`
     color: ${props => props.theme.componentsTheme.textColorCommon};
 `;
@@ -89,7 +94,7 @@ const UserWizardForm = (_props: Props) => {
     const [isRun, setIsRun] = useState(false);
     const themeName = useSelector(getThemeName);
     const themeColor = useSelector(getERC20Theme);
-    const configData = useSelector(getConfigData);
+    const configData = useSelector(getUserConfigData);
     let config: ConfigFile;
     configData ? (config = configData.config) : (config = configTemplate);
     config.theme_name = themeName;
@@ -108,9 +113,9 @@ const UserWizardForm = (_props: Props) => {
         }
     });
 
-    const onTakeTutorial = () => {
+    /*const onTakeTutorial = () => {
         setIsRun(true);
-    };
+    };*/
 
     const onSubmit = (values: any) => {
         // @TODO remove this workaround
@@ -118,8 +123,22 @@ const UserWizardForm = (_props: Props) => {
             t.addresses = {};
             t.addresses['1'] = t.mainnetAddress;
         });
-        dispatch(setUserConfigData(values));
+        values.general = config.general;
+        dispatch(setUserConfigData({ config: values }));
         dispatch(initUserConfigData());
+        dispatch(goToHome());
+        alert('Configuration Saved');
+    };
+
+    const handleDefault = () => {
+        const configDefault = configFile;
+        configDefault.tokens.forEach((t: any) => {
+            t.mainnetAddress = t.addresses['1'];
+        });
+        dispatch(setUserConfigData({ config: configDefault }));
+        dispatch(initUserConfigData());
+        alert('Reset to Veridex defaults');
+        dispatch(goToHome());
     };
 
     const content = (
@@ -145,7 +164,13 @@ const UserWizardForm = (_props: Props) => {
                 }) => (
                     <form onSubmit={handleSubmit}>
                         <ThemeForm name="theme" selector={'theme-step'} title="Theme" isOpen={isOpen.theme} />
-                        <TokensForm unshift={unshift} selector={'tokens-step'} title="Tokens" isOpen={isOpen.tokens} />
+                        <TokensForm
+                            unshift={unshift}
+                            selector={'tokens-step'}
+                            title="Tokens"
+                            isOpen={isOpen.tokens}
+                            maxTokens={20}
+                        />
                         <PairsForm selector={'pairs-step'} title="Pairs" isOpen={isOpen.pairs} />
                         <MarketFiltersForm
                             selector={'market-filters-step'}
@@ -168,7 +193,7 @@ const UserWizardForm = (_props: Props) => {
                                     disabled={submitting || pristine}
                                     variant={ButtonVariant.Sell}
                                 >
-                                    Reset
+                                    Reset Form
                                 </Button>
                             </ButtonContainer>
                         </ButtonsContainer>
@@ -225,7 +250,13 @@ const UserWizardForm = (_props: Props) => {
 
     return (
         <Card title="User DEX Wizard">
-            <Introduction> Customize your DEX with few steps.</Introduction>
+            <Introduction>
+                {' '}
+                Customize your DEX with few steps. If you wanna reset to default click here:
+                <ButtonDefault onClick={handleDefault} variant={ButtonVariant.Primary}>
+                    Reset Default
+                </ButtonDefault>
+            </Introduction>
             <Joyride
                 run={isRun}
                 steps={stepsState}
