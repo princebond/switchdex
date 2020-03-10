@@ -1,7 +1,7 @@
 import { BigNumber } from '@0x/utils';
 
 import { CHAIN_ID, FILLS_LIMIT, NETWORK_ID, NOTIFICATIONS_LIMIT } from '../common/constants';
-import { Fill, MarketFill, Notification, Wallet } from '../util/types';
+import { Fill, MarketFill, Notification, UserConfigData, Wallet } from '../util/types';
 
 const addPrefix = (key: string) => `VeriDex.${key}`;
 
@@ -14,6 +14,7 @@ const walletConnectedKey = addPrefix('walletConnected');
 const themeNameKey = addPrefix('themeName');
 const erc20LayoutKey = addPrefix('erc20Layout');
 const dynamicLayoutKey = addPrefix('dynamicLayoutKey');
+const userConfigDataKey = addPrefix('userConfigData');
 
 export class LocalStorage {
     private readonly _storage: Storage;
@@ -226,6 +227,10 @@ export class LocalStorage {
     public getErc20Layout(): string | null {
         return JSON.parse(this._storage.getItem(erc20LayoutKey) || 'null');
     }
+
+    public getUserConfigData(): UserConfigData | null {
+        return JSON.parse(this._storage.getItem(userConfigDataKey) || 'null');
+    }
     public getDynamicLayout(): boolean {
         return JSON.parse(this._storage.getItem(dynamicLayoutKey) || 'false');
     }
@@ -241,6 +246,11 @@ export class LocalStorage {
     public saveThemeName(themeName?: string): void {
         if (themeName) {
             this._storage.setItem(themeNameKey, JSON.stringify(themeName));
+        }
+    }
+    public saveUserConfigData(userConfigData?: UserConfigData): void {
+        if (userConfigData) {
+            this._storage.setItem(userConfigDataKey, JSON.stringify(userConfigData));
         }
     }
 }

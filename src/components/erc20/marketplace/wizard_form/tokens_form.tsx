@@ -50,10 +50,14 @@ export const TokensForm = ({
     unshift,
     isOpen = false,
     selector,
+    title = '3-Listed Tokens',
+    maxTokens = 10,
 }: {
     unshift: any;
     isOpen?: boolean;
     selector?: string;
+    title?: string;
+    maxTokens?: number;
 }) => {
     const onPush = (e: any) => {
         e.preventDefault();
@@ -63,15 +67,19 @@ export const TokensForm = ({
     const tokenFields = fieldArray.fields;
     return (
         <>
-            <AccordionCollapse title={'3-Listed Tokens'} setIsOpen={isOpen} className={selector}>
+            <AccordionCollapse title={title} setIsOpen={isOpen} className={selector}>
                 <ButtonsContainer>
                     <ButtonContainer>
-                        <Button onClick={onPush} variant={ButtonVariant.Buy} disabled={tokenFields.value.length > 10}>
+                        <Button
+                            onClick={onPush}
+                            variant={ButtonVariant.Buy}
+                            disabled={tokenFields.value.length > maxTokens}
+                        >
                             Add
                         </Button>
                     </ButtonContainer>
                     <TooltipStyled
-                        description="Add Tokens to be listed using contract address. Logo images are fetched from Coingecko. Max 10 with free basic plan"
+                        description={`Add Tokens to be listed using contract address. Logo images are fetched from Coingecko. Max ${maxTokens} with free basic plan`}
                         iconType={IconType.Fill}
                     />
                 </ButtonsContainer>

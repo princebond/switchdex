@@ -5,16 +5,16 @@ import Joyride, { ACTIONS, CallBackProps, EVENTS, STATUS, Step } from 'react-joy
 import { useDispatch, useSelector } from 'react-redux';
 import styled, { withTheme } from 'styled-components';
 
-import { ConfigTemplate } from '../../../common/config';
-import { startDexConfigSteps } from '../../../store/actions';
-import { getConfigData, getERC20Layout, getERC20Theme, getThemeName } from '../../../store/selectors';
+import { Config } from '../../../common/config';
+import { configFile } from '../../../config';
+import { goToHome, initUserConfigData, setUserConfigData } from '../../../store/actions';
+import { getERC20Theme, getThemeName, getUserConfigData } from '../../../store/selectors';
 import { Theme, themeDimensions } from '../../../themes/commons';
 import { getThemeByName } from '../../../themes/theme_meta_data_utils';
 import { ButtonVariant, ConfigFile } from '../../../util/types';
 import { Button } from '../../common/button';
 import { Card } from '../../common/card';
 
-import { GeneralWizardForm } from './wizard_form/general_form';
 import { MarketFiltersForm } from './wizard_form/marketFilters_form';
 import { PairsForm } from './wizard_form/pairs_form';
 import { ThemeForm } from './wizard_form/theme_form';
@@ -46,22 +46,18 @@ const PreStyled = styled.pre`
     color: ${props => props.theme.componentsTheme.textColorCommon};
 `;
 
+const ButtonDefault = styled(Button)`
+    display: inline;
+    margin-left: 5px;
+`;
 const Introduction = styled.p`
     color: ${props => props.theme.componentsTheme.textColorCommon};
 `;
 
-const WizardForm = (_props: Props) => {
-    const configTemplate = ConfigTemplate.getConfig();
+const UserWizardForm = (_props: Props) => {
+    const configTemplate = Config.getConfig();
     const dispatch = useDispatch();
     const steps: Step[] = [
-        {
-            target: '.general-config-step',
-            content:
-                'Welcome to Dex Wizard! Configure your dex with your custom domain, title and logo. Add your ethereum fee recipient  address to receive affiliate fees when supported ',
-            placementBeacon: 'top',
-            disableBeacon: true,
-            floaterProps: { disableAnimation: true },
-        },
         {
             target: '.theme-step',
             content: 'Choose a predefined theme (Light or Dark) and configure below the colors if needed',
@@ -98,8 +94,7 @@ const WizardForm = (_props: Props) => {
     const [isRun, setIsRun] = useState(false);
     const themeName = useSelector(getThemeName);
     const themeColor = useSelector(getERC20Theme);
-    const configData = useSelector(getConfigData);
-    const erc20Layout = useSelector(getERC20Layout);
+    const configData = useSelector(getUserConfigData);
     let config: ConfigFile;
     configData ? (config = configData.config) : (config = configTemplate);
     config.theme_name = themeName;
@@ -111,10 +106,6 @@ const WizardForm = (_props: Props) => {
     if (!config.theme_light) {
         config.theme_light = getThemeByName('LIGHT_THEME');
     }
-    if (!config.layout) {
-        config.layout = erc20Layout;
-    }
-
     config.tokens.forEach(t => {
         if (!t.mainnetAddress) {
             // @ts-ignore
@@ -122,9 +113,9 @@ const WizardForm = (_props: Props) => {
         }
     });
 
-    const onTakeTutorial = () => {
+    /*const onTakeTutorial = () => {
         setIsRun(true);
-    };
+    };*/
 
     const onSubmit = (values: any) => {
         // @TODO remove this workaround
@@ -132,8 +123,22 @@ const WizardForm = (_props: Props) => {
             t.addresses = {};
             t.addresses['1'] = t.mainnetAddress;
         });
-        values.layout = erc20Layout;
-        dispatch(startDexConfigSteps(values));
+        values.general = config.general;
+        dispatch(setUserConfigData({ config: values }));
+        dispatch(initUserConfigData());
+        dispatch(goToHome());
+        alert('Configuration Saved');
+    };
+
+    const handleDefault = () => {
+        const configDefault = configFile;
+        configDefault.tokens.forEach((t: any) => {
+            t.mainnetAddress = t.addresses['1'];
+        });
+        dispatch(setUserConfigData({ config: configDefault }));
+        dispatch(initUserConfigData());
+        alert('Reset to Veridex defaults');
+        dispatch(goToHome());
     };
 
     const content = (
@@ -158,15 +163,20 @@ const WizardForm = (_props: Props) => {
                     values,
                 }) => (
                     <form onSubmit={handleSubmit}>
-                        <GeneralWizardForm
-                            name="general"
-                            selector="general-config-step"
-                            isOpen={isOpen.generalConfig}
+                        <ThemeForm name="theme" selector={'theme-step'} title="Theme" isOpen={isOpen.theme} />
+                        <TokensForm
+                            unshift={unshift}
+                            selector={'tokens-step'}
+                            title="Tokens"
+                            isOpen={isOpen.tokens}
+                            maxTokens={20}
                         />
-                        <ThemeForm name="theme" selector={'theme-step'} isOpen={isOpen.theme} />
-                        <TokensForm unshift={unshift} selector={'tokens-step'} isOpen={isOpen.tokens} />
-                        <PairsForm selector={'pairs-step'} isOpen={isOpen.pairs} />
-                        <MarketFiltersForm selector={'market-filters-step'} isOpen={isOpen.marketFilters} />
+                        <PairsForm selector={'pairs-step'} title="Pairs" isOpen={isOpen.pairs} />
+                        <MarketFiltersForm
+                            selector={'market-filters-step'}
+                            title="Market Filters"
+                            isOpen={isOpen.marketFilters}
+                        />
                         <ButtonsContainer>
                             <ButtonContainer>
                                 <Button
@@ -183,7 +193,7 @@ const WizardForm = (_props: Props) => {
                                     disabled={submitting || pristine}
                                     variant={ButtonVariant.Sell}
                                 >
-                                    Reset
+                                    Reset Form
                                 </Button>
                             </ButtonContainer>
                         </ButtonsContainer>
@@ -239,10 +249,13 @@ const WizardForm = (_props: Props) => {
     };
 
     return (
-        <Card title="DEX Wizard">
+        <Card title="User DEX Wizard">
             <Introduction>
                 {' '}
-                Create your DEX with few steps. <button onClick={onTakeTutorial}>Take Tutorial</button>
+                Customize your DEX with few steps. If you wanna reset to default click here:
+                <ButtonDefault onClick={handleDefault} variant={ButtonVariant.Primary}>
+                    Reset Default
+                </ButtonDefault>
             </Introduction>
             <Joyride
                 run={isRun}
@@ -265,6 +278,6 @@ const WizardForm = (_props: Props) => {
     );
 };
 
-const WizardFormWithTheme = withTheme(WizardForm);
+const UserWizardFormWithTheme = withTheme(UserWizardForm);
 
-export { WizardForm, WizardFormWithTheme };
+export { UserWizardForm, UserWizardFormWithTheme };

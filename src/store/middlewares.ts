@@ -14,6 +14,7 @@ import {
     getMarketFills,
     getNotifications,
     getThemeName,
+    getUserConfigData,
     getWallet,
 } from './selectors';
 
@@ -164,6 +165,14 @@ export const localStorageMiddleware: Middleware = ({ getState }: MiddlewareAPI) 
             const wallet = getWallet(state);
             if (wallet) {
                 localStorage.saveWalletConnected(wallet);
+            }
+            break;
+        }
+        case getType(actions.setUserConfigData): {
+            const state = getState();
+            const config = getUserConfigData(state);
+            if (config) {
+                localStorage.saveUserConfigData(config);
             }
             break;
         }

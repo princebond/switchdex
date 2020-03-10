@@ -57,6 +57,7 @@ const initialUIState: UIState = {
     erc20Theme: getThemeByName(ERC20_THEME_NAME),
     generalConfig: Config.getConfig().general,
     configData: null,
+    userConfigData: localStorage.getUserConfigData(),
 };
 
 export function stepsModal(state: StepsModalState = initialStepsModalState, action: RootAction): StepsModalState {
@@ -134,6 +135,8 @@ export function ui(state: UIState = initialUIState, action: RootAction): UIState
         }
         case getType(actions.setERC20Theme):
             return { ...state, erc20Theme: action.payload };
+        case getType(actions.setUserConfigData):
+            return { ...state, userConfigData: action.payload };
         case getType(actions.setThemeName):
             return { ...state, themeName: action.payload };
         case getType(actions.setGeneralConfig):

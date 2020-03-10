@@ -90,6 +90,19 @@ export const goToDexWizard: ThunkCreator = () => {
     };
 };
 
+export const goToUserDexWizard: ThunkCreator = () => {
+    return async (dispatch, getState) => {
+        const state = getState();
+
+        dispatch(
+            push({
+                ...state.router.location,
+                pathname: `${ERC20_APP_BASE_PATH}/user-dex-wizard`,
+            }),
+        );
+    };
+};
+
 export const goToListedTokens: ThunkCreator = () => {
     return async (dispatch, getState) => {
         const state = getState();

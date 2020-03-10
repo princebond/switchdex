@@ -195,6 +195,7 @@ export interface UIState {
     readonly themeName: string;
     readonly generalConfig?: GeneralConfig;
     readonly configData?: ConfigData | null;
+    readonly userConfigData: UserConfigData | null;
 }
 
 export interface MarketState {
@@ -724,6 +725,7 @@ export interface ConfigFile {
     marketFilters?: Filter[];
     wallets?: WalletsConfig;
     theme_name?: string;
+    layout?: string;
     theme?: PartialTheme;
     theme_light?: PartialTheme;
     theme_dark?: PartialTheme;
@@ -737,6 +739,10 @@ export interface ConfigData {
     message: string;
     slug?: string;
     createdAt?: number;
+}
+
+export interface UserConfigData {
+    config: ConfigFile;
 }
 
 export interface ConfigRelayerData {

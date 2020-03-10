@@ -32,13 +32,21 @@ const StyledFieldContainer = styled(FieldContainer)`
     justify-content: space-between;
 `;
 
-export const PairsForm = ({ isOpen = false, selector }: { isOpen?: boolean; selector?: string }) => {
+export const PairsForm = ({
+    isOpen = false,
+    selector,
+    title = '4-Listed Pairs',
+}: {
+    isOpen?: boolean;
+    selector?: string;
+    title?: string;
+}) => {
     const fieldArray = useFieldArray('tokens');
     const dispatch = useDispatch();
     const fieldsArray = fieldArray.fields;
     return (
         <>
-            <AccordionCollapse title={'4-Listed Pairs'} setIsOpen={isOpen} className={selector}>
+            <AccordionCollapse title={title} setIsOpen={isOpen} className={selector}>
                 <FieldArray name="pairs">
                     {({ fields }) =>
                         fields.map((name, index) => (

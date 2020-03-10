@@ -283,7 +283,6 @@ export const getWethAssetData = (): string => {
     return assetDataUtils.encodeERC20AssetData(wethToken.address).toLowerCase();
 };
 
-
 export const isZrx = (token: string): boolean => {
     return token === 'zrx';
 };
