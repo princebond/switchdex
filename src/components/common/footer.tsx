@@ -4,7 +4,7 @@ import styled from 'styled-components';
 
 import { Config } from '../../common/config';
 import { GIT_COMMIT } from '../../common/constants';
-import { goToListedTokens, goToListings } from '../../store/actions';
+import { goToListedTokens, goToListings, goToDexWizard } from '../../store/actions';
 import { getCurrentMarketPlace } from '../../store/selectors';
 import { themeBreakPoints, themeDimensions } from '../../themes/commons';
 import { MARKETPLACES } from '../../util/types';
@@ -169,10 +169,10 @@ export const Footer: React.FC<Props> = props => {
         dispatch(openFiatOnRampChooseModal(true));
     };*/
 
-    /*const handleDexWizardClick: React.EventHandler<React.MouseEvent> = e => {
+    const handleDexWizardClick: React.EventHandler<React.MouseEvent> = e => {
         e.preventDefault();
         dispatch(goToDexWizard());
-    };*/
+    };
 
     const handleListingsClick: React.EventHandler<React.MouseEvent> = e => {
         e.preventDefault();
@@ -220,6 +220,12 @@ export const Footer: React.FC<Props> = props => {
                     <HrefStyled href={`/listings`} onClick={handleListingsClick}>
                         Listings
                     </HrefStyled>
+                )}
+                <Pipe>|</Pipe>
+                {marketplace !== MARKETPLACES.ERC721 && (
+                    <HrefStyled href={`/dex-wizard`} onClick={handleDexWizardClick}>
+                    Dex Wizard
+                   </HrefStyled>
                 )}
                 {/*<StyledButton onClick={handleThemeClick} className={'theme-switcher-footer'}>
                     {themeName === 'DARK_THEME' ? '☼' : '🌑'}

@@ -137,6 +137,7 @@ const UserWizardForm = (_props: Props) => {
         });
         dispatch(setUserConfigData({ config: configDefault }));
         dispatch(initUserConfigData());
+        dispatch(setUserConfigData(null));
         alert('Reset to Veridex defaults');
         dispatch(goToHome());
     };

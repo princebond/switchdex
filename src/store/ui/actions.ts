@@ -180,7 +180,7 @@ export const setConfigData = createAction('ui/CONFIG_DATA_set', resolve => {
 });
 
 export const setUserConfigData = createAction('ui/USER_CONFIG_DATA_set', resolve => {
-    return (config: UserConfigData) => resolve(config);
+    return (config: UserConfigData | null) => resolve(config);
 });
 
 export const setFiatType = createAction('ui/FIAT_TYPE_set', resolve => {
@@ -986,11 +986,12 @@ export const initConfigData: ThunkCreator = (queryString: string | undefined, do
             dispatch(initTheme(themeName));
             let feeRecipient = FEE_RECIPIENT;
             let feePercentage = FEE_PERCENTAGE;
+            /* Uncomment when 
             const general = Config.getConfig().general;
             if (general) {
                 feeRecipient = general.feeRecipient || FEE_RECIPIENT;
                 feePercentage = general.feePercentage || FEE_PERCENTAGE;
-            }
+            }*/
             dispatch(setFeeRecipient(feeRecipient));
             dispatch(setFeePercentage(feePercentage));
         } catch (e) {

@@ -240,7 +240,8 @@ const WizardForm = (_props: Props) => {
 
     return (
         <Card title="DEX Wizard">
-            <Introduction>
+            <Introduction> Beta Product. Please test it and report any issue.</Introduction>
+            <Introduction>      
                 {' '}
                 Create your DEX with few steps. <button onClick={onTakeTutorial}>Take Tutorial</button>
             </Introduction>
