@@ -2,9 +2,8 @@ import { BigNumber } from '@0x/utils';
 
 import { TokenBalance, TokenPrice } from '../util/types';
 
-const ETH_MARKET_PRICE_API_ENDPOINT = 'https://api.coinmarketcap.com/v1/ticker/ethereum/';
-
-const MARKET_PRICE_API_ENDPOINT = 'https://api.coinmarketcap.com/v1/ticker/';
+const ETH_MARKET_PRICE_API_ENDPOINT =
+    'https://api.coingecko.com/api/v3/simple/price?ids=ethereum&vs_currencies=usd&include_24hr_change=true';
 
 const TOKENS_MARKET_PRICE_API_ENDPOINT = 'https://api.coingecko.com/api/v3/';
 
@@ -12,9 +11,8 @@ export const getMarketPriceEther = async (): Promise<BigNumber> => {
     const promisePriceEtherResolved = await fetch(ETH_MARKET_PRICE_API_ENDPOINT);
     if (promisePriceEtherResolved.status === 200) {
         const data = await promisePriceEtherResolved.json();
-        if (data && data.length) {
-            const item = data[0];
-            const priceTokenUSD = new BigNumber(item.price_usd);
+        if (data && data.ethereum) {
+            const priceTokenUSD = new BigNumber(data.ethereum.usd);
             return priceTokenUSD;
         }
     }
@@ -23,12 +21,13 @@ export const getMarketPriceEther = async (): Promise<BigNumber> => {
 };
 
 export const getMarketPriceQuote = async (quoteId: string): Promise<BigNumber> => {
-    const promisePriceQuoteResolved = await fetch(`${MARKET_PRICE_API_ENDPOINT}${quoteId}/`);
+    const promisePriceQuoteResolved = await fetch(
+        `${TOKENS_MARKET_PRICE_API_ENDPOINT}simple/price?ids=${quoteId}&vs_currencies=usd&include_24hr_change=true`,
+    );
     if (promisePriceQuoteResolved.status === 200) {
         const data = await promisePriceQuoteResolved.json();
-        if (data && data.length) {
-            const item = data[0];
-            const priceTokenUSD = new BigNumber(item.price_usd);
+        if (data && data[`quoteId`]) {
+            const priceTokenUSD = new BigNumber(data[`quoteId`].usd);
             return priceTokenUSD;
         }
     }

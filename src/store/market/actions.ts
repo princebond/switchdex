@@ -221,12 +221,12 @@ export const updateMarketPriceQuote: ThunkCreator = () => {
         const state = getState() as StoreState;
         try {
             const quoteToken = state.market.quoteToken;
-            if (quoteToken && quoteToken.id) {
+            if (quoteToken && quoteToken.c_id) {
                 // if ethereum price is already fetched we use it
-                if (quoteToken.id === 'ethereum' && state.market.ethInUsd) {
+                if (quoteToken.c_id === 'ethereum' && state.market.ethInUsd) {
                     dispatch(fetchMarketPriceQuoteUpdate(state.market.ethInUsd));
                 } else {
-                    const marketPriceQuoteData = await getMarketPriceQuote(quoteToken.id);
+                    const marketPriceQuoteData = await getMarketPriceQuote(quoteToken.c_id);
                     dispatch(fetchMarketPriceQuoteUpdate(marketPriceQuoteData));
                 }
             } else {

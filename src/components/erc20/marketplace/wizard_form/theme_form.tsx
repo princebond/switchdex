@@ -10,7 +10,7 @@ import { getThemeName } from '../../../../store/selectors';
 import { Theme, themeDimensions } from '../../../../themes/commons';
 import { getThemeByName } from '../../../../themes/theme_meta_data_utils';
 import { AccordionCollapse } from '../../../common/accordion_collapse';
-import { ColorButtonInput } from '../../../common/final_form/color_button_input';
+import { ColorChromeInput } from '../../../common/final_form/color_chrome_input';
 import { IconType, Tooltip } from '../../../common/tooltip';
 
 import { FieldContainer, Label, LabelContainer } from './styles';
@@ -20,9 +20,29 @@ const StyledComponentsTheme = styled.div`
     padding-top: 10px;
     border-radius: ${themeDimensions.borderRadius};
     border: 1px solid ${props => props.theme.componentsTheme.cardBorderColor};
+    height: 350px;
+    overflow: auto;
 `;
 
 const TooltipStyled = styled(Tooltip)``;
+
+/*const ButtonsContainer = styled.div`
+    align-items: flex-start;
+    display: flex;
+    margin: 10px;
+`;
+const ButtonContainer = styled.div`
+    padding: 10px;
+`;*/
+
+const FieldContainerStyled = styled(FieldContainer)`
+    height: 120px;
+    margin: 5px;
+`;
+
+const RowContainer = styled.div`
+    display: flex;
+`;
 
 export const ThemeForm = ({
     isOpen = false,
@@ -66,11 +86,22 @@ export const ThemeForm = ({
                 break;
         }
     };
+    /*const exportThemeConfigJson = (e:any) => {
+        e.preventDefault();
+        const theme = getThemeByName(themeName);
+        const text = JSON.stringify(theme, null, 4);
+        const file = new Blob([text], {type: 'application/json'});
+        const a = document.createElement('a');
+        a.href = URL.createObjectURL(file);
+        a.download = 'ThemeFile.json';
+        a.click();
+    }*/
+
     return (
         <>
-            <AccordionCollapse title={title} setIsOpen={isOpen} className={selector}>
+            <AccordionCollapse title={title} setIsOpen={isOpen} className={selector} style={{ position: 'relative' }}>
                 <LabelContainer>
-                    <Label>Themes:</Label>
+                    <Label>Style Themes:</Label>
                     <TooltipStyled
                         description="Choose a theme and costumize it. Currently support for Dark and Ligh Themes. The active selected theme will be the defaulted one."
                         iconType={IconType.Fill}
@@ -99,29 +130,44 @@ export const ThemeForm = ({
 const ComponentsTheme = ({ name, themeName }: { name: string; themeName: string }) => (
     <>
         <Label>Costumize Dex {themeName} Theme colors:</Label>
-        <LabelContainer>
-            <Label>Background</Label>
-        </LabelContainer>
-        <FieldContainer>
-            <Field name={`${name}.background`} component={ColorButtonInput} placeholder={`Title`} />
-        </FieldContainer>
-        <LabelContainer>
-            <Label>Card Background</Label>
-        </LabelContainer>
-        <FieldContainer>
-            <Field name={`${name}.cardBackgroundColor`} component={ColorButtonInput} placeholder={`Title`} />
-        </FieldContainer>
-        <LabelContainer>
-            <Label>Top Bar Background</Label>
-        </LabelContainer>
-        <FieldContainer>
-            <Field name={`${name}.topbarBackgroundColor`} component={ColorButtonInput} placeholder={`Title`} />
-        </FieldContainer>
-        <LabelContainer>
-            <Label>Inactive Tab Background</Label>
-        </LabelContainer>
-        <FieldContainer>
-            <Field name={`${name}.inactiveTabBackgroundColor`} component={ColorButtonInput} placeholder={`Title`} />
-        </FieldContainer>
+        <RowContainer>
+            <FieldContainerStyled>
+                <LabelContainer>
+                    <Label>Background</Label>
+                </LabelContainer>
+                <Field name={`${name}.background`} component={ColorChromeInput} placeholder={`Title`} />
+            </FieldContainerStyled>
+            <FieldContainerStyled>
+                <LabelContainer>
+                    <Label>Card Background</Label>
+                </LabelContainer>
+                <Field name={`${name}.cardBackgroundColor`} component={ColorChromeInput} placeholder={`Title`} />
+            </FieldContainerStyled>
+            <FieldContainerStyled>
+                <LabelContainer>
+                    <Label>Card Header Background</Label>
+                </LabelContainer>
+                <Field name={`${name}.cardHeaderBackgroundColor`} component={ColorChromeInput} placeholder={`Title`} />
+            </FieldContainerStyled>
+            <FieldContainerStyled>
+                <LabelContainer>
+                    <Label>Top Bar Background</Label>
+                </LabelContainer>
+                <Field name={`${name}.topbarBackgroundColor`} component={ColorChromeInput} placeholder={`Title`} />
+            </FieldContainerStyled>
+
+            <FieldContainerStyled>
+                <LabelContainer>
+                    <Label>Inactive Tab Background</Label>
+                </LabelContainer>
+                <Field name={`${name}.inactiveTabBackgroundColor`} component={ColorChromeInput} placeholder={`Title`} />
+            </FieldContainerStyled>
+            <FieldContainerStyled>
+                <LabelContainer>
+                    <Label>Text Input Background</Label>
+                </LabelContainer>
+                <Field name={`${name}.textInputBackgroundColor`} component={ColorChromeInput} placeholder={`Title`} />
+            </FieldContainerStyled>
+        </RowContainer>
     </>
 );

@@ -106,10 +106,10 @@ const SearchWrapper = styled.div`
 `;
 
 const SearchField = styled.input`
-    background: ${props => props.theme.componentsTheme.marketsSearchFieldBackgroundColor};
+    background: ${props => props.theme.componentsTheme.textInputBackgroundColor};
     border-radius: ${themeDimensions.borderRadius};
-    border: 1px solid ${props => props.theme.componentsTheme.marketsSearchFieldBorderColor};
-    color: ${props => props.theme.componentsTheme.marketsSearchFieldTextColor};
+    border: 1px solid ${props => props.theme.componentsTheme.textInputBorderColor};
+    color: ${props => props.theme.componentsTheme.textInputTextColor};
     font-size: 12px;
     height: ${searchFieldHeight};
     left: 0;
@@ -121,7 +121,7 @@ const SearchField = styled.input`
     z-index: 1;
 
     &:focus {
-        border-color: ${props => props.theme.componentsTheme.marketsSearchFieldBorderColor};
+        border-color: ${props => props.theme.componentsTheme.textInputBorderColor};
     }
 `;
 

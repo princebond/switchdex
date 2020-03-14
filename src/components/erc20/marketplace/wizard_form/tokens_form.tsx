@@ -75,7 +75,7 @@ export const TokensForm = ({
                             variant={ButtonVariant.Buy}
                             disabled={tokenFields.value.length > maxTokens}
                         >
-                            Add
+                            Add Token
                         </Button>
                     </ButtonContainer>
                     <TooltipStyled

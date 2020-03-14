@@ -96,9 +96,9 @@ export const GeneralWizardForm = ({
         <>
             <AccordionCollapse title={title} isOpen={isOpen} className={selector}>
                 <LabelContainer>
-                    <Label>Title</Label>
+                    <Label>Dex Title</Label> {` `}
                     <TooltipStyled
-                        description="Add a title to your DEX. This will be your DEX ID"
+                        description="Add a title to your DEX.<br/> This will be your DEX ID"
                         iconType={IconType.Fill}
                     />
                 </LabelContainer>
@@ -106,7 +106,7 @@ export const GeneralWizardForm = ({
                     <Field required={true} name={`${name}.title`} component={TextInput} placeholder={`Title`} />
                 </FieldContainer>
                 <LabelContainer>
-                    <Label>Domain</Label>
+                    <Label>Dex Domain</Label> {` `}
                     <TooltipStyled
                         description="Domain where your DEX will be showed. Ex: https://dex.verisafe.io/"
                         iconType={IconType.Fill}

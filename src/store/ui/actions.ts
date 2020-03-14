@@ -984,9 +984,9 @@ export const initConfigData: ThunkCreator = (queryString: string | undefined, do
             const localStorage = new LocalStorage(window.localStorage);
             const themeName = localStorage.getThemeName() || Config.getConfig().theme_name;
             dispatch(initTheme(themeName));
-            let feeRecipient = FEE_RECIPIENT;
-            let feePercentage = FEE_PERCENTAGE;
-            /* Uncomment when 
+            const feeRecipient = FEE_RECIPIENT;
+            const feePercentage = FEE_PERCENTAGE;
+            /* Uncomment when
             const general = Config.getConfig().general;
             if (general) {
                 feeRecipient = general.feeRecipient || FEE_RECIPIENT;

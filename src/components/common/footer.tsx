@@ -4,7 +4,7 @@ import styled from 'styled-components';
 
 import { Config } from '../../common/config';
 import { GIT_COMMIT } from '../../common/constants';
-import { goToListedTokens, goToListings, goToDexWizard } from '../../store/actions';
+import { goToDexWizard, goToListedTokens, goToListings } from '../../store/actions';
 import { getCurrentMarketPlace } from '../../store/selectors';
 import { themeBreakPoints, themeDimensions } from '../../themes/commons';
 import { MARKETPLACES } from '../../util/types';
@@ -224,8 +224,8 @@ export const Footer: React.FC<Props> = props => {
                 <Pipe>|</Pipe>
                 {marketplace !== MARKETPLACES.ERC721 && (
                     <HrefStyled href={`/dex-wizard`} onClick={handleDexWizardClick}>
-                    Dex Wizard
-                   </HrefStyled>
+                        Dex Wizard
+                    </HrefStyled>
                 )}
                 {/*<StyledButton onClick={handleThemeClick} className={'theme-switcher-footer'}>
                     {themeName === 'DARK_THEME' ? '☼' : '🌑'}

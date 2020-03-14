@@ -125,6 +125,15 @@ const WizardForm = (_props: Props) => {
     const onTakeTutorial = () => {
         setIsRun(true);
     };
+    const exportConfigJson = (e: any) => {
+        e.preventDefault();
+        const text = JSON.stringify(config, null, 4);
+        const file = new Blob([text], { type: 'application/json' });
+        const a = document.createElement('a');
+        a.href = URL.createObjectURL(file);
+        a.download = 'ConfigFile.json';
+        a.click();
+    };
 
     const onSubmit = (values: any) => {
         // @TODO remove this workaround
@@ -186,6 +195,11 @@ const WizardForm = (_props: Props) => {
                                     Reset
                                 </Button>
                             </ButtonContainer>
+                            <ButtonContainer>
+                                <Button onClick={exportConfigJson} variant={ButtonVariant.Primary}>
+                                    Export config
+                                </Button>
+                            </ButtonContainer>
                         </ButtonsContainer>
                         <PreStyled>{/*JSON.stringify(values, undefined, 2)*/}</PreStyled>
                     </form>
@@ -241,7 +255,7 @@ const WizardForm = (_props: Props) => {
     return (
         <Card title="DEX Wizard">
             <Introduction> Beta Product. Please test it and report any issue.</Introduction>
-            <Introduction>      
+            <Introduction>
                 {' '}
                 Create your DEX with few steps. <button onClick={onTakeTutorial}>Take Tutorial</button>
             </Introduction>

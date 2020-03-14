@@ -17,7 +17,6 @@ import { Card } from '../../common/card';
 
 import { MarketFiltersForm } from './wizard_form/marketFilters_form';
 import { PairsForm } from './wizard_form/pairs_form';
-import { ThemeForm } from './wizard_form/theme_form';
 import { TokensForm } from './wizard_form/tokens_form';
 
 interface OwnProps {
@@ -164,7 +163,7 @@ const UserWizardForm = (_props: Props) => {
                     values,
                 }) => (
                     <form onSubmit={handleSubmit}>
-                        <ThemeForm name="theme" selector={'theme-step'} title="Theme" isOpen={isOpen.theme} />
+                        {/* <ThemeForm name="theme" selector={'theme-step'} title="Theme" isOpen={isOpen.theme} />*/}
                         <TokensForm
                             unshift={unshift}
                             selector={'tokens-step'}
@@ -253,7 +252,7 @@ const UserWizardForm = (_props: Props) => {
         <Card title="User DEX Wizard">
             <Introduction>
                 {' '}
-                Customize your DEX with few steps. If you wanna reset to default click here:
+                Customize your tokens and pairs on DEX with few steps. If you wanna reset to default click here:
                 <ButtonDefault onClick={handleDefault} variant={ButtonVariant.Primary}>
                     Reset Default
                 </ButtonDefault>
