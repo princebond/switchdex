@@ -87,6 +87,7 @@ export const ZeroXInstantComponent = (props: Props) => {
         const isBot = query.get('isBot');
         const makerAddresses = query.get('addresses');
         const makerAddress = query.get('makerAddress');
+
         // const affiliate = query.get('affiliate');
         //  const affiliatePercentage = query.get('affiliatePercentage');
         let additionalAssetMetaDataMap = {};
@@ -149,7 +150,6 @@ export const ZeroXInstantComponent = (props: Props) => {
                 const wethToken = knownTokens.getWethToken();
 
                 orderSource = await getUserIEOSignedOrders(baseToken.owners[0].toLowerCase(), baseToken, wethToken);
-
                 if (!orderSource || orderSource.length === 0) {
                     orderSource = undefined;
                 }

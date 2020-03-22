@@ -34,12 +34,14 @@ import {
     calculateWorstCaseProtocolFee,
     sumTakerAssetFillableOrders,
 } from '../../util/orders';
+import { getExpirationTimeOrdersFromConfig } from '../../util/time_utils';
 import { getTransactionOptions } from '../../util/transactions';
 import {
     AccountMarketStat,
     ConfigRelayerData,
     Fill,
     MarketFill,
+    MarketMakerStats,
     NotificationKind,
     OrderFeeData,
     OrderFilledMessage,
@@ -53,6 +55,7 @@ import {
 } from '../../util/types';
 import { fetchBaseTokenIEO, updateTokenBalances } from '../blockchain/actions';
 import { getAllCollectibles } from '../collectibles/actions';
+import { setMarketMakerStats } from '../market/actions';
 import {
     getBaseToken,
     getBaseTokenIEO,
@@ -63,6 +66,7 @@ import {
     getFeeRecipient,
     getGasPriceInWei,
     getMakerAddresses,
+    getMarketMakerStats,
     getOpenBuyOrders,
     getOpenSellOrders,
     getQuoteToken,
@@ -578,6 +582,7 @@ export const fetchTakerAndMakerFee: ThunkCreator<Promise<OrderFeeData>> = (
                 exchangeAddress: contractWrappers.exchange.address,
             },
             side,
+            getExpirationTimeOrdersFromConfig(),
         );
 
         const { makerFee, takerFee, makerFeeAssetData, takerFeeAssetData } = order;
@@ -592,9 +597,12 @@ export const fetchTakerAndMakerFee: ThunkCreator<Promise<OrderFeeData>> = (
 };
 
 export const subscribeToRelayerWebsocketFillEvents: ThunkCreator<Promise<void>> = () => {
-    return async (dispatch, _getState) => {
+    return async (dispatch, getState) => {
         const onmessage = (ev: any) => {
             try {
+                const state = getState();
+                const ethAccount = getEthAccount(state);
+                const marketMakerStats = getMarketMakerStats(state);
                 const fillMessage = JSON.parse(ev.data) as OrderFilledMessage;
                 if (fillMessage.action === 'FILL') {
                     const fill = fillMessage.event;
@@ -625,6 +633,112 @@ export const subscribeToRelayerWebsocketFillEvents: ThunkCreator<Promise<void>> 
                                 [fill.pair]: [newFill],
                             }),
                         );
+                        // Compute market maker stats
+                        try {
+                            if (ethAccount && fill.makerAddress.toLowerCase() === ethAccount.toLowerCase()) {
+                                const statsIndex = marketMakerStats.findIndex(
+                                    m => m.account === ethAccount && m.market === fill.pair,
+                                );
+                                const known_tokens = getKnownTokens();
+                                const wethTokenAddress = known_tokens.getWethToken().address.toLowerCase();
+                                if (statsIndex !== -1) {
+                                    const stats = marketMakerStats[statsIndex];
+                                    const takerFeePaid =
+                                        fill.takerFeeAddress.toLowerCase() === wethTokenAddress
+                                            ? new BigNumber(fill.takerFeePaid)
+                                            : new BigNumber(0);
+                                    const makerFeePaid =
+                                        fill.makerFeeAddress.toLowerCase() === wethTokenAddress
+                                            ? new BigNumber(fill.makerFeePaid)
+                                            : new BigNumber(0);
+
+                                    stats.protocolFeesCollected = stats.protocolFeesCollected.plus(
+                                        fill.protocolFeePaid,
+                                    );
+                                    stats.totalWethFeesCollected = stats.totalWethFeesCollected.plus(
+                                        takerFeePaid.plus(makerFeePaid),
+                                    );
+                                    stats.totalOrders = stats.totalOrders.plus(1);
+                                    stats.endStats = new Date();
+                                    if (fill.type === 'BUY') {
+                                        stats.totalBuyOrders = stats.totalBuyOrders.plus(1);
+                                        stats.medianBuyPrice = stats.medianBuyPrice.plus(
+                                            new BigNumber(fill.price)
+                                                .minus(stats.medianBuyPrice)
+                                                .dividedBy(stats.totalBuyOrders),
+                                        );
+                                        stats.totalBuyBaseVolume = stats.totalBuyBaseVolume.plus(
+                                            fill.filledBaseTokenAmount,
+                                        );
+                                        stats.totalBuyQuoteVolume = stats.totalBuyBaseVolume.plus(
+                                            fill.filledQuoteTokenAmount,
+                                        );
+                                    } else {
+                                        stats.totalSellOrders = stats.totalBuyOrders.plus(1);
+                                        stats.medianSellPrice = stats.medianSellPrice.plus(
+                                            new BigNumber(fill.price)
+                                                .minus(stats.medianSellPrice)
+                                                .dividedBy(stats.totalSellOrders),
+                                        );
+                                        stats.totalSellBaseVolume = stats.totalSellBaseVolume.plus(
+                                            fill.filledBaseTokenAmount,
+                                        );
+                                        stats.totalSellQuoteVolume = stats.totalSellBaseVolume.plus(
+                                            fill.filledQuoteTokenAmount,
+                                        );
+                                    }
+                                    marketMakerStats[statsIndex] = stats;
+                                    dispatch(setMarketMakerStats(marketMakerStats));
+                                } else {
+                                    const takerFeePaid =
+                                        fill.takerFeeAddress.toLowerCase() === wethTokenAddress
+                                            ? new BigNumber(fill.takerFeePaid)
+                                            : new BigNumber(0);
+                                    const makerFeePaid =
+                                        fill.makerFeeAddress.toLowerCase() === wethTokenAddress
+                                            ? new BigNumber(fill.makerFeePaid)
+                                            : new BigNumber(0);
+
+                                    const newStats: MarketMakerStats = {
+                                        market: fill.pair,
+                                        account: ethAccount,
+                                        protocolFeesCollected: new BigNumber(fill.protocolFeePaid || 0),
+                                        totalWethFeesCollected: takerFeePaid.plus(makerFeePaid),
+                                        totalOrders: new BigNumber(1),
+                                        totalBuyOrders: fill.type === 'BUY' ? new BigNumber(1) : new BigNumber(0),
+                                        totalSellOrders: fill.type === 'SELL' ? new BigNumber(1) : new BigNumber(0),
+                                        medianBuyPrice:
+                                            fill.type === 'BUY' ? new BigNumber(fill.price) : new BigNumber(0),
+                                        medianSellPrice:
+                                            fill.type === 'SELL' ? new BigNumber(fill.price) : new BigNumber(0),
+                                        totalBuyBaseVolume:
+                                            fill.type === 'BUY'
+                                                ? new BigNumber(fill.filledBaseTokenAmount)
+                                                : new BigNumber(0),
+                                        totalBuyQuoteVolume:
+                                            fill.type === 'BUY'
+                                                ? new BigNumber(fill.filledQuoteTokenAmount)
+                                                : new BigNumber(0),
+                                        totalSellBaseVolume:
+                                            fill.type === 'SELL'
+                                                ? new BigNumber(fill.filledBaseTokenAmount)
+                                                : new BigNumber(0),
+                                        totalSellQuoteVolume:
+                                            fill.type === 'SELL'
+                                                ? new BigNumber(fill.filledQuoteTokenAmount)
+                                                : new BigNumber(0),
+                                        totalQuoteVolume: new BigNumber(fill.filledQuoteTokenAmount),
+                                        totalBaseVolume: new BigNumber(fill.filledBaseTokenAmount),
+                                        startingStats: new Date(),
+                                        endStats: new Date(),
+                                    };
+                                    marketMakerStats.push(newStats);
+                                    dispatch(setMarketMakerStats(marketMakerStats));
+                                }
+                            }
+                        } catch {
+                            logger.error('Market Maker stats error');
+                        }
                     }
                 }
             } catch (error) {

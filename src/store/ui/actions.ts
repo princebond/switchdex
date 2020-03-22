@@ -35,6 +35,7 @@ import {
     createSellCollectibleSteps,
     createSwapMarketSteps,
 } from '../../util/steps_modals_generation';
+import { getExpirationTimeFromSeconds, getExpirationTimeOrdersFromConfig } from '../../util/time_utils';
 import { tokenAmountInUnits, tokenAmountInUnitsToBigNumber } from '../../util/tokens';
 import {
     Collectible,
@@ -115,7 +116,19 @@ export const addUserFills = createAction('ui/FILLS_USER_add', resolve => {
     return (userFills: Fill[]) => resolve(userFills);
 });
 
+export const setOrderSecondsExpirationTime = createAction('ui/ORDER_SECONDS_EXPIRATION_TIME_set', resolve => {
+    return (orderSecondsExpirationTime: BigNumber | null) => resolve(orderSecondsExpirationTime);
+});
+
 export const setOrderPriceSelected = createAction('ui/ORDER_PRICE_SELECTED_set', resolve => {
+    return (orderPriceSelected: BigNumber) => resolve(orderPriceSelected);
+});
+
+export const setOrderBuyPriceSelected = createAction('ui/ORDER_BUY_PRICE_SELECTED_set', resolve => {
+    return (orderPriceSelected: BigNumber) => resolve(orderPriceSelected);
+});
+
+export const setOrderSellPriceSelected = createAction('ui/ORDER_SELL_PRICE_SELECTED_set', resolve => {
     return (orderPriceSelected: BigNumber) => resolve(orderPriceSelected);
 });
 
@@ -332,6 +345,50 @@ export const startBuySellLimitSteps: ThunkCreator = (
 
         dispatch(setStepsModalCurrentStep(buySellLimitFlow[0]));
         dispatch(setStepsModalPendingSteps(buySellLimitFlow.slice(1)));
+        dispatch(setStepsModalDoneSteps([]));
+    };
+};
+
+export const startMultipleBuySellLimitSteps: ThunkCreator = (
+    amountBuy: BigNumber,
+    priceBuy: BigNumber,
+    orderBuyFeeData: OrderFeeData,
+    amountSell: BigNumber,
+    priceSell: BigNumber,
+    orderSellFeeData: OrderFeeData,
+) => {
+    return async (dispatch, getState) => {
+        const state = getState();
+        const baseToken = selectors.getBaseToken(state) as Token;
+        const quoteToken = selectors.getQuoteToken(state) as Token;
+        const tokenBalances = selectors.getTokenBalances(state) as TokenBalance[];
+        const wethTokenBalance = selectors.getWethTokenBalance(state) as TokenBalance;
+
+        const buyLimitFlow: Step[] = createBuySellLimitSteps(
+            baseToken,
+            quoteToken,
+            tokenBalances,
+            wethTokenBalance,
+            amountBuy,
+            priceBuy,
+            OrderSide.Buy,
+            orderBuyFeeData,
+        );
+
+        const sellLimitFlow: Step[] = createBuySellLimitSteps(
+            baseToken,
+            quoteToken,
+            tokenBalances,
+            wethTokenBalance,
+            amountSell,
+            priceSell,
+            OrderSide.Sell,
+            orderSellFeeData,
+        );
+        buyLimitFlow.push(...sellLimitFlow);
+
+        dispatch(setStepsModalCurrentStep(buyLimitFlow[0]));
+        dispatch(setStepsModalPendingSteps(buyLimitFlow.slice(1)));
         dispatch(setStepsModalDoneSteps([]));
     };
 };
@@ -691,6 +748,10 @@ export const createSignedOrder: ThunkCreator = (amount: BigNumber, price: BigNum
         const ethAccount = selectors.getEthAccount(state);
         const baseToken = selectors.getBaseToken(state) as Token;
         const quoteToken = selectors.getQuoteToken(state) as Token;
+        const orderSecondsExpirationTime = selectors.getOrderSecondsExpirationTime(state);
+        const expirationTimeSeconds = orderSecondsExpirationTime
+            ? getExpirationTimeFromSeconds(orderSecondsExpirationTime)
+            : getExpirationTimeOrdersFromConfig();
         try {
             const web3Wrapper = await getWeb3Wrapper();
             const contractWrappers = await getContractWrappers();
@@ -705,6 +766,7 @@ export const createSignedOrder: ThunkCreator = (amount: BigNumber, price: BigNum
                     exchangeAddress: contractWrappers.exchange.address,
                 },
                 side,
+                expirationTimeSeconds,
             );
 
             const provider = new MetamaskSubprovider(web3Wrapper.getProvider());

@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React from 'react';
 import { ColorResult, MaterialPicker } from 'react-color';
 import { FieldRenderProps } from 'react-final-form';
 import styled from 'styled-components';

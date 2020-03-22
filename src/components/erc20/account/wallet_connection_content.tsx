@@ -6,6 +6,7 @@ import styled from 'styled-components';
 import {
     goToHomeLaunchpad,
     goToHomeMarginLend,
+    goToHomeMarketMaker,
     goToHomeMarketTrade,
     goToWallet,
     logoutWallet,
@@ -30,6 +31,7 @@ interface DispatchProps {
     onGoToHomeLaunchpad: () => any;
     onGoToHomeMarginLend: () => any;
     onGoToHomeMarketTrade: () => any;
+    onGoToHomeMarketMaker: () => any;
 }
 
 type Props = StateProps & OwnProps & DispatchProps;
@@ -48,6 +50,7 @@ class WalletConnectionContent extends React.PureComponent<Props> {
             onGoToHomeMarginLend,
             onGoToHomeMarketTrade,
             onGoToWallet,
+            onGoToHomeMarketMaker,
             ...restProps
         } = this.props;
         const ethAccountText = ethAccount ? `${truncateAddress(ethAccount)}` : 'Not connected';
@@ -76,6 +79,7 @@ class WalletConnectionContent extends React.PureComponent<Props> {
                 <DropdownTextItem onClick={connectToExplorer} text="Track DEX volume" />
                 <DropdownTextItem onClick={openFabrx} text="Set Alerts" />
                 <DropdownTextItem onClick={onGoToHomeLaunchpad} text="Launchpad" />
+                <DropdownTextItem onClick={onGoToHomeMarketMaker} text="Market Maker" />
                 {/* <DropdownTextItem onClick={onGoToHomeMarginLend} text="Lend" />*/}
                 <DropdownTextItem onClick={onLogoutWallet} text="Logout Wallet" />
             </DropdownItems>
@@ -104,6 +108,7 @@ const mapDispatchToProps = (dispatch: any): DispatchProps => {
         onGoToHomeLaunchpad: () => dispatch(goToHomeLaunchpad()),
         onGoToHomeMarginLend: () => dispatch(goToHomeMarginLend()),
         onGoToHomeMarketTrade: () => dispatch(goToHomeMarketTrade()),
+        onGoToHomeMarketMaker: () => dispatch(goToHomeMarketMaker()),
     };
 };
 

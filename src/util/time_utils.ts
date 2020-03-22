@@ -19,6 +19,10 @@ export const getExpirationTimeFromDate = (timestamp: number | string) => {
     return new BigNumber(Math.floor(new Date(timestamp).valueOf() / 1000));
 };
 
+export const getExpirationTimeFromSeconds = (seconds: BigNumber) => {
+    return new BigNumber(Math.floor(new Date().valueOf() / 1000) + seconds.toNumber());
+};
+
 export const todayInSeconds = () => {
     return Math.floor(Date.now() / 1000);
 };

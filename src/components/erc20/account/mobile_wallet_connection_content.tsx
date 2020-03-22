@@ -7,7 +7,6 @@ import styled from 'styled-components';
 import {
     goToHome,
     goToHomeLaunchpad,
-    goToHomeMarginLend,
     goToHomeMarketTrade,
     goToWallet,
     logoutWallet,
@@ -80,10 +79,10 @@ export const MobileWalletConnectionContent = () => {
         dispatch(openSideBar(false));
     };
 
-    const onGoToMarginLend = () => {
+    /*const onGoToMarginLend = () => {
         dispatch(goToHomeMarginLend());
         dispatch(openSideBar(false));
-    };
+    };*/
 
     const onGoToWallet = () => {
         dispatch(goToWallet());

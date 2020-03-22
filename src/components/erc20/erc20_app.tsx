@@ -3,7 +3,7 @@ import { useSelector } from 'react-redux';
 import { Route, Switch } from 'react-router';
 import { ThemeProvider } from 'styled-components';
 
-import { ERC20_APP_BASE_PATH } from '../../common/constants';
+import { ERC20_APP_BASE_PATH, MARKET_MAKER_APP_BASE_PATH } from '../../common/constants';
 import { AdBlockDetector } from '../../components/common/adblock_detector';
 import { GeneralLayoutContainer } from '../../components/general_layout';
 import { getERC20Theme } from '../../store/selectors';
@@ -21,6 +21,7 @@ const WizardPage = lazy(() => import('./pages/wizard'));
 const JoinAsMakerPage = lazy(() => import('./pages/join_as_maker'));
 const TokenListingPage = lazy(() => import('./pages/listing'));
 const UserWizardPage = lazy(() => import('./pages/user_wizard'));
+const MarketMakerPage = lazy(() => import('./pages/market_maker'));
 
 const Erc20App = () => {
     const themeColor = useSelector(getERC20Theme);
@@ -35,6 +36,7 @@ const Erc20App = () => {
                         <Route exact={true} path={`${ERC20_APP_BASE_PATH}/join-as-maker`} component={JoinAsMakerPage} />
                         <Route exact={true} path={`${ERC20_APP_BASE_PATH}/listed-tokens`} component={TokensListPage} />
                         <Route exact={true} path={`${ERC20_APP_BASE_PATH}/dex-wizard`} component={WizardPage} />
+                        <Route exact={true} path={MARKET_MAKER_APP_BASE_PATH} component={MarketMakerPage} />
                         <Route
                             exact={true}
                             path={`${ERC20_APP_BASE_PATH}/user-dex-wizard`}

@@ -123,6 +123,13 @@ export enum Web3State {
     Locked = 'Locked',
 }
 
+export enum ServerState {
+    Done = 'Done',
+    Error = 'Error',
+    Loading = 'Loading',
+    NotLoaded = 'NotLoaded',
+}
+
 export enum SwapQuoteState {
     Done = 'Done',
     Error = 'Error',
@@ -164,6 +171,7 @@ export interface RelayerState {
     readonly accountMarketStats?: AccountMarketStat[];
     readonly feeRecipient?: string;
     readonly feePercentage?: number;
+    readonly orderExpireTime?: number;
 }
 
 export interface SwapState {
@@ -184,6 +192,8 @@ export interface UIState {
     readonly stepsModal: StepsModalState;
     readonly startTour: boolean;
     readonly orderPriceSelected: BigNumber | null;
+    readonly orderBuyPriceSelected: BigNumber | null;
+    readonly orderSellPriceSelected: BigNumber | null;
     readonly makerAmountSelected: BigNumber | null;
     readonly sidebarOpen: boolean;
     readonly openFiatOnRampModal: boolean;
@@ -194,8 +204,9 @@ export interface UIState {
     readonly isDynamicLayout: boolean;
     readonly themeName: string;
     readonly generalConfig?: GeneralConfig;
-    readonly configData?: ConfigData | null;
     readonly userConfigData: UserConfigData | null;
+    readonly configData?: ConfigData | null;
+    readonly orderSecondsExpirationTime?: BigNumber | null;
 }
 
 export interface MarketState {
@@ -209,6 +220,7 @@ export interface MarketState {
     readonly marketStats: RelayerMarketStats | null;
     readonly makerAddresses: string[] | null;
     readonly marketsStats?: RelayerMarketStats[] | null;
+    readonly marketMakerStats: MarketMakerStats[];
 }
 
 export interface StoreState {
@@ -437,6 +449,30 @@ export interface Fill {
     market: string;
 }
 
+export interface UserMarketMakerStats {
+    [market: string]: MarketMakerStats;
+}
+
+export interface MarketMakerStats {
+    market: string;
+    account: string;
+    protocolFeesCollected: BigNumber;
+    totalWethFeesCollected: BigNumber;
+    totalOrders: BigNumber;
+    totalBuyOrders: BigNumber;
+    totalSellOrders: BigNumber;
+    medianBuyPrice: BigNumber;
+    medianSellPrice: BigNumber;
+    totalBuyQuoteVolume: BigNumber;
+    totalBuyBaseVolume: BigNumber;
+    totalSellQuoteVolume: BigNumber;
+    totalSellBaseVolume: BigNumber;
+    totalQuoteVolume: BigNumber;
+    totalBaseVolume: BigNumber;
+    startingStats: Date;
+    endStats: Date;
+}
+
 export interface RelayerFill {
     id: string;
     tradeId: number;
@@ -450,6 +486,9 @@ export interface RelayerFill {
     feeRecipientAddress: string;
     makerFee: string;
     takerFee: string;
+    makerFeeAddress: string;
+    takerFeeAddress: string;
+    protocolFeePaid: string;
     filledTokenBaseAmount: string;
     filledTokenQuoteAmount: string;
     price: string;
@@ -507,6 +546,9 @@ export interface OrderFilledMessage {
         feeRecipientAddress: string;
         makerFeePaid: string;
         takerFeePaid: string;
+        takerFeeAddress: string;
+        makerFeeAddress: string;
+        protocolFeePaid: string;
         filledBaseTokenAmount: string;
         filledQuoteTokenAmount: string;
         orderHash: string;

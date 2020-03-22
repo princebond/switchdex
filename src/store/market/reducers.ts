@@ -39,6 +39,7 @@ const initialMarketState: MarketState = {
     marketStats: null,
     makerAddresses: getMakerAddresses(),
     marketsStats: [],
+    marketMakerStats: [],
 };
 
 export function market(state: MarketState = initialMarketState, action: RootAction): MarketState {
@@ -51,6 +52,8 @@ export function market(state: MarketState = initialMarketState, action: RootActi
             return { ...state, markets: action.payload };
         case getType(actions.setMarketsStats):
             return { ...state, marketsStats: action.payload };
+        case getType(actions.setMarketMakerStats):
+            return { ...state, marketMakerStats: action.payload };
         case getType(actions.fetchMarketPriceEtherUpdate):
             return { ...state, ethInUsd: action.payload };
         case getType(actions.fetchMarketPriceEtherStart):

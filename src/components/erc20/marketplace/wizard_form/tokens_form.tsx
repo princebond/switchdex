@@ -1,9 +1,10 @@
 import React, { useState } from 'react';
-import { FieldArray, useFieldArray } from 'react-final-form-arrays';
+import { FieldArray, FieldArrayRenderProps, useFieldArray } from 'react-final-form-arrays';
 import { Field } from 'react-final-form-html5-validation';
 import { OnChange } from 'react-final-form-listeners';
 import styled from 'styled-components';
 
+import { getAvailableMarkets } from '../../../../common/markets';
 import { getERC20ContractWrapper } from '../../../../services/contract_wrappers';
 import { getTokenByAddress } from '../../../../services/tokens';
 import { themeDimensions } from '../../../../themes/commons';
@@ -34,6 +35,17 @@ const StyledToken = styled.div`
     border-radius: ${themeDimensions.borderRadius};
     border: 1px solid ${props => props.theme.componentsTheme.cardBorderColor};
 `;
+
+/*const CheckBoxQuoteColumn = styled.div`
+    display: flex;
+    flex-direction: column;
+    margin: 10px;
+`;
+
+const CheckBoxQuoteContainer = styled.div`
+    display: flex;
+    flex-direction: row;
+`;*/
 
 const StyledFieldContainer = styled(FieldContainer)`
     display: flex;
@@ -96,6 +108,44 @@ export const TokensForm = ({
         </>
     );
 };
+
+/*const QuoteCheckboxs = (baseSymbol: string, marketFilters: any[], pairsArray: FieldArrayRenderProps<any, any>) => {
+    const availableMarkets = getAvailableMarkets();
+    return marketFilters.map((m: { text: string; value: string }, i) => {
+        const value = availableMarkets.findIndex(a => a.base.toLowerCase() === baseSymbol.toLowerCase() && a.quote.toLowerCase() === m.value.toLowerCase()) !== -1;
+        const onClickQuote = () => {
+            const { fields } = pairsArray;
+            if (value) {
+                const index = fields.value.findIndex(a => a.base.toLowerCase() === baseSymbol.toLowerCase() && a.quote.toLowerCase() === m.value.toLowerCase());
+                if (index !== -1) {
+                    fields.remove(index);
+                }
+            } else {
+                fields.unshift({
+                    base: baseSymbol.toLowerCase(),
+                    quote: m.value.toLowerCase(),
+                    config: {
+                        basePrecision: 2,
+                        pricePrecision: 8,
+                        minAmount: 1,
+                    },
+                });
+            }
+        };
+        return <CheckBoxQuoteColumn key={i}>
+            <LabelContainer>
+                <Label>{m.text}</Label>
+            </LabelContainer>
+            <FieldContainer >
+                <input
+                    type={'checkbox'}
+                    checked={value}
+                    onClick={onClickQuote}
+                />
+            </FieldContainer>
+        </CheckBoxQuoteColumn>;
+    });
+};*/
 
 const TokenForm = ({ name, index }: { name: string; index: number }) => {
     const [isEdit, setIsEdit] = useState(false);
@@ -245,6 +295,9 @@ const TokenForm = ({ name, index }: { name: string; index: number }) => {
                 <FieldContainer>
                     <Field name={`${name}.c_id`} type={'hidden'} component={StyledInput} placeholder={`Coingecko id`} />
                 </FieldContainer>
+                {/*<CheckBoxQuoteContainer>
+                    QuoteCheckboxs(value.symbol, marketFilters, pairsArray)
+                </CheckBoxQuoteContainer>*/}
             </>
         );
     } else {

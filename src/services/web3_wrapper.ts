@@ -290,3 +290,7 @@ export const getWeb3Wrapper = async (): Promise<Web3Wrapper> => {
 export const deleteWeb3Wrapper = (): void => {
     web3Wrapper = null;
 };
+
+export const isWeb3Wrapper = (): Web3Wrapper | null => {
+    return web3Wrapper;
+};

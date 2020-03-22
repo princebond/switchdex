@@ -4,7 +4,7 @@ import React from 'react';
 import { connect } from 'react-redux';
 import styled from 'styled-components';
 
-import { addAvailableMarket } from '../../../common/markets';
+import { addWethAvailableMarket } from '../../../common/markets';
 import { fetchBaseTokenIEO, initWallet, setCurrencyPair, startBuySellLimitIEOSteps } from '../../../store/actions';
 import { fetchTakerAndMakerFeeIEO } from '../../../store/relayer/actions';
 import {
@@ -232,7 +232,7 @@ class IEOOrder extends React.Component<Props, State> {
                 token = await known_tokens.addTokenByAddress(tokenName, makerAddress);
                 if (token) {
                     await this.props.onFetchBaseTokenIEO(token);
-                    const market = addAvailableMarket(token);
+                    const market = addWethAvailableMarket(token);
                     if (market) {
                         this.props.onAddCurrencyPair(market);
                     }
@@ -288,7 +288,7 @@ class IEOOrder extends React.Component<Props, State> {
 
                     if (token) {
                         await this.props.onFetchBaseTokenIEO(token);
-                        const market = addAvailableMarket(token);
+                        const market = addWethAvailableMarket(token);
                         if (market) {
                             this.props.onAddCurrencyPair(market);
                         }

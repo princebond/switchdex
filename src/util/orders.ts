@@ -89,7 +89,7 @@ export const buildSellCollectibleOrder = async (params: BuildSellCollectibleOrde
 export const buildLimitOrder = async (
     params: BuildLimitOrderParams,
     side: OrderSide,
-    timestamp?: number | string,
+    expirationTimeSeconds: BigNumber,
 ): Promise<Order> => {
     const { account, baseTokenAddress, exchangeAddress, amount, price, quoteTokenAddress } = params;
 
@@ -117,9 +117,9 @@ export const buildLimitOrder = async (
         takerAssetAmount: isBuy ? amount : quoteTokenAmountInBaseUnits,
         makerAddress: account,
         takerAddress: ZERO_ADDRESS,
-        expirationTimeSeconds: timestamp ? getExpirationTimeFromDate(timestamp) : getExpirationTimeOrdersFromConfig(),
+        expirationTimeSeconds,
     };
-
+    // timestamp ? getExpirationTimeFromDate(timestamp) : getExpirationTimeOrdersFromConfig(),
     return orderHelper.getOrderWithTakerAndFeeConfigFromRelayer(orderConfigRequest);
 };
 
@@ -174,6 +174,7 @@ export const getOrderWithTakerAndFeeConfigFromRelayer = async (
     orderConfigRequest: OrderConfigRequest,
     isCollectible?: boolean,
 ) => {
+    const round = (num: BigNumber): BigNumber => num.integerValue(BigNumber.ROUND_FLOOR);
     let orderResult: OrderConfigResponse;
     if (USE_RELAYER_ORDER_CONFIG) {
         const client = getRelayer();
@@ -206,11 +207,11 @@ export const getOrderWithTakerAndFeeConfigFromRelayer = async (
                         ? wethAssetData
                         : NULL_BYTES,
                     makerFee: isWethTaker
-                        ? orderConfigRequest.makerAssetAmount.multipliedBy(new BigNumber(MAKER_FEE_PERCENTAGE))
-                        : orderConfigRequest.takerAssetAmount.multipliedBy(new BigNumber(MAKER_FEE_PERCENTAGE)),
+                        ? round(orderConfigRequest.makerAssetAmount.multipliedBy(new BigNumber(MAKER_FEE_PERCENTAGE)))
+                        : round(orderConfigRequest.takerAssetAmount.multipliedBy(new BigNumber(MAKER_FEE_PERCENTAGE))),
                     takerFee: isWethTaker
-                        ? orderConfigRequest.takerAssetAmount.multipliedBy(new BigNumber(TAKER_FEE_PERCENTAGE))
-                        : orderConfigRequest.makerAssetAmount.multipliedBy(new BigNumber(TAKER_FEE_PERCENTAGE)),
+                        ? round(orderConfigRequest.takerAssetAmount.multipliedBy(new BigNumber(TAKER_FEE_PERCENTAGE)))
+                        : round(orderConfigRequest.makerAssetAmount.multipliedBy(new BigNumber(TAKER_FEE_PERCENTAGE))),
                 };
             } else {
                 orderResult = {
@@ -222,8 +223,12 @@ export const getOrderWithTakerAndFeeConfigFromRelayer = async (
                     takerFeeAssetData: new BigNumber(TAKER_FEE_PERCENTAGE).isGreaterThan('0')
                         ? orderConfigRequest.makerAssetData
                         : NULL_BYTES,
-                    makerFee: orderConfigRequest.takerAssetAmount.multipliedBy(new BigNumber(MAKER_FEE_PERCENTAGE)),
-                    takerFee: orderConfigRequest.makerAssetAmount.multipliedBy(new BigNumber(TAKER_FEE_PERCENTAGE)),
+                    makerFee: round(
+                        orderConfigRequest.takerAssetAmount.multipliedBy(new BigNumber(MAKER_FEE_PERCENTAGE)),
+                    ),
+                    takerFee: round(
+                        orderConfigRequest.makerAssetAmount.multipliedBy(new BigNumber(TAKER_FEE_PERCENTAGE)),
+                    ),
                 };
             }
         }

@@ -3,7 +3,12 @@ import { push } from 'connected-react-router';
 import queryString from 'query-string';
 import { createAction } from 'typesafe-actions';
 
-import { ERC20_APP_BASE_PATH, USE_ORDERBOOK_PRICES, USE_RELAYER_MARKET_UPDATES } from '../../common/constants';
+import {
+    ERC20_APP_BASE_PATH,
+    MARKET_MAKER_APP_BASE_PATH,
+    USE_ORDERBOOK_PRICES,
+    USE_RELAYER_MARKET_UPDATES,
+} from '../../common/constants';
 import { getAvailableMarkets } from '../../common/markets';
 import { getMarketPriceEther, getMarketPriceQuote, getMarketPriceTokens } from '../../services/markets';
 import { getAllMarketsStatsFromRelayer, getMarketStatsFromRelayer, getRelayer } from '../../services/relayer';
@@ -13,6 +18,7 @@ import { marketToString } from '../../util/markets';
 import {
     CurrencyPair,
     Market,
+    MarketMakerStats,
     MARKETPLACES,
     RelayerMarketStats,
     StoreState,
@@ -22,7 +28,7 @@ import {
     TokenPrice,
 } from '../../util/types';
 import { fetchPastMarketFills, getOrderbookAndUserOrders, updateBZXStore } from '../actions';
-import { getCurrencyPair, getCurrentMarketPlace, getWethTokenBalance } from '../selectors';
+import { getCurrencyPair, getCurrentMarketPlace, getCurrentRoutePath, getWethTokenBalance } from '../selectors';
 
 const logger = getLogger('Market::Actions');
 
@@ -44,6 +50,10 @@ export const setMarketStats = createAction('market/MARKET_STATS_set', resolve =>
 
 export const setMarketsStats = createAction('market/MARKETS_STATS_set', resolve => {
     return (marketStats: RelayerMarketStats[] | null) => resolve(marketStats);
+});
+
+export const setMarketMakerStats = createAction('market/MARKET_MAKER_STATS_set', resolve => {
+    return (marketMakerStats: MarketMakerStats[]) => resolve(marketMakerStats);
 });
 
 // Market Price Ether Actions
@@ -92,6 +102,7 @@ export const changeMarket: ThunkCreator = (currencyPair: CurrencyPair) => {
         const state = getState() as StoreState;
         const oldQuoteToken = state.market.quoteToken;
         const knownTokens = getKnownTokens();
+        const currentRoute = getCurrentRoutePath(state);
         try {
             const newQuoteToken = knownTokens.getTokenBySymbol(currencyPair.quote);
             dispatch(
@@ -128,14 +139,23 @@ export const changeMarket: ThunkCreator = (currencyPair: CurrencyPair) => {
             base: currencyPair.base,
             quote: currencyPair.quote,
         });
-
-        dispatch(
-            push({
-                ...state.router.location,
-                pathname: `${ERC20_APP_BASE_PATH}/`,
-                search: newSearch,
-            }),
-        );
+        if (currentRoute.includes(MARKET_MAKER_APP_BASE_PATH)) {
+            dispatch(
+                push({
+                    ...state.router.location,
+                    pathname: MARKET_MAKER_APP_BASE_PATH,
+                    search: newSearch,
+                }),
+            );
+        } else {
+            dispatch(
+                push({
+                    ...state.router.location,
+                    pathname: `${ERC20_APP_BASE_PATH}/`,
+                    search: newSearch,
+                }),
+            );
+        }
     };
 };
 

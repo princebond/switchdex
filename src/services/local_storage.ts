@@ -248,9 +248,11 @@ export class LocalStorage {
             this._storage.setItem(themeNameKey, JSON.stringify(themeName));
         }
     }
-    public saveUserConfigData(userConfigData?: UserConfigData): void {
+    public saveUserConfigData(userConfigData?: UserConfigData | null): void {
         if (userConfigData) {
             this._storage.setItem(userConfigDataKey, JSON.stringify(userConfigData));
+        } else {
+            this._storage.removeItem(userConfigDataKey);
         }
     }
 }

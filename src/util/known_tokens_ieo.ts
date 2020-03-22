@@ -5,6 +5,7 @@ import { AssetProxyId } from '@0x/types';
 import { ConfigIEO } from '../common/config';
 import { KNOWN_TOKENS_META_DATA } from '../common/tokens_meta_data';
 import { KNOWN_TOKENS_IEO_META_DATA, TokenIEOMetaData } from '../common/tokens_meta_data_ieo';
+import { isWeb3Wrapper } from '../services/web3_wrapper';
 
 import { getKnownTokens, getTokenMetadaDataFromContract, getTokenMetadaDataFromServer } from './known_tokens';
 import { getLogger } from './logger';
@@ -119,7 +120,12 @@ export class KnownTokensIEO {
         }
         let token;
         try {
-            token = await getTokenMetadaDataFromContract(address);
+            // Note: We need to check if web3 is enabled because it will be awaiting
+            if (isWeb3Wrapper()) {
+                token = await getTokenMetadaDataFromContract(address);
+            } else {
+                token = await getTokenMetadaDataFromServer(address);
+            }
         } catch {
             token = await getTokenMetadaDataFromServer(address);
         }

@@ -10,6 +10,7 @@ export const LAUNCHPAD_APP_BASE_PATH = '/launchpad';
 export const MARGIN_APP_BASE_PATH = '/margin';
 export const INSTANT_APP_BASE_PATH = '/instant';
 export const FIAT_RAMP_APP_BASE_PATH = '/fiat-onramp';
+export const MARKET_MAKER_APP_BASE_PATH = `${ERC20_APP_BASE_PATH}/market-maker`;
 
 export const USE_RELAYER_MARKET_UPDATES = process.env.REACT_APP_USE_RELAYER_MARKET_UPDATES === 'true' ? true : false;
 
@@ -180,15 +181,48 @@ export const ONE_SECOND_MS = 1000;
 
 export const QUOTE_ORDER_EXPIRATION_BUFFER_MS = ONE_SECOND_MS * 30; // Ignore orders that expire in 30 seconds
 
+const EXCLUDED_SOURCES = (() => {
+    switch (CHAIN_ID) {
+        case ChainId.Mainnet:
+            return [];
+        case ChainId.Kovan:
+            return [ERC20BridgeSource.Kyber];
+        default:
+            return [ERC20BridgeSource.Eth2Dai, ERC20BridgeSource.Kyber, ERC20BridgeSource.Uniswap];
+    }
+})();
+
+/*const gasSchedule: { [key in ERC20BridgeSource]: number } = {
+    [ERC20BridgeSource.Native]: 1.5e5,
+    [ERC20BridgeSource.Uniswap]: 3e5,
+   // [ERC20BridgeSource.LiquidityProvider]: 3e5,
+    [ERC20BridgeSource.Eth2Dai]: 5.5e5,
+    [ERC20BridgeSource.Kyber]: 8e5,
+    [ERC20BridgeSource.CurveUsdcDai]: 9e5,
+    [ERC20BridgeSource.CurveUsdcDaiUsdt]: 9e5,
+    [ERC20BridgeSource.CurveUsdcDaiUsdtTusd]: 10e5,
+    [ERC20BridgeSource.CurveUsdcDaiUsdtBusd]: 10e5,
+};*/
+
+/*const feeSchedule: { [key in ERC20BridgeSource]: BigNumber } = Object.assign(
+    {},
+    ...(Object.keys(gasSchedule) as ERC20BridgeSource[]).map(k => ({
+        [k]: new BigNumber(gasSchedule[k] + 1.5e5),
+    })),
+);*/
+
+const DEFAULT_QUOTE_SLIPPAGE_PERCENTAGE = 0.03; // 3% Slippage
+// const DEFAULT_FALLBACK_SLIPPAGE_PERCENTAGE = 0.015; // 1.5% Slippage in a fallback route
+
 export const ASSET_SWAPPER_MARKET_ORDERS_OPTS: Partial<SwapQuoteRequestOpts> = {
     noConflicts: true,
-    excludedSources:
-        CHAIN_ID === ChainId.Mainnet
-            ? []
-            : [ERC20BridgeSource.Eth2Dai, ERC20BridgeSource.Kyber, ERC20BridgeSource.Uniswap],
-    numSamples: 10,
-    runLimit: 4096,
-    bridgeSlippage: 0.0005,
-    dustFractionThreshold: 0.0025,
+    excludedSources: EXCLUDED_SOURCES,
+    bridgeSlippage: DEFAULT_QUOTE_SLIPPAGE_PERCENTAGE,
+    // maxFallbackSlippage: DEFAULT_FALLBACK_SLIPPAGE_PERCENTAGE,
+    numSamples: 13,
     sampleDistributionBase: 1.05,
+    runLimit: 4096,
+    dustFractionThreshold: 0.0025,
+    // feeSchedule,
+    // gasSchedule,
 };

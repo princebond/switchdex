@@ -9,7 +9,7 @@ import { fetchTakerAndMakerFee } from '../../../store/relayer/actions';
 import { getOpenBuyOrders, getOpenSellOrders, getQuoteInUsd } from '../../../store/selectors';
 import { getKnownTokens } from '../../../util/known_tokens';
 import { buildMarketOrders, sumTakerAssetFillableOrders } from '../../../util/orders';
-import { formatTokenSymbol, tokenAmountInUnits } from '../../../util/tokens';
+import { formatTokenSymbol, tokenAmountInUnits, unitsInTokenAmount } from '../../../util/tokens';
 import { CurrencyPair, OrderFeeData, OrderSide, OrderType, StoreState, UIOrder } from '../../../util/types';
 
 const Row = styled.div`
@@ -164,10 +164,7 @@ class OrderDetails extends React.Component<Props, State> {
             const quoteToken = getKnownTokens().getTokenBySymbol(quote);
             const baseToken = getKnownTokens().getTokenBySymbol(base);
             // TODO: Check if this precision is enough, price was giving error on precision
-            const priceInQuoteBaseUnits = Web3Wrapper.toBaseUnitAmount(
-                new BigNumber(tokenPrice.toFixed(18)),
-                quoteToken.decimals,
-            );
+            const priceInQuoteBaseUnits = unitsInTokenAmount(tokenPrice.toString(), quoteToken.decimals);
             const baseTokenAmountInUnits = Web3Wrapper.toUnitAmount(tokenAmount, baseToken.decimals);
             const quoteTokenAmount = baseTokenAmountInUnits.multipliedBy(priceInQuoteBaseUnits);
             const { makerFee, makerFeeAssetData, takerFee, takerFeeAssetData } = await onFetchTakerAndMakerFee(
