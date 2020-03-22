@@ -14,7 +14,12 @@ import {
     getUserOrders,
     getWeb3State,
 } from '../../../store/selectors';
-import { setMakerAmountSelected, setOrderPriceSelected } from '../../../store/ui/actions';
+import {
+    setMakerAmountSelected,
+    setOrderBuyPriceSelected,
+    setOrderPriceSelected,
+    setOrderSellPriceSelected,
+} from '../../../store/ui/actions';
 import { Theme, themeBreakPoints } from '../../../themes/commons';
 import { formatTokenSymbol, tokenAmountInUnits } from '../../../util/tokens';
 import {
@@ -58,6 +63,7 @@ interface StateProps {
 
 interface OwnProps {
     theme: Theme;
+    defaultDepth?: number;
 }
 
 type Props = OwnProps & StateProps;
@@ -214,6 +220,8 @@ interface OrderToRowPropsOwn {
 
 interface OrderToRowDispatchProps {
     onSetOrderPriceSelected: (orderPriceSelected: BigNumber) => Promise<any>;
+    onSetOrderBuyPriceSelected: (orderPriceSelected: BigNumber) => Promise<any>;
+    onSetOrderSellPriceSelected: (orderPriceSelected: BigNumber) => Promise<any>;
     onSetMakerAmountSelected: (makerAmountSelected: BigNumber) => Promise<any>;
 }
 
@@ -306,6 +314,11 @@ class OrderToRow extends React.Component<OrderToRowProps> {
                 return sumSize;
             }, ZERO);
         }
+        if (order.side === OrderSide.Buy) {
+            await this.props.onSetOrderBuyPriceSelected(size);
+        } else {
+            await this.props.onSetOrderSellPriceSelected(size);
+        }
 
         await this.props.onSetOrderPriceSelected(size);
         await this.props.onSetMakerAmountSelected(totalSize);
@@ -315,6 +328,10 @@ class OrderToRow extends React.Component<OrderToRowProps> {
 const mapOrderToRowDispatchToProps = (dispatch: any): OrderToRowDispatchProps => {
     return {
         onSetOrderPriceSelected: (orderPriceSelected: BigNumber) => dispatch(setOrderPriceSelected(orderPriceSelected)),
+        onSetOrderBuyPriceSelected: (orderPriceSelected: BigNumber) =>
+            dispatch(setOrderBuyPriceSelected(orderPriceSelected)),
+        onSetOrderSellPriceSelected: (orderPriceSelected: BigNumber) =>
+            dispatch(setOrderSellPriceSelected(orderPriceSelected)),
         onSetMakerAmountSelected: (makerAmountSelected: BigNumber) =>
             dispatch(setMakerAmountSelected(makerAmountSelected)),
     };
@@ -334,7 +351,7 @@ interface StateOrderBook {
 }
 class OrderBookTable extends React.Component<Props, StateOrderBook> {
     public state = {
-        depth: { value: 5 },
+        depth: { value: this.props.defaultDepth || 5 },
         bookOption: BookOptionType.BuySellBook,
     };
 

@@ -42,6 +42,7 @@ const wethToken: Token = {
     maxAmount: undefined,
     precision: 8,
     id: 'ethereum',
+    listed: true,
 };
 const zrxToken: Token = {
     address: dummyTokensMetaData[1].addresses[NETWORK_ID],
@@ -55,6 +56,7 @@ const zrxToken: Token = {
     maxAmount: undefined,
     minAmount: 0,
     precision: 2,
+    listed: true,
 };
 
 const fillEvent1 = {

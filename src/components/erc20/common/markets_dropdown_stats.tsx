@@ -3,9 +3,16 @@ import React, { HTMLAttributes } from 'react';
 import { connect } from 'react-redux';
 import styled from 'styled-components';
 
+import { MARKET_MAKER_APP_BASE_PATH } from '../../../common/constants';
 import { marketFilters } from '../../../common/markets';
 import { changeMarket, goToHome } from '../../../store/actions';
-import { getBaseToken, getCurrencyPair, getMarkets, getMarketsStats } from '../../../store/selectors';
+import {
+    getBaseToken,
+    getCurrencyPair,
+    getCurrentRoutePath,
+    getMarkets,
+    getMarketsStats,
+} from '../../../store/selectors';
 import { themeBreakPoints, themeDimensions } from '../../../themes/commons';
 import { getKnownTokens } from '../../../util/known_tokens';
 import { filterMarketsByString, filterMarketsByTokenSymbol, marketToString } from '../../../util/markets';
@@ -32,6 +39,7 @@ interface PropsToken {
     currencyPair: CurrencyPair;
     markets: Market[] | null;
     marketsStats: RelayerMarketStats[] | null | undefined;
+    currentRoute: string;
 }
 interface OwnProps {
     windowWidth: number;
@@ -430,7 +438,11 @@ class MarketsDropdownStats extends React.Component<Props, State> {
 
     private readonly _setSelectedMarket: any = (currencyPair: CurrencyPair) => {
         this.props.changeMarket(currencyPair);
-        this.props.goToHome();
+
+        if (!this.props.currentRoute.includes(MARKET_MAKER_APP_BASE_PATH)) {
+            this.props.goToHome();
+        }
+
         if (this._dropdown.current) {
             this._dropdown.current.closeDropdown();
         }
@@ -451,6 +463,7 @@ const mapStateToProps = (state: StoreState): PropsToken => {
         currencyPair: getCurrencyPair(state),
         markets: getMarkets(state),
         marketsStats: getMarketsStats(state),
+        currentRoute: getCurrentRoutePath(state),
     };
 };
 

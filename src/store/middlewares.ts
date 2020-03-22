@@ -171,9 +171,9 @@ export const localStorageMiddleware: Middleware = ({ getState }: MiddlewareAPI) 
         case getType(actions.setUserConfigData): {
             const state = getState();
             const config = getUserConfigData(state);
-            if (config) {
-                localStorage.saveUserConfigData(config);
-            }
+            // Note: If null it will remove
+            localStorage.saveUserConfigData(config);
+
             break;
         }
 

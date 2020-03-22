@@ -27,6 +27,7 @@ import {
     CurrencyPair,
     Fill,
     MarketFill,
+    MarketMakerStats,
     MARKETPLACES,
     OrderBook,
     OrderSide,
@@ -53,7 +54,10 @@ export const getWethBalance = (state: StoreState) =>
     state.blockchain.wethTokenBalance ? state.blockchain.wethTokenBalance.balance : ZERO;
 export const getOrders = (state: StoreState) => state.relayer.orders;
 export const getUserOrders = (state: StoreState) => state.relayer.userOrders;
+export const getOrderSecondsExpirationTime = (state: StoreState) => state.ui.orderSecondsExpirationTime;
 export const getOrderPriceSelected = (state: StoreState) => state.ui.orderPriceSelected;
+export const getOrderBuyPriceSelected = (state: StoreState) => state.ui.orderBuyPriceSelected;
+export const getOrderSellPriceSelected = (state: StoreState) => state.ui.orderSellPriceSelected;
 export const getMakerAmountSelected = (state: StoreState) => state.ui.makerAmountSelected;
 export const getNotifications = (state: StoreState) => state.ui.notifications;
 export const getFills = (state: StoreState) => state.ui.fills;
@@ -99,6 +103,7 @@ export const getERC20Layout = (state: StoreState) => state.ui.erc20Layout;
 export const getDynamicLayout = (state: StoreState) => state.ui.isDynamicLayout;
 export const getMarketStats = (state: StoreState) => state.market.marketStats;
 export const getMarketsStats = (state: StoreState) => state.market.marketsStats;
+export const getMarketMakerStats = (state: StoreState) => state.market.marketMakerStats;
 export const getFeeRecipient = (state: StoreState) => state.relayer.feeRecipient;
 export const getFeePercentage = (state: StoreState) => state.relayer.feePercentage;
 export const getSwapQuoteToken = (state: StoreState) => state.swap.quoteToken;
@@ -217,6 +222,14 @@ export const getTotalEthBalance = createSelector(
     getEthBalance,
     getWethBalance,
     (ethBalance: BigNumber, wethTokenBalance: BigNumber) => ethBalance.plus(wethTokenBalance),
+);
+
+export const getCurrentMarketMakerStats = createSelector(
+    getMarketMakerStats,
+    getEthAccount,
+    getCurrencyPair,
+    (marketStats: MarketMakerStats[], ethAccount: string, currencyPair: CurrencyPair) =>
+        marketStats.find(m => m.account.toLowerCase() === ethAccount && m.market === marketToString(currencyPair)),
 );
 
 export const getBaseTokenBalance = createSelector(

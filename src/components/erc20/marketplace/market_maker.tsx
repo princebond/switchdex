@@ -6,29 +6,50 @@ import { useLocation } from 'react-router';
 import styled from 'styled-components';
 
 import { ZERO } from '../../../common/constants';
-import { calculateSwapQuote, setSwapBaseToken, startSwapMarketSteps } from '../../../store/actions';
+import { getAssetSwapper } from '../../../services/swap';
 import {
+    fetchTakerAndMakerFee,
+    setMarketTokens,
+    setOrderSecondsExpirationTime,
+    startBuySellLimitSteps,
+    startMultipleBuySellLimitSteps,
+} from '../../../store/actions';
+import {
+    getBaseToken,
+    getBaseTokenBalance,
     getCurrencyPair,
+    getOrderBuyPriceSelected,
     getOrderPriceSelected,
-    getSwapBaseToken,
-    getSwapBaseTokenBalance,
-    getSwapQuote,
-    getSwapQuoteState,
-    getSwapQuoteToken,
-    getSwapQuoteTokenBalance,
+    getOrderSellPriceSelected,
+    getQuoteToken,
+    getQuoteTokenBalance,
     getTotalEthBalance,
     getWeb3State,
 } from '../../../store/selectors';
 import { themeDimensions } from '../../../themes/commons';
 import { getKnownTokens, isWeth } from '../../../util/known_tokens';
-import { formatTokenSymbol, tokenAmountInUnits, unitsInTokenAmount } from '../../../util/tokens';
+import {
+    computeOrderSizeFromInventoryBalance,
+    computePriceFromQuote,
+    computeSpreadPercentage,
+    getPricesFromSpread,
+} from '../../../util/market_maker';
+import { getExpirationTimeFromSeconds } from '../../../util/time_utils';
+import {
+    formatTokenSymbol,
+    tokenAmountInUnits,
+    tokenAmountInUnitsToBigNumber,
+    unitsInTokenAmount,
+} from '../../../util/tokens';
 import {
     ButtonIcons,
     ButtonVariant,
     CurrencyPair,
+    OrderFeeData,
     OrderSide,
     StoreState,
     SwapQuoteState,
+    Token,
     TokenBalance,
     Web3State,
 } from '../../../util/types';
@@ -38,10 +59,10 @@ import { Button } from '../../common/button';
 import { CardBase } from '../../common/card_base';
 import { ErrorCard, FontSize } from '../../common/error_card';
 import { useDebounce } from '../../common/hooks/debounce_hook';
+import { Tooltip } from '../../common/tooltip';
 import { Web3StateButton } from '../../common/web3StateButton';
 
-import { MarketTradeDetailsContainer } from './market_trade_details';
-import { getAssetSwapper } from '../../../services/swap';
+import { MarketMakerDetailsContainer } from './market_maker_details';
 
 interface StateProps {
     web3State: Web3State;
@@ -53,11 +74,22 @@ interface StateProps {
 }
 
 interface DispatchProps {
-    onSubmitSwapMarketOrder: (
+    onSubmitLimitOrder: (
         amount: BigNumber,
+        price: BigNumber,
         side: OrderSide,
-        quote: MarketBuySwapQuote | MarketSellSwapQuote,
+        orderFeeData: OrderFeeData,
     ) => Promise<any>;
+    onSubmitMultipleLimitOrders: (
+        amountBuy: BigNumber,
+        priceBuy: BigNumber,
+        orderBuyFeeData: OrderFeeData,
+        amountSell: BigNumber,
+        priceSell: BigNumber,
+        orderSellFeeData: OrderFeeData,
+    ) => Promise<any>;
+    onFetchTakerAndMakerFee: (amount: BigNumber, price: BigNumber, side: OrderSide) => Promise<OrderFeeData>;
+    onSetOrderSecondsExpirationTime: (seconds: BigNumber | null) => Promise<any>;
 }
 
 type Props = StateProps & DispatchProps;
@@ -71,54 +103,17 @@ const Content = styled.div`
     flex-direction: column;
     padding: 20px;
 `;
-
-const TabsContainer = styled.div`
+const ButtonsContainer = styled.div`
     align-items: center;
     display: flex;
-    justify-content: space-between;
-`;
-
-const TabButton = styled.div<{ isSelected: boolean; side: OrderSide }>`
-    align-items: center;
-    background-color: ${props =>
-        props.isSelected ? 'transparent' : props.theme.componentsTheme.inactiveTabBackgroundColor};
-    border-bottom-color: ${props => (props.isSelected ? 'transparent' : props.theme.componentsTheme.cardBorderColor)};
-    border-bottom-style: solid;
-    border-bottom-width: 1px;
-    border-right-color: ${props => (props.isSelected ? props.theme.componentsTheme.cardBorderColor : 'transparent')};
-    border-right-style: solid;
-    border-right-width: 1px;
-    color: ${props =>
-        props.isSelected
-            ? props.side === OrderSide.Buy
-                ? props.theme.componentsTheme.green
-                : props.theme.componentsTheme.red
-            : props.theme.componentsTheme.textLight};
-    cursor: ${props => (props.isSelected ? 'default' : 'pointer')};
-    display: flex;
-    font-weight: 600;
-    height: 47px;
-    justify-content: center;
-    width: 50%;
-
-    &:first-child {
-        border-top-left-radius: ${themeDimensions.borderRadius};
-    }
-
-    &:last-child {
-        border-left-color: ${props => (props.isSelected ? props.theme.componentsTheme.cardBorderColor : 'transparent')};
-        border-left-style: solid;
-        border-left-width: 1px;
-        border-right: none;
-        border-top-right-radius: ${themeDimensions.borderRadius};
-    }
+    justify-content: space-around;
 `;
 
 const LabelContainer = styled.div`
     align-items: flex-end;
     display: flex;
     justify-content: space-between;
-    margin-bottom: 10px;
+    margin-bottom: 5px;
 `;
 
 const LabelAvailableContainer = styled.div`
@@ -130,7 +125,7 @@ const LabelAvailableContainer = styled.div`
 
 const Label = styled.label<{ color?: string }>`
     color: ${props => props.color || props.theme.componentsTheme.textColorCommon};
-    font-size: 14px;
+    font-size: 13px;
     font-weight: 500;
     line-height: normal;
     margin: 0;
@@ -138,7 +133,7 @@ const Label = styled.label<{ color?: string }>`
 
 const LabelAvaible = styled.label<{ color?: string }>`
     color: ${props => props.color || props.theme.componentsTheme.textColorCommon};
-    font-size: 12px;
+    font-size: 11px;
     font-weight: normal;
     line-height: normal;
     margin: 0;
@@ -156,11 +151,23 @@ const BigInputNumberStyled = styled<any>(BigNumberInput)`
     border: 1px solid ${props => props.theme.componentsTheme.textInputBorderColor};
     color: ${props => props.theme.componentsTheme.textInputTextColor};
     font-feature-settings: 'tnum' 1;
-    font-size: 16px;
+    font-size: 14px;
     height: 100%;
     padding-left: 14px;
     padding-right: 60px;
     position: absolute;
+    width: 100%;
+    z-index: 1;
+`;
+
+const InputNumberStyled = styled.input`
+    background-color: ${props => props.theme.componentsTheme.textInputBackgroundColor};
+    border-radius: ${themeDimensions.borderRadius};
+    border: 1px solid ${props => props.theme.componentsTheme.textInputBorderColor};
+    color: ${props => props.theme.componentsTheme.textInputTextColor};
+    font-feature-settings: 'tnum' 1;
+    font-size: 14px;
+    height: 100%;
     width: 100%;
     z-index: 1;
 `;
@@ -182,6 +189,26 @@ const TokenText = styled.span`
     text-align: right;
 `;
 
+const FieldContainer = styled.div`
+    height: ${themeDimensions.fieldHeight};
+    margin-bottom: 5px;
+    position: relative;
+`;
+
+const RowFieldContainer = styled.div`
+    display: flex;
+    justify-content: space-around;
+`;
+
+const ColumnFieldContainer = styled.div`
+    display: flex;
+    flex-direction: column;
+`;
+
+const StyledTooltip = styled(Tooltip)`
+    margin-left: 5px;
+`;
+
 const BigInputNumberTokenLabel = (props: { tokenSymbol: string }) => (
     <TokenContainer>
         <TokenText>{formatTokenSymbol(props.tokenSymbol)}</TokenText>
@@ -198,24 +225,33 @@ const useQuery = () => {
 };
 
 const MarketMaker = (props: Props) => {
-    const [swapQuoteState, setSwapQuoteState] = useState(SwapQuoteState.NotLoaded);
+    const [marketQuoteState, setMarketQuoteState] = useState(SwapQuoteState.NotLoaded);
     const [buyQuote, setBuyQuote] = useState<MarketBuySwapQuote>();
     const [sellQuote, setSellQuote] = useState<MarketSellSwapQuote>();
+    const [buyPrice, setBuyPrice] = useState<BigNumber>();
+    const [sellPrice, setSellPrice] = useState<BigNumber>();
+    const [selectedSpread, setSelectedSpread] = useState<number>(0);
+    const [orderExpireTime, setOrderExpireTime] = useState<number>(300);
+    const [selectedInventoryBalance, setSelectedInventoryBalance] = useState<number>(50);
     const [errorState, setErrorState] = useState<{ btnMsg: null | string; cardMsg: null | string }>({
         btnMsg: null,
         cardMsg: null,
     });
-    const [priceState, setPriceState] = useState(new BigNumber(0));
     const [makerAmountState, setMakerAmountState] = useState(new BigNumber(0));
     const { web3State, quoteTokenBalance, baseTokenBalance, totalEthBalance } = props;
-    const swapQuote = useSelector(getSwapQuote);
-    const quoteToken = useSelector(getSwapQuoteToken);
-    const baseToken = useSelector(getSwapBaseToken);
+
+    const known_tokens = getKnownTokens();
+
+    const selectedBuyPrice = useSelector(getOrderBuyPriceSelected);
+    const selectedSellPrice = useSelector(getOrderSellPriceSelected);
+    const quoteToken = useSelector(getQuoteToken) as Token;
+    const baseToken = useSelector(getBaseToken) as Token;
+
     const dispatch = useDispatch();
     const query = useQuery();
     const queryToken = query.get('token');
     const decimals = baseToken.decimals;
-    const known_tokens = getKnownTokens();
+
     useEffect(() => {
         const fetchToken = async () => {
             if (!queryToken) {
@@ -232,7 +268,7 @@ const MarketMaker = (props: Props) => {
                 if (t === baseToken) {
                     return;
                 } else {
-                    dispatch(setSwapBaseToken(t));
+                    dispatch(setMarketTokens({ baseToken: t, quoteToken }));
                 }
             }
         };
@@ -240,58 +276,105 @@ const MarketMaker = (props: Props) => {
         fetchToken();
     }, [queryToken, baseToken]);
 
+    const isWethQuote = quoteTokenBalance && isWeth(quoteTokenBalance.token.symbol);
+    const isWethBase = baseTokenBalance && isWeth(baseTokenBalance.token.symbol);
+
+    const quoteUnits = isWethQuote
+        ? tokenAmountInUnitsToBigNumber(totalEthBalance || ZERO, 18)
+        : tokenAmountInUnitsToBigNumber(
+              (quoteTokenBalance && quoteTokenBalance.balance) || ZERO,
+              (quoteToken && quoteToken.decimals) || 18,
+          );
+
+    const baseBalance = isWethBase ? totalEthBalance : (baseTokenBalance && baseTokenBalance.balance) || ZERO;
     const stepAmount = new BigNumber(1).div(new BigNumber(10).pow(8));
     const stepAmountUnits = unitsInTokenAmount(String(stepAmount), decimals);
     const amount = makerAmountState;
     const isMakerAmountEmpty = amount === null || amount.isZero();
-    let isMaxAmount = false;
-  /*  if (swapQuote && quoteTokenBalance && baseTokenBalance) {
-        isMaxAmount = isSell
-            ? makerAmountState.isGreaterThan(baseTokenBalance.balance)
-            : swapQuote.bestCaseQuoteInfo.takerAssetAmount.isGreaterThan(
-                  isWeth(quoteToken.symbol) ? totalEthBalance : quoteTokenBalance.balance,
-              );
-    }*/
+    const isMaxAmount = false;
+
+    const isBuyOrderTypeLimitOverflow = computeOrderSizeFromInventoryBalance(
+        tokenAmountInUnitsToBigNumber(makerAmountState, (baseToken && baseToken.decimals) || 18).multipliedBy(
+            buyPrice || ZERO,
+        ),
+        new BigNumber(selectedInventoryBalance).dividedBy(100),
+        false,
+    ).gt(quoteUnits);
+    const isSellOrderTypeLimitOverflow = computeOrderSizeFromInventoryBalance(
+        makerAmountState,
+        new BigNumber(selectedInventoryBalance).dividedBy(100),
+        true,
+    ).gt(baseBalance);
 
     const isOrderTypeMarketIsEmpty = isMakerAmountEmpty || isMaxAmount;
-    const baseSymbol = formatTokenSymbol(baseToken.symbol);
 
     const _reset = () => {
-        setMakerAmountState(new BigNumber(0));
-        setPriceState(new BigNumber(0));
+        // setMakerAmountState(new BigNumber(0));
+        // setPriceState(new BigNumber(0));
+        props.onSetOrderSecondsExpirationTime(null);
     };
-    const onCalculateSwapQuote = async () => {
+    // When clicked on orderbook update prices
+    useEffect(() => {
+        if (selectedBuyPrice && selectedBuyPrice.gt(0)) {
+            setBuyPrice(selectedBuyPrice);
+            if (sellPrice) {
+                setSelectedSpread(computeSpreadPercentage(selectedBuyPrice, sellPrice).toNumber());
+            }
+        }
+    }, [selectedBuyPrice]);
+
+    useEffect(() => {
+        if (selectedSellPrice && selectedSellPrice.gt(0)) {
+            setSellPrice(selectedSellPrice);
+            if (buyPrice) {
+                setSelectedSpread(computeSpreadPercentage(selectedSellPrice, buyPrice).toNumber());
+            }
+        }
+    }, [selectedSellPrice]);
+
+    const onCalculateSwapQuote = async (amt: BigNumber) => {
         // We are fetching the price here
         const buyParams: CalculateSwapQuoteParams = {
-            buyTokenAddress:  baseToken.address,
-            sellTokenAddress:  quoteToken.address,
-            buyAmount:  new BigNumber(1),
-            sellAmount:  undefined,
+            buyTokenAddress: baseToken.address,
+            sellTokenAddress: quoteToken.address,
+            buyAmount: amt,
+            sellAmount: undefined,
             from: undefined,
             isETHSell: false,
         };
         const sellParams: CalculateSwapQuoteParams = {
-            buyTokenAddress: quoteToken.address ,
-            sellTokenAddress:  baseToken.address ,
-            buyAmount:  undefined ,
-            sellAmount: new BigNumber(1),
+            buyTokenAddress: quoteToken.address,
+            sellTokenAddress: baseToken.address,
+            buyAmount: undefined,
+            sellAmount: amt,
             from: undefined,
             isETHSell: isWeth(quoteToken.symbol),
         };
         if (web3State !== Web3State.Done) {
             return;
         }
-        
-        const assetSwapper = await getAssetSwapper();
-        const buyQuote = await assetSwapper.getSwapQuoteAsync(buyParams) as MarketBuySwapQuote;
-        setBuyQuote(buyQuote);
-        const sellQuote = await assetSwapper.getSwapQuoteAsync(sellParams) as MarketSellSwapQuote;
-        setSellQuote(sellQuote);
+        try {
+            setMarketQuoteState(SwapQuoteState.Loading);
+            const assetSwapper = await getAssetSwapper();
+            const bQuote = (await assetSwapper.getSwapQuoteAsync(buyParams)) as MarketBuySwapQuote;
+            setBuyQuote(bQuote);
+            const sQuote = (await assetSwapper.getSwapQuoteAsync(sellParams)) as MarketSellSwapQuote;
+            setSellQuote(sQuote);
+            // Add default price
+            const sPrice = computePriceFromQuote(false, bQuote, baseToken, quoteToken);
+            const bPrice = computePriceFromQuote(true, sQuote, baseToken, quoteToken);
+            setBuyPrice(bPrice);
+            setSellPrice(sPrice);
+            setSelectedSpread(computeSpreadPercentage(bPrice, sPrice).toNumber());
+            setMarketQuoteState(SwapQuoteState.Done);
+        } catch (e) {
+            setMarketQuoteState(SwapQuoteState.Error);
+        }
     };
 
-    const debouncedAmount = useDebounce(makerAmountState, 500);
+    const debouncedAmount = useDebounce(makerAmountState, 0);
     useEffect(() => {
-        if (swapQuoteState === SwapQuoteState.Error) {
+        if (marketQuoteState === SwapQuoteState.Error) {
             setErrorState({
                 cardMsg: 'Error fetching quote',
                 btnMsg: 'Try again',
@@ -317,54 +400,102 @@ const MarketMaker = (props: Props) => {
                 });
             }
         }
-    }, [swapQuoteState]);
+    }, [marketQuoteState]);
 
     useEffect(() => {
         if (debouncedAmount) {
-            onCalculateSwapQuote();
+            onCalculateSwapQuote(amount);
         }
     }, [debouncedAmount]);
 
     useEffect(() => {
         if (makerAmountState.isGreaterThan(0)) {
-            onCalculateSwapQuote();
+            onCalculateSwapQuote(amount);
         }
     }, [baseToken]);
+    const handleSubmitError = (error: any) => {
+        setErrorState({
+            btnMsg: 'Error',
+            cardMsg: error.message,
+        });
+        setTimeout(() => {
+            setErrorState({
+                ...errorState,
+                btnMsg: null,
+            });
+        }, TIMEOUT_BTN_ERROR);
 
+        setTimeout(() => {
+            setErrorState({
+                ...errorState,
+                cardMsg: null,
+            });
+        }, TIMEOUT_CARD_ERROR);
+    };
 
-    const onSubmit = async () => {
+    const onSubmitBuyOrder = async () => {
         const makerAmount = makerAmountState;
-
-        if (!swapQuote) {
+        const orderSide = OrderSide.Buy;
+        if (!buyPrice) {
             return;
         }
-
+        props.onSetOrderSecondsExpirationTime(new BigNumber(orderExpireTime));
+        const orderFeeData = await props.onFetchTakerAndMakerFee(makerAmount, buyPrice, orderSide);
         try {
-         //   await props.onSubmitSwapMarketOrder(makerAmount, orderSide, swapQuote);
+            const amt = computeOrderSizeFromInventoryBalance(
+                makerAmount,
+                new BigNumber(selectedInventoryBalance).dividedBy(100),
+                false,
+            );
+            await props.onSubmitLimitOrder(amt, buyPrice, orderSide, orderFeeData);
         } catch (error) {
-            setErrorState({
-                btnMsg: 'Error',
-                cardMsg: error.message,
-            });
-            setTimeout(() => {
-                setErrorState({
-                    ...errorState,
-                    btnMsg: null,
-                });
-            }, TIMEOUT_BTN_ERROR);
-
-            setTimeout(() => {
-                setErrorState({
-                    ...errorState,
-                    cardMsg: null,
-                });
-            }, TIMEOUT_CARD_ERROR);
+            handleSubmitError(error);
         }
-
         _reset();
     };
+
+    const onSubmitSellOrder = async () => {
+        const makerAmount = makerAmountState;
+        const orderSide = OrderSide.Sell;
+        if (!sellPrice) {
+            return;
+        }
+        await props.onSetOrderSecondsExpirationTime(new BigNumber(orderExpireTime));
+        const orderFeeData = await props.onFetchTakerAndMakerFee(makerAmount, sellPrice, orderSide);
+        try {
+            const amt = computeOrderSizeFromInventoryBalance(
+                makerAmount,
+                new BigNumber(selectedInventoryBalance).dividedBy(100),
+                true,
+            );
+            await props.onSubmitLimitOrder(amt, sellPrice, orderSide, orderFeeData);
+        } catch (error) {
+            handleSubmitError(error);
+        }
+        _reset();
+    };
+
+    /*const onSubmitBuySellOrder = async () => {
+    const makerAmount = makerAmountState;
+    if (!buyPrice || !sellPrice) {
+        return;
+    }
+    props.onSetOrderSecondsExpirationTime(new BigNumber(orderExpireTime));
+    const orderBuyFeeData = await props.onFetchTakerAndMakerFee(makerAmount, buyPrice, OrderSide.Buy);
+    const orderSellFeeData = await props.onFetchTakerAndMakerFee(makerAmount, sellPrice, OrderSide.Sell);
+    try {
+        await props.onSubmitMultipleLimitOrders(makerAmount, buyPrice, orderBuyFeeData, makerAmount, sellPrice, orderSellFeeData);
+    } catch (error) {
+        handleSubmitError(error);
+    }
+    _reset();
+};*/
+
     const onUpdateMakerAmount = (newValue: BigNumber) => {
         setMakerAmountState(newValue);
+    };
+    const updateQuote = () => {
+        onCalculateSwapQuote(makerAmountState);
     };
 
     const getAmountAvailableLabel = (isBase: boolean) => {
@@ -400,6 +531,40 @@ const MarketMaker = (props: Props) => {
             }
         }
     };
+    const updateBuyPrice = (price: BigNumber) => {
+        setBuyPrice(price);
+        if (sellPrice) {
+            setSelectedSpread(computeSpreadPercentage(price, sellPrice).toNumber());
+        }
+    };
+    const updateSellPrice = (price: BigNumber) => {
+        setSellPrice(price);
+        if (buyPrice) {
+            setSelectedSpread(computeSpreadPercentage(buyPrice, price).toNumber());
+        }
+    };
+    const updateSpread = (e: React.SyntheticEvent<HTMLInputElement, Event>) => {
+        const newSpread = new BigNumber(e.currentTarget.value);
+        if (buyPrice && sellPrice) {
+            const prices = getPricesFromSpread(buyPrice, sellPrice, newSpread);
+            setBuyPrice(prices[0]);
+            setSellPrice(prices[1]);
+        }
+
+        setSelectedSpread(newSpread.toNumber());
+    };
+    const updateInventoryBalance = (e: React.SyntheticEvent<HTMLInputElement, Event>) => {
+        setSelectedInventoryBalance(Number(e.currentTarget.value));
+    };
+    const onOrderExpireTimeChange = (e: React.SyntheticEvent<HTMLInputElement, Event>) => {
+        setOrderExpireTime(Number(e.currentTarget.value));
+    };
+    const onTrackerPriceClick = (price: BigNumber) => {
+        setBuyPrice(price);
+        setSellPrice(price);
+        setSelectedSpread(0);
+    };
+
     const isListed = baseToken ? baseToken.listed : true;
     const msg = 'Token inserted by User. Please proceed with caution and do your own research!';
     return (
@@ -407,8 +572,13 @@ const MarketMaker = (props: Props) => {
             {!isListed && <ErrorCard fontSize={FontSize.Large} text={msg} />}
             <BuySellWrapper>
                 <Content>
+                    <Label>Beta System: Manual Market Maker </Label>
                     <LabelContainer>
-                        <Label>Insert Amount</Label>
+                        <Label>Insert Reference Base Amount</Label>
+                        <Button onClick={updateQuote} variant={ButtonVariant.Primary}>
+                            {' '}
+                            ⟳{' '}
+                        </Button>
                     </LabelContainer>
                     <FieldAmountContainer>
                         <BigInputNumberStyled
@@ -422,46 +592,139 @@ const MarketMaker = (props: Props) => {
                         />
                         <BigInputNumberTokenLabel tokenSymbol={baseToken.symbol} />
                     </FieldAmountContainer>
-                    <Web3StateButton />
-
                     <LabelAvailableContainer>
                         <LabelAvaible>{getAmountAvailableLabel(true)}</LabelAvaible>
                         <LabelAvaible>{getAmountAvailableLabel(false)}</LabelAvaible>
                     </LabelAvailableContainer>
-                    <MarketTradeDetailsContainer
-                        orderSide={tabState}
+                    <LabelContainer>
+                        <Label>Buy Price per token</Label>
+                    </LabelContainer>
+                    <FieldContainer>
+                        <BigInputNumberStyled
+                            decimals={0}
+                            min={ZERO}
+                            onChange={updateBuyPrice}
+                            value={buyPrice}
+                            step={new BigNumber(1).div(new BigNumber(10).pow(12))}
+                            placeholder={new BigNumber(1).div(new BigNumber(10).pow(10)).toString()}
+                            valueFixedDecimals={10}
+                        />
+                        <BigInputNumberTokenLabel tokenSymbol={quoteToken.symbol} />
+                    </FieldContainer>
+                    <LabelContainer>
+                        <Label>Sell Price per token</Label>
+                    </LabelContainer>
+                    <FieldContainer>
+                        <BigInputNumberStyled
+                            decimals={0}
+                            min={ZERO}
+                            onChange={updateSellPrice}
+                            value={sellPrice}
+                            step={new BigNumber(1).div(new BigNumber(10).pow(12))}
+                            placeholder={new BigNumber(1).div(new BigNumber(10).pow(10)).toString()}
+                            valueFixedDecimals={10}
+                        />
+                        <BigInputNumberTokenLabel tokenSymbol={quoteToken.symbol} />
+                    </FieldContainer>
+                    <Web3StateButton />
+                    <RowFieldContainer>
+                        <ColumnFieldContainer>
+                            <LabelContainer>
+                                <Label>Spread (%)</Label>
+                                <StyledTooltip description={`Lower spreads will be more likely to be fill`} />
+                            </LabelContainer>
+                            <FieldContainer>
+                                <InputNumberStyled
+                                    type={'number'}
+                                    value={selectedSpread}
+                                    min={-100}
+                                    step={0.0001}
+                                    max={100}
+                                    onChange={updateSpread}
+                                />
+                            </FieldContainer>
+                        </ColumnFieldContainer>
+                        <ColumnFieldContainer>
+                            <LabelContainer>
+                                <Label>Order Ratio between Bid and Ask (%)</Label>
+                                <StyledTooltip
+                                    description={`Higher will represent a higher ask size, lower represent a higher bid size`}
+                                />
+                            </LabelContainer>
+                            <FieldContainer>
+                                <InputNumberStyled
+                                    type={'number'}
+                                    value={selectedInventoryBalance}
+                                    min={0}
+                                    step={1}
+                                    max={100}
+                                    onChange={updateInventoryBalance}
+                                />
+                            </FieldContainer>
+                        </ColumnFieldContainer>
+                        <ColumnFieldContainer>
+                            <LabelContainer>
+                                <Label>Order Expire Time (Seconds): </Label>
+                                <StyledTooltip
+                                    description={`Expire at: ${new Date(
+                                        getExpirationTimeFromSeconds(new BigNumber(orderExpireTime))
+                                            .multipliedBy(1000)
+                                            .toNumber(),
+                                    ).toString()}`}
+                                />
+                            </LabelContainer>
+                            <FieldContainer>
+                                <InputNumberStyled
+                                    type={'number'}
+                                    value={orderExpireTime}
+                                    min={20}
+                                    step={1}
+                                    onChange={onOrderExpireTimeChange}
+                                />
+                            </FieldContainer>
+                        </ColumnFieldContainer>
+                    </RowFieldContainer>
+
+                    <MarketMakerDetailsContainer
                         tokenAmount={amount}
-                        tokenPrice={priceState}
                         baseToken={baseToken}
                         quoteToken={quoteToken}
-                        quote={swapQuote}
                         buyQuote={buyQuote}
                         sellQuote={sellQuote}
+                        quoteState={marketQuoteState}
+                        inventoryBalance={selectedInventoryBalance}
+                        onTrackerPriceClick={onTrackerPriceClick}
                     />
-                    <Button
-                        disabled={web3State !== Web3State.Done || isOrderTypeMarketIsEmpty}
-                        icon={errorState.btnMsg ? ButtonIcons.Warning : undefined}
-                        onClick={onSubmit}
-                        variant={ButtonVariant.Buy}
-                    >
-                       Place Buy Order
-                    </Button>
-                    <Button
-                        disabled={web3State !== Web3State.Done || isOrderTypeMarketIsEmpty}
-                        icon={errorState.btnMsg ? ButtonIcons.Warning : undefined}
-                        onClick={onSubmit}
-                        variant={ButtonVariant.Sell}
-                    >
-                        Place Sell Order
-                    </Button>
-                    <Button
-                        disabled={web3State !== Web3State.Done || isOrderTypeMarketIsEmpty}
-                        icon={errorState.btnMsg ? ButtonIcons.Warning : undefined}
-                        onClick={onSubmit}
-                        variant={ButtonVariant.Primary}
-                    >
-                      Place Buy and Sell Order
-                    </Button>
+                    <ButtonsContainer>
+                        <Button
+                            disabled={
+                                web3State !== Web3State.Done || isOrderTypeMarketIsEmpty || isBuyOrderTypeLimitOverflow
+                            }
+                            icon={errorState.btnMsg ? ButtonIcons.Warning : undefined}
+                            onClick={onSubmitBuyOrder}
+                            variant={ButtonVariant.Buy}
+                        >
+                            Place Buy Limit Order
+                        </Button>
+                        <Button
+                            disabled={
+                                web3State !== Web3State.Done || isOrderTypeMarketIsEmpty || isSellOrderTypeLimitOverflow
+                            }
+                            icon={errorState.btnMsg ? ButtonIcons.Warning : undefined}
+                            onClick={onSubmitSellOrder}
+                            variant={ButtonVariant.Sell}
+                        >
+                            Place Sell Limit Order
+                        </Button>
+                        {/* <Button
+                            disabled={web3State !== Web3State.Done || isOrderTypeMarketIsEmpty}
+                            icon={errorState.btnMsg ? ButtonIcons.Warning : undefined}
+                            onClick={onSubmitBuySellOrder}
+                            variant={ButtonVariant.Primary}
+                        >
+                            Place Buy and Sell Order
+                       </Button>*/}
+                    </ButtonsContainer>
                 </Content>
             </BuySellWrapper>
             {errorState.cardMsg ? <ErrorCard fontSize={FontSize.Large} text={errorState.cardMsg} /> : null}
@@ -474,19 +737,38 @@ const mapStateToProps = (state: StoreState): StateProps => {
         web3State: getWeb3State(state),
         currencyPair: getCurrencyPair(state),
         orderPriceSelected: getOrderPriceSelected(state),
-        quoteTokenBalance: getSwapQuoteTokenBalance(state),
-        baseTokenBalance: getSwapBaseTokenBalance(state),
+        quoteTokenBalance: getQuoteTokenBalance(state),
+        baseTokenBalance: getBaseTokenBalance(state),
         totalEthBalance: getTotalEthBalance(state),
     };
 };
 
 const mapDispatchToProps = (dispatch: any): DispatchProps => {
     return {
-        onSubmitSwapMarketOrder: (
-            amount: BigNumber,
-            side: OrderSide,
-            quote: MarketBuySwapQuote | MarketSellSwapQuote,
-        ) => dispatch(startSwapMarketSteps(amount, side, quote)),
+        onSubmitLimitOrder: (amount: BigNumber, price: BigNumber, side: OrderSide, orderFeeData: OrderFeeData) =>
+            dispatch(startBuySellLimitSteps(amount, price, side, orderFeeData)),
+        onSubmitMultipleLimitOrders: (
+            amountBuy: BigNumber,
+            priceBuy: BigNumber,
+            orderBuyFeeData: OrderFeeData,
+            amountSell: BigNumber,
+            priceSell: BigNumber,
+            orderSellFeeData: OrderFeeData,
+        ) =>
+            dispatch(
+                startMultipleBuySellLimitSteps(
+                    amountBuy,
+                    priceBuy,
+                    orderBuyFeeData,
+                    amountSell,
+                    priceSell,
+                    orderSellFeeData,
+                ),
+            ),
+        onFetchTakerAndMakerFee: (amount: BigNumber, price: BigNumber, side: OrderSide) =>
+            dispatch(fetchTakerAndMakerFee(amount, price, side)),
+        onSetOrderSecondsExpirationTime: (seconds: BigNumber | null) =>
+            dispatch(setOrderSecondsExpirationTime(seconds)),
     };
 };
 

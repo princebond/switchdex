@@ -38,6 +38,18 @@ const goToHomeErc20: ThunkCreator = () => {
     };
 };
 
+export const goToHomeMarketMaker: ThunkCreator = () => {
+    return async (dispatch, getState) => {
+        const state = getState();
+        dispatch(
+            push({
+                ...state.router.location,
+                pathname: `${ERC20_APP_BASE_PATH}/market-maker`,
+            }),
+        );
+    };
+};
+
 export const goToHomeLaunchpad: ThunkCreator = () => {
     return async (dispatch, getState) => {
         const state = getState();

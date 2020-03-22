@@ -1,12 +1,13 @@
 import { MarketBuySwapQuote, MarketSellSwapQuote } from '@0x/asset-swapper';
-import { BigNumber, NULL_BYTES } from '@0x/utils';
+import { BigNumber } from '@0x/utils';
 import React from 'react';
 import { connect } from 'react-redux';
 import styled, { keyframes } from 'styled-components';
 
 import { ZERO } from '../../../common/constants';
 import { fetchTakerAndMakerFee } from '../../../store/relayer/actions';
-import { getQuoteInUsd, getSwapQuoteState, getTokensPrice, getWeb3State } from '../../../store/selectors';
+import { getQuoteInUsd, getTokensPrice, getWeb3State } from '../../../store/selectors';
+import { computeOrderSizeFromInventoryBalance, computePriceFromQuote } from '../../../util/market_maker';
 import { formatTokenSymbol, tokenAmountInUnits } from '../../../util/tokens';
 import { OrderFeeData, OrderSide, StoreState, SwapQuoteState, Token, TokenPrice, Web3State } from '../../../util/types';
 import { Tooltip } from '../../common/tooltip';
@@ -39,15 +40,15 @@ const CostValue = styled(Value)`
     font-weight: bold;
 `;
 
-const StyledTooltip = styled(Tooltip)`
-    margin-left: 5px;
+const CostValueTracker = styled(Value)`
+    &:hover {
+        cursor: pointer;
+        text-decoration: underline;
+    }
 `;
 
-const LabelContainer = styled.div`
-    align-items: flex-end;
-    display: flex;
-    justify-content: space-between;
-    margin: 5px 0 10px 0;
+const StyledTooltip = styled(Tooltip)`
+    margin-left: 5px;
 `;
 
 const Label = styled.label<{ color?: string }>`
@@ -58,7 +59,15 @@ const Label = styled.label<{ color?: string }>`
     margin: 0;
 `;
 
-const MainLabel = styled(Label)``;
+const RowContainer = styled.div`
+    display: flex;
+    justify-content: space-around;
+`;
+
+const RowItem = styled.div`
+    display: flex;
+    flex-direction: column;
+`;
 
 /*const FeeLabel = styled(Label)`
     color: ${props => props.theme.componentsTheme.textColorCommon};
@@ -110,13 +119,13 @@ const AnimatedDots = () => (
 
 interface OwnProps {
     tokenAmount: BigNumber;
-    tokenPrice: BigNumber;
-    orderSide: OrderSide;
     quoteToken: Token;
     baseToken: Token;
     buyQuote?: MarketBuySwapQuote;
     sellQuote?: MarketSellSwapQuote;
     quoteState: SwapQuoteState;
+    inventoryBalance: number;
+    onTrackerPriceClick: any;
 }
 
 interface StateProps {
@@ -132,38 +141,37 @@ interface DispatchProps {
 type Props = StateProps & OwnProps & DispatchProps;
 
 interface State {
-    makerFeeAmount: BigNumber;
-    takerFeeAmount: BigNumber;
-    makerFeeAssetData?: string;
-    takerFeeAssetData?: string;
     canOrderBeFilled?: boolean;
-    quoteTokenAmount: BigNumber;
-    price: BigNumber;
+    quoteBuyTokenAmount: BigNumber;
+    quoteSellTokenAmount: BigNumber;
+    baseBuyTokenAmount: BigNumber;
+    baseSellTokenAmount: BigNumber;
+    priceBuy: BigNumber;
+    priceSell: BigNumber;
     geckoPrice?: BigNumber;
 }
 
-class MarketTradeDetails extends React.Component<Props, State> {
+class MarketMakerDetails extends React.Component<Props, State> {
     public state = {
-        makerFeeAmount: ZERO,
-        takerFeeAmount: ZERO,
-        makerFeeAssetData: NULL_BYTES,
-        takerFeeAssetData: NULL_BYTES,
-        quoteTokenAmount: ZERO,
+        quoteBuyTokenAmount: ZERO,
+        quoteSellTokenAmount: ZERO,
+        baseBuyTokenAmount: ZERO,
+        baseSellTokenAmount: ZERO,
         canOrderBeFilled: true,
         maxAmount: ZERO,
-        price: ZERO,
+        priceBuy: ZERO,
+        priceSell: ZERO,
         geckoPrice: ZERO,
     };
 
     public componentDidUpdate = async (prevProps: Readonly<Props>) => {
         const newProps = this.props;
         if (
-            newProps.tokenPrice !== prevProps.tokenPrice ||
             newProps.tokenAmount !== prevProps.tokenAmount ||
             newProps.sellQuote !== prevProps.sellQuote ||
             newProps.buyQuote !== prevProps.buyQuote ||
-            newProps.orderSide !== prevProps.orderSide ||
             newProps.quoteState !== prevProps.quoteState ||
+            newProps.inventoryBalance !== prevProps.inventoryBalance
         ) {
             if (newProps.quoteState === SwapQuoteState.Done) {
                 await this._updateOrderDetailsState();
@@ -177,57 +185,109 @@ class MarketTradeDetails extends React.Component<Props, State> {
 
     public render = () => {
         // const fee = this._getFeeStringForRender();
-        const cost = this._getCostStringForRender();
-        const costText = this._getCostLabelStringForRender();
-        const priceMedianText = this._getMedianPriceStringForRender();
+        const costBuy = this._getCostStringForRender(false);
+        const costSell = this._getCostStringForRender(true);
+        const costBuyText = this._getCostLabelStringForRender(false);
+        const costSellText = this._getCostLabelStringForRender(true);
+        const costBaseBuy = this._getBaseCostStringForRender(false);
+        const costBaseSell = this._getBaseCostStringForRender(true);
+        const costBaseBuyText = this._getBaseCostLabelStringForRender(false);
+        const costBaseSellText = this._getBaseCostLabelStringForRender(true);
+        const priceBuyMedianText = this._getMedianPriceStringForRender(false);
+        const priceSellMedianText = this._getMedianPriceStringForRender(true);
         const priceMarketTrackerText = this._getPriceMarketRender();
 
         return (
             <>
-                <LabelContainer>
-                    <MainLabel>Order Details</MainLabel>
-                </LabelContainer>
                 {/* <Row>
                         <FeeLabel>Fee</FeeLabel>
                         <Value>{fee}</Value>
                 </Row>*/}
                 <Row>
-                    <CostLabel>
-                        {costText}
-                        <StyledTooltip description="Estimated cost without gas and trade fees" />
-                    </CostLabel>
-                    <CostValue>{cost}</CostValue>
-                </Row>
-                <Row>
-                    <CostLabel>Median Price:</CostLabel>
-                    <CostValue>{priceMedianText}</CostValue>
-                </Row>
-                <Row>
                     <CostLabel>Price by Coingecko:</CostLabel>
-                    <CostValue>{priceMarketTrackerText}</CostValue>
+                    <CostValueTracker onClick={this._onTrackerPriceClick}>{priceMarketTrackerText}</CostValueTracker>
                 </Row>
+
+                <RowContainer>
+                    <RowItem>
+                        <Row>
+                            <CostLabel>Best Bid:</CostLabel>
+                            <CostValue>{priceSellMedianText}</CostValue>
+                        </Row>
+                        <Row>
+                            <CostLabel>
+                                {costBuyText}
+                                <StyledTooltip description="Sell value" />
+                            </CostLabel>
+                            <CostValue>{costSell}</CostValue>
+                        </Row>
+                        <Row>
+                            <CostLabel>
+                                {costBaseBuyText}
+                                <StyledTooltip description="Sell value" />
+                            </CostLabel>
+                            <CostValue>{costBaseSell}</CostValue>
+                        </Row>
+                    </RowItem>
+
+                    <RowItem>
+                        <Row>
+                            <CostLabel>Best Ask:</CostLabel>
+                            <CostValue>{priceBuyMedianText}</CostValue>
+                        </Row>
+                        <Row>
+                            <CostLabel>
+                                {costSellText}
+                                <StyledTooltip description="Buy value" />
+                            </CostLabel>
+                            <CostValue>{costBuy}</CostValue>
+                        </Row>
+                        <Row>
+                            <CostLabel>
+                                {costBaseSellText}
+                                <StyledTooltip description="Buy value" />
+                            </CostLabel>
+                            <CostValue>{costBaseBuy}</CostValue>
+                        </Row>
+                    </RowItem>
+                </RowContainer>
             </>
         );
     };
 
     private readonly _updateOrderDetailsState = async () => {
-        const { sellQuote, orderSide, baseToken, quoteToken, tokenPrices } = this.props;
-        if (!quote) {
+        const { sellQuote, buyQuote, baseToken, quoteToken, tokenPrices, inventoryBalance } = this.props;
+        const inventoryBalanceBN = new BigNumber(inventoryBalance).dividedBy(100);
+
+        if (!buyQuote || !sellQuote) {
             this.setState({ canOrderBeFilled: false });
             return;
         }
+        const bestBuyQuote = buyQuote.bestCaseQuoteInfo;
+        const priceBuy = computePriceFromQuote(false, buyQuote, baseToken, quoteToken);
+        const quoteBuyTokenAmount = computeOrderSizeFromInventoryBalance(
+            bestBuyQuote.takerAssetAmount,
+            inventoryBalanceBN,
+            true,
+        );
+        const baseBuyTokenAmount = computeOrderSizeFromInventoryBalance(
+            bestBuyQuote.makerAssetAmount,
+            inventoryBalanceBN,
+            true,
+        );
 
-        const isSell = orderSide === OrderSide.Sell;
-        const bestQuote = quote.bestCaseQuoteInfo;
-        const worstQuote = quote.worstCaseQuoteInfo;
-        // HACK(dekz): we assume takerFeeAssetData is either empty or is consistent through all orders
-        const takerFeeAssetData = quote.takerAssetData;
-        const takerFeeAmount = worstQuote.feeTakerAssetAmount;
-        const quoteTokenAmount = isSell ? bestQuote.makerAssetAmount : bestQuote.takerAssetAmount;
-        const baseTokenAmount = isSell ? bestQuote.takerAssetAmount : bestQuote.makerAssetAmount;
-        const quoteTokenAmountUnits = new BigNumber(tokenAmountInUnits(quoteTokenAmount, quoteToken.decimals, 18));
-        const baseTokenAmountUnits = new BigNumber(tokenAmountInUnits(baseTokenAmount, baseToken.decimals, 18));
-        const price = quoteTokenAmountUnits.div(baseTokenAmountUnits);
+        const priceSell = computePriceFromQuote(true, sellQuote, baseToken, quoteToken);
+        const bestSellQuote = sellQuote.bestCaseQuoteInfo;
+        const quoteSellTokenAmount = computeOrderSizeFromInventoryBalance(
+            bestSellQuote.makerAssetAmount,
+            inventoryBalanceBN,
+            false,
+        );
+        const baseSellTokenAmount = computeOrderSizeFromInventoryBalance(
+            bestSellQuote.takerAssetAmount,
+            inventoryBalanceBN,
+            false,
+        );
 
         let geckoPrice;
         if (tokenPrices) {
@@ -239,42 +299,18 @@ class MarketTradeDetails extends React.Component<Props, State> {
         }
 
         this.setState({
-            takerFeeAmount,
-            takerFeeAssetData,
-            quoteTokenAmount,
+            quoteBuyTokenAmount,
+            quoteSellTokenAmount,
+            baseBuyTokenAmount,
+            baseSellTokenAmount,
             canOrderBeFilled: true,
-            price,
+            priceBuy,
+            priceSell,
             geckoPrice,
         });
     };
 
-    /* private readonly _getFeeStringForRender = () => {
-        const { takerFeeAmount, takerFeeAssetData } = this.state;
-        const { quoteState } = this.props;
-        // If its a Limit order the user is paying a maker fee
-        const feeAssetData = takerFeeAssetData;
-        const feeAmount = takerFeeAmount;
-        if (quoteState === SwapQuoteState.Loading) {
-            return <AnimatedDots />;
-        }
-
-        if (quoteState === SwapQuoteState.Error) {
-            return '0.00';
-        }
-
-        if (feeAssetData === NULL_BYTES) {
-            return '0.00';
-        }
-        const feeToken = getKnownTokens().getTokenByAssetData(feeAssetData);
-
-        return `${tokenAmountInUnits(
-            feeAmount,
-            feeToken.decimals,
-            feeToken.displayDecimals,
-        )} ${tokenSymbolToDisplayString(feeToken.symbol)}`;
-    };*/
-
-    private readonly _getCostStringForRender = () => {
+    private readonly _getCostStringForRender = (isSell: boolean) => {
         const { canOrderBeFilled } = this.state;
         const { quoteToken, quoteState, tokenPrices } = this.props;
         if (quoteState === SwapQuoteState.Loading) {
@@ -292,19 +328,84 @@ class MarketTradeDetails extends React.Component<Props, State> {
             }
         }
 
-        const { quoteTokenAmount } = this.state;
-        const quoteTokenAmountUnits = tokenAmountInUnits(quoteTokenAmount, quoteToken.decimals);
-        const costAmount = tokenAmountInUnits(quoteTokenAmount, quoteToken.decimals, quoteToken.displayDecimals);
-        if (quoteInUSD) {
-            const quotePriceAmountUSD = new BigNumber(quoteTokenAmountUnits).multipliedBy(quoteInUSD);
-            return `${costAmount} ${formatTokenSymbol(quoteToken.symbol)} (${quotePriceAmountUSD.toFixed(2)} $)`;
+        const { quoteBuyTokenAmount, quoteSellTokenAmount } = this.state;
+        if (isSell) {
+            const quoteSellTokenAmountUnits = tokenAmountInUnits(quoteSellTokenAmount, quoteToken.decimals);
+            const costSellAmount = tokenAmountInUnits(
+                quoteSellTokenAmount,
+                quoteToken.decimals,
+                quoteToken.displayDecimals,
+            );
+            if (quoteInUSD) {
+                const quotePriceAmountUSD = new BigNumber(quoteSellTokenAmountUnits).multipliedBy(quoteInUSD);
+                return `${costSellAmount} ${formatTokenSymbol(quoteToken.symbol)} (${quotePriceAmountUSD.toFixed(
+                    2,
+                )} $)`;
+            } else {
+                return `${costSellAmount} ${formatTokenSymbol(quoteToken.symbol)}`;
+            }
         } else {
-            return `${costAmount} ${formatTokenSymbol(quoteToken.symbol)}`;
+            const quoteBuyTokenAmountUnits = tokenAmountInUnits(quoteBuyTokenAmount, quoteToken.decimals);
+            const costBuyAmount = tokenAmountInUnits(
+                quoteBuyTokenAmount,
+                quoteToken.decimals,
+                quoteToken.displayDecimals,
+            );
+            if (quoteInUSD) {
+                const quotePriceAmountUSD = new BigNumber(quoteBuyTokenAmountUnits).multipliedBy(quoteInUSD);
+                return `${costBuyAmount} ${formatTokenSymbol(quoteToken.symbol)} (${quotePriceAmountUSD.toFixed(2)} $)`;
+            } else {
+                return `${costBuyAmount} ${formatTokenSymbol(quoteToken.symbol)}`;
+            }
         }
     };
-    private readonly _getMedianPriceStringForRender = () => {
-        const { canOrderBeFilled, price } = this.state;
+    private readonly _getBaseCostStringForRender = (isSell: boolean) => {
+        const { canOrderBeFilled } = this.state;
+        const { baseToken, quoteState, tokenPrices } = this.props;
+        if (quoteState === SwapQuoteState.Loading) {
+            return <AnimatedDots />;
+        }
 
+        if (!canOrderBeFilled || quoteState === SwapQuoteState.Error) {
+            return `---`;
+        }
+        let quoteInUSD;
+        if (tokenPrices) {
+            const tokenPrice = tokenPrices.find(t => t.c_id === baseToken.c_id);
+            if (tokenPrice) {
+                quoteInUSD = tokenPrice.price_usd;
+            }
+        }
+
+        const { baseBuyTokenAmount, baseSellTokenAmount } = this.state;
+        if (isSell) {
+            const quoteSellTokenAmountUnits = tokenAmountInUnits(baseSellTokenAmount, baseToken.decimals);
+            const costSellAmount = tokenAmountInUnits(
+                baseSellTokenAmount,
+                baseToken.decimals,
+                baseToken.displayDecimals,
+            );
+            if (quoteInUSD) {
+                const quotePriceAmountUSD = new BigNumber(quoteSellTokenAmountUnits).multipliedBy(quoteInUSD);
+                return `${costSellAmount} ${formatTokenSymbol(baseToken.symbol)} (${quotePriceAmountUSD.toFixed(2)} $)`;
+            } else {
+                return `${costSellAmount} ${formatTokenSymbol(baseToken.symbol)}`;
+            }
+        } else {
+            const quoteBuyTokenAmountUnits = tokenAmountInUnits(baseBuyTokenAmount, baseToken.decimals);
+            const costBuyAmount = tokenAmountInUnits(baseBuyTokenAmount, baseToken.decimals, baseToken.displayDecimals);
+            if (quoteInUSD) {
+                const quotePriceAmountUSD = new BigNumber(quoteBuyTokenAmountUnits).multipliedBy(quoteInUSD);
+                return `${costBuyAmount} ${formatTokenSymbol(baseToken.symbol)} (${quotePriceAmountUSD.toFixed(2)} $)`;
+            } else {
+                return `${costBuyAmount} ${formatTokenSymbol(baseToken.symbol)}`;
+            }
+        }
+    };
+
+    private readonly _getMedianPriceStringForRender = (isSell: boolean) => {
+        const { canOrderBeFilled, priceBuy, priceSell } = this.state;
+        const price = isSell ? priceSell : priceBuy;
         const { tokenAmount, quoteToken, quoteState } = this.props;
 
         if (quoteState === SwapQuoteState.Loading) {
@@ -320,12 +421,21 @@ class MarketTradeDetails extends React.Component<Props, State> {
         return `${priceDisplay} ${formatTokenSymbol(quoteToken.symbol)}`;
     };
 
-    private readonly _getCostLabelStringForRender = () => {
-        const { qouteInUSD, orderSide } = this.props;
+    private readonly _getCostLabelStringForRender = (isSell: boolean) => {
+        const { qouteInUSD } = this.props;
         if (qouteInUSD) {
-            return orderSide === OrderSide.Sell ? 'Estimated Total (USD)' : 'Estimated Cost (USD)';
+            return isSell ? 'Quote Sell (USD)' : 'Quote Buy (USD)';
         } else {
-            return orderSide === OrderSide.Sell ? 'Estimated Total' : 'Estimated Cost';
+            return isSell ? 'Quote Sell' : 'Quote Buy';
+        }
+    };
+
+    private readonly _getBaseCostLabelStringForRender = (isSell: boolean) => {
+        const { qouteInUSD } = this.props;
+        if (qouteInUSD) {
+            return isSell ? 'Base Sell (USD)' : 'Base Buy (USD)';
+        } else {
+            return isSell ? 'Base Sell' : 'Base Buy';
         }
     };
     private readonly _getPriceMarketRender = () => {
@@ -342,12 +452,17 @@ class MarketTradeDetails extends React.Component<Props, State> {
         }
         return '---';
     };
+    private readonly _onTrackerPriceClick = (e: any) => {
+        const { onTrackerPriceClick } = this.props;
+        const { geckoPrice } = this.state;
+        onTrackerPriceClick(geckoPrice);
+    };
 }
 
 const mapStateToProps = (state: StoreState): StateProps => {
     return {
         qouteInUSD: getQuoteInUsd(state),
-        quoteState: getSwapQuoteState(state),
+        // quoteState: getSwapQuoteState(state),
         tokenPrices: getTokensPrice(state),
         web3State: getWeb3State(state),
     };
@@ -360,6 +475,6 @@ const mapDispatchToProps = (dispatch: any): DispatchProps => {
     };
 };
 
-const MarketTradeDetailsContainer = connect(mapStateToProps, mapDispatchToProps)(MarketTradeDetails);
+const MarketMakerDetailsContainer = connect(mapStateToProps, mapDispatchToProps)(MarketMakerDetails);
 
-export { CostValue, MarketTradeDetails, MarketTradeDetailsContainer, Value };
+export { CostValue, MarketMakerDetails, MarketMakerDetailsContainer, Value };

@@ -26,7 +26,7 @@ export const getAvailableMarkets = (): CurrencyPair[] => {
     return availableMarkets;
 };
 
-export const addAvailableMarket = (token: Token): CurrencyPair | null => {
+export const addWethAvailableMarket = (token: Token): CurrencyPair | null => {
     const availableMarketsData = getAvailableMarkets();
     const known_tokens = getKnownTokens();
     const wethToken = known_tokens.getWethToken();

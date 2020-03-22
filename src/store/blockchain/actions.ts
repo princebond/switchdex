@@ -16,7 +16,7 @@ import {
     USE_RELAYER_MARKET_UPDATES,
     ZERO,
 } from '../../common/constants';
-import { addAvailableMarket } from '../../common/markets';
+import { addWethAvailableMarket } from '../../common/markets';
 import { ConvertBalanceMustNotBeEqualException } from '../../exceptions/convert_balance_must_not_be_equal_exception';
 import { SignedOrderException } from '../../exceptions/signed_order_exception';
 import { getConfiguredSource } from '../../services/collectibles_metadata_sources';
@@ -652,7 +652,7 @@ const initWalletERC20: ThunkCreator<Promise<any>> = () => {
             const knownTokens = getKnownTokens();
             if (base && Web3Wrapper.isAddress(base) && !knownTokens.isKnownAddress(base)) {
                 const tokenToAdd = await knownTokens.addTokenByAddress(base);
-                const market = tokenToAdd && addAvailableMarket(tokenToAdd);
+                const market = tokenToAdd && addWethAvailableMarket(tokenToAdd);
                 if (market) {
                     dispatch(setCurrencyPair(market));
                 }
@@ -953,7 +953,7 @@ export const initializeAppWallet: ThunkCreator = () => {
                 };
                 tokenToAdd = await knownTokens.fetchTokenMetadaFromGecko(tokenToAdd);
                 knownTokens.pushToken(tokenToAdd);
-                const market = addAvailableMarket(tokenToAdd);
+                const market = addWethAvailableMarket(tokenToAdd);
                 if (market) {
                     dispatch(setCurrencyPair(market));
                 }
