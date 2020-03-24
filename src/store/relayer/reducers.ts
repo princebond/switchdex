@@ -1,7 +1,7 @@
 import { getType } from 'typesafe-actions';
 
 import { FEE_PERCENTAGE, FEE_RECIPIENT } from '../../common/constants';
-import { RelayerState } from '../../util/types';
+import { RelayerState, ServerState } from '../../util/types';
 import * as actions from '../actions';
 import { RootAction } from '../reducers';
 
@@ -13,6 +13,9 @@ const initialRelayerState: RelayerState = {
     userIEOOrders: [],
     feePercentage: FEE_PERCENTAGE,
     feeRecipient: FEE_RECIPIENT,
+    orderBookState: ServerState.NotLoaded,
+    marketsStatsState: ServerState.NotLoaded,
+    marketFillsState: ServerState.NotLoaded,
 };
 
 export function relayer(state: RelayerState = initialRelayerState, action: RootAction): RelayerState {
@@ -33,6 +36,12 @@ export function relayer(state: RelayerState = initialRelayerState, action: RootA
             return { ...state, feePercentage: action.payload };
         case getType(actions.setFeeRecipient):
             return { ...state, feeRecipient: action.payload };
+        case getType(actions.setOrderBookState):
+            return { ...state, orderBookState: action.payload };
+        case getType(actions.setMarketsStatsState):
+            return { ...state, marketsStatsState: action.payload };
+        case getType(actions.setMarketFillState):
+            return { ...state, marketFillsState: action.payload };
         default:
             return state;
     }

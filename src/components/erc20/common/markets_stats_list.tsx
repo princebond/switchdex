@@ -11,13 +11,23 @@ import {
     getCurrencyPair,
     getMarkets,
     getMarketsStats,
+    getMarketsStatsState,
     getQuoteToken,
     getWeb3State,
 } from '../../../store/selectors';
 import { themeBreakPoints, themeDimensions } from '../../../themes/commons';
 import { filterMarketsByString, filterMarketsByTokenSymbol, marketToString } from '../../../util/markets';
 import { formatTokenSymbol } from '../../../util/tokens';
-import { CurrencyPair, Filter, Market, RelayerMarketStats, StoreState, Token, Web3State } from '../../../util/types';
+import {
+    CurrencyPair,
+    Filter,
+    Market,
+    RelayerMarketStats,
+    ServerState,
+    StoreState,
+    Token,
+    Web3State,
+} from '../../../util/types';
 import { Card } from '../../common/card';
 import { EmptyContent } from '../../common/empty_content';
 import { MagnifierIcon } from '../../common/icons/magnifier_icon';
@@ -38,6 +48,7 @@ interface PropsToken {
     marketsStats: RelayerMarketStats[] | null | undefined;
     web3State?: Web3State;
     quoteToken: Token | null;
+    marketsStatsState: ServerState;
 }
 
 type Props = PropsDivElement & PropsToken & DispatchProps;
@@ -220,10 +231,10 @@ class MarketsStatsList extends React.Component<Props, State> {
     };
 
     public render = () => {
-        const { baseToken, quoteToken, web3State, markets, marketsStats } = this.props;
+        const { baseToken, quoteToken, web3State, markets, marketsStats, marketsStatsState } = this.props;
         let content: React.ReactNode;
         const defaultBehaviour = () => {
-            if (web3State !== Web3State.Error && (!baseToken || !quoteToken)) {
+            if (!baseToken || !quoteToken || marketsStatsState === ServerState.NotLoaded) {
                 content = <LoadingWrapper minHeight="120px" />;
             } else if (!baseToken || !quoteToken) {
                 content = <EmptyContent alignAbsoluteCenter={true} text="There are no market details to show" />;
@@ -415,6 +426,7 @@ const mapStateToProps = (state: StoreState): PropsToken => {
         quoteToken: getQuoteToken(state),
         web3State: getWeb3State(state),
         marketsStats: getMarketsStats(state),
+        marketsStatsState: getMarketsStatsState(state),
     };
 };
 

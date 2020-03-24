@@ -113,6 +113,9 @@ export const getSwapQuoteState = (state: StoreState) => state.swap.quoteState;
 export const getCollectibleCollectionSelected = (state: StoreState) => state.collectibles.collectionSelected;
 export const getTourStarted = (state: StoreState) => state.ui.startTour;
 export const getUserConfigData = (state: StoreState) => state.ui.userConfigData;
+export const getOrderbookState = (state: StoreState) => state.relayer.orderBookState;
+export const getMarketsStatsState = (state: StoreState) => state.relayer.marketsStatsState;
+export const getMarketFillsState = (state: StoreState) => state.relayer.marketFillsState;
 
 export const getCurrentMarketPlace = createSelector(getCurrentRoutePath, (currentRoute: string) => {
     if (currentRoute.includes(ERC20_APP_BASE_PATH)) {
@@ -285,6 +288,20 @@ export const getOpenSellOrders = createSelector(getOpenOrders, orders => {
 
 export const getOpenBuyOrders = createSelector(getOpenOrders, orders => {
     return orders.filter(order => order.side === OrderSide.Buy).sort((o1, o2) => o2.price.comparedTo(o1.price));
+});
+
+export const getTotalQuoteBuyOrders = createSelector(getOpenBuyOrders, orders => {
+    return orders.length > 0
+        ? orders
+              .map(o => o.rawOrder.makerAssetAmount.minus(new BigNumber(o.filled || 0).multipliedBy(o.price)))
+              .reduce((p, c) => p.plus(c))
+        : new BigNumber(0);
+});
+
+export const getTotalBaseSellOrders = createSelector(getOpenSellOrders, orders => {
+    return orders.length > 0
+        ? orders.map(o => o.size.minus(new BigNumber(o.filled || 0))).reduce((p, c) => p.plus(c))
+        : new BigNumber(0);
 });
 
 export const getMySizeOrders = createSelector(getUserOrders, userOrders => {
