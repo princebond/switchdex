@@ -8,15 +8,17 @@ import { Logo } from '../../../components/common/logo';
 import { separatorTopbar, ToolbarContainer } from '../../../components/common/toolbar';
 import { NotificationsDropdownContainer } from '../../../components/notifications/notifications_dropdown';
 import {
+    changeSwapBaseToken,
     goToHome,
     goToHomeMarketTrade,
     goToWallet,
     openFiatOnRampModal,
     openSideBar,
     setFiatType,
+    setSwapQuoteToken,
     setTour,
 } from '../../../store/actions';
-import { getCurrentMarketPlace, getGeneralConfig } from '../../../store/selectors';
+import { getCurrentMarketPlace, getGeneralConfig, getSwapBaseToken, getSwapQuoteToken } from '../../../store/selectors';
 import { Theme, themeBreakPoints } from '../../../themes/commons';
 import { isMobile } from '../../../util/screen';
 import { MARKETPLACES } from '../../../util/types';
@@ -57,8 +59,6 @@ const MarketsDropdownHeader = styled<any>(MarketsDropdownStatsContainer)`
 const SwapDropdownHeader = styled<any>(SwapDropdownContainer)`
     align-items: center;
     display: flex;
-
-    ${separatorTopbar}
 `;
 
 const WalletDropdown = styled(WalletConnectionContentContainer)`
@@ -84,6 +84,11 @@ const MenuStyledButton = styled(Button)`
     background-color: ${props => props.theme.componentsTheme.topbarBackgroundColor};
     color: ${props => props.theme.componentsTheme.textColorCommon};
 `;
+const SwapStyledButton = styled(Button)`
+    background-color: ${props => props.theme.componentsTheme.topbarBackgroundColor};
+    color: ${props => props.theme.componentsTheme.textColorCommon};
+    font-size: 25px;
+`;
 
 const StyledMenuBurguer = styled(MenuBurguer)`
     fill: ${props => props.theme.componentsTheme.textColorCommon};
@@ -96,6 +101,8 @@ const ToolbarContent = (props: Props) => {
     };
     const generalConfig = useSelector(getGeneralConfig);
     const marketplace = useSelector(getCurrentMarketPlace);
+    const baseSwapToken = useSelector(getSwapBaseToken);
+    const quoteSwapToken = useSelector(getSwapQuoteToken);
     const location = useLocation();
     const isHome = location.pathname === ERC20_APP_BASE_PATH || location.pathname === `${ERC20_APP_BASE_PATH}/`;
 
@@ -110,10 +117,23 @@ const ToolbarContent = (props: Props) => {
         dispatch(setFiatType('CARDS'));
         dispatch(openFiatOnRampModal(true));
     };
+    const onClickSwap: React.EventHandler<React.MouseEvent> = e => {
+        e.preventDefault();
+        dispatch(setSwapQuoteToken(baseSwapToken));
+        dispatch(changeSwapBaseToken(quoteSwapToken));
+    };
 
     const dropdownHeader =
         marketplace === MARKETPLACES.MarketTrade ? (
-            <SwapDropdownHeader shouldCloseDropdownBodyOnClick={false} className={'swap-dropdown'} />
+            <>
+                <SwapDropdownHeader
+                    shouldCloseDropdownBodyOnClick={false}
+                    className={'swap-dropdown'}
+                    isQuote={false}
+                />
+                <SwapStyledButton onClick={onClickSwap}>⇋</SwapStyledButton>
+                <SwapDropdownHeader shouldCloseDropdownBodyOnClick={false} className={'swap-dropdown'} isQuote={true} />
+            </>
         ) : (
             <MarketsDropdownHeader shouldCloseDropdownBodyOnClick={false} className={'markets-dropdown'} />
         );

@@ -3,7 +3,7 @@ import { connect } from 'react-redux';
 import styled from 'styled-components';
 
 import { marketFilters } from '../../../common/markets';
-import { changeSwapBaseToken, goToHome } from '../../../store/actions';
+import { changeSwapBaseToken, goToHome, setSwapQuoteToken } from '../../../store/actions';
 import { getSwapBaseToken, getSwapQuoteToken } from '../../../store/selectors';
 import { themeBreakPoints, themeDimensions } from '../../../themes/commons';
 import { getKnownTokens } from '../../../util/known_tokens';
@@ -23,12 +23,14 @@ interface PropsDivElement extends HTMLAttributes<HTMLDivElement> {}
 
 interface DispatchProps {
     changeSwapBaseToken: (token: Token) => any;
+    changeSwapQuoteToken: (token: Token) => any;
     goToHome: () => any;
 }
 
 interface PropsToken {
     baseToken: Token | null;
     quoteToken: Token | null;
+    isQuote?: boolean;
 }
 interface OwnProps {
     windowWidth: number;
@@ -218,20 +220,22 @@ class SwapDropdown extends React.Component<Props, State> {
     private readonly _dropdown = React.createRef<Dropdown>();
 
     public render = () => {
-        const { baseToken, windowWidth, ...restProps } = this.props;
+        const { baseToken, quoteToken, isQuote, windowWidth, ...restProps } = this.props;
+        let token: Token | null;
+        isQuote ? (token = quoteToken) : (token = baseToken);
 
         const header = (
             <MarketsDropdownHeader>
                 <MarketsDropdownHeaderText>
-                    {baseToken ? (
+                    {token ? (
                         <DropdownTokenIcon
-                            symbol={baseToken.symbol}
-                            primaryColor={baseToken.primaryColor}
+                            symbol={token.symbol}
+                            primaryColor={token.primaryColor}
                             isInline={true}
-                            icon={baseToken.icon}
+                            icon={token.icon}
                         />
                     ) : null}
-                    {formatTokenSymbol(baseToken ? baseToken.symbol : '')}
+                    {formatTokenSymbol(token ? token.symbol : '')}
                 </MarketsDropdownHeaderText>
                 <ChevronDownIcon />
             </MarketsDropdownHeader>
@@ -297,14 +301,18 @@ class SwapDropdown extends React.Component<Props, State> {
     };
 
     private readonly _getMarkets = () => {
-        const { baseToken, quoteToken } = this.props;
+        const { baseToken, quoteToken, isQuote } = this.props;
         const { search } = this.state;
-
+        let tk: Token;
         if (!baseToken || !quoteToken) {
             return null;
         }
-        const known_tokens = getKnownTokens().getTokens();
-        const searchedTokens = filterTokensByString(known_tokens, search);
+        isQuote ? (tk = quoteToken) : (tk = baseToken);
+
+        const known_tokens = [getKnownTokens().getWethToken(), ...getKnownTokens().getTokens()];
+        const searchedTokens = filterTokensByString(known_tokens, search).filter(t =>
+            isQuote ? t !== baseToken : t !== quoteToken,
+        );
         return (
             <Table>
                 <THead>
@@ -314,7 +322,7 @@ class SwapDropdown extends React.Component<Props, State> {
                 </THead>
                 <TBody>
                     {searchedTokens.map((token, index) => {
-                        const isActive = token.symbol === baseToken.symbol;
+                        const isActive = token.symbol === tk.symbol;
                         const setSelectedToken = () => this._setSelectedToken(token);
                         try {
                             const baseSymbol = formatTokenSymbol(token.symbol).toUpperCase();
@@ -342,7 +350,13 @@ class SwapDropdown extends React.Component<Props, State> {
     };
 
     private readonly _setSelectedToken: any = (token: Token) => {
-        this.props.changeSwapBaseToken(token);
+        const { isQuote } = this.props;
+        if (isQuote) {
+            this.props.changeSwapQuoteToken(token);
+        } else {
+            this.props.changeSwapBaseToken(token);
+        }
+
         // this.props.goToHome();
         if (this._dropdown.current) {
             this._dropdown.current.closeDropdown();
@@ -360,6 +374,7 @@ const mapStateToProps = (state: StoreState): PropsToken => {
 const mapDispatchToProps = (dispatch: any): DispatchProps => {
     return {
         changeSwapBaseToken: (token: Token) => dispatch(changeSwapBaseToken(token)),
+        changeSwapQuoteToken: (token: Token) => dispatch(setSwapQuoteToken(token)),
         goToHome: () => dispatch(goToHome()),
     };
 };

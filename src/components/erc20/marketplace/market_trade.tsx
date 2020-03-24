@@ -306,7 +306,7 @@ const MarketTrade = (props: Props) => {
                 });
             }
         }
-    }, [swapQuoteState, errorState]);
+    }, [swapQuoteState]);
 
     useEffect(() => {
         if (debouncedAmount) {
