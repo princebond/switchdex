@@ -1,10 +1,9 @@
 import React, { useState } from 'react';
-import { FieldArray, FieldArrayRenderProps, useFieldArray } from 'react-final-form-arrays';
+import { FieldArray, useFieldArray } from 'react-final-form-arrays';
 import { Field } from 'react-final-form-html5-validation';
 import { OnChange } from 'react-final-form-listeners';
 import styled from 'styled-components';
 
-import { getAvailableMarkets } from '../../../../common/markets';
 import { getERC20ContractWrapper } from '../../../../services/contract_wrappers';
 import { getTokenByAddress } from '../../../../services/tokens';
 import { themeDimensions } from '../../../../themes/commons';
@@ -101,8 +100,7 @@ export const TokensForm = ({
                             <StyledToken key={name}>
                                 <TokenForm name={name} index={index} />
                             </StyledToken>
-                        ))
-                    }
+                        ))}
                 </FieldArray>
             </AccordionCollapse>
         </>

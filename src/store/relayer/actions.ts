@@ -47,6 +47,7 @@ import {
     OrderFilledMessage,
     OrderSide,
     RelayerState,
+    ServerState,
     ThunkCreator,
     Token,
     TokenBalance,
@@ -109,6 +110,18 @@ export const setFeePercentage = createAction('relayer/FEE_PERCENTAGE_set', resol
     return (feePercentange: number) => resolve(feePercentange);
 });
 
+export const setMarketFillState = createAction('relayer/MARKET_FILLS_STATE_set', resolve => {
+    return (state: ServerState) => resolve(state);
+});
+
+export const setOrderBookState = createAction('relayer/ORDERBOOK_STATE_set', resolve => {
+    return (state: ServerState) => resolve(state);
+});
+
+export const setMarketsStatsState = createAction('relayer/MARKET_STATS_STATE_set', resolve => {
+    return (state: ServerState) => resolve(state);
+});
+
 export const getAllOrders: ThunkCreator = () => {
     return async (dispatch, getState) => {
         const state = getState();
@@ -132,7 +145,9 @@ export const getAllOrders: ThunkCreator = () => {
                 uiOrders = await getAllOrdersAsUIOrders(baseToken, quoteToken, makerAddresses);
             }
             dispatch(setOrders(uiOrders));
+            dispatch(setOrderBookState(ServerState.Done));
         } catch (err) {
+            dispatch(setOrderBookState(ServerState.Error));
             logger.error(`getAllOrders: fetch orders from the relayer failed.`, err);
         }
     };
@@ -811,7 +826,9 @@ export const fetchPastFills: ThunkCreator<Promise<void>> = () => {
                     }
                 }
             }
+            dispatch(setMarketFillState(ServerState.Done));
         } catch (error) {
+            dispatch(setMarketFillState(ServerState.Error));
             logger.error('Failed to fetch past fills', error);
         }
     };
@@ -849,7 +866,9 @@ export const fetchPastMarketFills: ThunkCreator<Promise<void>> = () => {
                     }
                 }
             }
+            dispatch(setMarketFillState(ServerState.Done));
         } catch (error) {
+            dispatch(setMarketFillState(ServerState.Error));
             logger.error('Failed to fetch past market fills', error);
         }
     };

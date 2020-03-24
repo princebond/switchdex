@@ -8,9 +8,12 @@ import {
     getBaseToken,
     getCurrencyPair,
     getOrderBook,
+    getOrderbookState,
     getQuoteToken,
     getSpread,
     getSpreadInPercentage,
+    getTotalBaseSellOrders,
+    getTotalQuoteBuyOrders,
     getUserOrders,
     getWeb3State,
 } from '../../../store/selectors';
@@ -27,6 +30,7 @@ import {
     OrderBook,
     OrderBookItem,
     OrderSide,
+    ServerState,
     StoreState,
     Token,
     UIOrder,
@@ -59,6 +63,9 @@ interface StateProps {
     absoluteSpread: BigNumber;
     percentageSpread: BigNumber;
     currencyPair: CurrencyPair;
+    totalQuoteBuyOrders: BigNumber;
+    totalBaseSellOrders: BigNumber;
+    serverState: ServerState;
 }
 
 interface OwnProps {
@@ -378,6 +385,9 @@ class OrderBookTable extends React.Component<Props, StateOrderBook> {
             absoluteSpread,
             percentageSpread,
             currencyPair,
+            totalQuoteBuyOrders,
+            totalBaseSellOrders,
+            serverState,
         } = this.props;
         const { sellOrders, buyOrders, mySizeOrders } = orderBook;
         const mySizeSellArray = mySizeOrders.filter((order: { side: OrderSide }) => {
@@ -392,7 +402,7 @@ class OrderBookTable extends React.Component<Props, StateOrderBook> {
 
         let content: React.ReactNode;
 
-        if (web3State !== Web3State.Error && (!baseToken || !quoteToken)) {
+        if ((web3State !== Web3State.Error && (!baseToken || !quoteToken)) || serverState === ServerState.NotLoaded) {
             content = <CenteredLoading />;
         } else if (web3State === Web3State.Loading) {
             content = <CenteredLoading />;
@@ -410,13 +420,15 @@ class OrderBookTable extends React.Component<Props, StateOrderBook> {
             const spreadPercentFixed = percentageSpread.toFixed(UI_DECIMALS_DISPLAYED_SPREAD_PERCENT);
             const basePrecision = currencyPair.config.basePrecision;
 
-            const totalBase = tokenAmountInUnits(
+            /*const totalBase = tokenAmountInUnits(
                 sellOrders.length > 1 ? sellOrders.map(o => o.size).reduce((p, c) => p.plus(c)) : new BigNumber(0),
                 baseToken.decimals,
                 basePrecision,
             );
+            */
+            const totalBase = tokenAmountInUnits(totalBaseSellOrders, baseToken.decimals, basePrecision);
 
-            const totalQuote =
+            /*const totalQuote =
                 buyOrders.length > 1
                     ? buyOrders
                           .map(o =>
@@ -426,7 +438,8 @@ class OrderBookTable extends React.Component<Props, StateOrderBook> {
                           )
                           .reduce((p, c) => p.plus(c))
                           .toFixed(2)
-                    : new BigNumber(0).toFixed(2);
+                    : new BigNumber(0).toFixed(2);*/
+            const totalQuote = tokenAmountInUnits(totalQuoteBuyOrders, quoteToken.decimals, 2);
 
             const baseSymbol = formatTokenSymbol(baseToken.symbol);
             const quoteSymbol = formatTokenSymbol(quoteToken.symbol);
@@ -475,8 +488,7 @@ class OrderBookTable extends React.Component<Props, StateOrderBook> {
                                     <option value="50">50</option>
                                 </DepthSelect>
                             </CustomTH>
-                        </TotalRow>
-                    }
+                        </TotalRow>}
                     <TotalRow isBottom={true}>
                         <THTotal as="div" styles={{ textAlign: 'left' }}>{`Asks`}</THTotal>
                         <CustomTH as="div" styles={{ textAlign: 'right' }}>
@@ -648,6 +660,9 @@ const mapStateToProps = (state: StoreState): StateProps => {
         absoluteSpread: getSpread(state),
         percentageSpread: getSpreadInPercentage(state),
         currencyPair: getCurrencyPair(state),
+        totalQuoteBuyOrders: getTotalQuoteBuyOrders(state),
+        totalBaseSellOrders: getTotalBaseSellOrders(state),
+        serverState: getOrderbookState(state),
     };
 };
 

@@ -21,13 +21,21 @@ import {
     MarketMakerStats,
     MARKETPLACES,
     RelayerMarketStats,
+    ServerState,
     StoreState,
     ThunkCreator,
     Token,
     TokenBalance,
     TokenPrice,
 } from '../../util/types';
-import { fetchPastMarketFills, getOrderbookAndUserOrders, updateBZXStore } from '../actions';
+import {
+    fetchPastMarketFills,
+    getOrderbookAndUserOrders,
+    setMarketFillState,
+    setMarketsStatsState,
+    setOrderBookState,
+    updateBZXStore,
+} from '../actions';
 import { getCurrencyPair, getCurrentMarketPlace, getCurrentRoutePath, getWethTokenBalance } from '../selectors';
 
 const logger = getLogger('Market::Actions');
@@ -103,6 +111,8 @@ export const changeMarket: ThunkCreator = (currencyPair: CurrencyPair) => {
         const oldQuoteToken = state.market.quoteToken;
         const knownTokens = getKnownTokens();
         const currentRoute = getCurrentRoutePath(state);
+        dispatch(setOrderBookState(ServerState.NotLoaded));
+        dispatch(setMarketFillState(ServerState.NotLoaded));
         try {
             const newQuoteToken = knownTokens.getTokenBySymbol(currencyPair.quote);
             dispatch(
@@ -166,6 +176,7 @@ export const fetchMarkets: ThunkCreator = () => {
         if (!USE_ORDERBOOK_PRICES) {
             const marketsStats = await getAllMarketsStatsFromRelayer();
             dispatch(setMarketsStats(marketsStats));
+            dispatch(setMarketsStatsState(ServerState.Done));
             const state = getState() as StoreState;
             const currencyPair = getCurrencyPair(state);
             const market = marketToString(currencyPair);

@@ -4,13 +4,28 @@ import styled from 'styled-components';
 
 import { USE_RELAYER_MARKET_UPDATES } from '../../../common/constants';
 import { changeMarket, goToHome } from '../../../store/actions';
-import { getBaseToken, getMarketFills, getQuoteToken, getWeb3State } from '../../../store/selectors';
+import {
+    getBaseToken,
+    getMarketFills,
+    getMarketFillsState,
+    getQuoteToken,
+    getWeb3State,
+} from '../../../store/selectors';
 import { themeBreakPoints } from '../../../themes/commons';
 import { getCurrencyPairByTokensSymbol } from '../../../util/known_currency_pairs';
 import { isWeth } from '../../../util/known_tokens';
 import { marketToStringFromTokens } from '../../../util/markets';
 import { formatTokenSymbol, tokenAmountInUnits } from '../../../util/tokens';
-import { CurrencyPair, Fill, MarketFill, OrderSide, StoreState, Token, Web3State } from '../../../util/types';
+import {
+    CurrencyPair,
+    Fill,
+    MarketFill,
+    OrderSide,
+    ServerState,
+    StoreState,
+    Token,
+    Web3State,
+} from '../../../util/types';
 import { Card } from '../../common/card';
 import { EmptyContent } from '../../common/empty_content';
 import { LoadingWrapper } from '../../common/loading';
@@ -29,6 +44,7 @@ interface StateProps {
     quoteToken: Token | null;
     web3State?: Web3State;
     marketFills: MarketFill;
+    marketFillsState: ServerState;
 }
 
 interface DispatchProps {
@@ -81,10 +97,10 @@ const fillToRow = (fill: Fill, index: number) => {
 
 class MarketFills extends React.Component<Props> {
     public render = () => {
-        const { marketFills, baseToken, quoteToken, web3State } = this.props;
+        const { marketFills, baseToken, quoteToken, web3State, marketFillsState } = this.props;
         let content: React.ReactNode;
         const defaultBehaviour = () => {
-            if (web3State !== Web3State.Error && (!baseToken || !quoteToken)) {
+            if (!baseToken || !quoteToken || marketFillsState === ServerState.NotLoaded) {
                 content = <LoadingWrapper minHeight="120px" />;
             } else if (!Object.keys(marketFills).length || !baseToken || !quoteToken) {
                 content = <EmptyContent alignAbsoluteCenter={true} text="There are no trades to show" />;
@@ -140,6 +156,7 @@ const mapStateToProps = (state: StoreState): StateProps => {
         quoteToken: getQuoteToken(state),
         web3State: getWeb3State(state),
         marketFills: getMarketFills(state),
+        marketFillsState: getMarketFillsState(state),
     };
 };
 const mapDispatchToProps = (dispatch: any): DispatchProps => {

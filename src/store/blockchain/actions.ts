@@ -45,6 +45,7 @@ import {
     NotificationKind,
     OrderSide,
     ProviderType,
+    ServerState,
     ThunkCreator,
     Token,
     TokenBalance,
@@ -618,6 +619,9 @@ const initWalletBeginCommon: ThunkCreator<Promise<any>> = (wallet: Wallet) => {
                 initializeRelayerData({
                     orders: [],
                     userOrders: [],
+                    orderBookState: ServerState.NotLoaded,
+                    marketsStatsState: ServerState.NotLoaded,
+                    marketFillsState: ServerState.NotLoaded,
                 }),
             );
             // tslint:disable-next-line:no-floating-promises
@@ -970,6 +974,9 @@ export const initializeAppWallet: ThunkCreator = () => {
             initializeRelayerData({
                 orders: [],
                 userOrders: [],
+                orderBookState: ServerState.NotLoaded,
+                marketsStatsState: ServerState.NotLoaded,
+                marketFillsState: ServerState.NotLoaded,
             }),
         );
 

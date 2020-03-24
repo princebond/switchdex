@@ -166,6 +166,9 @@ export interface BZXState {
 export interface RelayerState {
     readonly orders: UIOrder[];
     readonly userOrders: UIOrder[];
+    readonly orderBookState: ServerState;
+    readonly marketsStatsState: ServerState;
+    readonly marketFillsState: ServerState;
     readonly userIEOOrders?: UIOrder[];
     readonly ieoOrders?: SignedOrder[];
     readonly accountMarketStats?: AccountMarketStat[];
