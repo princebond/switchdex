@@ -1,7 +1,7 @@
 // tslint:disable-next-line: no-implicit-dependencies
 import { providerUtils } from '@0x/utils';
 import { Web3Wrapper } from '@0x/web3-wrapper';
-import Torus from '@toruslabs/torus-embed';
+// import Torus from '@toruslabs/torus-embed';
 
 import { FORTMATIC_APP_ID, NETWORK_ID, NETWORK_NAME, PORTIS_APP_ID } from '../common/constants';
 import { providerFactory } from '../util/provider_factory';
@@ -213,7 +213,7 @@ export const initPortis = async (): Promise<Web3Wrapper | null> => {
 };
 
 export const initTorus = async (): Promise<Web3Wrapper | null> => {
-    const importTorus = (): Promise<Web3Wrapper | null> => {
+    /*const importTorus = (): Promise<Web3Wrapper | null> => {
         return new Promise((resolve, reject) => {
             // @ts-ignore
             import('@toruslabs/torus-embed')
@@ -226,10 +226,10 @@ export const initTorus = async (): Promise<Web3Wrapper | null> => {
                 })
                 .catch(() => reject(null));
         });
-    };
+    };*/
 
     const enableTorus = async () => {
-        const torus = new Torus({});
+        /* const torus = new Torus({});
         await torus.init({ buildEnv: 'production', network: { host: 'mainnet' } });
         await torus.login({});
         const isTorus = sessionStorage.getItem('pageUsingTorus');
@@ -241,11 +241,12 @@ export const initTorus = async (): Promise<Web3Wrapper | null> => {
         web3Wrapper = new Web3Wrapper(torus.provider);
         localStorage.saveWalletConnected(Wallet.Torus);
         sessionStorage.setItem('pageUsingTorus', 'true');
-        return web3Wrapper;
+        return web3Wrapper;*/
     };
 
     try {
-        return await importTorus();
+        return null;
+        // return await importTorus();
     } catch {
         return null;
     }

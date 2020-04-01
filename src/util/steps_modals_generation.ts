@@ -78,8 +78,16 @@ export const createBuySellLimitSteps = (
         } catch (e) {
             //
         }
-
-        const wrapEthStep = getWrapEthStepIfNeeded(amount, price, side, wethTokenBalance, undefined, feeBalance);
+        const isWethQuote = isWeth(quoteToken.symbol.toLowerCase()) ? true : false;
+        const wrapEthStep = getWrapEthStepIfNeeded(
+            amount,
+            price,
+            side,
+            wethTokenBalance,
+            undefined,
+            feeBalance,
+            isWethQuote,
+        );
         if (wrapEthStep) {
             buySellLimitFlow.push(wrapEthStep);
         }
@@ -452,13 +460,13 @@ export const getWrapEthStepIfNeeded = (
     wethTokenBalance: TokenBalance,
     ethBalance?: BigNumber,
     feeBalance?: BigNumber,
+    isQuote: boolean = true,
 ): StepWrapEth | null => {
     // Weth needed only when creating a buy order
     if (side === OrderSide.Sell) {
         return null;
     }
-
-    let wethAmountNeeded = amount.multipliedBy(price);
+    let wethAmountNeeded = isQuote ? amount.multipliedBy(price) : amount;
     if (feeBalance) {
         wethAmountNeeded = wethAmountNeeded.plus(feeBalance);
     }
