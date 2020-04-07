@@ -80,6 +80,19 @@ const StyledButton = styled(Button)`
     }
 `;
 
+const StyledLink = styled.a`
+    align-items: center;
+    margin-right: 17px;
+    color: ${props => props.theme.componentsTheme.myWalletLinkColor};
+    display: flex;
+    font-size: 16px;
+    font-weight: 600;
+    text-decoration: none;
+    &:hover {
+        text-decoration: underline;
+    }
+`;
+
 const MenuStyledButton = styled(Button)`
     background-color: ${props => props.theme.componentsTheme.topbarBackgroundColor};
     color: ${props => props.theme.componentsTheme.textColorCommon};
@@ -169,6 +182,10 @@ const ToolbarContent = (props: Props) => {
     const handleTour: React.EventHandler<React.MouseEvent> = e => {
         dispatch(setTour(true));
     };
+    const handleMarketTradeClick: React.EventHandler<React.MouseEvent> = e => {
+        e.preventDefault();
+        props.onGoToHomeMarketTrade();
+    };
 
     let endContent;
     if (isMobile(props.windowWidth)) {
@@ -181,6 +198,9 @@ const ToolbarContent = (props: Props) => {
         endOptContent = (
             <>
                 {/*  <SettingsContentContainer  className={'settings-dropdown'} /> */}
+                <StyledLink href="/market-trade" onClick={handleMarketTradeClick} className={'market-trade'}>
+                    Swap
+                </StyledLink>
                 <SettingsDropdownContainer className={'settings-dropdown'} />
                 <StyledButton onClick={handleTour}>Tour</StyledButton>
                 <StyledButton onClick={handleFiatModal} className={'buy-eth'}>

@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Field, useField } from 'react-final-form';
+import { Field } from 'react-final-form';
 import { FieldArray, useFieldArray } from 'react-final-form-arrays';
 import { OnChange } from 'react-final-form-listeners';
 import { useDispatch } from 'react-redux';
@@ -42,8 +42,10 @@ export const PairsForm = ({
     title?: string;
 }) => {
     const fieldArray = useFieldArray('tokens');
+    const fieldMarketFiltersArray = useFieldArray('marketFilters');
     const dispatch = useDispatch();
     const fieldsArray = fieldArray.fields;
+    const fieldsMarketFilters = fieldMarketFiltersArray.fields;
     return (
         <>
             <AccordionCollapse title={title} setIsOpen={isOpen} className={selector}>
@@ -51,7 +53,7 @@ export const PairsForm = ({
                     {({ fields }) =>
                         fields.map((name, index) => (
                             <StyledPair key={name}>
-                                <PairReadOnly name={name} index={index} />
+                                <PairReadOnly name={name} index={index} values={fields.value} />
                             </StyledPair>
                         ))
                     }
@@ -64,6 +66,7 @@ export const PairsForm = ({
                         const config = ConfigTemplate.getInstance();
                         config.setPairs(value);
                         config.setTokens(fieldsArray.value);
+                        config.setMarketFilters(fieldsMarketFilters.value);
                         dispatch(fetchMarkets());
 
                         // do something
@@ -102,11 +105,10 @@ const PairConfigForm = ({ name, onSetRemoveIsEdit }: { name: string; onSetRemove
     );
 };
 
-const PairReadOnly = ({ name, index }: { name: string; index: number }) => {
-    const field = useField(name);
+const PairReadOnly = ({ name, index, values }: { name: string; index: number; values: any }) => {
     const [isEdit, setIsEdit] = useState(false);
-    const base: string = field.input.value.base || ' ';
-    const quote: string = field.input.value.quote || ' ';
+    const base: string = values[index].base || ' ';
+    const quote: string = values[index].quote || ' ';
     const fieldArray = useFieldArray('pairs');
     const { fields } = fieldArray;
     const onSwapUp = () => {

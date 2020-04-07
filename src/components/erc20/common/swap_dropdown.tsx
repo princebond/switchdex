@@ -2,7 +2,6 @@ import React, { HTMLAttributes } from 'react';
 import { connect } from 'react-redux';
 import styled from 'styled-components';
 
-import { marketFilters } from '../../../common/markets';
 import { changeSwapBaseToken, goToHome, setSwapQuoteToken } from '../../../store/actions';
 import { getSwapBaseToken, getSwapQuoteToken } from '../../../store/selectors';
 import { themeBreakPoints, themeDimensions } from '../../../themes/commons';
@@ -10,7 +9,7 @@ import { getKnownTokens } from '../../../util/known_tokens';
 import { isMobile } from '../../../util/screen';
 import { filterTokensByString } from '../../../util/swap';
 import { formatTokenSymbol } from '../../../util/tokens';
-import { Filter, StoreState, Token } from '../../../util/types';
+import { StoreState, Token } from '../../../util/types';
 import { CardBase } from '../../common/card_base';
 import { Dropdown } from '../../common/dropdown';
 import { withWindowWidth } from '../../common/hoc/withWindowWidth';
@@ -39,7 +38,6 @@ interface OwnProps {
 type Props = PropsDivElement & PropsToken & DispatchProps & OwnProps;
 
 interface State {
-    selectedFilter: Filter;
     search: string;
     isUserOnDropdown: boolean;
 }
@@ -212,7 +210,6 @@ const DropdownTokenIcon = styled(TokenIcon)`
 
 class SwapDropdown extends React.Component<Props, State> {
     public readonly state: State = {
-        selectedFilter: marketFilters[0],
         search: '',
         isUserOnDropdown: false,
     };

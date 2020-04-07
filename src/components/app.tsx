@@ -67,10 +67,10 @@ class App extends React.Component<Props> {
         const origin = window.location.origin;
         // TODO investigate if it is better user replace configs from dex as service
         onInitUserConfig();
-        if (origin !== VERIDEX_ORIGIN) {
-            onInitConfig(undefined, origin);
-        } else if (dex) {
+        if (dex) {
             onInitConfig(dex, undefined);
+        } else if (origin !== VERIDEX_ORIGIN) {
+            onInitConfig(undefined, origin);
         } else {
             const themeName = localStorage.getThemeName();
             onInitTheme(themeName);

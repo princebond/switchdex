@@ -3,7 +3,7 @@ import { connect } from 'react-redux';
 import styled from 'styled-components';
 
 import { UI_DECIMALS_DISPLAYED_SPREAD_PERCENT, USE_RELAYER_MARKET_UPDATES } from '../../../common/constants';
-import { marketFilters } from '../../../common/markets';
+import { getMarketFilters } from '../../../common/markets';
 import { changeMarket, goToHome } from '../../../store/actions';
 import { getBaseToken, getCurrencyPair, getMarkets, getQuoteToken, getWeb3State } from '../../../store/selectors';
 import { themeBreakPoints, themeDimensions } from '../../../themes/commons';
@@ -204,7 +204,7 @@ const TokenLabel = styled.div`
 
 class MarketsList extends React.Component<Props, State> {
     public readonly state: State = {
-        selectedFilter: marketFilters[0],
+        selectedFilter: getMarketFilters()[0],
         search: '',
     };
 
@@ -257,7 +257,7 @@ class MarketsList extends React.Component<Props, State> {
     private readonly _getTokensFilterTabs = () => {
         return (
             <TokenFiltersTabs>
-                {marketFilters.map((filter: Filter, index) => {
+                {getMarketFilters().map((filter: Filter, index) => {
                     return (
                         <TokenFiltersTab
                             active={filter === this.state.selectedFilter}

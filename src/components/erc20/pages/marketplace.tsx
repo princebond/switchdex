@@ -168,7 +168,9 @@ const Marketplace = () => {
     const onLayoutChange = (lay: any) => {
         // setLayout(layout);
         //  dispatch(setERC20Layout(JSON.stringify({...layouts, [`${breakpoint}`]:layout}, )))
-        dispatch(setERC20Layout(JSON.stringify({ lg: lay })));
+        if (isDynamicLayout) {
+            dispatch(setERC20Layout(JSON.stringify({ lg: lay })));
+        }
     };
     const onBreakpointChange = (br: string) => {
         setBreakPoint(br);
@@ -315,7 +317,7 @@ const Marketplace = () => {
                     isDraggable={isDynamicLayout}
                     margin={[2, 2]}
                     rowHeight={10}
-                    cols={{ lg: 12, md: 10, sm: 6, xs: 4, xxs: 2 }}
+                    cols={{ lg: 12, md: 12, sm: 12, xs: 12, xxs: 12 }}
                     onBreakpointChange={onBreakpointChange}
                 >
                     {cards}

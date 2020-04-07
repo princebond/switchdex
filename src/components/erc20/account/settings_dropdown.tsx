@@ -40,7 +40,7 @@ const DropdownBody = styled(CardBase)`
     max-height: 100%;
     max-width: 100%;
     width: 190px;
-    height: 260px;
+    height: 280px;
 `;
 const DropdownWrapper = styled(Dropdown)`
     z-index: 100;

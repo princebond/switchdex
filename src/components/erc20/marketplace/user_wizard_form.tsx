@@ -116,7 +116,7 @@ const UserWizardForm = (_props: Props) => {
         setIsRun(true);
     };*/
 
-    const onSubmit = (values: any) => {
+    const onSubmit = async (values: any) => {
         // @TODO remove this workaround
         values.tokens.forEach((t: any) => {
             t.addresses = {};
@@ -124,18 +124,18 @@ const UserWizardForm = (_props: Props) => {
         });
         values.general = config.general;
         dispatch(setUserConfigData({ config: values }));
-        dispatch(initUserConfigData());
+        await dispatch(initUserConfigData());
         dispatch(goToHome());
         alert('Configuration Saved');
     };
 
-    const handleDefault = () => {
+    const handleDefault = async () => {
         const configDefault = configFile;
         configDefault.tokens.forEach((t: any) => {
             t.mainnetAddress = t.addresses['1'];
         });
         dispatch(setUserConfigData({ config: configDefault }));
-        dispatch(initUserConfigData());
+        await dispatch(initUserConfigData());
         dispatch(setUserConfigData(null));
         alert('Reset to Veridex defaults');
         dispatch(goToHome());
