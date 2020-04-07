@@ -160,9 +160,9 @@ export const GeneralWizardForm = ({
                 <FieldContainer>
                     <Field name={`${name}.icon`} type={'url'} component={StyledInput} placeholder={`Icon Url`} />
                 </FieldContainer>
-                <StyledSocialForm title={'Social Urls'}>
+                {/* <StyledSocialForm title={'Social Urls'}>
                     <SocialForm name={`${name}.social`} />{' '}
-                </StyledSocialForm>
+    </StyledSocialForm> */}
                 <OnChange name={`${name}`}>
                     {(value: GeneralConfig, _previous: GeneralConfig) => {
                         dispatch(setGeneralConfig(value));

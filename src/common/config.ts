@@ -1,7 +1,7 @@
 import { Validator } from 'jsonschema';
 
 import { configFile, configFileIEO, configTemplateFile, configTipBot, configTipBotWhitelistAddresses } from '../config';
-import { AssetBot, ConfigFile, ConfigFileIEO, ConfigFileTipBot, CurrencyPairMetaData } from '../util/types';
+import { AssetBot, ConfigFile, ConfigFileIEO, ConfigFileTipBot, CurrencyPairMetaData, Filter } from '../util/types';
 
 import { configIEOSchema, configSchema, schemas } from './configSchema';
 import { TokenMetaData } from './tokens_meta_data';
@@ -70,6 +70,9 @@ export class ConfigTemplate {
     }
     public setTokens(tokens: TokenMetaData[]): void {
         this._config.tokens = tokens;
+    }
+    public setMarketFilters(marketFilters: Filter[]): void {
+        this._config.marketFilters = marketFilters;
     }
 }
 

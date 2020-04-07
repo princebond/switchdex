@@ -331,7 +331,6 @@ export const startBuySellLimitSteps: ThunkCreator = (
         const quoteToken = selectors.getQuoteToken(state) as Token;
         const tokenBalances = selectors.getTokenBalances(state) as TokenBalance[];
         const wethTokenBalance = selectors.getWethTokenBalance(state) as TokenBalance;
-
         const buySellLimitFlow: Step[] = createBuySellLimitSteps(
             baseToken,
             quoteToken,

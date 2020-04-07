@@ -197,7 +197,15 @@ const useQuery = () => {
 };
 
 const MarketTrade = (props: Props) => {
-    const [tabState, setTabState] = useState(OrderSide.Buy);
+    const query = useQuery();
+    const queryToken = query.get('token');
+    const sideQuery = query.get('side');
+    const initialSide = sideQuery
+        ? sideQuery.toLocaleUpperCase() === 'sell'
+            ? OrderSide.Sell
+            : OrderSide.Buy
+        : OrderSide.Buy;
+    const [tabState, setTabState] = useState(initialSide);
     const [errorState, setErrorState] = useState<{ btnMsg: null | string; cardMsg: null | string }>({
         btnMsg: null,
         cardMsg: null,
@@ -210,8 +218,7 @@ const MarketTrade = (props: Props) => {
     const baseToken = useSelector(getSwapBaseToken);
     const swapQuoteState = useSelector(getSwapQuoteState);
     const dispatch = useDispatch();
-    const query = useQuery();
-    const queryToken = query.get('token');
+
     const decimals = baseToken.decimals;
     const known_tokens = getKnownTokens();
     useEffect(() => {

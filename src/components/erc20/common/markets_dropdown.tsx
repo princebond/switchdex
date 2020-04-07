@@ -2,7 +2,7 @@ import React, { HTMLAttributes } from 'react';
 import { connect } from 'react-redux';
 import styled from 'styled-components';
 
-import { marketFilters } from '../../../common/markets';
+import { getMarketFilters } from '../../../common/markets';
 import { changeMarket, goToHome } from '../../../store/actions';
 import { getBaseToken, getCurrencyPair, getMarkets } from '../../../store/selectors';
 import { themeBreakPoints, themeDimensions } from '../../../themes/commons';
@@ -251,7 +251,7 @@ const DropdownTokenIcon = styled(TokenIcon)`
 
 class MarketsDropdown extends React.Component<Props, State> {
     public readonly state: State = {
-        selectedFilter: marketFilters[0],
+        selectedFilter: getMarketFilters()[0],
         search: '',
         isUserOnDropdown: false,
     };
@@ -323,7 +323,7 @@ class MarketsDropdown extends React.Component<Props, State> {
     private readonly _getTokensFilterTabs = () => {
         return (
             <TokenFiltersTabs>
-                {marketFilters.map((filter: Filter, index) => {
+                {getMarketFilters().map((filter: Filter, index) => {
                     return (
                         <TokenFiltersTab
                             active={filter === this.state.selectedFilter}
