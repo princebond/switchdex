@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { FieldArray, useFieldArray } from 'react-final-form-arrays';
+import { FieldArray, FieldArrayRenderProps, useFieldArray } from 'react-final-form-arrays';
 import { Field } from 'react-final-form-html5-validation';
 import { OnChange } from 'react-final-form-listeners';
 import styled from 'styled-components';
@@ -35,7 +35,7 @@ const StyledToken = styled.div`
     border: 1px solid ${props => props.theme.componentsTheme.cardBorderColor};
 `;
 
-/*const CheckBoxQuoteColumn = styled.div`
+const CheckBoxQuoteColumn = styled.div`
     display: flex;
     flex-direction: column;
     margin: 10px;
@@ -44,7 +44,7 @@ const StyledToken = styled.div`
 const CheckBoxQuoteContainer = styled.div`
     display: flex;
     flex-direction: row;
-`;*/
+`;
 
 const StyledFieldContainer = styled(FieldContainer)`
     display: flex;
@@ -108,43 +108,100 @@ export const TokensForm = ({
     );
 };
 
-/*const QuoteCheckboxs = (baseSymbol: string, marketFilters: any[], pairsArray: FieldArrayRenderProps<any, any>) => {
-    const availableMarkets = getAvailableMarkets();
+const QuoteCheckboxs = (baseSymbol: string, marketFilters: any[], pairsArray: FieldArrayRenderProps<any, any>) => {
+    // const availableMarkets = getAvailableMarkets();
     return marketFilters.map((m: { text: string; value: string }, i) => {
-        const value = availableMarkets.findIndex(a => a.base.toLowerCase() === baseSymbol.toLowerCase() && a.quote.toLowerCase() === m.value.toLowerCase()) !== -1;
+        if (baseSymbol.toLowerCase() === m.value.toLowerCase()) {
+            return null;
+        }
+
+        const pairsValues = pairsArray.fields.value;
+        const checked =
+            pairsValues.findIndex(
+                a =>
+                    a.base.toLowerCase() === baseSymbol.toLowerCase() &&
+                    a.quote.toLowerCase() === m.value.toLowerCase(),
+            ) !== -1;
         const onClickQuote = () => {
             const { fields } = pairsArray;
-            if (value) {
-                const index = fields.value.findIndex(a => a.base.toLowerCase() === baseSymbol.toLowerCase() && a.quote.toLowerCase() === m.value.toLowerCase());
+            if (checked) {
+                const index = fields.value.findIndex(
+                    a =>
+                        a.base.toLowerCase() === baseSymbol.toLowerCase() &&
+                        a.quote.toLowerCase() === m.value.toLowerCase(),
+                );
                 if (index !== -1) {
                     fields.remove(index);
                 }
             } else {
-                fields.unshift({
-                    base: baseSymbol.toLowerCase(),
-                    quote: m.value.toLowerCase(),
-                    config: {
-                        basePrecision: 2,
-                        pricePrecision: 8,
-                        minAmount: 1,
-                    },
-                });
+                const index = fields.value.findIndex(
+                    a =>
+                        a.base.toLowerCase() === baseSymbol.toLowerCase() &&
+                        a.quote.toLowerCase() === m.value.toLowerCase(),
+                );
+                if (index === -1) {
+                    fields.unshift({
+                        base: baseSymbol.toLowerCase(),
+                        quote: m.value.toLowerCase(),
+                        config: {
+                            basePrecision: 2,
+                            pricePrecision: 8,
+                            minAmount: 1,
+                        },
+                    });
+                }
             }
         };
-        return <CheckBoxQuoteColumn key={i}>
-            <LabelContainer>
-                <Label>{m.text}</Label>
-            </LabelContainer>
-            <FieldContainer >
-                <input
-                    type={'checkbox'}
-                    checked={value}
-                    onClick={onClickQuote}
-                />
-            </FieldContainer>
-        </CheckBoxQuoteColumn>;
+        return (
+            <CheckBoxQuoteColumn key={i}>
+                <LabelContainer>
+                    <Label>{m.text}</Label>
+                </LabelContainer>
+                <FieldContainer>
+                    <input type={'checkbox'} defaultChecked={checked} onClick={onClickQuote} />
+                </FieldContainer>
+            </CheckBoxQuoteColumn>
+        );
     });
-};*/
+};
+
+const turnInQuoteInput = (tokenSymbol: string, marketFilterArray: FieldArrayRenderProps<any, any>) => {
+    const marketFilters = marketFilterArray.fields.value;
+    const onClickQuote = () => {
+        const isTokenQuote = isQuote(tokenSymbol, marketFilters);
+        if (isTokenQuote) {
+            const { fields } = marketFilterArray;
+            if (marketFilters.length < 2) {
+                alert('Is needed at least one quote');
+                return;
+            }
+            const index = marketFilters.findIndex(m => m.value.toLowerCase() === tokenSymbol.toLowerCase());
+            fields.remove(index);
+        } else {
+            if (marketFilters.length > 3) {
+                alert('Max number of allowed quotes are 3');
+                return;
+            }
+            const { fields } = marketFilterArray;
+            fields.push({
+                value: tokenSymbol.toLowerCase(),
+                text: tokenSymbol.toUpperCase(),
+            });
+        }
+    };
+    return <input type={'checkbox'} checked={isQuote(tokenSymbol, marketFilters)} onChange={onClickQuote} />;
+};
+
+const turnInQuote = (tokenSymbol: string, marketFilterArray: FieldArrayRenderProps<any, any>) => {
+    return (
+        <CheckBoxQuoteColumn>
+            <LabelContainer>
+                <Label>Turn in Quote</Label>
+            </LabelContainer>
+            <FieldContainer>{turnInQuoteInput(tokenSymbol, marketFilterArray)}</FieldContainer>
+        </CheckBoxQuoteColumn>
+    );
+};
 
 const TokenForm = ({ name, index }: { name: string; index: number }) => {
     const [isEdit, setIsEdit] = useState(false);
@@ -190,7 +247,7 @@ const TokenForm = ({ name, index }: { name: string; index: number }) => {
                                 });
                             }
                         }
-                        marketFilters.forEach(m => {
+                        /*  marketFilters.forEach(m => {
                             const quoteSymbol = m.value;
                             pairsFieldArray.unshift({
                                 base: symbol.toLowerCase(),
@@ -201,7 +258,7 @@ const TokenForm = ({ name, index }: { name: string; index: number }) => {
                                     minAmount: 1,
                                 },
                             });
-                        });
+                        });*/
                     } finally {
                         setIsLoadingData(false);
                     }
@@ -294,9 +351,13 @@ const TokenForm = ({ name, index }: { name: string; index: number }) => {
                 <FieldContainer>
                     <Field name={`${name}.c_id`} type={'hidden'} component={StyledInput} placeholder={`Coingecko id`} />
                 </FieldContainer>
-                {/*<CheckBoxQuoteContainer>
-                    QuoteCheckboxs(value.symbol, marketFilters, pairsArray)
-                </CheckBoxQuoteContainer>*/}
+                {turnInQuote(value.symbol, marketFilterArray)}
+                <LabelContainer>
+                    <Label>Markets:</Label>
+                </LabelContainer>
+                <CheckBoxQuoteContainer>
+                    {QuoteCheckboxs(value.symbol, marketFilters, pairsArray)}
+                </CheckBoxQuoteContainer>
             </>
         );
     } else {
@@ -355,6 +416,11 @@ const TokenForm = ({ name, index }: { name: string; index: number }) => {
                     {!isTokenQuote && (
                         <StyledActions onClick={onSetIsEdit} style={{ cursor: 'pointer' }}>
                             ✎
+                        </StyledActions>
+                    )}
+                    {isTokenQuote && (
+                        <StyledActions style={{ cursor: 'pointer' }}>
+                            Quote: {turnInQuoteInput(value.symbol, marketFilterArray)}
                         </StyledActions>
                     )}
                     <StyledActions onClick={onSwapDown} style={{ cursor: 'pointer' }}>

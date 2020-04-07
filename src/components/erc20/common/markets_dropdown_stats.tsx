@@ -4,7 +4,7 @@ import { connect } from 'react-redux';
 import styled from 'styled-components';
 
 import { MARKET_MAKER_APP_BASE_PATH } from '../../../common/constants';
-import { marketFilters } from '../../../common/markets';
+import { getMarketFilters } from '../../../common/markets';
 import { changeMarket, goToHome } from '../../../store/actions';
 import {
     getBaseToken,
@@ -261,7 +261,7 @@ const DropdownTokenIcon = styled(TokenIcon)`
 
 class MarketsDropdownStats extends React.Component<Props, State> {
     public readonly state: State = {
-        selectedFilter: marketFilters[0],
+        selectedFilter: getMarketFilters()[0],
         search: '',
         isUserOnDropdown: false,
     };
@@ -333,7 +333,7 @@ class MarketsDropdownStats extends React.Component<Props, State> {
     private readonly _getTokensFilterTabs = () => {
         return (
             <TokenFiltersTabs>
-                {marketFilters.map((filter: Filter, index) => {
+                {getMarketFilters().map((filter: Filter, index) => {
                     return (
                         <TokenFiltersTab
                             active={filter === this.state.selectedFilter}
