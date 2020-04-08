@@ -1,6 +1,8 @@
 {
     "name": "veridex",
     "version": "0.3.0",
+    "homepage": ".",
+    "main": "build/electron/main.js",
     "private": true,
     "dependencies": {
         "@0x/asset-swapper": "^4.4.0",
@@ -14,6 +16,7 @@
         "@portis/web3": "2.0.0-beta.54",
         "@toruslabs/torus-embed": "1.0.0",
         "@types/async-retry": "^1.4.1",
+        "@types/electron-devtools-installer": "^2.2.0",
         "@types/react-collapse": "^4.0.2",
         "@types/react-color": "^3.0.1",
         "@types/react-grid-layout": "^0.17.0",
@@ -24,6 +27,9 @@
         "async-sema": "^3.0.0",
         "bowser": "^2.7.0",
         "connected-react-router": "^6.2.2",
+        "electron-devtools-installer": "^3.0.0",
+        "electron-is-dev": "^1.2.0",
+        "electron-reload": "^1.5.0",
         "final-form": "^4.18.6",
         "final-form-arrays": "^3.0.1",
         "final-form-focus": "^1.1.2",
@@ -68,7 +74,7 @@
         "uuid": "^3.3.3"
     },
     "scripts": {
-        "start": "cross-env PORT=3001 react-scripts --max_old_space_size=4096 start",
+        "start": "cross-env react-scripts --max_old_space_size=4096 start",
         "analyze": "cross-env source-map-explorer 'build/static/js/*.js'",
         "build-analyze": "cross-env react-scripts build",
         "build": "cross-env GENERATE_SOURCEMAP=false --max_old_space_size=4096 react-scripts build",
@@ -79,7 +85,11 @@
         "eject": "react-scripts eject",
         "prettier": "cross-env prettier --write '**/*.{ts,tsx,json,md}' --ignore-path .gitignore",
         "prettier-check": "cross-env prettier --check '**/*.{ts,tsx,json,md}' --ignore-path .gitignore",
-        "coveralls": "cat ./coverage/lcov.info | coveralls"
+        "coveralls": "cat ./coverage/lcov.info | coveralls",
+        "postinstall": "cross-env electron-builder install-app-deps",
+        "electron:dev": "cross-env concurrently \"cross-env BROWSER=none yarn start\" \"wait-on http://localhost:3000 && tsc -p electron -w\" \"wait-on http://localhost:3000 && tsc -p electron && electron .\"",
+        "electron:windev": "concurrently \"SET BROWSER=none && yarn start\" \"wait-on http://localhost:3000 && tsc -p electron -w\" \"wait-on http://localhost:3000 && tsc -p electron && electron .\"",
+        "electron:build": "cross-env yarn build && tsc -p electron && electron-builder"
     },
     "eslintConfig": {
         "extends": "react-app"
@@ -122,10 +132,13 @@
         "@types/recharts": "^1.1.16",
         "@types/redux-mock-store": "^1.0.0",
         "@types/styled-components": "^4.1.6",
+        "concurrently": "^5.1.0",
         "coveralls": "^3.0.3",
         "cross-env": "^5.2.0",
         "dotenv": "^8.2.0",
         "dotenv-cli": "^3.0.0",
+        "electron": "^8.2.1",
+        "electron-builder": "^22.4.1",
         "enzyme": "^3.8.0",
         "enzyme-adapter-react-16": "^1.7.1",
         "factory.ts": "^0.4.3",
@@ -139,6 +152,16 @@
         "tslint-config-standard": "^8.0.1",
         "tslint-react": "^3.6.0",
         "typescript": "3.2.4",
+        "wait-on": "^4.0.1",
         "webpack-bundle-analyzer": "^3.6.0"
+    },
+    "build": {
+        "extends": null,
+        "files": [
+          "build/**/*"
+        ],
+        "directories": {
+          "buildResources": "assets"
+        }
     }
 }

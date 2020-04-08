@@ -2,12 +2,13 @@ import React from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import styled, { css } from 'styled-components';
 
-import { setWeb3State } from '../../store/actions';
+import { setWeb3State, logoutWallet, resetWallet } from '../../store/actions';
 import { getWeb3State } from '../../store/selectors';
 import { errorsWallet } from '../../util/error_messages';
 import { Web3State } from '../../util/types';
 
 import { ErrorCard, ErrorIcons, FontSize } from './error_card';
+import { deleteWeb3Wrapper } from '../../services/web3_wrapper';
 
 export const separatorTopbar = css`
     &:after {
@@ -32,6 +33,12 @@ const Web3StateButton = () => {
     const dispatch = useDispatch();
     const onConnectWallet = () => {
         dispatch(setWeb3State(Web3State.Connecting));
+    };
+
+    const onErrorConnectWallet = () => {
+        dispatch(resetWallet());
+        deleteWeb3Wrapper();
+        dispatch(setWeb3State(Web3State.Connect));
     };
 
     const getContentFromWeb3State = (): React.ReactNode => {
@@ -60,16 +67,16 @@ const Web3StateButton = () => {
                 return <ErrorCard fontSize={FontSize.Large} text={'Connecting Wallet'} icon={ErrorIcons.Lock} />;
             case Web3State.Loading:
                 return (
-                    <ErrorCard
+                    <ErrorPointer
                         fontSize={FontSize.Large}
                         text={errorsWallet.mmLoading}
                         icon={ErrorIcons.Wallet}
-                        onClick={onConnectWallet}
+                        onClick={onErrorConnectWallet}
                     />
                 );
             case Web3State.Error:
                 return (
-                    <ErrorCard fontSize={FontSize.Large} text={errorsWallet.mmWrongNetwork} icon={ErrorIcons.Warning} />
+                    <ErrorPointer fontSize={FontSize.Large}  onClick={onErrorConnectWallet} text={errorsWallet.mmWrongNetwork} icon={ErrorIcons.Warning} />
                 );
             case Web3State.Done:
                 return null;

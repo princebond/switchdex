@@ -1,14 +1,15 @@
 import React from 'react';
-import { connect } from 'react-redux';
+import { connect, useDispatch } from 'react-redux';
 import styled, { css } from 'styled-components';
 
-import { setWeb3State } from '../../store/actions';
+import { setWeb3State, resetWallet } from '../../store/actions';
 import { getWeb3State } from '../../store/selectors';
 import { themeBreakPoints, themeDimensions } from '../../themes/commons';
 import { errorsWallet } from '../../util/error_messages';
 import { StoreState, Web3State } from '../../util/types';
 
 import { ErrorCard, ErrorIcons, FontSize } from './error_card';
+import { deleteWeb3Wrapper } from '../../services/web3_wrapper';
 
 interface OwnProps {
     centerContent?: React.ReactNode;
@@ -103,7 +104,15 @@ const ErrorPointer = styled(ErrorCard)`
 
 const Toolbar = (props: Props) => {
     const { startContent, endContent, centerContent, onConnectWallet, endOptContent } = props;
+    const dispatch = useDispatch();
+    const onErrorConnectWallet = () => {
+        dispatch(resetWallet());
+        deleteWeb3Wrapper();
+        dispatch(setWeb3State(Web3State.Connect));
+    };
 
+
+    
     const getContentFromWeb3State = (web3State: Web3State): React.ReactNode => {
         switch (web3State) {
             case Web3State.Locked:
@@ -141,14 +150,14 @@ const Toolbar = (props: Props) => {
                 return (
                     <>
                         {endOptContent && <ToolbarEndBigWidth>{endOptContent}</ToolbarEndBigWidth>}
-                        <ErrorCard fontSize={FontSize.Large} text={'Connecting Wallet'} icon={ErrorIcons.Lock} />
+                        <ErrorPointer fontSize={FontSize.Large} text={'Connecting Wallet'} icon={ErrorIcons.Lock} onClick={onErrorConnectWallet} />
                     </>
                 );
             case Web3State.Loading:
                 return (
                     <>
                         {endOptContent && <ToolbarEndBigWidth>{endOptContent}</ToolbarEndBigWidth>}
-                        <ErrorCard
+                        <ErrorPointer
                             fontSize={FontSize.Large}
                             text={errorsWallet.mmLoading}
                             icon={ErrorIcons.Wallet}
@@ -160,10 +169,11 @@ const Toolbar = (props: Props) => {
                 return (
                     <>
                         {endOptContent && <ToolbarEndBigWidth>{endOptContent}</ToolbarEndBigWidth>}
-                        <ErrorCard
+                        <ErrorPointer
                             fontSize={FontSize.Large}
                             text={errorsWallet.mmWrongNetwork}
                             icon={ErrorIcons.Warning}
+                            onClick={onErrorConnectWallet}
                         />
                     </>
                 );
