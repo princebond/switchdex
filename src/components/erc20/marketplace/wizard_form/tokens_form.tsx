@@ -100,8 +100,7 @@ export const TokensForm = ({
                             <StyledToken key={name}>
                                 <TokenForm name={name} index={index} />
                             </StyledToken>
-                        ))
-                    }
+                        ))}
                 </FieldArray>
             </AccordionCollapse>
         </>

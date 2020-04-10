@@ -86,13 +86,21 @@ const WalletChooseModalContainer: React.FC<Props> = props => {
 
     const content = (
         <>
-            <ModalTitle>Choose Wallet:</ModalTitle>
-            <ButtonStyled onClick={choosePortis} variant={ButtonVariant.Portis}>
-                <LinkButton>{'Portis'}</LinkButton>
-            </ButtonStyled>
+            <ModalTitle>Wallet:</ModalTitle>
+            Import
+                <ButtonStyled onClick={choosePortis} variant={ButtonVariant.Portis}>
+                    <LinkButton>{'Private Key'}</LinkButton>
+                </ButtonStyled>
+                <ButtonStyled onClick={chooseFortmatic} variant={ButtonVariant.Fortmatic}>
+                    <LinkButton>{'Menmonic'}</LinkButton>
+                </ButtonStyled>
+                <ButtonStyled onClick={chooseFortmatic} variant={ButtonVariant.Fortmatic}>
+                    <LinkButton>{'Keystore'}</LinkButton>
+                </ButtonStyled>
+            o  
             <ButtonStyled onClick={chooseFortmatic} variant={ButtonVariant.Fortmatic}>
-                <LinkButton>{'Fortmatic'}</LinkButton>
-            </ButtonStyled>
+                    <LinkButton>{'Create'}</LinkButton>
+                </ButtonStyled>
            {/* <ButtonStyled  onClick={chooseWalletConnect} variant={ButtonVariant.Torus}>
                 <LinkButton>{'Wallet Connect'}</LinkButton>
          </ButtonStyled>*/}

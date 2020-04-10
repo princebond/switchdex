@@ -2,13 +2,13 @@ import React from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import styled, { css } from 'styled-components';
 
-import { setWeb3State, logoutWallet, resetWallet } from '../../store/actions';
+import { deleteWeb3Wrapper } from '../../services/web3_wrapper';
+import { resetWallet, setWeb3State } from '../../store/actions';
 import { getWeb3State } from '../../store/selectors';
 import { errorsWallet } from '../../util/error_messages';
 import { Web3State } from '../../util/types';
 
 import { ErrorCard, ErrorIcons, FontSize } from './error_card';
-import { deleteWeb3Wrapper } from '../../services/web3_wrapper';
 
 export const separatorTopbar = css`
     &:after {

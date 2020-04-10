@@ -2,14 +2,14 @@ import React from 'react';
 import { connect, useDispatch } from 'react-redux';
 import styled, { css } from 'styled-components';
 
-import { setWeb3State, resetWallet } from '../../store/actions';
+import { deleteWeb3Wrapper } from '../../services/web3_wrapper';
+import { resetWallet, setWeb3State } from '../../store/actions';
 import { getWeb3State } from '../../store/selectors';
 import { themeBreakPoints, themeDimensions } from '../../themes/commons';
 import { errorsWallet } from '../../util/error_messages';
 import { StoreState, Web3State } from '../../util/types';
 
 import { ErrorCard, ErrorIcons, FontSize } from './error_card';
-import { deleteWeb3Wrapper } from '../../services/web3_wrapper';
 
 interface OwnProps {
     centerContent?: React.ReactNode;

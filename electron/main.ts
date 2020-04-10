@@ -2,12 +2,44 @@ import { app, BrowserWindow } from 'electron';
 import * as path from 'path';
 import * as isDev from 'electron-is-dev';
 import installExtension, { REACT_DEVELOPER_TOOLS } from "electron-devtools-installer";
+import { autoUpdater } from 'electron-updater'
 
 let win: BrowserWindow | null = null;
 
+
+function sendStatusToWindow(text: string) {
+  if(win){
+    win.webContents.send('message', text);
+  }
+}
+autoUpdater.on('checking-for-update', () => {
+  sendStatusToWindow('Checking for update...');
+})
+autoUpdater.on('update-available', () => {
+  sendStatusToWindow('Update available.');
+})
+autoUpdater.on('update-not-available', () => {
+  sendStatusToWindow('Update not available.');
+})
+autoUpdater.on('error', (err: string) => {
+  sendStatusToWindow('Error in auto-updater. ' + err);
+})
+autoUpdater.on('download-progress', (progressObj: any) => {
+  let log_message = "Download speed: " + progressObj.bytesPerSecond;
+  log_message = log_message + ' - Downloaded ' + progressObj.percent + '%';
+  log_message = log_message + ' (' + progressObj.transferred + "/" + progressObj.total + ')';
+  sendStatusToWindow(log_message);
+})
+autoUpdater.on('update-downloaded', () => {
+  sendStatusToWindow('Update downloaded');
+});
+
+
+
+
 function createWindow() {
   win = new BrowserWindow({
-    width: 800,
+    width: 1000,
     height: 600,
     webPreferences: {
       nodeIntegration: true
@@ -19,6 +51,7 @@ function createWindow() {
   } else {
     // 'build/index.html'
     win.loadURL(`file://${__dirname}/../index.html`);
+    autoUpdater.checkForUpdatesAndNotify();
   }
 
   win.on('closed', () => win = null);

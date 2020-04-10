@@ -10,6 +10,7 @@ import { Wallet } from '../util/types';
 
 import { LocalStorage } from './local_storage';
 
+
 let web3Wrapper: Web3Wrapper | null = null;
 
 const localStorage = new LocalStorage(window.localStorage);
@@ -45,6 +46,9 @@ export const initializeWeb3Wrapper = async (wallet: Wallet): Promise<Web3Wrapper
         case Wallet.Cipher:
             web3Wrapper = await initProviderWallet(wallet);
             break;
+        // case Wallet.WalletConnect:
+        //     web3Wrapper = await initWalletConnect(wallet);
+        //     break;
         default:
             break;
     }
@@ -278,6 +282,69 @@ export const initFortmatic = async (): Promise<Web3Wrapper | null> => {
         }
     }
 };
+
+//  const initWalletConnect = async (wallet: Wallet) => {
+//     const { location } = window;
+//     // Create a walletConnector
+//     const walletConnector = new WalletConnect({
+//         bridge: 'https://bridge.walletconnect.org', // Required
+//         // @ts-ignore
+//         session: {
+//             chainId: NETWORK_ID ,
+//         },
+//     });
+
+//     if (!walletConnector.connected) {
+//         await walletConnector.createSession();
+//         const uri = walletConnector.uri;
+//         // display QR Code modal
+//         WalletConnectQRCodeModal.open(uri,
+//             () => { /*logger.log('Wallet Connect: QR Code Modal closed'); */
+//                     if (!web3Wrapper) {
+//                         localStorage.resetWalletConnected();
+//                         location.reload();
+//             } 
+//         });
+//         walletConnector.on('connect', async (error: any , payload: any) => {
+//             console.log(error);
+//             console.log(payload) 
+//             try{
+//                 const provider = new Web3ProviderEngine();
+//                 const rpcProvider = new RPCSubprovider(RPC_PROVIDER);
+//                 const wcProvider = new WalletConnectSubprovider(walletConnector);
+//                 provider.addProvider(wcProvider);
+//                 provider.addProvider(rpcProvider);
+//                 providerUtils.startProviderEngine(provider);
+//                 const providerStandard = providerUtils.standardizeOrThrow(provider);
+//                 web3Wrapper = new Web3Wrapper(providerStandard );
+//                 WalletConnectQRCodeModal.close();
+//                 const address = await  web3Wrapper.getAvailableAddressesAsync();
+//                 console.log('I am here fetching address');
+//                 console.log(address);
+//                 console.log(web3Wrapper);
+//                 return web3Wrapper;
+//             }catch(e){
+//                /* logger.log(e);*/
+//             } 
+
+//         });
+//     }
+
+//     walletConnector.on('disconnect', (error: any, payload: any) => {
+//         localStorage.resetWalletConnected();
+//         location.reload();
+//         if (error) {
+//             throw error;
+//         }  // Delete walletConnector
+//     });
+//     walletConnector.on('session_update', (error: any, payload: any) => {
+//         if (error) { throw error; }
+//         // Get updated accounts and chainId
+//         localStorage.saveWalletConnected(Wallet.WalletConnect);
+//         location.reload();
+//     });
+//     return null;
+//} 
 
 export const getWeb3Wrapper = async (): Promise<Web3Wrapper> => {
     while (!web3Wrapper) {
