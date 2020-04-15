@@ -21,6 +21,10 @@ export const RELAYER_URL = process.env.REACT_APP_RELAYER_URL || 'http://localhos
 
 export const RELAYER_WS_URL = process.env.REACT_APP_RELAYER_WS_URL || 'ws://localhost:3001';
 
+export const RPC_URL = process.env.REACT_APP_RPC_URL || 'https://cloudflare-eth.com/';
+
+export const INFURA_ID = process.env.REACT_APP_INFURA_ID || '';
+
 export const TX_DEFAULTS = {
     gas: 1000000,
     // gasLimit: 1000000,

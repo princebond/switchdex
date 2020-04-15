@@ -1023,12 +1023,20 @@ export const initializeAppWallet: ThunkCreator = () => {
 
 // delete all wallets instance
 export const logoutWallet: ThunkCreator = () => {
-    return async (dispatch, getState) => {
+    return async (dispatch, getState, { getWeb3Wrapper }) => {
         dispatch(setWeb3State(Web3State.Connect));
         const state = getState();
         const wallet = getWallet(state);
         dispatch(resetWallet());
+        if (wallet === Wallet.WalletConnect) {
+            const web3Wrapper = getWeb3Wrapper();
+            const provider = (await web3Wrapper).getProvider();
+            // @ts-ignore
+            await provider.close();
+        }
+
         deleteWeb3Wrapper();
+
         const { location } = window;
         location.reload();
         // needs to reload when the wallet is Torus

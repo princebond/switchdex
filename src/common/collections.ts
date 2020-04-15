@@ -2,6 +2,7 @@ import slugify from 'slugify';
 
 import { collectibleCollectionConfig } from '../config';
 import { CollectibleCollection } from '../util/types';
+import { ChainId } from '../util/types/swap';
 
 import { CHAIN_ID } from './constants';
 
@@ -27,6 +28,9 @@ interface Addresses {
 }
 
 export const getCollectibleCollections = (): CollectibleCollection[] => {
+    if (CHAIN_ID !== ChainId.Mainnet) {
+        return [];
+    }
     if (collectibleCollection.length === 0) {
         collectibleCollection = collectibleCollectionConfig.collections
             .filter(c => getContractFromChainId(c.addresses) !== null)

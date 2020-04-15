@@ -2,7 +2,7 @@ import React, { HTMLAttributes } from 'react';
 import Modal from 'react-modal';
 import styled, { withTheme } from 'styled-components';
 
-import { METAMASK_CHROME_EXTENSION_DOWNLOAD_URL } from '../../common/constants';
+import { METAMASK_CHROME_EXTENSION_DOWNLOAD_URL, VERIDEX_ORIGIN } from '../../common/constants';
 import { isMetamaskInstalled } from '../../services/web3_wrapper';
 import { Theme } from '../../themes/commons';
 import { envUtil } from '../../util/env';
@@ -11,6 +11,7 @@ import { ButtonVariant, Wallet } from '../../util/types';
 import { Button } from './button';
 import { CloseModalButton } from './icons/close_modal_button';
 import { GetCoinbaseWallet } from './icons/coinbase_wallet_get';
+import { GetTrustWallet } from './icons/trust_wallet_go';
 
 interface OwnProps {
     theme: Theme;
@@ -58,6 +59,12 @@ const ButtonCoinbase = styled(Button)`
     background-color: ${props => props.theme.componentsTheme.cardBackgroundColor};
 `;
 
+const ButtonTrust = styled(Button)`
+    width: 100%;
+    padding: 0px;
+    background-color: ${props => props.theme.componentsTheme.cardBackgroundColor};
+`;
+
 const LinkButton = styled.a`
     color: ${props => props.theme.componentsTheme.buttonTextColor};
     text-decoration: none;
@@ -85,6 +92,9 @@ const WalletChooseModalContainer: React.FC<Props> = props => {
     const chooseMetamask = () => {
         chooseWallet(Wallet.Metamask);
     };
+    const chooseWalletConnect = () => {
+        chooseWallet(Wallet.WalletConnect);
+    };
     /*const chooseWalletTorus = () => {
         chooseWallet(Wallet.Torus);
     };*/
@@ -105,6 +115,9 @@ const WalletChooseModalContainer: React.FC<Props> = props => {
                 break;
         }
     };
+    const clickGoTrust = () => {
+        window.open(`https://link.trustwallet.com/open_url?coin_id=60&url=${VERIDEX_ORIGIN}`);
+    };
 
     const isMobile = envUtil.isMobileOperatingSystem();
 
@@ -122,9 +135,14 @@ const WalletChooseModalContainer: React.FC<Props> = props => {
                </ButtonStyled>*/}
             {/*isMMInstalled() ? <ModalTextLink>Torus not work with Metamask installed! </ModalTextLink> : ''*/}
             {!isMobile && (
-                <ButtonStyled disabled={!isMMInstalled()} onClick={chooseMetamask} variant={ButtonVariant.Tertiary}>
-                    <LinkButton>{'Metamask'}</LinkButton>
-                </ButtonStyled>
+                <>
+                    <ButtonStyled disabled={!isMMInstalled()} onClick={chooseMetamask} variant={ButtonVariant.Tertiary}>
+                        <LinkButton>{'Metamask'}</LinkButton>
+                    </ButtonStyled>
+                    <ButtonStyled onClick={chooseWalletConnect} variant={ButtonVariant.Torus}>
+                        <LinkButton>{'Wallet Connect'}</LinkButton>
+                    </ButtonStyled>
+                </>
             )}
 
             {isMMInstalled() || isMobile ? (
@@ -135,7 +153,8 @@ const WalletChooseModalContainer: React.FC<Props> = props => {
 
             {isMobile ? (
                 <>
-                    <MobileText>Mobile Wallets With Dapp Browsers</MobileText>
+                    <MobileText>Mobile Wallets With Dapp Browsers:</MobileText>
+                    <ButtonTrust onClick={clickGoTrust}>{GetTrustWallet()}</ButtonTrust>
                     <ButtonCoinbase onClick={clickGetCoinbaseWallet}>{GetCoinbaseWallet()}</ButtonCoinbase>
                 </>
             ) : (

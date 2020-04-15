@@ -37,7 +37,14 @@ const Web3StateButton = () => {
     const getContentFromWeb3State = (): React.ReactNode => {
         switch (web3State) {
             case Web3State.Locked:
-                return <ErrorCard fontSize={FontSize.Large} text={errorsWallet.mmLocked} icon={ErrorIcons.Lock} />;
+                return (
+                    <ErrorCard
+                        fontSize={FontSize.Large}
+                        text={errorsWallet.mmLocked}
+                        onClick={onConnectWallet}
+                        icon={ErrorIcons.Lock}
+                    />
+                );
             case Web3State.NotInstalled:
                 return (
                     <ErrorCard
@@ -69,7 +76,12 @@ const Web3StateButton = () => {
                 );
             case Web3State.Error:
                 return (
-                    <ErrorCard fontSize={FontSize.Large} text={errorsWallet.mmWrongNetwork} icon={ErrorIcons.Warning} />
+                    <ErrorCard
+                        fontSize={FontSize.Large}
+                        text={errorsWallet.mmWrongNetwork}
+                        onClick={onConnectWallet}
+                        icon={ErrorIcons.Warning}
+                    />
                 );
             case Web3State.Done:
                 return null;
