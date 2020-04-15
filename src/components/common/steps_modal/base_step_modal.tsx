@@ -14,6 +14,7 @@ import {
     StepStatusConfirmOnMetamask,
     StepStatusConfirmOnPortis,
     StepStatusConfirmOnTorus,
+    StepStatusConfirmOnWalletConnect,
     StepStatusDone,
     StepStatusError,
     StepStatusLoading,
@@ -126,6 +127,9 @@ export class BaseStepModal extends React.Component<Props, State> {
                             break;
                         case Wallet.Torus:
                             content = <StepStatusConfirmOnTorus />;
+                            break;
+                        case Wallet.WalletConnect:
+                            content = <StepStatusConfirmOnWalletConnect />;
                             break;
                         default:
                             break;

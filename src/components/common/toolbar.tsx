@@ -119,7 +119,12 @@ const Toolbar = (props: Props) => {
                 return (
                     <>
                         {endOptContent && <ToolbarEndBigWidth>{endOptContent}</ToolbarEndBigWidth>}
-                        <ErrorCard fontSize={FontSize.Large} text={errorsWallet.mmLocked} icon={ErrorIcons.Lock} />
+                        <ErrorCard
+                            fontSize={FontSize.Large}
+                            text={errorsWallet.mmLocked}
+                            icon={ErrorIcons.Lock}
+                            onClick={onConnectWallet}
+                        />
                     </>
                 );
             case Web3State.NotInstalled:
@@ -127,6 +132,7 @@ const Toolbar = (props: Props) => {
                     <>
                         {endOptContent && <ToolbarEndBigWidth>{endOptContent}</ToolbarEndBigWidth>}
                         <ErrorCard
+                            onClick={onConnectWallet}
                             fontSize={FontSize.Large}
                             text={errorsWallet.mmNotInstalled}
                             icon={ErrorIcons.Metamask}
@@ -172,8 +178,8 @@ const Toolbar = (props: Props) => {
                         <ErrorPointer
                             fontSize={FontSize.Large}
                             text={errorsWallet.mmWrongNetwork}
+                            onClick={onConnectWallet}
                             icon={ErrorIcons.Warning}
-                            onClick={onErrorConnectWallet}
                         />
                     </>
                 );

@@ -54,6 +54,12 @@ const ButtonCoinbase = styled(Button)`
     background-color: ${props => props.theme.componentsTheme.cardBackgroundColor};
 `;
 
+const ButtonTrust = styled(Button)`
+    width: 100%;
+    padding: 0px;
+    background-color: ${props => props.theme.componentsTheme.cardBackgroundColor};
+`;
+
 const LinkButton = styled.a`
     color: ${props => props.theme.componentsTheme.buttonTextColor};
     text-decoration: none;
@@ -71,7 +77,6 @@ const WalletChooseModalContainer: React.FC<Props> = props => {
     const choosePortis = () => {
         chooseWallet(Wallet.Portis);
     };
-
     /*const chooseWalletTorus = () => {
         chooseWallet(Wallet.Torus);
     };*/
@@ -79,9 +84,11 @@ const WalletChooseModalContainer: React.FC<Props> = props => {
         chooseWallet(Wallet.Fortmatic);
     };
 
+
     const chooseWalletConnect = () => {
         chooseWallet(Wallet.WalletConnect);
     };
+
 
 
     const content = (
@@ -92,6 +99,9 @@ const WalletChooseModalContainer: React.FC<Props> = props => {
             </ButtonStyled>
             <ButtonStyled onClick={chooseFortmatic} variant={ButtonVariant.Fortmatic}>
                 <LinkButton>{'Fortmatic'}</LinkButton>
+            </ButtonStyled>
+            <ButtonStyled onClick={chooseWalletConnect} variant={ButtonVariant.Torus}>
+                        <LinkButton>{'Wallet Connect'}</LinkButton>
             </ButtonStyled>
            {/* <ButtonStyled  onClick={chooseWalletConnect} variant={ButtonVariant.Torus}>
                 <LinkButton>{'Wallet Connect'}</LinkButton>

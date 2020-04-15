@@ -3,14 +3,12 @@ import { providerUtils } from '@0x/utils';
 import { Web3Wrapper } from '@0x/web3-wrapper';
 // import Torus from '@toruslabs/torus-embed';
 
-import { FORTMATIC_APP_ID, NETWORK_ID, NETWORK_NAME, PORTIS_APP_ID } from '../common/constants';
+import { CHAIN_ID, FORTMATIC_APP_ID, INFURA_ID, NETWORK_ID, NETWORK_NAME, PORTIS_APP_ID } from '../common/constants';
 import { providerFactory } from '../util/provider_factory';
 import { sleep } from '../util/sleep';
 import { Wallet } from '../util/types';
 
 import { LocalStorage } from './local_storage';
-
-
 let web3Wrapper: Web3Wrapper | null = null;
 
 const localStorage = new LocalStorage(window.localStorage);
@@ -34,8 +32,14 @@ export const initializeWeb3Wrapper = async (wallet: Wallet): Promise<Web3Wrapper
         case Wallet.Fortmatic:
             web3Wrapper = await initFortmatic();
             break;
+        case Wallet.Coinbase:
+            web3Wrapper = await initWalletConnect();
+            break;
         case Wallet.Enjin:
             web3Wrapper = await initEnjin();
+            break;
+        case Wallet.WalletConnect:
+            web3Wrapper = await initWalletConnect();
             break;
         case Wallet.Coinbase:
             web3Wrapper = await initCoinbase();
@@ -216,6 +220,51 @@ export const initPortis = async (): Promise<Web3Wrapper | null> => {
     }
 };
 
+export const initWalletConnect = async (): Promise<Web3Wrapper | null> => {
+    const { location } = window;
+    const WalletConnectProvider = (await import('@walletconnect/web3-provider')).default;
+    const provider = new WalletConnectProvider({ infuraId: INFURA_ID, chainId: CHAIN_ID });
+    try {
+        await provider.enable();
+        localStorage.saveWalletConnected(Wallet.WalletConnect);
+    } catch {
+        localStorage.resetWalletConnected();
+        location.reload();
+        return null;
+    }
+
+    web3Wrapper = new Web3Wrapper(provider);
+
+    // Subscribe to accounts change
+    provider.on('accountsChanged', (accounts: string[]) => {
+        location.reload();
+    });
+
+    // Subscribe to chainId change
+    provider.on('chainChanged', (chainId: number) => {
+        location.reload();
+    });
+
+    // Subscribe to networkId change
+    provider.on('networkChanged', (networkId: number) => {
+        location.reload();
+    });
+
+    // Subscribe to session connection/open
+    provider.on('open', () => {
+        localStorage.saveWalletConnected(Wallet.WalletConnect);
+    });
+
+    // Subscribe to session disconnection/close
+    provider.on('close', (code: number, reason: string) => {
+        deleteWeb3Wrapper();
+        localStorage.resetWalletConnected();
+        location.reload();
+    });
+
+    return web3Wrapper;
+};
+
 export const initTorus = async (): Promise<Web3Wrapper | null> => {
     /*const importTorus = (): Promise<Web3Wrapper | null> => {
         return new Promise((resolve, reject) => {
@@ -282,69 +331,6 @@ export const initFortmatic = async (): Promise<Web3Wrapper | null> => {
         }
     }
 };
-
-//  const initWalletConnect = async (wallet: Wallet) => {
-//     const { location } = window;
-//     // Create a walletConnector
-//     const walletConnector = new WalletConnect({
-//         bridge: 'https://bridge.walletconnect.org', // Required
-//         // @ts-ignore
-//         session: {
-//             chainId: NETWORK_ID ,
-//         },
-//     });
-
-//     if (!walletConnector.connected) {
-//         await walletConnector.createSession();
-//         const uri = walletConnector.uri;
-//         // display QR Code modal
-//         WalletConnectQRCodeModal.open(uri,
-//             () => { /*logger.log('Wallet Connect: QR Code Modal closed'); */
-//                     if (!web3Wrapper) {
-//                         localStorage.resetWalletConnected();
-//                         location.reload();
-//             } 
-//         });
-//         walletConnector.on('connect', async (error: any , payload: any) => {
-//             console.log(error);
-//             console.log(payload) 
-//             try{
-//                 const provider = new Web3ProviderEngine();
-//                 const rpcProvider = new RPCSubprovider(RPC_PROVIDER);
-//                 const wcProvider = new WalletConnectSubprovider(walletConnector);
-//                 provider.addProvider(wcProvider);
-//                 provider.addProvider(rpcProvider);
-//                 providerUtils.startProviderEngine(provider);
-//                 const providerStandard = providerUtils.standardizeOrThrow(provider);
-//                 web3Wrapper = new Web3Wrapper(providerStandard );
-//                 WalletConnectQRCodeModal.close();
-//                 const address = await  web3Wrapper.getAvailableAddressesAsync();
-//                 console.log('I am here fetching address');
-//                 console.log(address);
-//                 console.log(web3Wrapper);
-//                 return web3Wrapper;
-//             }catch(e){
-//                /* logger.log(e);*/
-//             } 
-
-//         });
-//     }
-
-//     walletConnector.on('disconnect', (error: any, payload: any) => {
-//         localStorage.resetWalletConnected();
-//         location.reload();
-//         if (error) {
-//             throw error;
-//         }  // Delete walletConnector
-//     });
-//     walletConnector.on('session_update', (error: any, payload: any) => {
-//         if (error) { throw error; }
-//         // Get updated accounts and chainId
-//         localStorage.saveWalletConnected(Wallet.WalletConnect);
-//         location.reload();
-//     });
-//     return null;
-//} 
 
 export const getWeb3Wrapper = async (): Promise<Web3Wrapper> => {
     while (!web3Wrapper) {
