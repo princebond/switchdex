@@ -331,9 +331,9 @@ export const submitLimitMatchingOrder: ThunkCreator = (amount: BigNumber, price:
             const quoteToken = getQuoteToken(state) as Token;
             // Check if the order is fillable using the forwarder
             const ethBalance = getEthBalance(state) as BigNumber;
-            /*const ethAmountRequired = amounts.reduce((total: BigNumber, currentValue: BigNumber) => {
+            const ethAmountRequired = amounts.reduce((total: BigNumber, currentValue: BigNumber) => {
                 return total.plus(currentValue);
-            }, ZERO);*/
+            }, ZERO);
             const wethAssetData = getWethAssetData();
             let takerWethFee: BigNumber = new BigNumber(0);
 
@@ -344,12 +344,12 @@ export const submitLimitMatchingOrder: ThunkCreator = (amount: BigNumber, price:
             }
             const protocolFee = calculateWorstCaseProtocolFee(ordersToFill, gasPrice);
             // const feeAmount = ordersToFill.map(o => o.makerFee).reduce((p, c) => p.plus(c));
-            const affiliateFeeAmount = amount
+            const affiliateFeeAmount = ethAmountRequired
                 .plus(protocolFee)
                 .multipliedBy(feePercentange)
                 .integerValue(BigNumber.ROUND_UP);
 
-            const totalEthAmount = amount
+            const totalEthAmount = ethAmountRequired
                 .plus(protocolFee.multipliedBy(1.3))
                 .plus(affiliateFeeAmount)
                 .plus(takerWethFee);
