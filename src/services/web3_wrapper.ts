@@ -3,13 +3,12 @@ import { providerUtils } from '@0x/utils';
 import { Web3Wrapper } from '@0x/web3-wrapper';
 // import Torus from '@toruslabs/torus-embed';
 
-import { FORTMATIC_APP_ID, NETWORK_ID, NETWORK_NAME, PORTIS_APP_ID } from '../common/constants';
+import { CHAIN_ID, FORTMATIC_APP_ID, INFURA_ID, NETWORK_ID, NETWORK_NAME, PORTIS_APP_ID } from '../common/constants';
 import { providerFactory } from '../util/provider_factory';
 import { sleep } from '../util/sleep';
 import { Wallet } from '../util/types';
 
 import { LocalStorage } from './local_storage';
-
 let web3Wrapper: Web3Wrapper | null = null;
 
 const localStorage = new LocalStorage(window.localStorage);
@@ -33,8 +32,14 @@ export const initializeWeb3Wrapper = async (wallet: Wallet): Promise<Web3Wrapper
         case Wallet.Fortmatic:
             web3Wrapper = await initFortmatic();
             break;
+        case Wallet.Coinbase:
+            web3Wrapper = await initWalletConnect();
+            break;
         case Wallet.Enjin:
             web3Wrapper = await initEnjin();
+            break;
+        case Wallet.WalletConnect:
+            web3Wrapper = await initWalletConnect();
             break;
         case Wallet.Coinbase:
             web3Wrapper = await initCoinbase();
@@ -210,6 +215,52 @@ export const initPortis = async (): Promise<Web3Wrapper | null> => {
     } catch (error) {
         return null;
     }
+};
+
+export const initWalletConnect = async (): Promise<Web3Wrapper | null> => {
+    const { location } = window;
+    const WalletConnectProvider = (await import('@walletconnect/web3-provider')).default;
+    const provider = new WalletConnectProvider({ infuraId: INFURA_ID, chainId: CHAIN_ID });
+    try {
+        await provider.enable();
+        localStorage.saveWalletConnected(Wallet.WalletConnect);
+    } catch {
+        localStorage.resetWalletConnected();
+        location.reload();
+        return null;
+    }
+
+    web3Wrapper = new Web3Wrapper(provider);
+
+    // Subscribe to accounts change
+    provider.on('accountsChanged', (accounts: string[]) => {
+        location.reload();
+    });
+
+    // Subscribe to chainId change
+    provider.on('chainChanged', (chainId: number) => {
+        location.reload();
+    });
+
+    // Subscribe to networkId change
+    provider.on('networkChanged', (networkId: number) => {
+        location.reload();
+    });
+
+    // Subscribe to session connection/open
+    provider.on('open', () => {
+        localStorage.saveWalletConnected(Wallet.WalletConnect);
+        console.log('open');
+    });
+
+    // Subscribe to session disconnection/close
+    provider.on('close', (code: number, reason: string) => {
+        deleteWeb3Wrapper();
+        localStorage.resetWalletConnected();
+        location.reload();
+    });
+
+    return web3Wrapper;
 };
 
 export const initTorus = async (): Promise<Web3Wrapper | null> => {

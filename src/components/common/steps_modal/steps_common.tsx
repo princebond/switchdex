@@ -6,6 +6,7 @@ import { FortmaticLarge } from '../icons/icon_fortmatic_large';
 import { MetamaskLarge } from '../icons/icon_metamask_large';
 import { PortisLarge } from '../icons/icon_portis_large';
 import { TorusLarge } from '../icons/icon_torus_large';
+import { WalletConnectLarge } from '../icons/icon_wallet_connect_large';
 import { NotificationCancelIcon } from '../icons/notification_cancel_icon';
 import { NotificationCheckmarkIcon } from '../icons/notification_checkmark_icon';
 import { Spinner } from '../spinner';
@@ -32,6 +33,13 @@ const StepStatusConfirmOnPortis = (props: React.Props<WithChildren>) => (
 const StepStatusConfirmOnTorus = (props: React.Props<WithChildren>) => (
     <>
         <TorusIcon />
+        {props.children}
+    </>
+);
+
+const StepStatusConfirmOnWalletConnect = (props: React.Props<WithChildren>) => (
+    <>
+        <WalletConnectIcon />
         {props.children}
     </>
 );
@@ -91,6 +99,10 @@ const TorusIcon = styled(TorusLarge)`
 `;
 
 const FortmaticIcon = styled(FortmaticLarge)`
+    margin-bottom: ${iconMarginBottom};
+`;
+
+const WalletConnectIcon = styled(WalletConnectLarge)`
     margin-bottom: ${iconMarginBottom};
 `;
 
@@ -176,6 +188,7 @@ export {
     StepStatusConfirmOnPortis,
     StepStatusConfirmOnTorus,
     StepStatusConfirmOnFortmatic,
+    StepStatusConfirmOnWalletConnect,
     StepStatusDone,
     StepStatusError,
     StepStatusLoading,
