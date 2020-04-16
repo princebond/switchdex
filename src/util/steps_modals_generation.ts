@@ -463,9 +463,14 @@ export const getWrapEthStepIfNeeded = (
     isQuote: boolean = true,
 ): StepWrapEth | null => {
     // Weth needed only when creating a buy order
-    if (side === OrderSide.Sell) {
+    if (side === OrderSide.Sell && isQuote) {
         return null;
     }
+     // Weth needed when creating a sell order and it is not a quote
+    if (side === OrderSide.Buy && !isQuote) {
+        return null;
+    }
+
     let wethAmountNeeded = isQuote ? amount.multipliedBy(price) : amount;
     if (feeBalance) {
         wethAmountNeeded = wethAmountNeeded.plus(feeBalance);

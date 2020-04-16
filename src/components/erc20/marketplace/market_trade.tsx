@@ -6,7 +6,7 @@ import { useLocation } from 'react-router';
 import styled from 'styled-components';
 
 import { ZERO } from '../../../common/constants';
-import { calculateSwapQuote, setSwapBaseToken, startSwapMarketSteps } from '../../../store/actions';
+import { calculateSwapQuote, setSwapBaseToken, setSwapQuoteToken, startSwapMarketSteps } from '../../../store/actions';
 import {
     getCurrencyPair,
     getOrderPriceSelected,
@@ -199,6 +199,7 @@ const useQuery = () => {
 const MarketTrade = (props: Props) => {
     const query = useQuery();
     const queryToken = query.get('token');
+    const queryQuoteToken = query.get('quoteToken');
     const sideQuery = query.get('side');
     const initialSide = sideQuery
         ? sideQuery.toLocaleUpperCase() === 'sell'
@@ -241,9 +242,30 @@ const MarketTrade = (props: Props) => {
                 }
             }
         };
+        const fetchQuoteToken = async () => {
+            if (!queryQuoteToken) {
+                return;
+            }
+            if (
+                queryQuoteToken.toLowerCase() === quoteToken.symbol.toLowerCase() ||
+                queryQuoteToken.toLowerCase() === quoteToken.address.toLowerCase()
+            ) {
+                return;
+            }
+            const t = await known_tokens.findTokenOrFetchIt(queryQuoteToken);
+            if (t) {
+                if (t === quoteToken) {
+                    return;
+                } else {
+                    dispatch(setSwapQuoteToken(t));
+                }
+            }
+        };
+
         // tslint:disable-next-line:no-floating-promises
         fetchToken();
-    }, [queryToken, baseToken]);
+        fetchQuoteToken();
+    }, [queryToken, baseToken, quoteToken, queryQuoteToken]);
 
     const stepAmount = new BigNumber(1).div(new BigNumber(10).pow(8));
     const stepAmountUnits = unitsInTokenAmount(String(stepAmount), decimals);
@@ -345,6 +367,7 @@ const MarketTrade = (props: Props) => {
         try {
             await props.onSubmitSwapMarketOrder(makerAmount, orderSide, swapQuote);
         } catch (error) {
+            console.log(error);
             setErrorState({
                 btnMsg: 'Error',
                 cardMsg: error.message,

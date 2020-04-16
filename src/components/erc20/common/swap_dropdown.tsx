@@ -2,7 +2,7 @@ import React, { HTMLAttributes } from 'react';
 import { connect } from 'react-redux';
 import styled from 'styled-components';
 
-import { changeSwapBaseToken, goToHome, setSwapQuoteToken } from '../../../store/actions';
+import { changeSwapBaseToken, changeSwapQuoteToken, goToHome } from '../../../store/actions';
 import { getSwapBaseToken, getSwapQuoteToken } from '../../../store/selectors';
 import { themeBreakPoints, themeDimensions } from '../../../themes/commons';
 import { getKnownTokens } from '../../../util/known_tokens';
@@ -371,7 +371,7 @@ const mapStateToProps = (state: StoreState): PropsToken => {
 const mapDispatchToProps = (dispatch: any): DispatchProps => {
     return {
         changeSwapBaseToken: (token: Token) => dispatch(changeSwapBaseToken(token)),
-        changeSwapQuoteToken: (token: Token) => dispatch(setSwapQuoteToken(token)),
+        changeSwapQuoteToken: (token: Token) => dispatch(changeSwapQuoteToken(token)),
         goToHome: () => dispatch(goToHome()),
     };
 };
