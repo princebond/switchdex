@@ -14,6 +14,7 @@ import ToolbarContentContainer from './common/toolbar_content';
 const toolbar = <ToolbarContentContainer />;
 
 const LendingPage = React.lazy(() => import('./pages/lending'));
+const DefiPage = React.lazy(() => import('./pages/defi'));
 
 export const MarginApp = () => {
     const themeColor = useSelector(getERC20Theme);
@@ -24,6 +25,7 @@ export const MarginApp = () => {
                 <Suspense fallback={<PageLoading />}>
                     <Switch>
                         <Route exact={true} path={`${MARGIN_APP_BASE_PATH}/lend`} component={LendingPage} />
+                        <Route exact={true} path={`${MARGIN_APP_BASE_PATH}/defi`} component={DefiPage} />
                     </Switch>
                 </Suspense>
             </GeneralLayoutContainer>

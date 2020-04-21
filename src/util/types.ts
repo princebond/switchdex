@@ -143,6 +143,8 @@ export enum BZXLoadingState {
     Loading = 'Loading',
 }
 
+
+
 export interface BlockchainState {
     readonly ethAccount: string;
     readonly wallet: Wallet | null;

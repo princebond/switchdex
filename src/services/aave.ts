@@ -8,11 +8,18 @@ import { iTokenData, TokenMetadataBZX } from '../util/types';
 
 import { getContractWrappers } from './contract_wrappers';
 import { getWeb3Wrapper } from './web3_wrapper';
+import { ATokenData } from '../util/aave/types';
 
-export const getITokenContractWrapper = async (address: string, partialTxData: Partial<TxData>) => {
+export const getATokenContractWrapper = async (address: string, partialTxData: Partial<TxData>) => {
     const web3Wrapper = await getWeb3Wrapper();
-    const iTokenContract = (await import('../util/bzx/contract_wrappers/i_token')).iTokenContract;
-    return new iTokenContract(address, web3Wrapper.getProvider(), partialTxData);
+    const ATokenContract = (await import('../util/aave/contract_wrappers/atoken')).AtokenContract;
+    return new ATokenContract(address, web3Wrapper.getProvider(), partialTxData);
+};
+
+export const getLendingPool = async (address: string, partialTxData: Partial<TxData>) => {
+    const web3Wrapper = await getWeb3Wrapper();
+    const LendingPoolContract = (await import('../util/aave/contract_wrappers/lending_pool')).LendingPoolContract;
+    return new LendingPoolContract(address, web3Wrapper.getProvider(), partialTxData);
 };
 
 export const getTokenizedRegistryContractWrapper = async (partialTxData: Partial<TxData>) => {
@@ -21,7 +28,7 @@ export const getTokenizedRegistryContractWrapper = async (partialTxData: Partial
     return new TokenizedRegistryContract(getTokenizedRegistryAddress(), web3Wrapper.getProvider(), partialTxData);
 };
 
-export const getAllITokens = async (ethAccount: string): Promise<[iTokenData[], TokenMetadataBZX[]]> => {
+export const getAllATokens = async (ethAccount: string): Promise<[ATokenData[]]> => {
     let tokens;
     try {
         tokens = await (await getTokenizedRegistryContractWrapper({}))
