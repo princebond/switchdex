@@ -7,9 +7,9 @@ import { getTransactionOptions } from '../../util/transactions';
 import { BZXLoadingState, BZXState, iTokenData, NotificationKind, ThunkCreator, Token } from '../../util/types';
 import { addNotifications, updateTokenBalances } from '../actions';
 import { getEthAccount, getGasPriceInWei } from '../selectors';
-import { ATokenData, AaveLoadingState } from '../../util/aave/types';
-import { getATokenContractWrapper, getAllATokens, getLendingPool } from '../../services/aave';
-import { LENDING_POOL_ADDRESS } from '../../util/aave/constants';
+import { ATokenData, AaveLoadingState, AaveState } from '../../util/aave/types';
+import { getATokenContractWrapper, getLendingPool } from '../../services/aave';
+
 
 const logger = getLogger('Aave::Actions');
 
@@ -21,11 +21,11 @@ export const setAaveLoadingState = createAction('aave/AAVE_LOADING_STATE_set', r
     return (aaveLoadingState: AaveLoadingState) => resolve(aaveLoadingState);
 });
 
-export const setITokenBalance = createAction('aave/ATOKEN_BALANCE_set', resolve => {
+export const setATokenBalance = createAction('aave/ATOKEN_BALANCE_set', resolve => {
     return (token: ATokenData) => resolve(token);
 });
 
-export const setITokenBalances = createAction('aave/ATOKEN_BALANCES_set', resolve => {
+export const setATokenBalances = createAction('aave/ATOKEN_BALANCES_set', resolve => {
     return (token: ATokenData[]) => resolve(token);
 });
 
@@ -35,7 +35,7 @@ export const initAave: ThunkCreator<Promise<any>> = () => {
         const ethAccount = getEthAccount(state);
         dispatch(setAaveLoadingState(AaveLoadingState.Loading));
         try {
-            const [iTokens, tokens] = await getAllATokens(ethAccount);
+        /*    const [iTokens, tokens] = await getAllATokens(ethAccount);
             await dispatch(updateTokenBalances());
             dispatch(
                 initializeAaveData({
@@ -43,7 +43,7 @@ export const initAave: ThunkCreator<Promise<any>> = () => {
                     iTokensData: iTokens,
                 }),
             );
-            dispatch(setAaveLoadingState(AaveLoadingState.Done));
+            dispatch(setAaveLoadingState(AaveLoadingState.Done));*/
         } catch (error) {
             logger.error('There was an error when initializing bzx smartcontracts', error);
             dispatch(setAaveLoadingState(AaveLoadingState.Error));
@@ -51,9 +51,9 @@ export const initAave: ThunkCreator<Promise<any>> = () => {
     };
 };
 
-export const fetchBZX: ThunkCreator<Promise<any>> = () => {
+export const fetchAave: ThunkCreator<Promise<any>> = () => {
     return async (dispatch, getState) => {
-        const state = getState();
+     /*   const state = getState();
         const ethAccount = getEthAccount(state);
         try {
             const [iTokens, tokens] = await getAllITokens(ethAccount);
@@ -64,12 +64,12 @@ export const fetchBZX: ThunkCreator<Promise<any>> = () => {
                 }),
             );
         } catch (error) {
-            logger.error('There was an error when fetching bzx smartcontracts', error);
-        }
+            logger.error('There was an error when fetching aave smartcontracts', error);
+        }*/
     };
 };
 
-export const lendingToken: ThunkCreator<Promise<any>> = (
+export const lendingAToken: ThunkCreator<Promise<any>> = (
     token: Token,
     aToken: ATokenData,
     amount: BigNumber,
@@ -80,9 +80,7 @@ export const lendingToken: ThunkCreator<Promise<any>> = (
         const ethAccount = getEthAccount(state);
         const gasPrice = getGasPriceInWei(state);
 
-
-
-        const lendingPoolWrapper = await getLendingPool(LENDING_POOL_ADDRESS, {
+        const lendingPoolWrapper = await getLendingPool( {
             from: ethAccount.toLowerCase(),
             gas: '2000000',
         });
@@ -124,7 +122,7 @@ export const lendingToken: ThunkCreator<Promise<any>> = (
     };
 };
 
-export const unLendingToken: ThunkCreator<Promise<any>> = (
+export const unLendingAToken: ThunkCreator<Promise<any>> = (
     token: Token,
     aToken: ATokenData,
     amount: BigNumber,
@@ -182,7 +180,7 @@ export const borrowToken: ThunkCreator<Promise<any>> = (
         const state = getState();
         const ethAccount = getEthAccount(state);
         const gasPrice = getGasPriceInWei(state);
-        const lendingPoolWrapper = await getLendingPool(LENDING_POOL_ADDRESS, {
+        const lendingPoolWrapper = await getLendingPool( {
             from: ethAccount.toLowerCase(),
             gas: '2000000',
         });
@@ -231,7 +229,7 @@ export const repayToken: ThunkCreator<Promise<any>> = (
         const state = getState();
         const ethAccount = getEthAccount(state);
         const gasPrice = getGasPriceInWei(state);
-        const lendingPoolWrapper = await getLendingPool(LENDING_POOL_ADDRESS, {
+        const lendingPoolWrapper = await getLendingPool( {
             from: ethAccount.toLowerCase(),
             gas: '2000000',
         });
@@ -272,7 +270,7 @@ export const repayToken: ThunkCreator<Promise<any>> = (
 };
 
 
-export const updateITokenBalance: ThunkCreator<Promise<any>> = (iToken: iTokenData) => {
+/*export const updateITokenBalance: ThunkCreator<Promise<any>> = (iToken: iTokenData) => {
     return async (dispatch, getState) => {
         const state = getState();
         const ethAccount = getEthAccount(state);
@@ -283,4 +281,4 @@ export const updateITokenBalance: ThunkCreator<Promise<any>> = (iToken: iTokenDa
         }
         dispatch(setBZXLoadingState(BZXLoadingState.Done));
     };
-};
+};*/

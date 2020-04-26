@@ -7,25 +7,49 @@ import { WalletLendingBalancesContainer } from '../../account/wallet_lending_bal
 import { CheckWalletStateModalContainer } from '../../common/check_wallet_state_modal_container';
 import { ColumnWide } from '../../common/column_wide';
 import { Content } from '../common/content_wrapper';
+import { WalletDefiGlobalOverral } from '../../defi/wallet_defi_global';
+import { WalletDefiCommon } from '../../defi/wallet_defi_common';
+import { themeBreakPoints, themeDimensions } from '../../../themes/commons';
 
 const ColumnWideMyWallet = styled(ColumnWide)`
     margin-left: 0;
 
+     &:first-child {
+        @media (min-width: ${themeBreakPoints.xl}) {
+            margin-right: 0px;
+        }
+    }
+
     &:last-child {
-        margin-left: 0;
+        @media (min-width: ${themeBreakPoints.xl}) {
+            margin-left: 0px;
+        }
     }
 `;
 
+const RowContent = styled(Content)`
+     @media (min-width: ${themeBreakPoints.xl}) {
+        flex-direction: column;
+        height: calc(100% - ${themeDimensions.footerHeight});
+    }
+
+`
+
 const LendingPage = () => (
-    <Content>
+    <>
         <CheckWalletStateModalContainer>
-            <ColumnWideMyWallet>
-                <WalletLendingBalancesContainer />
-            </ColumnWideMyWallet>
+            <RowContent>
+                <ColumnWideMyWallet>
+                    <WalletDefiGlobalOverral />
+                </ColumnWideMyWallet>
+                <ColumnWideMyWallet>
+                    <WalletDefiCommon />
+                </ColumnWideMyWallet>
+            </RowContent>
         </CheckWalletStateModalContainer>
         <FiatOnRampModalContainer />
         <FiatChooseModalContainer />
-    </Content>
+    </>
 );
 
 export { LendingPage as default };

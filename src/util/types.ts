@@ -11,6 +11,7 @@ import { TokenMetaData } from '../common/tokens_meta_data';
 import { TokenIEOMetaData } from '../common/tokens_meta_data_ieo';
 import { ExtraArgument } from '../store/index';
 import { Theme, ThemeProperties } from '../themes/commons';
+import { AaveState } from './aave/types';
 
 export interface TabItem {
     active: boolean;
@@ -237,6 +238,7 @@ export interface StoreState {
     readonly collectibles: CollectiblesState;
     readonly bzx: BZXState;
     readonly swap: SwapState;
+    readonly aave: AaveState;
 }
 
 export enum StepKind {
@@ -660,6 +662,7 @@ export enum MARKETPLACES {
     Margin = 'MARGIN',
     Instant = 'INSTANT',
     FiatRamp = 'FiatRamp',
+    Defi = 'Defi'
 }
 
 export enum Wallet {

@@ -13,6 +13,7 @@ import { market } from './market/reducers';
 import { relayer } from './relayer/reducers';
 import { swap } from './swap/reducers';
 import { ui } from './ui/reducers';
+import { aave } from './aave/reducers';
 
 export type RootAction = ActionType<typeof actions>;
 
@@ -25,5 +26,6 @@ export const createRootReducer = (history: History) =>
         market,
         collectibles,
         bzx,
+        aave,
         swap,
     });

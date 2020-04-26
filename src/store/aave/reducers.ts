@@ -1,6 +1,5 @@
 import { getType } from 'typesafe-actions';
 
-import { BZXLoadingState, BZXState } from '../../util/types';
 import * as actions from '../actions';
 import { RootAction } from '../reducers';
 import { AaveState, AaveLoadingState, AaveGlobalLoadingState } from '../../util/aave/types';
@@ -18,7 +17,7 @@ export function aave(state: AaveState = initialAaveState, action: RootAction): A
                 ...state,
                 ...action.payload,
             };
-        case getType(actions.setITokenBalances):
+        case getType(actions.setATokenBalances):
             return { ...state, iTokensData: action.payload };
         case getType(actions.setBZXLoadingState):
             return { ...state, bzxLoadingState: action.payload };

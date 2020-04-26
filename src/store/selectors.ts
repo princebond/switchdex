@@ -12,6 +12,7 @@ import {
     MARKET_APP_BASE_PATH,
     USE_RELAYER_MARKET_UPDATES,
     ZERO,
+    DEFI_APP_BASE_PATH,
 } from '../common/constants';
 import { isWeth } from '../util/known_tokens';
 import {
@@ -89,6 +90,8 @@ export const getSelectedCollectible = (state: StoreState) => state.collectibles.
 export const getCurrentRoutePath = (state: StoreState) => state.router.location.pathname;
 export const getRouterLocationSearch = (state: StoreState) => state.router.location.search;
 export const getAccountMarketStats = (state: StoreState) => state.relayer.accountMarketStats;
+export const getATokensData = (state: StoreState) => state.aave.ATokensData;
+export const getAaveLoadingState = (state: StoreState) => state.aave.aaveLoadingState;
 export const getITokensData = (state: StoreState) => state.bzx.iTokensData;
 export const getBZXiTokensList = (state: StoreState) => state.bzx.TokensList;
 export const getBZXLoadingState = (state: StoreState) => state.bzx.bzxLoadingState;
@@ -132,6 +135,8 @@ export const getCurrentMarketPlace = createSelector(getCurrentRoutePath, (curren
         return MARKETPLACES.FiatRamp;
     } else if (currentRoute.includes(MARKET_APP_BASE_PATH)) {
         return MARKETPLACES.MarketTrade;
+    } else if (currentRoute.includes(DEFI_APP_BASE_PATH)) {
+            return MARKETPLACES.Defi;
     } else {
         return MARKETPLACES.ERC20;
     }

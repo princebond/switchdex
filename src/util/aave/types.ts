@@ -34,7 +34,6 @@ export interface UserAccountData {
     totalCollateralETH: BigNumber;
     totalBorrowsETH: BigNumber;
     totalFeesETH: BigNumber;
-    liquidityRate: BigNumber;
     availableBorrowsETH: BigNumber;
     currentLiquidationThreshold: BigNumber;
     ltv: BigNumber;
@@ -55,7 +54,7 @@ export interface UserReservaData {
 }
 
 export interface AaveState {
-    readonly ATokensData?: ATokenData[];
+    readonly ATokensData: ATokenData[];
     readonly userAccountData?: UserAccountData;
     readonly aaveLoadingState: AaveLoadingState;
     readonly aaveGlobalLoadingState: AaveGlobalLoadingState;

@@ -1,6 +1,6 @@
 import { BigNumber } from '@0x/utils';
 import React, { useEffect, useState } from 'react';
-import { connect } from 'react-redux';
+import { connect, useSelector, useDispatch } from 'react-redux';
 import styled, { withTheme } from 'styled-components';
 
 import { NETWORK_ID, RELAYER_URL } from '../../common/constants';
@@ -17,6 +17,9 @@ import {
     getWallet,
     getWeb3State,
     getWethTokenBalance,
+    getATokensData,
+    getERC20Theme,
+    getAaveLoadingState,
 } from '../../store/selectors';
 import { Theme, themeBreakPoints } from '../../themes/commons';
 import { computeProfit } from '../../util/bzx/bzx_utils';
@@ -43,33 +46,11 @@ import { CustomTD, Table, TH, THead, THLast, TR } from '../common/table';
 import { ZeroXInstantWidget } from '../erc20/common/0xinstant_widget';
 
 import { LendingTokenModal } from '../account/wallet_lending_token_modal';
+import { AaveLoadingState } from '../../util/aave/types';
+import { useWindowSize } from '../common/hooks/window_size_hook';
 
-interface StateProps {
-    ethBalance: BigNumber;
-    ethTotalBalance: BigNumber;
-    tokenBalances: TokenBalance[];
-    ATokensData: ATokenData[];
-    web3State: Web3State;
-    wethTokenBalance: TokenBalance | null;
-    ethAccount: string;
-    ethUsd: BigNumber | null;
-    tokensPrice: TokenPrice[] | null;
-    wallet: Wallet | null;
-    aaveLoadingState: AaveLoadingState;
-}
-interface OwnProps {
-    theme: Theme;
-    windowWidth: number;
-}
 
-interface DispatchProps {
-    onSubmitLendingToken: (amount: BigNumber, token: Token, iToken: iTokenData, isEth: boolean) => Promise<any>;
-    onSubmitUnLendingToken: (amount: BigNumber, token: Token, iToken: iTokenData, isEth: boolean) => Promise<any>;
-    onClickOpenFiatOnRampModal: (isOpen: boolean) => void;
-    initAaveFetching: () => Promise<any>;
-}
 
-type Props = StateProps & DispatchProps & OwnProps;
 
 const THStyled = styled(TH)`
     &:first-child {
@@ -151,46 +132,46 @@ const CustomTDMobile = styled(CustomTD)`
     display: block;
 `;
 
-const WalletDefiLendingBalances: React.FC<Props> = props => {
+export const WalletDefiLendingBalances = () => {
     const [isEthState, setIsEthState] = useState(false);
     const [isModalOpenState, setIsModalOpenState] = useState(false);
     const [isSubmittingState, setIsSubmittingState] = useState(false);
     const [iTokenDataState, setITokenDataState] = useState();
     const [isLendingState, setIsLendingState] = useState(true);
     const [tokenBalanceState, setTokenBalanceState] = useState();
+    const dispatch = useDispatch();
+    const windowSize = useWindowSize();
+    const aTokensData = useSelector(getATokensData);
+    const wethTokenBalance = useSelector(getWethTokenBalance);
+    const ethAccount = useSelector(getEthAccount);
+    const wallet = useSelector(getWallet);
+    const theme = useSelector(getERC20Theme)
+    const tokensPrice = useSelector(getTokensPrice);
+    const tokenBalances = useSelector(getTokenBalances);
+    const ethBalance = useSelector(getEthBalance);
+    const ethTotalBalance = useSelector(getTotalEthBalance);
+    const web3State = useSelector(getWeb3State);
+    const aaveLoadingState = useSelector(getAaveLoadingState);
 
-    const {
-        ethBalance,
-        ethTotalBalance,
-        tokenBalances,
-        web3State,
-        wethTokenBalance,
-        ethAccount,
-        theme,
-        tokensPrice,
-        wallet,
-        onClickOpenFiatOnRampModal,
-        initAaveFetching,
-        ATokensData,
-        aaveLoadingState,
-        windowWidth,
-    } = props;
 
-    useEffect(() => {
+  /*  useEffect(() => {
         if (ethAccount) {
             // tslint:disable-next-line: no-floating-promises
             initBZXFetching();
         }
-    }, [ethAccount]);
+    }, [ethAccount]);*/
 
     const openFiatOnRamp = () => {
-        onClickOpenFiatOnRampModal(true);
+        dispatch(openFiatOnRampModal(true));
     };
-    const isMobileView = isMobile(windowWidth);
+
+    const isMobileView = isMobile(windowSize.width) ;
 
     const tokensRows = () =>
-        iTokensData.map((tokenD, index) => {
-            const { token, balance, supplyInterestRate } = tokenD;
+        aTokensData.map((tokenD, index) => {
+            const { token, balance } = tokenD;
+
+
             const { symbol } = token;
             const isEthToken = isWethToken(token);
             const tokenBalance = tokenBalances.find(tb => tb.token.symbol === symbol) as Required<TokenBalance>;
@@ -202,14 +183,14 @@ const WalletDefiLendingBalances: React.FC<Props> = props => {
             const formattedLendBalance = tokenAmountInUnits(balance, token.decimals, token.displayDecimals);
             const formattedBalance = tokenAmountInUnits(tokB, token.decimals, token.displayDecimals);
             const tokenPrice = tokensPrice && tokensPrice.find(t => t.c_id === token.c_id);
-            const profit = computeProfit(tokenD);
             const usdBalance = tokenPrice
                 ? `${tokenPrice.price_usd.multipliedBy(new BigNumber(formattedBalance)).toFixed(3)}$`
                 : '-';
             const usdLendBalance = tokenPrice
                 ? `${tokenPrice.price_usd.multipliedBy(new BigNumber(formattedLendBalance)).toFixed(3)}$`
                 : '-';
-            const usdProfit = tokenPrice ? `${tokenPrice.price_usd.multipliedBy(profit).toFixed(5)}$` : '-';
+
+            const apy = `${tokenD.reserve.liquidityRate.dividedBy('1e18').toFixed(5)} %`;
             // const onClick = () => onStartToggleTokenLockSteps(token, isUnlocked);
             const openLendingModal = () => {
                 setITokenDataState(tokenD);
@@ -266,12 +247,6 @@ const WalletDefiLendingBalances: React.FC<Props> = props => {
                             </CustomTDTokenName>
                         </TR>
                         <TR>
-                            <TH>Interest APR</TH>
-                            <CustomTD styles={{ textAlign: 'center' }}>
-                                {supplyInterestRate.dividedBy('1e18').toFixed(5)} %
-                            </CustomTD>
-                        </TR>
-                        <TR>
                             <TH>Your Balance</TH>
                             <CustomTD styles={{ textAlign: 'center' }}>{usdBalance}</CustomTD>
                         </TR>
@@ -280,8 +255,8 @@ const WalletDefiLendingBalances: React.FC<Props> = props => {
                             <CustomTD styles={{ textAlign: 'center' }}>{usdLendBalance}</CustomTD>
                         </TR>
                         <TR>
-                            <TH>Profit</TH>
-                            <CustomTD styles={{ textAlign: 'center' }}>{usdProfit}</CustomTD>
+                            <TH>APY</TH>
+                            <CustomTD styles={{ textAlign: 'center' }}>{apy}</CustomTD>
                         </TR>
                         <TR>
                             <TH styles={{ borderBottom: true, textAlign: 'left' }}> Actions</TH>
@@ -295,7 +270,6 @@ const WalletDefiLendingBalances: React.FC<Props> = props => {
                                     >
                                         Deposit
                                     </ButtonStyled>
-
                                     <ButtonStyled
                                         onClick={openUnLendingModal}
                                         variant={ButtonVariant.Sell}
@@ -324,12 +298,9 @@ const WalletDefiLendingBalances: React.FC<Props> = props => {
                                 {`${tokenName}`}
                             </TokenEtherscanLink>
                         </CustomTDTokenName>
-                        <CustomTD styles={{ borderBottom: true, textAlign: 'right' }}>
-                            {supplyInterestRate.dividedBy('1e18').toFixed(5)} %
-                        </CustomTD>
                         <CustomTD styles={{ borderBottom: true, textAlign: 'right' }}>{usdBalance}</CustomTD>
                         <CustomTD styles={{ borderBottom: true, textAlign: 'right' }}>{usdLendBalance}</CustomTD>
-                        <CustomTD styles={{ borderBottom: true, textAlign: 'right' }}>{usdProfit}</CustomTD>
+                        <CustomTD styles={{ borderBottom: true, textAlign: 'right' }}>{ apy}</CustomTD>
                         <CustomTD styles={{ borderBottom: true, textAlign: 'center' }}>
                             <ButtonsContainer>
                                 {buyButton}
@@ -338,7 +309,7 @@ const WalletDefiLendingBalances: React.FC<Props> = props => {
                                     variant={ButtonVariant.Buy}
                                     disabled={tokB.isEqualTo(0)}
                                 >
-                                    LEND
+                                    Deposit
                                 </ButtonStyled>
 
                                 <ButtonStyled
@@ -346,7 +317,7 @@ const WalletDefiLendingBalances: React.FC<Props> = props => {
                                     variant={ButtonVariant.Sell}
                                     disabled={balance.isEqualTo(0)}
                                 >
-                                    UNLEND
+                                    Withdraw
                                 </ButtonStyled>
                             </ButtonsContainer>
                         </CustomTD>
@@ -355,7 +326,7 @@ const WalletDefiLendingBalances: React.FC<Props> = props => {
             }
         });
     const totalHoldingsRow = () => {
-        const availableLendingTokensAddress = iTokensData.map(t => t.token.address);
+        const availableLendingTokensAddress = aTokensData.map(t => t.token.address);
 
         const totalHoldingsValue: BigNumber =
             (tokenBalances.length &&
@@ -385,8 +356,8 @@ const WalletDefiLendingBalances: React.FC<Props> = props => {
             new BigNumber(0);
 
         const totalLendingHoldingsValue: BigNumber =
-            (iTokensData.length &&
-                iTokensData
+            (aTokensData.length &&
+                aTokensData
                     .filter(tb => tb.token.c_id !== null)
                     .map(tb => {
                         const tokenPrice = tokensPrice && tokensPrice.find(tp => tp.c_id === tb.token.c_id);
@@ -405,8 +376,8 @@ const WalletDefiLendingBalances: React.FC<Props> = props => {
                     })) ||
             new BigNumber(0);
         const totalProfitsValue: BigNumber =
-            (iTokensData.length &&
-                iTokensData
+            (aTokensData.length &&
+                aTokensData
                     .filter(td => td.token.c_id !== null)
                     .map(td => {
                         const tokenPrice = tokensPrice && tokensPrice.find(tp => tp.c_id === td.token.c_id);
@@ -436,12 +407,6 @@ const WalletDefiLendingBalances: React.FC<Props> = props => {
                             {`${totalLendingHoldingsValue.toFixed(5)}$`}
                         </CustomTD>
                     </TR>
-                    <TR>
-                        <TH>Total Profits</TH>
-                        <CustomTD styles={{ borderBottom: true, textAlign: 'center', tabular: true }}>
-                            {`${totalProfitsValue.toFixed(5)}$`}
-                        </CustomTD>
-                    </TR>
                 </tbody>
             );
         } else {
@@ -455,9 +420,6 @@ const WalletDefiLendingBalances: React.FC<Props> = props => {
                     </CustomTD>
                     <CustomTD styles={{ borderBottom: true, textAlign: 'right', tabular: true }}>
                         {`${totalLendingHoldingsValue.toFixed(5)}$`}
-                    </CustomTD>
-                    <CustomTD styles={{ borderBottom: true, textAlign: 'right', tabular: true }}>
-                        {`${totalProfitsValue.toFixed(5)}$`}
                     </CustomTD>
                     <CustomTD styles={{ borderBottom: true, textAlign: 'center' }}>Prices by Coingecko</CustomTD>
                 </TR>
@@ -483,9 +445,9 @@ const WalletDefiLendingBalances: React.FC<Props> = props => {
 
             try {
                 if (isLending) {
-                    await props.onSubmitLendingToken(amount, token, iToken, isEth);
+                    await dispatch(startLendingTokenSteps(amount, token, iToken, isEth));
                 } else {
-                    await props.onSubmitUnLendingToken(amount, token, iToken, isEth);
+                    await dispatch(startUnLendingTokenSteps(amount, token, iToken, isEth));
                 }
             } finally {
                 setIsSubmittingState(false);
@@ -562,34 +524,6 @@ const WalletDefiLendingBalances: React.FC<Props> = props => {
         }
     }
 
-    return <Card title="LEND">{content}</Card>;
+    return <Card title="Deposit">{content}</Card>;
 };
-
-const mapStateToProps = (state: StoreState): StateProps => {
-    return {
-        ethBalance: getEthBalance(state),
-        ethTotalBalance: getTotalEthBalance(state),
-        iTokensData: getITokensData(state),
-        tokenBalances: getTokenBalances(state),
-        web3State: getWeb3State(state),
-        wethTokenBalance: getWethTokenBalance(state),
-        ethAccount: getEthAccount(state),
-        ethUsd: getEthInUsd(state),
-        tokensPrice: getTokensPrice(state),
-        wallet: getWallet(state),
-        bzxLoadingState: getBZXLoadingState(state),
-    };
-};
-const mapDispatchToProps = {
-    onSubmitLendingToken: startLendingTokenSteps,
-    onSubmitUnLendingToken: startUnLendingTokenSteps,
-    onClickOpenFiatOnRampModal: openFiatOnRampModal,
-    initBZXFetching: initBZX,
-};
-
-const WalletLendingBalancesContainer = withTheme(
-    withWindowWidth(connect(mapStateToProps, mapDispatchToProps)(WalletLendingBalances)),
-);
-
-// tslint:disable-next-line: max-file-line-count
-export { WalletLendingBalances, WalletLendingBalancesContainer };
+ 

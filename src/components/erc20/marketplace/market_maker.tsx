@@ -249,7 +249,7 @@ const MarketMaker = (props: Props) => {
 
     const dispatch = useDispatch();
     const query = useQuery();
-    const queryToken = query.get('token');
+    const queryToken = query.get('base');
     const decimals = baseToken.decimals;
 
     useEffect(() => {

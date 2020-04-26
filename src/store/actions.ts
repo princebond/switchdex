@@ -31,6 +31,7 @@ export * from './ui/actions';
 export * from './market/actions';
 export * from './collectibles/actions';
 export * from './swap/actions';
+export * from './aave/actions';
 
 const logger = getLogger('Store::Actions');
 
@@ -62,6 +63,11 @@ export const updateStore = () => {
                     // Updated in market price tokens
                     // dispatch(updateBZXStore());
                     break;
+                case MARKETPLACES.Defi:
+                        // Updated in market price tokens
+                        // dispatch(updateBZXStore());
+                        break;
+
                 case MARKETPLACES.MarketTrade:
                     // Updated in market price tokens
                     dispatch(updateSwapStore());
