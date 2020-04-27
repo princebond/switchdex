@@ -14,6 +14,7 @@ import {
     getWallet,
 } from '../../../store/selectors';
 import { addMarketBuySellNotification } from '../../../store/ui/actions';
+import { isWeth } from '../../../util/known_tokens_ieo';
 import { tokenAmountInUnits, tokenSymbolToDisplayString } from '../../../util/tokens';
 import { OrderSide, StepBuySellMarket, StoreState, Token, Wallet } from '../../../util/types';
 
@@ -33,7 +34,11 @@ interface StateProps {
 
 interface DispatchProps {
     onSubmitMarketOrder: (amount: BigNumber, side: OrderSide) => Promise<{ txHash: string; amountInReturn: BigNumber }>;
-    onSubmitSwapOrder: (side: OrderSide, quote: MarketBuySwapQuote | MarketSellSwapQuote) => Promise<string>;
+    onSubmitSwapOrder: (
+        side: OrderSide,
+        quote: MarketBuySwapQuote | MarketSellSwapQuote,
+        isEthSell: boolean,
+    ) => Promise<string>;
     refreshOrders: () => any;
     notifyBuySellMarket: (id: string, amount: BigNumber, token: Token, side: OrderSide, tx: Promise<any>) => any;
 }
@@ -90,7 +95,7 @@ class BuySellTokenStep extends React.Component<Props, State> {
     };
 
     private readonly _confirmOnMetamaskBuyOrSell = async ({ onLoading, onDone, onError }: any) => {
-        const { step, onSubmitMarketOrder, onSubmitSwapOrder } = this.props;
+        const { step, onSubmitMarketOrder, onSubmitSwapOrder, swapQuoteToken } = this.props;
         const { amount, side, token, context, quote } = step;
         try {
             if (context === 'order') {
@@ -109,7 +114,9 @@ class BuySellTokenStep extends React.Component<Props, State> {
                     throw Error('Without Quote');
                 }
                 const web3Wrapper = await getWeb3Wrapper();
-                const txHash = await onSubmitSwapOrder(side, quote);
+                const isSelling = side === OrderSide.Sell;
+                const isEthSell = (!isSelling && isWeth(swapQuoteToken.symbol)) || (isSelling && isWeth(token.symbol));
+                const txHash = await onSubmitSwapOrder(side, quote, isEthSell);
                 const bestQuote = quote.bestCaseQuoteInfo;
                 const amountInReturn =
                     side === OrderSide.Sell ? bestQuote.makerAssetAmount : bestQuote.takerAssetAmount;
@@ -154,8 +161,8 @@ const mapStateToProps = (state: StoreState): StateProps => {
 const BuySellTokenStepContainer = connect(mapStateToProps, (dispatch: any) => {
     return {
         onSubmitMarketOrder: (amount: BigNumber, side: OrderSide) => dispatch(submitMarketOrder(amount, side)),
-        onSubmitSwapOrder: (side: OrderSide, quote: MarketBuySwapQuote | MarketSellSwapQuote) =>
-            dispatch(submitSwapQuote(side, quote)),
+        onSubmitSwapOrder: (side: OrderSide, quote: MarketBuySwapQuote | MarketSellSwapQuote, isEthSell: boolean) =>
+            dispatch(submitSwapQuote(side, quote, isEthSell)),
         notifyBuySellMarket: (id: string, amount: BigNumber, token: Token, side: OrderSide, tx: Promise<any>) =>
             dispatch(addMarketBuySellNotification(id, amount, token, side, tx)),
         refreshOrders: () => dispatch(getOrderbookAndUserOrders()),

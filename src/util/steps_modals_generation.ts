@@ -343,8 +343,17 @@ export const createSwapMarketSteps = (
     }
 
     // wrap the necessary ether if necessary
-    if (isWeth(quoteToken.symbol)) {
-        const wrapEthStep = getWrapEthStepIfNeeded(amount, price, side, wethTokenBalance, ethBalance);
+    if (isWeth(quoteToken.symbol) || isWeth(baseToken.symbol)) {
+        const isWethQuote = isWeth(quoteToken.symbol) ? true : false;
+        const wrapEthStep = getWrapEthStepIfNeeded(
+            amount,
+            price,
+            side,
+            wethTokenBalance,
+            ethBalance,
+            undefined,
+            isWethQuote,
+        );
         if (wrapEthStep) {
             buySellMarketFlow.push(wrapEthStep);
         }

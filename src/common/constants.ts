@@ -44,6 +44,8 @@ export const UNLIMITED_ALLOWANCE_IN_BASE_UNITS = new BigNumber(2).pow(256).minus
 
 export const ZERO = new BigNumber(0);
 
+export const MIN_ORDER_EXPIRATION_TIME_ON_ORDERBOOK = 60;
+
 export const VERIDEX_ORIGIN = process.env.REACT_APP_VERIDEX_ORIGIN || 'http://localhost:3001';
 
 export const FEE_RECIPIENT = process.env.REACT_APP_FEE_RECIPIENT || ZERO_ADDRESS;

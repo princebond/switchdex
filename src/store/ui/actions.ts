@@ -677,8 +677,11 @@ export const startSwapMarketSteps: ThunkCreator = (
         const baseTokenBalance = selectors.getSwapBaseTokenBalance(state);
 
         if (side === OrderSide.Sell) {
+            const isEthAndWethNotEnoughBalance = isWeth(baseToken.symbol) && totalEthBalance.isLessThan(amount);
+            const ifOtherBaseTokenAndNotEnoughBalance =
+                !isWeth(baseToken.symbol) && baseTokenBalance && baseTokenBalance.balance.isLessThan(amount);
             // When selling, user should have enough BASE Token
-            if (baseTokenBalance && baseTokenBalance.balance.isLessThan(amount)) {
+            if (isEthAndWethNotEnoughBalance || ifOtherBaseTokenAndNotEnoughBalance) {
                 throw new InsufficientTokenBalanceException(baseToken.symbol);
             }
         } else {

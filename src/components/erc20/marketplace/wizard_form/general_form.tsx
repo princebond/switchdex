@@ -71,11 +71,11 @@ const SocialForm = ({ name }: { name: string }) => (
     </>
 );
 
-const StyledSocialForm = styled(AccordionCollapse)`
+/*const StyledSocialForm = styled(AccordionCollapse)`
     padding: 20px;
     border-radius: ${themeDimensions.borderRadius};
     border: 1px solid ${props => props.theme.componentsTheme.cardBorderColor};
-`;
+`;*/
 
 const TooltipStyled = styled(Tooltip)``;
 

@@ -169,6 +169,7 @@ export interface RelayerState {
     readonly orderBookState: ServerState;
     readonly marketsStatsState: ServerState;
     readonly marketFillsState: ServerState;
+    readonly minOrderExpireTimeOnBooks?: number;
     readonly userIEOOrders?: UIOrder[];
     readonly ieoOrders?: SignedOrder[];
     readonly accountMarketStats?: AccountMarketStat[];
