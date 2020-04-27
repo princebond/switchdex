@@ -116,6 +116,7 @@ export const getUserConfigData = (state: StoreState) => state.ui.userConfigData;
 export const getOrderbookState = (state: StoreState) => state.relayer.orderBookState;
 export const getMarketsStatsState = (state: StoreState) => state.relayer.marketsStatsState;
 export const getMarketFillsState = (state: StoreState) => state.relayer.marketFillsState;
+export const getMinOrderExpireTimeOnBooks = (state: StoreState) => state.relayer.minOrderExpireTimeOnBooks;
 
 export const getCurrentMarketPlace = createSelector(getCurrentRoutePath, (currentRoute: string) => {
     if (currentRoute.includes(ERC20_APP_BASE_PATH)) {

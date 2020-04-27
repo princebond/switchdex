@@ -10,6 +10,7 @@ import { getAssetSwapper } from '../../../services/swap';
 import {
     fetchTakerAndMakerFee,
     setMarketTokens,
+    setMinOrderExpireTimeOnBooks,
     setOrderSecondsExpirationTime,
     startBuySellLimitSteps,
     startMultipleBuySellLimitSteps,
@@ -18,6 +19,7 @@ import {
     getBaseToken,
     getBaseTokenBalance,
     getCurrencyPair,
+    getMinOrderExpireTimeOnBooks,
     getOrderBuyPriceSelected,
     getOrderPriceSelected,
     getOrderSellPriceSelected,
@@ -246,10 +248,13 @@ const MarketMaker = (props: Props) => {
     const selectedSellPrice = useSelector(getOrderSellPriceSelected);
     const quoteToken = useSelector(getQuoteToken) as Token;
     const baseToken = useSelector(getBaseToken) as Token;
+    const minOrderExpirationTimeOnOrderBook = useSelector(getMinOrderExpireTimeOnBooks);
+
+    const [minOrderExpireTime, setMinOrderExpireTime] = useState<number | undefined>(minOrderExpirationTimeOnOrderBook);
 
     const dispatch = useDispatch();
     const query = useQuery();
-    const queryToken = query.get('token');
+    const queryToken = query.get('baseToken');
     const decimals = baseToken.decimals;
 
     useEffect(() => {
@@ -559,6 +564,12 @@ const MarketMaker = (props: Props) => {
     const onOrderExpireTimeChange = (e: React.SyntheticEvent<HTMLInputElement, Event>) => {
         setOrderExpireTime(Number(e.currentTarget.value));
     };
+    const onMinOrderExpireTimeChange = (e: React.SyntheticEvent<HTMLInputElement, Event>) => {
+        const time = Number(e.currentTarget.value);
+        setMinOrderExpireTime(time);
+        dispatch(setMinOrderExpireTimeOnBooks(time));
+    };
+
     const onTrackerPriceClick = (price: BigNumber) => {
         setBuyPrice(price);
         setSellPrice(price);
@@ -683,6 +694,23 @@ const MarketMaker = (props: Props) => {
                                 />
                             </FieldContainer>
                         </ColumnFieldContainer>
+                        {/*  <ColumnFieldContainer>
+                            <LabelContainer>
+                                <Label>Min Order Expire Time (Seconds) </Label>
+                                <StyledTooltip
+                                    description={`Shows only orders that will not expire in the determined value`}
+                                />
+                            </LabelContainer>
+                            <FieldContainer>
+                                <InputNumberStyled
+                                    type={'number'}
+                                    value={minOrderExpireTime || 0}
+                                    min={0}
+                                    step={1}
+                                    onChange={onMinOrderExpireTimeChange}
+                                />
+                            </FieldContainer>
+                      </ColumnFieldContainer> */}
                     </RowFieldContainer>
 
                     <MarketMakerDetailsContainer

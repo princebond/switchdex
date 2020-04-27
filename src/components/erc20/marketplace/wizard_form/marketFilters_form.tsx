@@ -33,7 +33,8 @@ export const MarketFiltersForm = ({
                         <StyledFilter key={name}>
                             <FilterForm name={name} index={index} />
                         </StyledFilter>
-                    ))}
+                    ))
+                }
             </FieldArray>
         </AccordionCollapse>
     </>

@@ -43,10 +43,13 @@ export const calculateSwapQuote: ThunkCreator = (params: CalculateSwapQuoteParam
     };
 };
 
-export const submitSwapQuote: ThunkCreator = (side: OrderSide, quote: MarketBuySwapQuote | MarketSellSwapQuote) => {
+export const submitSwapQuote: ThunkCreator = (
+    side: OrderSide,
+    quote: MarketBuySwapQuote | MarketSellSwapQuote,
+    isEthSell: boolean,
+) => {
     return async () => {
         const assetSwapper = await getAssetSwapper();
-        const isEthSell = side === OrderSide.Buy;
         return assetSwapper.executeSwapQuote(isEthSell, quote);
     };
 };
@@ -59,6 +62,26 @@ export const changeSwapBaseToken: ThunkCreator = (token: Token) => {
         const newSearch = queryString.stringify({
             ...queryString.parse(state.router.location.search),
             token: token.symbol,
+        });
+
+        dispatch(
+            push({
+                ...state.router.location,
+                pathname: `${MARKET_APP_BASE_PATH}/`,
+                search: newSearch,
+            }),
+        );
+    };
+};
+
+export const changeSwapQuoteToken: ThunkCreator = (token: Token) => {
+    return async (dispatch, getState) => {
+        const state = getState();
+        dispatch(setSwapQuoteToken(token));
+
+        const newSearch = queryString.stringify({
+            ...queryString.parse(state.router.location.search),
+            quoteToken: token.symbol,
         });
 
         dispatch(
