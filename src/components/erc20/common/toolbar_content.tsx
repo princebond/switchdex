@@ -16,7 +16,6 @@ import {
     openSideBar,
     setFiatType,
     setSwapQuoteToken,
-    setTour,
 } from '../../../store/actions';
 import { getCurrentMarketPlace, getGeneralConfig, getSwapBaseToken, getSwapQuoteToken } from '../../../store/selectors';
 import { Theme, themeBreakPoints } from '../../../themes/commons';
@@ -179,9 +178,6 @@ const ToolbarContent = (props: Props) => {
         );
     }
 
-    const handleTour: React.EventHandler<React.MouseEvent> = e => {
-        dispatch(setTour(true));
-    };
     const handleMarketTradeClick: React.EventHandler<React.MouseEvent> = e => {
         e.preventDefault();
         props.onGoToHomeMarketTrade();
@@ -202,7 +198,6 @@ const ToolbarContent = (props: Props) => {
                     Swap
                 </StyledLink>
                 <SettingsDropdownContainer className={'settings-dropdown'} />
-                <StyledButton onClick={handleTour}>Tour</StyledButton>
                 <StyledButton onClick={handleFiatModal} className={'buy-eth'}>
                     Buy ETH
                 </StyledButton>

@@ -343,8 +343,17 @@ export const createSwapMarketSteps = (
     }
 
     // wrap the necessary ether if necessary
-    if (isWeth(quoteToken.symbol)) {
-        const wrapEthStep = getWrapEthStepIfNeeded(amount, price, side, wethTokenBalance, ethBalance);
+    if (isWeth(quoteToken.symbol) || isWeth(baseToken.symbol)) {
+        const isWethQuote = isWeth(quoteToken.symbol) ? true : false;
+        const wrapEthStep = getWrapEthStepIfNeeded(
+            amount,
+            price,
+            side,
+            wethTokenBalance,
+            ethBalance,
+            undefined,
+            isWethQuote,
+        );
         if (wrapEthStep) {
             buySellMarketFlow.push(wrapEthStep);
         }
@@ -466,7 +475,7 @@ export const getWrapEthStepIfNeeded = (
     if (side === OrderSide.Sell && isQuote) {
         return null;
     }
-     // Weth needed when creating a sell order and it is not a quote
+    // Weth needed when creating a sell order and it is not a quote
     if (side === OrderSide.Buy && !isQuote) {
         return null;
     }

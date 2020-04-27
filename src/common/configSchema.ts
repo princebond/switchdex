@@ -38,11 +38,23 @@ export const schemas: Schema[] = [
         ],
     },
     {
+        id: '/wholeFloatNumberSchema',
+        anyOf: [
+            {
+                type: 'string',
+                pattern: '^\\d+$',
+            },
+            {
+                type: 'number',
+            },
+        ],
+    },
+    {
         id: '/configPairSchema',
         properties: {
             minPrice: { $ref: '/wholeNumberSchema' },
             pricePrecision: { $ref: '/wholeNumberSchema' },
-            minAmount: { $ref: '/wholeNumberSchema' },
+            minAmount: { $ref: '/wholeFloatNumberSchema' },
             basePrecision: { $ref: '/wholeNumberSchema' },
             quotePrecision: { $ref: '/wholeNumberSchema' },
         },

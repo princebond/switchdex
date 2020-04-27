@@ -276,7 +276,7 @@ const MarketTrade = (props: Props) => {
     const isSell = tabState === OrderSide.Sell;
     if (swapQuote && quoteTokenBalance && baseTokenBalance) {
         isMaxAmount = isSell
-            ? makerAmountState.isGreaterThan(baseTokenBalance.balance)
+            ? makerAmountState.isGreaterThan(isWeth(baseToken.symbol) ? totalEthBalance : baseTokenBalance.balance)
             : swapQuote.bestCaseQuoteInfo.takerAssetAmount.isGreaterThan(
                   isWeth(quoteToken.symbol) ? totalEthBalance : quoteTokenBalance.balance,
               );
@@ -292,7 +292,7 @@ const MarketTrade = (props: Props) => {
     };
     const onCalculateSwapQuote = (value: BigNumber, side: OrderSide) => {
         const isSelling = side === OrderSide.Sell;
-        const isETHSell = isSelling && isWeth(quoteToken.symbol);
+        const isETHSell = (!isSelling && isWeth(quoteToken.symbol)) || (isSelling && isWeth(baseToken.symbol));
         const params: CalculateSwapQuoteParams = {
             buyTokenAddress: isSelling ? quoteToken.address : baseToken.address,
             sellTokenAddress: isSelling ? baseToken.address : quoteToken.address,

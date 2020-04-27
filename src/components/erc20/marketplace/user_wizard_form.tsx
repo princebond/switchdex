@@ -124,7 +124,7 @@ const UserWizardForm = (_props: Props) => {
         });
         values.general = config.general;
         dispatch(setUserConfigData({ config: values }));
-        await dispatch(initUserConfigData());
+        dispatch(initUserConfigData());
         dispatch(goToHome());
         alert('Configuration Saved');
     };
@@ -135,7 +135,7 @@ const UserWizardForm = (_props: Props) => {
             t.mainnetAddress = t.addresses['1'];
         });
         dispatch(setUserConfigData({ config: configDefault }));
-        await dispatch(initUserConfigData());
+        dispatch(initUserConfigData());
         dispatch(setUserConfigData(null));
         alert('Reset to Veridex defaults');
         dispatch(goToHome());
