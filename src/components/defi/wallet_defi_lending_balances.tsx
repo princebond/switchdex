@@ -2,6 +2,7 @@ import { BigNumber } from '@0x/utils';
 import React, { useEffect, useState } from 'react';
 import { connect, useSelector, useDispatch } from 'react-redux';
 import styled, { withTheme } from 'styled-components';
+import { useQuery } from '@apollo/react-hooks';
 
 import { NETWORK_ID, RELAYER_URL } from '../../common/constants';
 import { initBZX, openFiatOnRampModal, startLendingTokenSteps, startUnLendingTokenSteps } from '../../store/actions';
@@ -25,7 +26,7 @@ import { Theme, themeBreakPoints } from '../../themes/commons';
 import { computeProfit } from '../../util/bzx/bzx_utils';
 import { isWethToken } from '../../util/known_tokens';
 import { isMobile } from '../../util/screen';
-import { getEtherscanLinkForToken, tokenAmountInUnits } from '../../util/tokens';
+import { getEtherscanLinkForToken, tokenAmountInUnits, formatTokenSymbol } from '../../util/tokens';
 import {
     ButtonVariant,
     BZXLoadingState,
@@ -46,8 +47,9 @@ import { CustomTD, Table, TH, THead, THLast, TR } from '../common/table';
 import { ZeroXInstantWidget } from '../erc20/common/0xinstant_widget';
 
 import { LendingTokenModal } from '../account/wallet_lending_token_modal';
-import { AaveLoadingState } from '../../util/aave/types';
+import { AaveLoadingState, AReserveData, ATokenData } from '../../util/aave/types';
 import { useWindowSize } from '../common/hooks/window_size_hook';
+import { GET_AAVE_RESERVES } from '../../services/aave/gql';
 
 
 
@@ -132,6 +134,7 @@ const CustomTDMobile = styled(CustomTD)`
     display: block;
 `;
 
+
 export const WalletDefiLendingBalances = () => {
     const [isEthState, setIsEthState] = useState(false);
     const [isModalOpenState, setIsModalOpenState] = useState(false);
@@ -139,6 +142,8 @@ export const WalletDefiLendingBalances = () => {
     const [iTokenDataState, setITokenDataState] = useState();
     const [isLendingState, setIsLendingState] = useState(true);
     const [tokenBalanceState, setTokenBalanceState] = useState();
+
+
     const dispatch = useDispatch();
     const windowSize = useWindowSize();
     const aTokensData = useSelector(getATokensData);
@@ -168,9 +173,8 @@ export const WalletDefiLendingBalances = () => {
     const isMobileView = isMobile(windowSize.width) ;
 
     const tokensRows = () =>
-        aTokensData.map((tokenD, index) => {
+        aTokensData.map((tokenD: ATokenData, index) => {
             const { token, balance } = tokenD;
-
 
             const { symbol } = token;
             const isEthToken = isWethToken(token);
@@ -179,18 +183,28 @@ export const WalletDefiLendingBalances = () => {
             const tokB = isEthToken
                 ? ethTotalBalance || new BigNumber(0)
                 : (tokenBalance && tokenBalance.balance) || new BigNumber(0);
+            let displayBalance;
+            let displayDepositBalance;
 
-            const formattedLendBalance = tokenAmountInUnits(balance, token.decimals, token.displayDecimals);
-            const formattedBalance = tokenAmountInUnits(tokB, token.decimals, token.displayDecimals);
-            const tokenPrice = tokensPrice && tokensPrice.find(t => t.c_id === token.c_id);
-            const usdBalance = tokenPrice
-                ? `${tokenPrice.price_usd.multipliedBy(new BigNumber(formattedBalance)).toFixed(3)}$`
-                : '-';
-            const usdLendBalance = tokenPrice
-                ? `${tokenPrice.price_usd.multipliedBy(new BigNumber(formattedLendBalance)).toFixed(3)}$`
-                : '-';
+            if(ethAccount && balance){
+                const formattedLendBalance = tokenAmountInUnits(balance, token.decimals, token.displayDecimals);
+                const formattedBalance = tokenAmountInUnits(tokB, token.decimals, token.displayDecimals);
+                const tokenPrice = tokensPrice && tokensPrice.find(t => t.c_id === token.c_id);
+                displayBalance = `${formattedBalance} ${formatTokenSymbol(symbol)}`;
+                displayDepositBalance = `${formattedLendBalance} ${formatTokenSymbol(symbol)}`;
+                const usdBalance = tokenPrice
+                    ? `${tokenPrice.price_usd.multipliedBy(new BigNumber(formattedBalance)).toFixed(3)}$`
+                    : '-';
+                const usdLendBalance = tokenPrice
+                    ? `${tokenPrice.price_usd.multipliedBy(new BigNumber(formattedLendBalance)).toFixed(3)}$`
+                    : '-';
+            }else{
+                displayBalance = '-';
+                displayDepositBalance = '-'
+            }
+            
 
-            const apy = `${tokenD.reserve.liquidityRate.dividedBy('1e18').toFixed(5)} %`;
+            const apy = `${tokenD.liquidityRate.dividedBy('1e18').toFixed(5)} %`;
             // const onClick = () => onStartToggleTokenLockSteps(token, isUnlocked);
             const openLendingModal = () => {
                 setITokenDataState(tokenD);
@@ -248,11 +262,11 @@ export const WalletDefiLendingBalances = () => {
                         </TR>
                         <TR>
                             <TH>Your Balance</TH>
-                            <CustomTD styles={{ textAlign: 'center' }}>{usdBalance}</CustomTD>
+                            <CustomTD styles={{ textAlign: 'center' }}>{displayBalance}</CustomTD>
                         </TR>
                         <TR>
                             <TH>Deposit Balance</TH>
-                            <CustomTD styles={{ textAlign: 'center' }}>{usdLendBalance}</CustomTD>
+                            <CustomTD styles={{ textAlign: 'center' }}>{displayDepositBalance}</CustomTD>
                         </TR>
                         <TR>
                             <TH>APY</TH>
@@ -273,7 +287,7 @@ export const WalletDefiLendingBalances = () => {
                                     <ButtonStyled
                                         onClick={openUnLendingModal}
                                         variant={ButtonVariant.Sell}
-                                        disabled={balance.isEqualTo(0)}
+                                        disabled={balance && balance.isEqualTo(0)}
                                     >
                                         Withdraw
                                     </ButtonStyled>
@@ -298,8 +312,8 @@ export const WalletDefiLendingBalances = () => {
                                 {`${tokenName}`}
                             </TokenEtherscanLink>
                         </CustomTDTokenName>
-                        <CustomTD styles={{ borderBottom: true, textAlign: 'right' }}>{usdBalance}</CustomTD>
-                        <CustomTD styles={{ borderBottom: true, textAlign: 'right' }}>{usdLendBalance}</CustomTD>
+                        <CustomTD styles={{ borderBottom: true, textAlign: 'right' }}>{displayBalance}</CustomTD>
+                        <CustomTD styles={{ borderBottom: true, textAlign: 'right' }}>{displayDepositBalance}</CustomTD>
                         <CustomTD styles={{ borderBottom: true, textAlign: 'right' }}>{ apy}</CustomTD>
                         <CustomTD styles={{ borderBottom: true, textAlign: 'center' }}>
                             <ButtonsContainer>
@@ -315,7 +329,7 @@ export const WalletDefiLendingBalances = () => {
                                 <ButtonStyled
                                     onClick={openUnLendingModal}
                                     variant={ButtonVariant.Sell}
-                                    disabled={balance.isEqualTo(0)}
+                                    disabled={balance && balance.isEqualTo(0)}
                                 >
                                     Withdraw
                                 </ButtonStyled>
@@ -325,7 +339,7 @@ export const WalletDefiLendingBalances = () => {
                 );
             }
         });
-    const totalHoldingsRow = () => {
+    /*const totalHoldingsRow = () => {
         const availableLendingTokensAddress = aTokensData.map(t => t.token.address);
 
         const totalHoldingsValue: BigNumber =
@@ -425,7 +439,7 @@ export const WalletDefiLendingBalances = () => {
                 </TR>
             );
         }
-    };
+    };*/
 
     let content: React.ReactNode;
     if (web3State === Web3State.Loading || aaveLoadingState === AaveLoadingState.Loading || !wethTokenBalance) {
@@ -463,7 +477,7 @@ export const WalletDefiLendingBalances = () => {
                 <>
                     <Table isResponsive={true}>
                         {tokensRows()}
-                        {totalHoldingsRow()}
+                        {/*totalHoldingsRow()*/}
                     </Table>
                     {isModalOpenState && (
                         <LendingTokenModal
@@ -501,7 +515,7 @@ export const WalletDefiLendingBalances = () => {
                         <TBody>
                             {/*totalEthRow*/}
                             {tokensRows()}
-                            {totalHoldingsRow()}
+                            {/*totalHoldingsRow()*/}
                         </TBody>
                     </Table>
                     {isModalOpenState && (
@@ -524,6 +538,6 @@ export const WalletDefiLendingBalances = () => {
         }
     }
 
-    return <Card title="Deposit">{content}</Card>;
+    return <Card>{content}</Card>;
 };
  

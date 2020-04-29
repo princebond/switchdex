@@ -22,7 +22,7 @@ import { CustomTD, Table, TH, THead, THLast, TR } from '../common/table';
 
 
 import { useInterval } from '../common/hooks/set_interval_hook';
-import { getLendingPool } from '../../services/aave';
+import { getLendingPool } from '../../services/aave/aave';
 import { UserAccountData } from '../../util/aave/types';
 import { useWindowSize } from '../common/hooks/window_size_hook';
 
@@ -38,16 +38,17 @@ const TBody = styled.tbody`
     }
 `;
 
+const DefiGlobalCard = styled(Card)`
+max-height: 100px;
+`
+
 export const WalletDefiGlobalOverral = () => {
     const [userAccountData, setUserAccountData] = useState<UserAccountData>();
     const ethAccount = useSelector(getEthAccount);
     const web3State = useSelector(getWeb3State);
     const windowSize = useWindowSize();
-    // initial loading
-    useEffect(()=>{
-        const loadingLendingPoolData = async () => {
-            if (ethAccount) {
-                const lendingPoolContract = await getLendingPool({});
+    const fetchAaveGlobal = async () => {
+        const lendingPoolContract = await getLendingPool({});
                 const userAccountData = await lendingPoolContract.getUserAccountData(ethAccount).callAsync();
                 setUserAccountData({
                     totalLiquidity: userAccountData[0],
@@ -59,6 +60,13 @@ export const WalletDefiGlobalOverral = () => {
                     ltv: userAccountData[6],
                     healthFactor: userAccountData[7],
                 })
+
+    }
+    // initial loading
+    useEffect(()=>{
+        const loadingLendingPoolData = async () => {
+            if (ethAccount) {
+                await fetchAaveGlobal()
             }
         }
         loadingLendingPoolData().then(()=> console.log('loaded'));
@@ -69,18 +77,7 @@ export const WalletDefiGlobalOverral = () => {
     // Update global state 
     useInterval(async () => {
         if (ethAccount) {
-            const lendingPoolContract = await getLendingPool({});
-            const userAccountData = await lendingPoolContract.getUserAccountData(ethAccount).callAsync();
-            setUserAccountData({
-                totalLiquidity: userAccountData[0],
-                totalCollateralETH: userAccountData[1],
-                totalBorrowsETH: userAccountData[2],
-                totalFeesETH: userAccountData[3],
-                availableBorrowsETH: userAccountData[4],
-                currentLiquidationThreshold: userAccountData[5],
-                ltv: userAccountData[6],
-                healthFactor: userAccountData[7],
-            })
+            await fetchAaveGlobal()
         }
     }, 30 * 1000)
     const isMobileView = isMobile(windowSize.width);
@@ -114,7 +111,7 @@ export const WalletDefiGlobalOverral = () => {
                         <CustomTD styles={{ borderBottom: true, textAlign: 'right' }}>{totalBorrowsETH}</CustomTD>
                     </TR>
                     <TR>
-                        <TH>available For Borrow</TH>
+                        <TH>Available For Borrow</TH>
                         <CustomTD styles={{ textAlign: 'center' }}>{availableBorrowsETH}</CustomTD>
                     </TR>
                     <TR>
@@ -185,5 +182,5 @@ export const WalletDefiGlobalOverral = () => {
             );
         }
     }
-    return <Card title="Overall Aave Position">{content}</Card>;
+    return <DefiGlobalCard title="Overall Aave Position">{content}</DefiGlobalCard>;
 };

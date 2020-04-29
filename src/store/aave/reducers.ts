@@ -2,10 +2,12 @@ import { getType } from 'typesafe-actions';
 
 import * as actions from '../actions';
 import { RootAction } from '../reducers';
-import { AaveState, AaveLoadingState, AaveGlobalLoadingState } from '../../util/aave/types';
+import { AaveState, AaveLoadingState, AaveGlobalLoadingState, Protocol } from '../../util/aave/types';
 
 const initialAaveState: AaveState = {
-     ATokensData: [],
+     protocol: Protocol.Aave,
+     aTokensData: [],
+     aaveReservesGQLResponse: [],
      aaveLoadingState: AaveLoadingState.NotLoaded,
      aaveGlobalLoadingState: AaveGlobalLoadingState.NotLoaded,
 };
@@ -18,15 +20,17 @@ export function aave(state: AaveState = initialAaveState, action: RootAction): A
                 ...action.payload,
             };
         case getType(actions.setATokenBalances):
-            return { ...state, iTokensData: action.payload };
-        case getType(actions.setBZXLoadingState):
-            return { ...state, bzxLoadingState: action.payload };
-        case getType(actions.setITokenBalance):
-            const iToken = action.payload;
-            const iTokensData = state.iTokensData;
-            const index = iTokensData.findIndex(it => it.address === iToken.address);
-            iTokensData[index] = iToken;
-            return { ...state, iTokensData };
+            return { ...state, aTokensData: action.payload };
+        case getType(actions.setAaveLoadingState):
+            return { ...state, aaveLoadingState: action.payload };
+        case getType(actions.setAaveReservesGQLResponse):
+            return { ...state, aaveReservesGQLResponse: action.payload };
+        case getType(actions.setATokenBalance):
+            const aToken = action.payload;
+            const aTokensData = state.aTokensData;
+            const index = aTokensData.findIndex(it => it.address === aToken.address);
+            aTokensData[index] = aToken;
+            return { ...state, aTokensData };
         default:
             return state;
     }

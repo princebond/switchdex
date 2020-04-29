@@ -10,10 +10,28 @@ import { Content } from '../common/content_wrapper';
 import { WalletDefiGlobalOverral } from '../../defi/wallet_defi_global';
 import { WalletDefiCommon } from '../../defi/wallet_defi_common';
 import { themeBreakPoints, themeDimensions } from '../../../themes/commons';
+import { ColumnNarrow } from '../../common/column_narrow';
 
 const ColumnWideMyWallet = styled(ColumnWide)`
     margin-left: 0;
 
+     &:first-child {
+        @media (min-width: ${themeBreakPoints.xl}) {
+            margin-right: 0px;
+        }
+    }
+
+    &:last-child {
+        @media (min-width: ${themeBreakPoints.xl}) {
+            margin-left: 0px;
+        }
+    }
+`;
+
+const ColumnWideDefi = styled(ColumnWide)`
+    margin-left: 0;
+    flex: 1;
+    flex-grow:10;
      &:first-child {
         @media (min-width: ${themeBreakPoints.xl}) {
             margin-right: 0px;
@@ -41,10 +59,10 @@ const LendingPage = () => (
             <RowContent>
                 <ColumnWideMyWallet>
                     <WalletDefiGlobalOverral />
-                </ColumnWideMyWallet>
-                <ColumnWideMyWallet>
+               </ColumnWideMyWallet>
+                <ColumnWideDefi>
                     <WalletDefiCommon />
-                </ColumnWideMyWallet>
+                 </ColumnWideDefi>
             </RowContent>
         </CheckWalletStateModalContainer>
         <FiatOnRampModalContainer />

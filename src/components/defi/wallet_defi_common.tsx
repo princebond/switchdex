@@ -1,8 +1,16 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 
 import styled from "styled-components";
 import { themeDimensions } from "../../themes/commons";
 import { CardBase } from '../common/card_base';
+import { useQuery } from '@apollo/react-hooks';
+import { AaveReserveGQLResponse } from '../../util/aave/types';
+import { GET_AAVE_RESERVES } from '../../services/aave/gql';
+import { useDispatch, useSelector } from 'react-redux';
+import { setAaveReservesGQLResponse, initAave } from '../../store/actions';
+import { getEthAccount } from '../../store/selectors';
+import { getAaveGraphClient } from '../../services/aave/aave';
+import { WalletDefiLendingBalances } from './wallet_defi_lending_balances';
 
 const Content = styled.div`
 display: flex;
@@ -62,6 +70,22 @@ enum DefiType {
 
 export const WalletDefiCommon = () => {
 
+    const { loading, error, data } = useQuery<{reserves: AaveReserveGQLResponse[]}>(GET_AAVE_RESERVES, {
+        client: getAaveGraphClient(),
+    });
+    const dispatch = useDispatch();
+    const ethAccount = useSelector(getEthAccount);
+
+    useEffect(() => {
+        if (!loading && !error && data) {
+            console.log(data.reserves);
+            dispatch(setAaveReservesGQLResponse(data.reserves));
+            dispatch(initAave(data.reserves));
+        }
+
+    }, [loading, data]
+    )
+
     const [tab, setTab] = useState(DefiType.Deposit)
 
     return (
@@ -85,10 +109,10 @@ export const WalletDefiCommon = () => {
                 </TabsContainer>
                 <Content>
                     {
-                        tab === DefiType.Deposit && ( ` this is deposit` )
+                        tab === DefiType.Deposit && <WalletDefiLendingBalances/>
                     }
-                      {
-                        tab === DefiType.Borrow && ( ` this is borrow` )
+                    {
+                        tab === DefiType.Borrow && (` this is borrow`)
                     }
 
                 </Content>

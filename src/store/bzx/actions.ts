@@ -28,7 +28,7 @@ export const setITokenBalances = createAction('bzx/ITOKEN_BALANCES_set', resolve
 
 export const initBZX: ThunkCreator<Promise<any>> = () => {
     return async (dispatch, getState) => {
-        const state = getState();
+   /*     const state = getState();
         const ethAccount = getEthAccount(state);
         dispatch(setBZXLoadingState(BZXLoadingState.Loading));
         try {
@@ -44,13 +44,13 @@ export const initBZX: ThunkCreator<Promise<any>> = () => {
         } catch (error) {
             logger.error('There was an error when initializing bzx smartcontracts', error);
             dispatch(setBZXLoadingState(BZXLoadingState.Error));
-        }
+        }*/
     };
 };
 
 export const fetchBZX: ThunkCreator<Promise<any>> = () => {
     return async (dispatch, getState) => {
-        const state = getState();
+      /*  const state = getState();
         const ethAccount = getEthAccount(state);
         try {
             const [iTokens, tokens] = await getAllITokens(ethAccount);
@@ -62,7 +62,7 @@ export const fetchBZX: ThunkCreator<Promise<any>> = () => {
             );
         } catch (error) {
             logger.error('There was an error when fetching bzx smartcontracts', error);
-        }
+        }*/
     };
 };
 

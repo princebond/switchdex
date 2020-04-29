@@ -6,10 +6,27 @@ export interface ATokenData{
     address: string;
     name: string;
     symbol: string;
-    balance: BigNumber;
-    isUnlocked: boolean;
-    reserve: AReserveData;
-    user_reserve: UserReservaData;
+    liquidityRate: BigNumber;
+    variableBorrowRate: BigNumber;
+    stableBorrowRate: BigNumber;
+    // dependent of connected wallet 
+    balance?: BigNumber;
+    borrowBalance?: BigNumber;
+    isUnlocked?: boolean;
+   /* reserve: AReserveData;
+    user_reserve: UserReservaData;*/
+}
+
+export interface AaveReserveGQLResponse{
+        id: string,
+        name: string,
+        symbol: string,
+        decimals: number;
+        liquidityRate: string;
+        variableBorrowRate: string;
+        stableBorrowRate: string;
+        averageStableBorrowRate: string;
+        aToken: {id: string};
 }
 
 
@@ -54,10 +71,12 @@ export interface UserReservaData {
 }
 
 export interface AaveState {
-    readonly ATokensData: ATokenData[];
+    readonly protocol: Protocol,
+    readonly aTokensData: ATokenData[];
     readonly userAccountData?: UserAccountData;
     readonly aaveLoadingState: AaveLoadingState;
     readonly aaveGlobalLoadingState: AaveGlobalLoadingState;
+    readonly aaveReservesGQLResponse: AaveReserveGQLResponse[];
 }
 
 export enum AaveLoadingState {
@@ -72,4 +91,9 @@ export enum AaveGlobalLoadingState {
     Error = 'Error',
     Loading = 'Loading',
     NotLoaded = 'NotLoaded'
+}
+
+export enum Protocol {
+    Aave = 'Aave',
+    Bzx = 'Bzx',
 }

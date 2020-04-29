@@ -6,9 +6,9 @@ import { getLogger } from '../../util/logger';
 import { getTransactionOptions } from '../../util/transactions';
 import { BZXLoadingState, BZXState, iTokenData, NotificationKind, ThunkCreator, Token } from '../../util/types';
 import { addNotifications, updateTokenBalances } from '../actions';
-import { getEthAccount, getGasPriceInWei } from '../selectors';
-import { ATokenData, AaveLoadingState, AaveState } from '../../util/aave/types';
-import { getATokenContractWrapper, getLendingPool } from '../../services/aave';
+import { getEthAccount, getGasPriceInWei, getAaveReservesGQLResponse } from '../selectors';
+import { ATokenData, AaveLoadingState, AaveState, AaveReserveGQLResponse } from '../../util/aave/types';
+import { getATokenContractWrapper, getLendingPool, getAllATokens } from '../../services/aave/aave';
 
 
 const logger = getLogger('Aave::Actions');
@@ -25,6 +25,10 @@ export const setATokenBalance = createAction('aave/ATOKEN_BALANCE_set', resolve 
     return (token: ATokenData) => resolve(token);
 });
 
+export const setAaveReservesGQLResponse = createAction('aave/RESERVES_GQL_RESPONSE_set', resolve => {
+    return (aaveReserves: AaveReserveGQLResponse[]) => resolve(aaveReserves);
+});
+
 export const setATokenBalances = createAction('aave/ATOKEN_BALANCES_set', resolve => {
     return (token: ATokenData[]) => resolve(token);
 });
@@ -33,17 +37,19 @@ export const initAave: ThunkCreator<Promise<any>> = () => {
     return async (dispatch, getState) => {
         const state = getState();
         const ethAccount = getEthAccount(state);
+        const aaveReservesGQL = getAaveReservesGQLResponse(state);
+        console.log(aaveReservesGQL);
         dispatch(setAaveLoadingState(AaveLoadingState.Loading));
         try {
-        /*    const [iTokens, tokens] = await getAllATokens(ethAccount);
+            const aTokens = await getAllATokens(aaveReservesGQL, ethAccount);
             await dispatch(updateTokenBalances());
+            dispatch(setAaveReservesGQLResponse(aaveReservesGQL));
             dispatch(
                 initializeAaveData({
-                    TokensList: tokens,
-                    iTokensData: iTokens,
+                    aTokensData: aTokens,
                 }),
             );
-            dispatch(setAaveLoadingState(AaveLoadingState.Done));*/
+            dispatch(setAaveLoadingState(AaveLoadingState.Done));
         } catch (error) {
             logger.error('There was an error when initializing bzx smartcontracts', error);
             dispatch(setAaveLoadingState(AaveLoadingState.Error));
@@ -53,19 +59,29 @@ export const initAave: ThunkCreator<Promise<any>> = () => {
 
 export const fetchAave: ThunkCreator<Promise<any>> = () => {
     return async (dispatch, getState) => {
-     /*   const state = getState();
+       const state = getState();
         const ethAccount = getEthAccount(state);
+        const aaveReservesGQL = getAaveReservesGQLResponse(state);
         try {
-            const [iTokens, tokens] = await getAllITokens(ethAccount);
-            dispatch(
-                initializeAaveData({
-                    TokensList: tokens,
-                    iTokensData: iTokens,
-                }),
-            );
+            const aTokens = await getAllATokens(aaveReservesGQL, ethAccount);
+            dispatch(setATokenBalances(aTokens));
         } catch (error) {
             logger.error('There was an error when fetching aave smartcontracts', error);
-        }*/
+        }
+    };
+};
+
+export const fetchAaveGlobal: ThunkCreator<Promise<any>> = () => {
+    return async (dispatch, getState) => {
+       const state = getState();
+        const ethAccount = getEthAccount(state);
+        const aaveReservesGQL = getAaveReservesGQLResponse(state);
+        try {
+            const aTokens = await getAllATokens(aaveReservesGQL, ethAccount);
+            dispatch(setATokenBalances(aTokens));
+        } catch (error) {
+            logger.error('There was an error when fetching aave smartcontracts', error);
+        }
     };
 };
 
