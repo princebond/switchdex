@@ -1,25 +1,28 @@
 /**
  * GraphQl Queries
- * 
+ *
  */
-import { gql } from "apollo-boost";
+import { gql } from 'apollo-boost';
 
 export const GET_AAVE_RESERVES = gql`
-{
-    reserves{
-      id,
-      name,
-      symbol,
-      decimals,
-      liquidityRate,
-      variableBorrowRate,
-      stableBorrowRate
-      averageStableBorrowRate,
-      aToken{
-        id
-      }
+    {
+        reserves {
+            id
+            name
+            symbol
+            decimals
+            liquidityRate
+            variableBorrowRate
+            price {
+                priceInEth
+            }
+            stableBorrowRate
+            averageStableBorrowRate
+            aToken {
+                id
+            }
+        }
     }
-  }
 `;
 
 /*export const GET_USER_AAVE_DATA = gql`
@@ -34,10 +37,9 @@ export const GET_AAVE_RESERVES = gql`
             redirectedBalance,
             principalBorrows,
             borrowRateMode,
-            borrowRate,   
+            borrowRate,
             usageAsCollateralEnabledOnUser,
            }
      }
    }
 `;*/
-

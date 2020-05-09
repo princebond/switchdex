@@ -9,7 +9,6 @@ import { getKnownTokensIEO } from './known_tokens_ieo';
 import { tokenAmountInUnitsToBigNumber } from './tokens';
 import { OrderBookItem, OrderSide, Token, UIOrder } from './types';
 
-
 export const ordersToUIOrders = (orders: SignedOrder[], baseToken: Token, ordersInfo?: OrderInfo[]): UIOrder[] => {
     if (ordersInfo) {
         return ordersToUIOrdersWithOrdersInfo(orders, ordersInfo, baseToken);

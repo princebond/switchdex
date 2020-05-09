@@ -6,8 +6,9 @@ import styled from 'styled-components';
 
 import { TX_DEFAULTS_TRANSFER } from '../../common/constants';
 import { themeDimensions } from '../../themes/commons';
+import { ATokenData } from '../../util/aave/types';
 import { tokenAmountInUnits, tokenSymbolToDisplayString } from '../../util/tokens';
-import { ButtonIcons, ButtonVariant, iTokenData, Token, TokenBalance } from '../../util/types';
+import { ButtonIcons, ButtonVariant, Token, TokenBalance } from '../../util/types';
 import { BigNumberInput } from '../common/big_number_input';
 import { Button } from '../common/button';
 import { ErrorCard, ErrorIcons, FontSize } from '../common/error_card';
@@ -23,9 +24,9 @@ interface State {
 
 interface Props extends React.ComponentProps<typeof Modal> {
     isSubmitting: boolean;
-    onSubmit: (amount: BigNumber, token: Token, iToken: iTokenData, isEth: boolean, isLending: boolean) => any;
+    onSubmit: (amount: BigNumber, token: Token, aToken: ATokenData, isEth: boolean, isLending: boolean) => any;
     tokenBalance: TokenBalance;
-    iToken: iTokenData;
+    aToken: ATokenData;
     isOpen: boolean;
     closeModal: () => any;
     ethBalance: BigNumber;
@@ -135,7 +136,7 @@ const BigInputNumberTokenLabel = (props: { tokenSymbol: string }) => (
     </TokenContainer>
 );
 
-class LendingTokenModal extends React.Component<Props, State> {
+class DefiLendingTokenModal extends React.Component<Props, State> {
     public state: State = {
         amount: null,
         error: {
@@ -156,9 +157,9 @@ class LendingTokenModal extends React.Component<Props, State> {
     };
 
     public render = () => {
-        const { tokenBalance, closeModal, ethBalance, isEth, wethToken, iToken, isLending, ...restProps } = this.props;
+        const { tokenBalance, closeModal, ethBalance, isEth, wethToken, aToken, isLending, ...restProps } = this.props;
         const { error, amount } = this.state;
-        const { supplyInterestRate } = iToken;
+        const { liquidityRate } = aToken;
         let coinSymbol;
         let maxBalance;
         let decimals;
@@ -167,18 +168,18 @@ class LendingTokenModal extends React.Component<Props, State> {
         if (isEth) {
             displayDecimals = wethToken.displayDecimals;
             decimals = 18;
-            maxBalance = isLending ? ethBalance : iToken.balance;
+            maxBalance = isLending ? ethBalance : aToken.balance || new BigNumber(0);
             coinSymbol = tokenSymbolToDisplayString('ETH');
         } else if (tokenBalance) {
             const { token, balance } = tokenBalance;
             displayDecimals = token.displayDecimals;
             decimals = token.decimals;
-            maxBalance = isLending ? balance : iToken.balance;
+            maxBalance = isLending ? balance : aToken.balance || new BigNumber(0);
             coinSymbol = tokenSymbolToDisplayString(token.symbol);
         } else {
             return null;
         }
-        const btnPrefix = isLending ? 'Lend ' : 'Unlend ';
+        const btnPrefix = isLending ? 'Deposit ' : 'Withdraw ';
         const balanceInUnits = tokenAmountInUnits(maxBalance, decimals, displayDecimals);
         const btnText = error && error.btnMsg ? 'Error' : btnPrefix + coinSymbol;
         const isSubmitAllowed = amount === null || (amount && amount.isGreaterThan(maxBalance));
@@ -186,10 +187,17 @@ class LendingTokenModal extends React.Component<Props, State> {
         const content = (
             <>
                 <ModalTitle>
-                    {isLending ? 'Lending' : 'Unlending'} {coinSymbol}
+                    {isLending ? 'Deposit' : 'Withdraw'} {coinSymbol}
                 </ModalTitle>
                 <LabelContainer>
-                    <Label>Interest APR: {supplyInterestRate.div('1e18').toFixed(5)} %</Label>
+                    <Label>
+                        Interest APR:{' '}
+                        {liquidityRate
+                            .div('1e27')
+                            .multipliedBy(100)
+                            .toFixed(5)}{' '}
+                        %
+                    </Label>
                 </LabelContainer>
                 <AmountContainer>
                     <AmountLabel onClick={this.setMax}>Amount: {balanceInUnits}</AmountLabel>
@@ -234,15 +242,15 @@ class LendingTokenModal extends React.Component<Props, State> {
         });
     };
     public setMax = () => {
-        const { tokenBalance, isEth, ethBalance, isLending, iToken } = this.props;
+        const { tokenBalance, isEth, ethBalance, isLending, aToken } = this.props;
         if (isEth) {
-            const maxBalance = isLending ? ethBalance : iToken.balance;
+            const maxBalance = isLending ? ethBalance : aToken.balance || new BigNumber(0);
             this.setState({
                 amount: maxBalance,
             });
         } else if (tokenBalance) {
             this.setState({
-                amount: isLending ? tokenBalance.balance : iToken.balance,
+                amount: isLending ? tokenBalance.balance : aToken.balance || new BigNumber(0),
             });
         }
     };
@@ -252,7 +260,7 @@ class LendingTokenModal extends React.Component<Props, State> {
     };
 
     public submit = async () => {
-        const { tokenBalance, isEth, wethToken, iToken, isLending } = this.props;
+        const { tokenBalance, isEth, wethToken, aToken, isLending } = this.props;
         let token: Token;
         if (isEth) {
             token = {
@@ -265,7 +273,7 @@ class LendingTokenModal extends React.Component<Props, State> {
             return null;
         }
         const amount = this.state.amount || new BigNumber(0);
-        this.props.onSubmit(amount, token, iToken, isEth, isLending);
+        this.props.onSubmit(amount, token, aToken, isEth, isLending);
     };
 
     private readonly _reset = () => {
@@ -275,4 +283,4 @@ class LendingTokenModal extends React.Component<Props, State> {
     };
 }
 
-export { LendingTokenModal };
+export { DefiLendingTokenModal };

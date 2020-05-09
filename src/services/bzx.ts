@@ -17,7 +17,8 @@ export const getITokenContractWrapper = async (address: string, partialTxData: P
 
 export const getTokenizedRegistryContractWrapper = async (partialTxData: Partial<TxData>) => {
     const web3Wrapper = await getWeb3Wrapper();
-    const TokenizedRegistryContract = (await import('../util/bzx/contract_wrappers/tokenized_registry')).TokenizedRegistryContract;
+    const TokenizedRegistryContract = (await import('../util/bzx/contract_wrappers/tokenized_registry'))
+        .TokenizedRegistryContract;
     return new TokenizedRegistryContract(getTokenizedRegistryAddress(), web3Wrapper.getProvider(), partialTxData);
 };
 

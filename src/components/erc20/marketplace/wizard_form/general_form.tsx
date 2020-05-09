@@ -5,7 +5,6 @@ import { useDispatch } from 'react-redux';
 import styled from 'styled-components';
 
 import { setGeneralConfig } from '../../../../store/actions';
-import { themeDimensions } from '../../../../themes/commons';
 import { GeneralConfig } from '../../../../util/types';
 import { AccordionCollapse } from '../../../common/accordion_collapse';
 import { StyledInput } from '../../../common/final_form/styled_input';
@@ -71,11 +70,11 @@ const SocialForm = ({ name }: { name: string }) => (
     </>
 );
 
-const StyledSocialForm = styled(AccordionCollapse)`
+/*const StyledSocialForm = styled(AccordionCollapse)`
     padding: 20px;
     border-radius: ${themeDimensions.borderRadius};
     border: 1px solid ${props => props.theme.componentsTheme.cardBorderColor};
-`;
+`;*/
 
 const TooltipStyled = styled(Tooltip)``;
 

@@ -17,6 +17,7 @@ export interface TokenMetaData {
     website?: string;
     verisafe_sticker?: string;
     mainnetAddress?: string;
+    isStableCoin?: boolean;
 }
 
 export const KNOWN_TOKENS_META_DATA: TokenMetaData[] = Config.getConfig().tokens;

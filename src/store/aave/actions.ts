@@ -1,15 +1,27 @@
 import { BigNumber } from '@0x/utils';
 import { createAction } from 'typesafe-actions';
 
-import { getAllITokens, getToken } from '../../services/bzx';
+import {
+    getAaveOverall,
+    getAllATokens,
+    getAllATokensV2,
+    getATokenContractWrapper,
+    getLendingPool,
+} from '../../services/aave/aave';
+import { AAVE_ETH_TOKEN } from '../../util/aave/constants';
+import {
+    AaveLoadingState,
+    AaveReserveGQLResponse,
+    AaveState,
+    ATokenData,
+    UserAccountData,
+} from '../../util/aave/types';
+import { isWeth } from '../../util/known_tokens_ieo';
 import { getLogger } from '../../util/logger';
 import { getTransactionOptions } from '../../util/transactions';
-import { BZXLoadingState, BZXState, iTokenData, NotificationKind, ThunkCreator, Token } from '../../util/types';
+import { NotificationKind, ThunkCreator, Token } from '../../util/types';
 import { addNotifications, updateTokenBalances } from '../actions';
-import { getEthAccount, getGasPriceInWei, getAaveReservesGQLResponse } from '../selectors';
-import { ATokenData, AaveLoadingState, AaveState, AaveReserveGQLResponse } from '../../util/aave/types';
-import { getATokenContractWrapper, getLendingPool, getAllATokens } from '../../services/aave/aave';
-
+import { getAaveReservesGQLResponse, getEthAccount, getGasPriceInWei } from '../selectors';
 
 const logger = getLogger('Aave::Actions');
 
@@ -33,17 +45,27 @@ export const setATokenBalances = createAction('aave/ATOKEN_BALANCES_set', resolv
     return (token: ATokenData[]) => resolve(token);
 });
 
+export const setAaveUserAccountData = createAction('aave/USER_ACCOUNT_DATA_set', resolve => {
+    return (userData: UserAccountData) => resolve(userData);
+});
+
+export const setAaveCurrency = createAction('aave/AAVE_CURRENCY_set', resolve => {
+    return (currency: 'NATIVE' | 'USD') => resolve(currency);
+});
+
 export const initAave: ThunkCreator<Promise<any>> = () => {
     return async (dispatch, getState) => {
         const state = getState();
         const ethAccount = getEthAccount(state);
         const aaveReservesGQL = getAaveReservesGQLResponse(state);
-        console.log(aaveReservesGQL);
         dispatch(setAaveLoadingState(AaveLoadingState.Loading));
         try {
-            const aTokens = await getAllATokens(aaveReservesGQL, ethAccount);
-            await dispatch(updateTokenBalances());
             dispatch(setAaveReservesGQLResponse(aaveReservesGQL));
+            const aTokens = await getAllATokensV2(aaveReservesGQL, ethAccount);
+            if (ethAccount) {
+                await dispatch(updateTokenBalances());
+            }
+
             dispatch(
                 initializeAaveData({
                     aTokensData: aTokens,
@@ -59,11 +81,11 @@ export const initAave: ThunkCreator<Promise<any>> = () => {
 
 export const fetchAave: ThunkCreator<Promise<any>> = () => {
     return async (dispatch, getState) => {
-       const state = getState();
+        const state = getState();
         const ethAccount = getEthAccount(state);
         const aaveReservesGQL = getAaveReservesGQLResponse(state);
         try {
-            const aTokens = await getAllATokens(aaveReservesGQL, ethAccount);
+            const aTokens = await getAllATokensV2(aaveReservesGQL, ethAccount);
             dispatch(setATokenBalances(aTokens));
         } catch (error) {
             logger.error('There was an error when fetching aave smartcontracts', error);
@@ -73,7 +95,7 @@ export const fetchAave: ThunkCreator<Promise<any>> = () => {
 
 export const fetchAaveGlobal: ThunkCreator<Promise<any>> = () => {
     return async (dispatch, getState) => {
-       const state = getState();
+        const state = getState();
         const ethAccount = getEthAccount(state);
         const aaveReservesGQL = getAaveReservesGQLResponse(state);
         try {
@@ -96,20 +118,20 @@ export const lendingAToken: ThunkCreator<Promise<any>> = (
         const ethAccount = getEthAccount(state);
         const gasPrice = getGasPriceInWei(state);
 
-        const lendingPoolWrapper = await getLendingPool( {
+        const lendingPoolWrapper = await getLendingPool({
             from: ethAccount.toLowerCase(),
-            gas: '2000000',
+            gas: '400000',
         });
         const web3Wrapper = await getWeb3Wrapper();
         let txHash: string;
         if (isEth) {
-            txHash = await lendingPoolWrapper.deposit(aToken.token.address, amount, 0).sendTransactionAsync({
+            txHash = await lendingPoolWrapper.deposit(AAVE_ETH_TOKEN, amount, 0).sendTransactionAsync({
                 from: ethAccount.toLowerCase(),
                 value: amount.toString(),
                 gasPrice: getTransactionOptions(gasPrice).gasPrice,
             });
         } else {
-            txHash = await lendingPoolWrapper.deposit(aToken.token.address, amount, 0).sendTransactionAsync({
+            txHash = await lendingPoolWrapper.deposit(token.address, amount, 0).sendTransactionAsync({
                 from: ethAccount.toLowerCase(),
                 gasPrice: getTransactionOptions(gasPrice).gasPrice,
             });
@@ -129,6 +151,10 @@ export const lendingAToken: ThunkCreator<Promise<any>> = (
                 },
             ]),
         );
+        tx.then(async () => {
+            const userAcc = await getAaveOverall(ethAccount);
+            dispatch(setAaveUserAccountData(userAcc));
+        });
         /*web3Wrapper.awaitTransactionSuccessAsync(tx).then(() => {
             // tslint:disable-next-line:no-floating-promises
             dispatch(updateTokenBalancesOnToggleTokenLock(token, isUnlocked));
@@ -150,7 +176,7 @@ export const unLendingAToken: ThunkCreator<Promise<any>> = (
         const gasPrice = getGasPriceInWei(state);
         const aTokenWrapper = await getATokenContractWrapper(aToken.address, {
             from: ethAccount.toLowerCase(),
-            gas: '2000000',
+            gas: '800000',
         });
         const web3Wrapper = await getWeb3Wrapper();
 
@@ -159,8 +185,12 @@ export const unLendingAToken: ThunkCreator<Promise<any>> = (
             gasPrice: getTransactionOptions(gasPrice).gasPrice,
         });
 
-
         const tx = web3Wrapper.awaitTransactionSuccessAsync(txHash);
+
+        tx.then(async () => {
+            const userAcc = await getAaveOverall(ethAccount);
+            dispatch(setAaveUserAccountData(userAcc));
+        });
 
         dispatch(
             addNotifications([
@@ -185,7 +215,7 @@ export const unLendingAToken: ThunkCreator<Promise<any>> = (
     };
 };
 
-export const borrowToken: ThunkCreator<Promise<any>> = (
+export const borrowAToken: ThunkCreator<Promise<any>> = (
     token: Token,
     aToken: ATokenData,
     amount: BigNumber,
@@ -196,19 +226,24 @@ export const borrowToken: ThunkCreator<Promise<any>> = (
         const state = getState();
         const ethAccount = getEthAccount(state);
         const gasPrice = getGasPriceInWei(state);
-        const lendingPoolWrapper = await getLendingPool( {
+        const lendingPoolWrapper = await getLendingPool({
             from: ethAccount.toLowerCase(),
-            gas: '2000000',
+            gas: '800000',
         });
-
+        let address;
+        if (isWeth(aToken.token.symbol)) {
+            address = AAVE_ETH_TOKEN;
+        } else {
+            address = aToken.token.address;
+        }
 
         const web3Wrapper = await getWeb3Wrapper();
+        // we are using solely variable rate mode
 
-        const txHash = await lendingPoolWrapper.borrow(aToken.token.address, amount, interestRateMode, 0).sendTransactionAsync({
+        const txHash = await lendingPoolWrapper.borrow(address, amount, new BigNumber(2), 0).sendTransactionAsync({
             from: ethAccount.toLowerCase(),
             gasPrice: getTransactionOptions(gasPrice).gasPrice,
         });
-
 
         const tx = web3Wrapper.awaitTransactionSuccessAsync(txHash);
 
@@ -216,7 +251,7 @@ export const borrowToken: ThunkCreator<Promise<any>> = (
             addNotifications([
                 {
                     id: txHash,
-                    kind: NotificationKind.UnLendingComplete,
+                    kind: NotificationKind.BorrowComplete,
                     amount,
                     token,
                     tx,
@@ -224,6 +259,10 @@ export const borrowToken: ThunkCreator<Promise<any>> = (
                 },
             ]),
         );
+        tx.then(async () => {
+            const userAcc = await getAaveOverall(ethAccount);
+            dispatch(setAaveUserAccountData(userAcc));
+        });
 
         /*web3Wrapper.awaitTransactionSuccessAsync(tx).then(() => {
             // tslint:disable-next-line:no-floating-promises
@@ -235,7 +274,7 @@ export const borrowToken: ThunkCreator<Promise<any>> = (
     };
 };
 
-export const repayToken: ThunkCreator<Promise<any>> = (
+export const repayAToken: ThunkCreator<Promise<any>> = (
     token: Token,
     aToken: ATokenData,
     amount: BigNumber,
@@ -245,27 +284,68 @@ export const repayToken: ThunkCreator<Promise<any>> = (
         const state = getState();
         const ethAccount = getEthAccount(state);
         const gasPrice = getGasPriceInWei(state);
-        const lendingPoolWrapper = await getLendingPool( {
+        const lendingPoolWrapper = await getLendingPool({
             from: ethAccount.toLowerCase(),
-            gas: '2000000',
+            gas: '300000',
         });
-
 
         const web3Wrapper = await getWeb3Wrapper();
+        let address;
+        let txHash;
+        if (isWeth(aToken.token.symbol) || aToken.token.symbol.toLowerCase() === 'eth') {
+            address = AAVE_ETH_TOKEN;
+            let amountRepay = amount;
+            const borrowBalance = aToken.borrowBalance as BigNumber;
+            if (
+                borrowBalance
+                    .minus(borrowBalance)
+                    .dividedBy(borrowBalance)
+                    .isLessThan(0.01)
+            ) {
+                amountRepay = amount.plus(amount.multipliedBy(0.001)).integerValue(BigNumber.ROUND_DOWN);
+            }
+            txHash = await lendingPoolWrapper
+                .repay(address, amountRepay, ethAccount.toLowerCase())
+                .sendTransactionAsync({
+                    from: ethAccount.toLowerCase(),
+                    gasPrice: getTransactionOptions(gasPrice).gasPrice,
+                    value: amountRepay,
+                });
+        } else {
+            address = aToken.token.address;
+            // if we pass -1 on the amount it will pay all the borrow balance, we assume when amount is 99 % of borrowedbalance user, wants to pay
+            // all the borrow balance.
+            const borrowBalance = aToken.borrowBalance as BigNumber;
+            let amountRepay = amount;
+            if (
+                borrowBalance
+                    .minus(borrowBalance)
+                    .dividedBy(borrowBalance)
+                    .isLessThan(0.01)
+            ) {
+                amountRepay = amount.plus(amount.multipliedBy(0.001)).integerValue(BigNumber.ROUND_DOWN);
+            }
 
-        const txHash = await lendingPoolWrapper.repay(aToken.token.address, amount, ethAccount.toLowerCase()).sendTransactionAsync({
-            from: ethAccount.toLowerCase(),
-            gasPrice: getTransactionOptions(gasPrice).gasPrice,
-        });
-
+            txHash = await lendingPoolWrapper
+                .repay(address, amountRepay, ethAccount.toLowerCase())
+                .sendTransactionAsync({
+                    from: ethAccount.toLowerCase(),
+                    gasPrice: getTransactionOptions(gasPrice).gasPrice,
+                });
+        }
 
         const tx = web3Wrapper.awaitTransactionSuccessAsync(txHash);
+
+        tx.then(async () => {
+            const userAcc = await getAaveOverall(ethAccount);
+            dispatch(setAaveUserAccountData(userAcc));
+        });
 
         dispatch(
             addNotifications([
                 {
                     id: txHash,
-                    kind: NotificationKind.UnLendingComplete,
+                    kind: NotificationKind.RepayComplete,
                     amount,
                     token,
                     tx,
@@ -273,7 +353,6 @@ export const repayToken: ThunkCreator<Promise<any>> = (
                 },
             ]),
         );
-
 
         /*web3Wrapper.awaitTransactionSuccessAsync(tx).then(() => {
             // tslint:disable-next-line:no-floating-promises
@@ -285,15 +364,14 @@ export const repayToken: ThunkCreator<Promise<any>> = (
     };
 };
 
-
-/*export const updateITokenBalance: ThunkCreator<Promise<any>> = (iToken: iTokenData) => {
+/*export const updateATokenBalance: ThunkCreator<Promise<any>> = (aToken: ATokenData) => {
     return async (dispatch, getState) => {
         const state = getState();
         const ethAccount = getEthAccount(state);
         dispatch(setBZXLoadingState(BZXLoadingState.Loading));
         const token = await getToken(ethAccount, iToken);
         if (token) {
-            dispatch(setITokenBalance(token));
+            dispatch(setATokenBalance(token));
         }
         dispatch(setBZXLoadingState(BZXLoadingState.Done));
     };

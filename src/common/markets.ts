@@ -62,8 +62,6 @@ export const addWethAvailableMarket = (token: Token): CurrencyPair | null => {
 };
 /**
  * Adds market
- * @param quoteToken
- * @param baseToken
  */
 export const addAvailableMarket = (quoteToken: Token, baseToken: Token): CurrencyPair | null => {
     const availableMarketsData = getAvailableMarkets();

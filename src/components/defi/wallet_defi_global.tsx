@@ -1,30 +1,26 @@
-
-import React, { useState, useEffect } from 'react';
-import { useSelector } from 'react-redux';
+import { BigNumber } from '@0x/utils';
+import React, { useEffect } from 'react';
+import { useDispatch, useSelector } from 'react-redux';
 import styled from 'styled-components';
 
+import { getAaveOverall } from '../../services/aave/aave';
+import { setAaveUserAccountData } from '../../store/actions';
 import {
-
+    getAaveCurrency,
+    getAaveUserAccountData,
     getEthAccount,
+    getEthInUsd,
     getWeb3State,
 } from '../../store/selectors';
-
-
+import { themeBreakPoints } from '../../themes/commons';
 import { isMobile } from '../../util/screen';
-
-import {
-    Web3State,
-} from '../../util/types';
+import { Web3State } from '../../util/types';
 import { Card } from '../common/card';
-
+import { useInterval } from '../common/hooks/set_interval_hook';
+import { useWindowSize } from '../common/hooks/window_size_hook';
 import { LoadingWrapper } from '../common/loading';
 import { CustomTD, Table, TH, THead, THLast, TR } from '../common/table';
-
-
-import { useInterval } from '../common/hooks/set_interval_hook';
-import { getLendingPool } from '../../services/aave/aave';
-import { UserAccountData } from '../../util/aave/types';
-import { useWindowSize } from '../common/hooks/window_size_hook';
+import { IconType, Tooltip } from '../common/tooltip';
 
 const THStyled = styled(TH)`
     &:first-child {
@@ -38,61 +34,105 @@ const TBody = styled.tbody`
     }
 `;
 
+const CenteredLoading = styled(LoadingWrapper)`
+    height: 100%;
+`;
+
+interface HealthProps {
+    value?: BigNumber;
+}
+
+const formatHealthColor = (value: BigNumber) => {
+    if (value.isGreaterThan(2)) {
+        return 'green';
+    } else if (value.isLessThanOrEqualTo(2) && value.isGreaterThan(1.05)) {
+        return 'yellow';
+    } else if (value.isLessThan(1.05)) {
+        return 'red';
+    }
+};
+
+const TDHealthFactor = styled(CustomTD)<HealthProps>`
+    color: ${props => props.value && formatHealthColor(props.value)};
+`;
+
 const DefiGlobalCard = styled(Card)`
-max-height: 100px;
-`
+    @media (min-width: ${themeBreakPoints.md}) {
+        max-height: 100px;
+    }
+    margin: 2px;
+    min-height: 20px;
+`;
+
+const TooltipStyled = styled(Tooltip)`
+    flex-wrap: wrap;
+    display: inline;
+    .reactTooltip {
+        max-width: 650px;
+        text-transform: none;
+        font-size: 10px;
+    }
+`;
 
 export const WalletDefiGlobalOverral = () => {
-    const [userAccountData, setUserAccountData] = useState<UserAccountData>();
     const ethAccount = useSelector(getEthAccount);
     const web3State = useSelector(getWeb3State);
+    const currencySelector = useSelector(getAaveCurrency);
+    const isNative = currencySelector === 'NATIVE' ? true : false;
+    const ethUsd = useSelector(getEthInUsd);
+    const dispatch = useDispatch();
     const windowSize = useWindowSize();
+    const userAccountData = useSelector(getAaveUserAccountData);
     const fetchAaveGlobal = async () => {
-        const lendingPoolContract = await getLendingPool({});
-                const userAccountData = await lendingPoolContract.getUserAccountData(ethAccount).callAsync();
-                setUserAccountData({
-                    totalLiquidity: userAccountData[0],
-                    totalCollateralETH: userAccountData[1],
-                    totalBorrowsETH: userAccountData[2],
-                    totalFeesETH: userAccountData[3],
-                    availableBorrowsETH: userAccountData[4],
-                    currentLiquidationThreshold: userAccountData[5],
-                    ltv: userAccountData[6],
-                    healthFactor: userAccountData[7],
-                })
-
-    }
+        const userAcc = await getAaveOverall(ethAccount);
+        dispatch(setAaveUserAccountData(userAcc));
+    };
     // initial loading
-    useEffect(()=>{
+    useEffect(() => {
         const loadingLendingPoolData = async () => {
             if (ethAccount) {
-                await fetchAaveGlobal()
+                await fetchAaveGlobal();
             }
-        }
-        loadingLendingPoolData().then(()=> console.log('loaded'));
+        };
+        loadingLendingPoolData();
+    }, [ethAccount]);
 
-    },[ethAccount])
-
-
-    // Update global state 
+    // Update global state
     useInterval(async () => {
         if (ethAccount) {
-            await fetchAaveGlobal()
+            await fetchAaveGlobal();
         }
-    }, 30 * 1000)
-    const isMobileView = isMobile(windowSize.width);
-    const totalLiquidity = (userAccountData && `${userAccountData.totalLiquidity.dividedBy('1e18').toFixed(3)} ETH `) || '-';
-    const totalCollateralETH = (userAccountData && `${userAccountData.totalCollateralETH.dividedBy('1e18').toFixed(3)} ETH`) || '-';
-    const totalBorrowsETH = (userAccountData && `${userAccountData.totalBorrowsETH.dividedBy('1e18').toFixed(3)} ETH`) || '-';
-    const availableBorrowsETH = (userAccountData && `${userAccountData.availableBorrowsETH.dividedBy('1e18').toFixed(3)} ETH`) || '-';
-    const currentLiquidationThreshold = (userAccountData && `${ userAccountData.currentLiquidationThreshold.dividedBy('1e18').toFixed(3)} ETH`) || '-';
-    const ltv = (userAccountData && userAccountData.ltv.dividedBy('1e18').toFixed(3)) || '-';
-    let healthFactor = '-'
-    // const healthFactor = (userAccountData && userAccountData.healthFactor.toFixed(3)) || '-';;
-    if(userAccountData && userAccountData.totalBorrowsETH.gt(0)){
-        healthFactor = (userAccountData && userAccountData.healthFactor.toFixed(3));
-    }
+    }, 30 * 1000);
+    const formatETHField = (field?: BigNumber) => {
+        if (field) {
+            return isNative
+                ? `${field.dividedBy('1e18').toFixed(3)} ETH`
+                : ethUsd
+                ? `${field
+                      .dividedBy('1e18')
+                      .multipliedBy(ethUsd)
+                      .toFixed(3)} USD`
+                : '- USD';
+        } else {
+            return '-';
+        }
+    };
 
+    const isMobileView = isMobile(windowSize.width);
+    const totalLiquidity = formatETHField(userAccountData && userAccountData.totalLiquidity);
+    const totalCollateralETH = formatETHField(userAccountData && userAccountData.totalCollateralETH);
+    const totalBorrowsETH = formatETHField(userAccountData && userAccountData.totalBorrowsETH);
+    const availableBorrowsETH = formatETHField(userAccountData && userAccountData.availableBorrowsETH);
+    const currentLiquidationThreshold =
+        (userAccountData && `${userAccountData.currentLiquidationThreshold.toFixed(0)} %`) || '-';
+    const ltv = (userAccountData && `${userAccountData.ltv.toFixed(0)} %`) || '-';
+    let healthFactor = '-';
+    let healtFactorValue: BigNumber | undefined;
+    // const healthFactor = (userAccountData && userAccountData.healthFactor.toFixed(3)) || '-';;
+    if (userAccountData && userAccountData.totalBorrowsETH.gt(0)) {
+        healthFactor = userAccountData && userAccountData.healthFactor.dividedBy('1e18').toFixed(3);
+        healtFactorValue = new BigNumber(healthFactor);
+    }
 
     const overallRows = () => {
         if (isMobileView) {
@@ -124,38 +164,35 @@ export const WalletDefiGlobalOverral = () => {
                     </TR>
                     <TR>
                         <TH styles={{ borderBottom: true, textAlign: 'left' }}> Health Factor</TH>
-                        <CustomTD styles={{ borderBottom: true, textAlign: 'right' }}>{healthFactor}</CustomTD>
+                        <TDHealthFactor styles={{ borderBottom: true, textAlign: 'right' }} value={healtFactorValue}>
+                            {healthFactor}
+                        </TDHealthFactor>
                     </TR>
                 </tbody>
             );
         } else {
             return (
                 <TR key={'overall-row'}>
-                    <CustomTD >{totalLiquidity}</CustomTD>
-                    <CustomTD >{totalCollateralETH}</CustomTD>
-                    <CustomTD >{totalBorrowsETH}</CustomTD>
-                    <CustomTD >{availableBorrowsETH}</CustomTD>
+                    <CustomTD>{totalLiquidity}</CustomTD>
+                    <CustomTD>{totalCollateralETH}</CustomTD>
+                    <CustomTD>{totalBorrowsETH}</CustomTD>
+                    <CustomTD>{availableBorrowsETH}</CustomTD>
                     <CustomTD>{currentLiquidationThreshold}</CustomTD>
-                    <CustomTD >{ltv}</CustomTD>
-                    <CustomTD>{healthFactor}</CustomTD>
+                    <CustomTD>{ltv}</CustomTD>
+                    <TDHealthFactor value={healtFactorValue}>{healthFactor}</TDHealthFactor>
                 </TR>
             );
         }
-    }
-
+    };
 
     let content: React.ReactNode;
     if (web3State === Web3State.Loading) {
-        content = <LoadingWrapper />;
+        content = <CenteredLoading />;
     } else {
-
-
         if (isMobileView) {
             content = (
                 <>
-                    <Table isResponsive={true}>
-                        {overallRows()}
-                    </Table>
+                    <Table isResponsive={true}>{overallRows()}</Table>
                 </>
             );
         } else {
@@ -164,23 +201,67 @@ export const WalletDefiGlobalOverral = () => {
                     <Table isResponsive={true}>
                         <THead>
                             <TR>
-                                <THStyled>Total Liquidity</THStyled>
-                                <THStyled>Total Collateral</THStyled>
-                                <THStyled>Total Borrows</THStyled>
-                                <THStyled> Available For Borrow</THStyled>
-                                <THStyled >Liquidation Threshold</THStyled>
-                                <THStyled >LTV</THStyled>
-                                <THLast> Health Factor</THLast>
+                                <THStyled>
+                                    Total Liquidity
+                                    <TooltipStyled
+                                        description="Total liquidity in ETH of all deposits"
+                                        iconType={IconType.Fill}
+                                    />
+                                </THStyled>
+                                <THStyled>
+                                    Total Collateral
+                                    <TooltipStyled
+                                        description="Total collateral available in ETH to be used on borrow"
+                                        iconType={IconType.Fill}
+                                    />
+                                </THStyled>
+                                <THStyled>
+                                    Total Borrows
+                                    <TooltipStyled description="Total active borrows in ETH" iconType={IconType.Fill} />
+                                </THStyled>
+                                <THStyled>
+                                    {' '}
+                                    Available For Borrow
+                                    <TooltipStyled
+                                        description="Total amount in ETH available for borrow"
+                                        iconType={IconType.Fill}
+                                    />
+                                </THStyled>
+                                <THStyled>
+                                    Liquidation Threshold
+                                    <TooltipStyled
+                                        description="Max percentage of borrow balance related to collateral before being liquidated"
+                                        iconType={IconType.Fill}
+                                    />
+                                </THStyled>
+                                <THStyled>
+                                    LTV
+                                    <TooltipStyled
+                                        description="Ratio how much you can borrow compared to total collateral"
+                                        iconType={IconType.Fill}
+                                    />
+                                </THStyled>
+                                <THLast>
+                                    {' '}
+                                    Health Factor
+                                    <TooltipStyled
+                                        description="The health factor represents the safeness <br />of your loan
+                                    ,derived from the <br /> proportion of your collateral and how much <br />you have borrowed. Keep it above 1 <br />
+                                    to avoid liquidation"
+                                        iconType={IconType.Fill}
+                                    />
+                                </THLast>
                             </TR>
                         </THead>
-                        <TBody>
-                            {overallRows()}
-                        </TBody>
+                        <TBody>{overallRows()}</TBody>
                     </Table>
-
                 </>
             );
         }
     }
-    return <DefiGlobalCard title="Overall Aave Position">{content}</DefiGlobalCard>;
+    return (
+        <DefiGlobalCard title="Overall Aave Position" disableOverflowBody={true} minHeightBody={'20px'}>
+            {content}
+        </DefiGlobalCard>
+    );
 };

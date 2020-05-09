@@ -3,17 +3,12 @@ import React from 'react';
 import { connect } from 'react-redux';
 
 import { getWeb3Wrapper } from '../../../services/web3_wrapper';
-import {
-    lendingDefiToken,
-    unLendingDefiToken,
-    updateDefiTokenBalance,
-    updateTokenBalance,
-} from '../../../store/actions';
+import { borrowDefiToken, repayDefiToken, updateDefiTokenBalance, updateTokenBalance } from '../../../store/actions';
 import { getEstimatedTxTimeMs, getStepsModalCurrentStep, getWallet } from '../../../store/selectors';
-import { addLendingTokenNotification, addUnLendingTokenNotification } from '../../../store/ui/actions';
+import { addBorrowTokenNotification, addRepayTokenNotification } from '../../../store/ui/actions';
 import { ATokenData } from '../../../util/aave/types';
 import { tokenAmountInUnits, tokenSymbolToDisplayString } from '../../../util/tokens';
-import { iTokenData, StepLendingToken, StepUnLendingToken, StoreState, Token, Wallet } from '../../../util/types';
+import { iTokenData, StepBorrowToken, StepRepayToken, StoreState, Token, Wallet } from '../../../util/types';
 
 import { BaseStepModal } from './base_step_modal';
 import { StepItem } from './steps_progress';
@@ -24,25 +19,25 @@ interface OwnProps {
 
 interface StateProps {
     estimatedTxTimeMs: number;
-    step: StepLendingToken | StepUnLendingToken;
+    step: StepBorrowToken | StepRepayToken;
     wallet: Wallet;
 }
 
 interface DispatchProps {
-    onSubmitLendingToken: (
+    onSubmitBorrowToken: (
         token: Token,
         defiToken: iTokenData | ATokenData,
         amount: BigNumber,
         isEth: boolean,
     ) => Promise<any>;
-    onSubmitUnLendingToken: (
+    onSubmitRepayToken: (
         token: Token,
         defiToken: iTokenData | ATokenData,
         amount: BigNumber,
         isEth: boolean,
     ) => Promise<any>;
-    notifyLendingToken: (id: string, amount: BigNumber, token: Token, tx: Promise<any>) => any;
-    notifyUnLendingToken: (id: string, amount: BigNumber, token: Token, tx: Promise<any>) => any;
+    notifyBorrowToken: (id: string, amount: BigNumber, token: Token, tx: Promise<any>) => any;
+    notifyRepayToken: (id: string, amount: BigNumber, token: Token, tx: Promise<any>) => any;
     updateDefiTokenBalance: (token: iTokenData | ATokenData) => any;
     updateTokenBalance: (token: Token) => any;
 }
@@ -53,14 +48,14 @@ interface State {
     amountInReturn: BigNumber | null;
 }
 
-class LendingTokenStep extends React.Component<Props, State> {
+class BorrowTokenStep extends React.Component<Props, State> {
     public state = {
         amountInReturn: null,
     };
 
     public render = () => {
         const { buildStepsProgress, estimatedTxTimeMs, step, wallet } = this.props;
-        const { token, isEth, isLending } = step;
+        const { token, isEth, isBorrow } = step;
         const coinSymbol = isEth ? tokenSymbolToDisplayString('ETH') : tokenSymbolToDisplayString(token.symbol);
         const decimals = isEth ? 18 : step.token.decimals;
 
@@ -70,14 +65,14 @@ class LendingTokenStep extends React.Component<Props, State> {
             step.token.displayDecimals,
         ).toString()} ${coinSymbol}`;
 
-        const title = isLending ? 'Deposit' : 'Withdraw';
+        const title = isBorrow ? 'Borrow' : 'Repay';
 
-        const confirmCaption = `Confirm on ${wallet} to ${isLending ? 'deposit' : 'withdraw'} ${amountOfTokenString}.`;
-        const loadingCaption = `Processing ${isLending ? 'Deposit' : 'Withdraw'} ${amountOfTokenString}.`;
-        const doneCaption = `${isLending ? 'Deposit' : 'Withdraw'} Complete!`;
-        const errorCaption = `${isLending ? 'Deposit' : 'Withdraw'} ${amountOfTokenString}.`;
+        const confirmCaption = `Confirm on ${wallet} to ${isBorrow ? 'borrow' : 'repay'} ${amountOfTokenString}.`;
+        const loadingCaption = `Processing ${isBorrow ? 'Borrow' : 'Repay'} ${amountOfTokenString}.`;
+        const doneCaption = `${isBorrow ? 'Borrow' : 'Repay'} Complete!`;
+        const errorCaption = `${isBorrow ? 'Borrow' : 'Repay'} ${amountOfTokenString}.`;
         const loadingFooterCaption = `Waiting for confirmation....`;
-        const doneFooterCaption = `${isLending ? 'Deposit' : 'Withdraw'} of ${amountOfTokenString}.`;
+        const doneFooterCaption = `${isBorrow ? 'Borrow' : 'Repay'} of ${amountOfTokenString}.`;
 
         return (
             <BaseStepModal
@@ -99,26 +94,27 @@ class LendingTokenStep extends React.Component<Props, State> {
     };
 
     private readonly _confirmOnWalletLending = async ({ onLoading, onDone, onError }: any) => {
-        const { step, onSubmitLendingToken, onSubmitUnLendingToken } = this.props;
-        const { amount, token, isEth, defiToken, isLending } = step;
+        const { step, onSubmitBorrowToken, onSubmitRepayToken } = this.props;
+        const { amount, token, isEth, defiToken, isBorrow } = step;
         try {
             const web3Wrapper = await getWeb3Wrapper();
-            const txHash = isLending
-                ? await onSubmitLendingToken(token, defiToken, amount, isEth)
-                : await onSubmitUnLendingToken(token, defiToken, amount, isEth);
+            const txHash = isBorrow
+                ? await onSubmitBorrowToken(token, defiToken, amount, isEth)
+                : await onSubmitRepayToken(token, defiToken, amount, isEth);
 
             onLoading();
             await web3Wrapper.awaitTransactionSuccessAsync(txHash);
             onDone();
-            if (isLending) {
-                this.props.notifyLendingToken(txHash, amount, token, Promise.resolve());
+            if (isBorrow) {
+                this.props.notifyBorrowToken(txHash, amount, token, Promise.resolve());
             } else {
-                this.props.notifyUnLendingToken(txHash, amount, token, Promise.resolve());
+                this.props.notifyRepayToken(txHash, amount, token, Promise.resolve());
             }
 
             this.props.updateDefiTokenBalance(defiToken);
             this.props.updateTokenBalance(token);
         } catch (err) {
+            console.log(err);
             onError(err);
         }
     };
@@ -127,24 +123,24 @@ class LendingTokenStep extends React.Component<Props, State> {
 const mapStateToProps = (state: StoreState): StateProps => {
     return {
         estimatedTxTimeMs: getEstimatedTxTimeMs(state),
-        step: getStepsModalCurrentStep(state) as StepLendingToken | StepUnLendingToken,
+        step: getStepsModalCurrentStep(state) as StepRepayToken | StepBorrowToken,
         wallet: getWallet(state) as Wallet,
     };
 };
 
-const LendingTokenStepContainer = connect(mapStateToProps, (dispatch: any) => {
+const BorrowTokenStepContainer = connect(mapStateToProps, (dispatch: any) => {
     return {
-        onSubmitLendingToken: (token: Token, defiToken: iTokenData | ATokenData, amount: BigNumber, isEth: boolean) =>
-            dispatch(lendingDefiToken(token, defiToken, amount, isEth)),
-        onSubmitUnLendingToken: (token: Token, defiToken: iTokenData | ATokenData, amount: BigNumber, isEth: boolean) =>
-            dispatch(unLendingDefiToken(token, defiToken, amount, isEth)),
-        notifyLendingToken: (id: string, amount: BigNumber, token: Token, tx: Promise<any>) =>
-            dispatch(addLendingTokenNotification(id, amount, token, tx)),
-        notifyUnLendingToken: (id: string, amount: BigNumber, token: Token, tx: Promise<any>) =>
-            dispatch(addUnLendingTokenNotification(id, amount, token, tx)),
+        onSubmitBorrowToken: (token: Token, defiToken: iTokenData | ATokenData, amount: BigNumber, isEth: boolean) =>
+            dispatch(borrowDefiToken(token, defiToken, amount, isEth)),
+        onSubmitRepayToken: (token: Token, defiToken: iTokenData | ATokenData, amount: BigNumber, isEth: boolean) =>
+            dispatch(repayDefiToken(token, defiToken, amount, isEth)),
+        notifyBorrowToken: (id: string, amount: BigNumber, token: Token, tx: Promise<any>) =>
+            dispatch(addBorrowTokenNotification(id, amount, token, tx)),
+        notifyRepayToken: (id: string, amount: BigNumber, token: Token, tx: Promise<any>) =>
+            dispatch(addRepayTokenNotification(id, amount, token, tx)),
         updateDefiTokenBalance: (defiToken: iTokenData | ATokenData) => dispatch(updateDefiTokenBalance(defiToken)),
         updateTokenBalance: (token: Token) => dispatch(updateTokenBalance(token)),
     };
-})(LendingTokenStep);
+})(BorrowTokenStep);
 
-export { LendingTokenStep, LendingTokenStepContainer };
+export { BorrowTokenStep, BorrowTokenStepContainer };

@@ -23,6 +23,7 @@ import {
     startWebsocketMarketsSubscription,
 } from '../../services/relayer';
 import { mapRelayerFillToFill } from '../../util/fills';
+import { getCurrencyPairByTokensSymbol } from '../../util/known_currency_pairs';
 import { getKnownTokens, getWethAssetData, isWeth } from '../../util/known_tokens';
 import { getLogger } from '../../util/logger';
 import { marketToString } from '../../util/markets';
@@ -34,7 +35,8 @@ import {
     calculateWorstCaseProtocolFee,
     sumTakerAssetFillableOrders,
 } from '../../util/orders';
-import { getExpirationTimeOrdersFromConfig } from '../../util/time_utils';
+import { getExpirationTimeOrdersFromConfig, todayInSeconds } from '../../util/time_utils';
+import { unitsInTokenAmount } from '../../util/tokens';
 import { getTransactionOptions } from '../../util/transactions';
 import {
     AccountMarketStat,
@@ -68,6 +70,7 @@ import {
     getGasPriceInWei,
     getMakerAddresses,
     getMarketMakerStats,
+    getMinOrderExpireTimeOnBooks,
     getOpenBuyOrders,
     getOpenSellOrders,
     getQuoteToken,
@@ -122,12 +125,18 @@ export const setMarketsStatsState = createAction('relayer/MARKET_STATS_STATE_set
     return (state: ServerState) => resolve(state);
 });
 
+export const setMinOrderExpireTimeOnBooks = createAction('relayer/MIN_ORDER_EXPIRE_TIME_ON_BOOKS_set', resolve => {
+    return (time: number) => resolve(time);
+});
+
 export const getAllOrders: ThunkCreator = () => {
     return async (dispatch, getState) => {
         const state = getState();
         const baseToken = getBaseToken(state) as Token;
         const quoteToken = getQuoteToken(state) as Token;
+        const minOrderExpireTimeOnBooks = getMinOrderExpireTimeOnBooks(state);
         const web3State = getWeb3State(state) as Web3State;
+        const ethAccount = getEthAccount(state);
         const makerAddresses = getMakerAddresses(state);
         try {
             let uiOrders: UIOrder[] = [];
@@ -138,11 +147,61 @@ export const getAllOrders: ThunkCreator = () => {
                 Web3State.Connecting,
                 Web3State.Connect,
             ].includes(web3State);
+            // filter orders that will expire to avoid problems on confirmation but not filter
+            //  user orders they maybe wanna cancel them
+            const filterExpiredOrdersOnBook = (uiOrder: UIOrder) => {
+                if (
+                    ethAccount &&
+                    (uiOrder.rawOrder.makerAddress.toLowerCase() === ethAccount ||
+                        uiOrder.rawOrder.takerAddress.toLowerCase() === ethAccount)
+                ) {
+                    return true;
+                }
+                if (
+                    minOrderExpireTimeOnBooks &&
+                    uiOrder.rawOrder.expirationTimeSeconds.minus(minOrderExpireTimeOnBooks).gt(todayInSeconds())
+                ) {
+                    return true;
+                } else {
+                    return false;
+                }
+            };
+            // filter orders that not meet the minimum defined, not filter user orders
+            const minSizeOrdersOnBook = (uiOrder: UIOrder) => {
+                if (
+                    ethAccount &&
+                    (uiOrder.rawOrder.makerAddress.toLowerCase() === ethAccount ||
+                        uiOrder.rawOrder.takerAddress.toLowerCase() === ethAccount)
+                ) {
+                    return true;
+                }
+                const currencyPair = getCurrencyPairByTokensSymbol(baseToken.symbol, quoteToken.symbol);
+                const minAmountToken = unitsInTokenAmount(
+                    new BigNumber(currencyPair.config.minAmount).toString(),
+                    baseToken.decimals,
+                );
+                /*  if(uiOrder.filled){
+                    console.log(uiOrder);
+                    console.log(uiOrder.size.minus(uiOrder.filled).toString());
+                    console.log(minAmountToken.toString());
+                }*/
+
+                if (uiOrder.filled && uiOrder.size.minus(uiOrder.filled).lt(minAmountToken)) {
+                    return false;
+                } else {
+                    return true;
+                }
+            };
+
             // tslint:disable-next-line:prefer-conditional-expression
             if (isWeb3NotDoneState) {
-                uiOrders = await getAllOrdersAsUIOrdersWithoutOrdersInfo(baseToken, quoteToken, makerAddresses);
+                uiOrders = (
+                    await getAllOrdersAsUIOrdersWithoutOrdersInfo(baseToken, quoteToken, makerAddresses)
+                ).filter(filterExpiredOrdersOnBook);
             } else {
-                uiOrders = await getAllOrdersAsUIOrders(baseToken, quoteToken, makerAddresses);
+                uiOrders = (await getAllOrdersAsUIOrders(baseToken, quoteToken, makerAddresses))
+                    .filter(filterExpiredOrdersOnBook)
+                    .filter(minSizeOrdersOnBook);
             }
             dispatch(setOrders(uiOrders));
             dispatch(setOrderBookState(ServerState.Done));

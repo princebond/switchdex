@@ -43,10 +43,13 @@ export const calculateSwapQuote: ThunkCreator = (params: CalculateSwapQuoteParam
     };
 };
 
-export const submitSwapQuote: ThunkCreator = (side: OrderSide, quote: MarketBuySwapQuote | MarketSellSwapQuote) => {
+export const submitSwapQuote: ThunkCreator = (
+    side: OrderSide,
+    quote: MarketBuySwapQuote | MarketSellSwapQuote,
+    isEthSell: boolean,
+) => {
     return async () => {
         const assetSwapper = await getAssetSwapper();
-        const isEthSell = side === OrderSide.Buy;
         return assetSwapper.executeSwapQuote(isEthSell, quote);
     };
 };

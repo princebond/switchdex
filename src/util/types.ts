@@ -11,7 +11,8 @@ import { TokenMetaData } from '../common/tokens_meta_data';
 import { TokenIEOMetaData } from '../common/tokens_meta_data_ieo';
 import { ExtraArgument } from '../store/index';
 import { Theme, ThemeProperties } from '../themes/commons';
-import { AaveState } from './aave/types';
+
+import { AaveState, ATokenData } from './aave/types';
 
 export interface TabItem {
     active: boolean;
@@ -48,6 +49,7 @@ export interface Token {
     price_usd?: BigNumber | null;
     price_usd_24h_change?: BigNumber | null;
     listed: boolean;
+    isStableCoin: boolean;
 }
 
 export interface TokenIEO {
@@ -82,6 +84,7 @@ export interface TokenIEO {
     feePercentage?: string;
     endDate?: string | number;
     listed: boolean;
+    isStableCoin: boolean;
 }
 
 export interface TokenPrice {
@@ -144,8 +147,6 @@ export enum BZXLoadingState {
     Loading = 'Loading',
 }
 
-
-
 export interface BlockchainState {
     readonly ethAccount: string;
     readonly wallet: Wallet | null;
@@ -172,6 +173,7 @@ export interface RelayerState {
     readonly orderBookState: ServerState;
     readonly marketsStatsState: ServerState;
     readonly marketFillsState: ServerState;
+    readonly minOrderExpireTimeOnBooks?: number;
     readonly userIEOOrders?: UIOrder[];
     readonly ieoOrders?: SignedOrder[];
     readonly accountMarketStats?: AccountMarketStat[];
@@ -246,6 +248,8 @@ export enum StepKind {
     ToggleTokenLock = 'ToggleTokenLock',
     TransferToken = 'TransferToken',
     LendingToken = 'LendingToken',
+    BorrowToken = 'BorrowToken',
+    RepayToken = 'RepayToken',
     UnLendingToken = 'UnLendingToken',
     BuySellLimit = 'BuySellLimit',
     BuySellLimitMatching = 'BuySellLimitMatching',
@@ -298,16 +302,34 @@ export interface StepLendingToken {
     kind: StepKind.LendingToken;
     amount: BigNumber;
     token: Token;
-    iToken: iTokenData;
+    defiToken: iTokenData | ATokenData;
     isEth: boolean;
     isLending: boolean;
+}
+
+export interface StepBorrowToken {
+    kind: StepKind.BorrowToken;
+    amount: BigNumber;
+    token: Token;
+    defiToken: iTokenData | ATokenData;
+    isEth: boolean;
+    isBorrow: boolean;
+}
+
+export interface StepRepayToken {
+    kind: StepKind.RepayToken;
+    amount: BigNumber;
+    token: Token;
+    defiToken: iTokenData | ATokenData;
+    isEth: boolean;
+    isBorrow: boolean;
 }
 
 export interface StepUnLendingToken {
     kind: StepKind.UnLendingToken;
     amount: BigNumber;
     token: Token;
-    iToken: iTokenData;
+    defiToken: iTokenData | ATokenData;
     isEth: boolean;
     isLending: boolean;
 }
@@ -362,7 +384,9 @@ export type Step =
     | StepTransferToken
     | StepLendingToken
     | StepUnLendingToken
-    | StepSubmitConfig;
+    | StepSubmitConfig
+    | StepRepayToken
+    | StepBorrowToken;
 
 export interface StepsModalState {
     readonly doneSteps: Step[];
@@ -440,6 +464,8 @@ export enum NotificationKind {
     TokenTransferred = 'TokenTransferred',
     LendingComplete = 'LendingComplete',
     UnLendingComplete = 'UnLendingComplete',
+    BorrowComplete = 'BorrowComplete',
+    RepayComplete = 'RepayComplete',
 }
 
 export interface Fill {
@@ -629,6 +655,18 @@ interface UnLendingTokenNotification extends TransactionNotification {
     token: Token;
 }
 
+interface BorrowTokenNotification extends TransactionNotification {
+    kind: NotificationKind.BorrowComplete;
+    amount: BigNumber;
+    token: Token;
+}
+
+interface RepayTokenNotification extends TransactionNotification {
+    kind: NotificationKind.RepayComplete;
+    amount: BigNumber;
+    token: Token;
+}
+
 export type Notification =
     | CancelOrderNotification
     | MarketNotification
@@ -636,7 +674,9 @@ export type Notification =
     | OrderFilledNotification
     | TransferTokenNotification
     | LendingTokenNotification
-    | UnLendingTokenNotification;
+    | UnLendingTokenNotification
+    | RepayTokenNotification
+    | BorrowTokenNotification;
 
 export enum OrderType {
     Limit = 'Limit',
@@ -662,7 +702,7 @@ export enum MARKETPLACES {
     Margin = 'MARGIN',
     Instant = 'INSTANT',
     FiatRamp = 'FiatRamp',
-    Defi = 'Defi'
+    Defi = 'Defi',
 }
 
 export enum Wallet {

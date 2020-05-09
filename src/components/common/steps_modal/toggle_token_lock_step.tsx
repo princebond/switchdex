@@ -43,14 +43,14 @@ class ToggleTokenLockStep extends React.Component<Props> {
         let loadingFooterCaption;
         let doneFooterCaption;
         if (context === 'lending') {
-            title = 'Lending Setup';
-            confirmCaption = `Confirm on ${wallet} to ${isUnlocked ? 'lock' : 'unlock'} ${tokenSymbol} for lending.`;
+            title = 'Deposit Setup';
+            confirmCaption = `Confirm on ${wallet} to ${isUnlocked ? 'lock' : 'unlock'} ${tokenSymbol} for deposit.`;
             loadingCaption = isUnlocked
                 ? `Locking ${tokenSymbol}. You won't be able to use it for trading until you unlock it again`
-                : `Unlocking ${tokenSymbol}. It will remain unlocked for future lendings`;
+                : `Unlocking ${tokenSymbol}. It will remain unlocked for future deposits`;
             doneCaption = isUnlocked
                 ? `Locked ${tokenSymbol}. You won't be able to use it for trading until you unlock it again`
-                : `Unlocked ${tokenSymbol}. It will remain unlocked for future lendings`;
+                : `Unlocked ${tokenSymbol}. It will remain unlocked for future deposits`;
             errorCaption = `${isUnlocked ? 'Locking' : 'Unlocking'} ${tokenSymbol} failed.`;
             loadingFooterCaption = `Waiting for confirmation...`;
             doneFooterCaption = !isUnlocked ? ` ${tokenSymbol} Unlocked!` : ` ${tokenSymbol} Locked!`;
@@ -95,6 +95,7 @@ class ToggleTokenLockStep extends React.Component<Props> {
         const toggleToken = step.isUnlocked ? onLockToken : onUnlockToken;
         try {
             const web3Wrapper = await getWeb3Wrapper();
+            console.log(step);
             const txHash =
                 step.context === 'lending'
                     ? await toggleToken(step.token, step.address, false)

@@ -5,6 +5,7 @@ import { ActionType } from 'typesafe-actions';
 
 import { StoreState } from '../util/types';
 
+import { aave } from './aave/reducers';
 import * as actions from './actions';
 import { blockchain } from './blockchain/reducers';
 import { bzx } from './bzx/reducers';
@@ -13,7 +14,6 @@ import { market } from './market/reducers';
 import { relayer } from './relayer/reducers';
 import { swap } from './swap/reducers';
 import { ui } from './ui/reducers';
-import { aave } from './aave/reducers';
 
 export type RootAction = ActionType<typeof actions>;
 

@@ -1,7 +1,8 @@
-import { Token } from "../types";
-import { BigNumber } from "@0x/utils";
+import { BigNumber } from '@0x/utils';
 
-export interface ATokenData{
+import { Token } from '../types';
+
+export interface ATokenData {
     token: Token;
     address: string;
     name: string;
@@ -9,26 +10,26 @@ export interface ATokenData{
     liquidityRate: BigNumber;
     variableBorrowRate: BigNumber;
     stableBorrowRate: BigNumber;
-    // dependent of connected wallet 
+    // dependent of connected wallet
     balance?: BigNumber;
     borrowBalance?: BigNumber;
     isUnlocked?: boolean;
-   /* reserve: AReserveData;
+    /* reserve: AReserveData;
     user_reserve: UserReservaData;*/
 }
 
-export interface AaveReserveGQLResponse{
-        id: string,
-        name: string,
-        symbol: string,
-        decimals: number;
-        liquidityRate: string;
-        variableBorrowRate: string;
-        stableBorrowRate: string;
-        averageStableBorrowRate: string;
-        aToken: {id: string};
+export interface AaveReserveGQLResponse {
+    id: string;
+    name: string;
+    symbol: string;
+    decimals: number;
+    liquidityRate: string;
+    variableBorrowRate: string;
+    stableBorrowRate: string;
+    averageStableBorrowRate: string;
+    aToken: { id: string };
+    price: { priceInEth: string };
 }
-
 
 export interface AReserveData {
     totalLiquidity: BigNumber;
@@ -71,26 +72,27 @@ export interface UserReservaData {
 }
 
 export interface AaveState {
-    readonly protocol: Protocol,
+    readonly protocol: Protocol;
     readonly aTokensData: ATokenData[];
     readonly userAccountData?: UserAccountData;
     readonly aaveLoadingState: AaveLoadingState;
     readonly aaveGlobalLoadingState: AaveGlobalLoadingState;
     readonly aaveReservesGQLResponse: AaveReserveGQLResponse[];
+    readonly currency: 'NATIVE' | 'USD';
 }
 
 export enum AaveLoadingState {
     Done = 'Done',
     Error = 'Error',
     Loading = 'Loading',
-    NotLoaded = 'NotLoaded'
+    NotLoaded = 'NotLoaded',
 }
 
 export enum AaveGlobalLoadingState {
     Done = 'Done',
     Error = 'Error',
     Loading = 'Loading',
-    NotLoaded = 'NotLoaded'
+    NotLoaded = 'NotLoaded',
 }
 
 export enum Protocol {

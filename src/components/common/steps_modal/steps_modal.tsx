@@ -10,6 +10,7 @@ import { getStepTitle, isLongStep } from '../../../util/steps';
 import { Step, StepKind, StoreState } from '../../../util/types';
 import { CloseModalButton } from '../icons/close_modal_button';
 
+import { BorrowTokenStepContainer } from './borrow_token_step';
 import { BuySellCollectibleStepContainer } from './buy_sell_collectible_step';
 import { BuySellTokenMatchingStepContainer } from './buy_sell_token_matching_step';
 import { BuySellTokenStepContainer } from './buy_sell_token_step';
@@ -90,6 +91,12 @@ class StepsModal extends React.Component<Props> {
                     )}
                     {currentStep && currentStep.kind === StepKind.UnLendingToken && (
                         <LendingTokenStepContainer key={stepIndex} buildStepsProgress={buildStepsProgress} />
+                    )}
+                    {currentStep && currentStep.kind === StepKind.BorrowToken && (
+                        <BorrowTokenStepContainer key={stepIndex} buildStepsProgress={buildStepsProgress} />
+                    )}
+                    {currentStep && currentStep.kind === StepKind.RepayToken && (
+                        <BorrowTokenStepContainer key={stepIndex} buildStepsProgress={buildStepsProgress} />
                     )}
                     {currentStep && currentStep.kind === StepKind.SubmitConfig && (
                         <SubmitConfigStepContainer key={stepIndex} buildStepsProgress={buildStepsProgress} />

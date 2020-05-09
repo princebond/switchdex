@@ -1,11 +1,11 @@
 import { BigNumber } from '@0x/utils';
 import { createAction } from 'typesafe-actions';
 
-import { getAllITokens, getToken } from '../../services/bzx';
+import { getToken } from '../../services/bzx';
 import { getLogger } from '../../util/logger';
 import { getTransactionOptions } from '../../util/transactions';
 import { BZXLoadingState, BZXState, iTokenData, NotificationKind, ThunkCreator, Token } from '../../util/types';
-import { addNotifications, updateTokenBalances } from '../actions';
+import { addNotifications } from '../actions';
 import { getEthAccount, getGasPriceInWei } from '../selectors';
 
 const logger = getLogger('BZX::Actions');
@@ -28,47 +28,47 @@ export const setITokenBalances = createAction('bzx/ITOKEN_BALANCES_set', resolve
 
 export const initBZX: ThunkCreator<Promise<any>> = () => {
     return async (dispatch, getState) => {
-   /*     const state = getState();
-        const ethAccount = getEthAccount(state);
-        dispatch(setBZXLoadingState(BZXLoadingState.Loading));
-        try {
-            const [iTokens, tokens] = await getAllITokens(ethAccount);
-            await dispatch(updateTokenBalances());
-            dispatch(
-                initializeBZXData({
-                    TokensList: tokens,
-                    iTokensData: iTokens,
-                }),
-            );
-            dispatch(setBZXLoadingState(BZXLoadingState.Done));
-        } catch (error) {
-            logger.error('There was an error when initializing bzx smartcontracts', error);
-            dispatch(setBZXLoadingState(BZXLoadingState.Error));
-        }*/
+        /*     const state = getState();
+             const ethAccount = getEthAccount(state);
+             dispatch(setBZXLoadingState(BZXLoadingState.Loading));
+             try {
+                 const [iTokens, tokens] = await getAllITokens(ethAccount);
+                 await dispatch(updateTokenBalances());
+                 dispatch(
+                     initializeBZXData({
+                         TokensList: tokens,
+                         iTokensData: iTokens,
+                     }),
+                 );
+                 dispatch(setBZXLoadingState(BZXLoadingState.Done));
+             } catch (error) {
+                 logger.error('There was an error when initializing bzx smartcontracts', error);
+                 dispatch(setBZXLoadingState(BZXLoadingState.Error));
+             }*/
     };
 };
 
 export const fetchBZX: ThunkCreator<Promise<any>> = () => {
     return async (dispatch, getState) => {
-      /*  const state = getState();
-        const ethAccount = getEthAccount(state);
-        try {
-            const [iTokens, tokens] = await getAllITokens(ethAccount);
-            dispatch(
-                initializeBZXData({
-                    TokensList: tokens,
-                    iTokensData: iTokens,
-                }),
-            );
-        } catch (error) {
-            logger.error('There was an error when fetching bzx smartcontracts', error);
-        }*/
+        /*  const state = getState();
+          const ethAccount = getEthAccount(state);
+          try {
+              const [iTokens, tokens] = await getAllITokens(ethAccount);
+              dispatch(
+                  initializeBZXData({
+                      TokensList: tokens,
+                      iTokensData: iTokens,
+                  }),
+              );
+          } catch (error) {
+              logger.error('There was an error when fetching bzx smartcontracts', error);
+          }*/
     };
 };
 
-export const lendingToken: ThunkCreator<Promise<any>> = (
+export const lendingBZXToken: ThunkCreator<Promise<any>> = (
     token: Token,
-    iToken: iTokenData,
+    defiToken: iTokenData,
     amount: BigNumber,
     isEth: boolean,
 ) => {
@@ -76,12 +76,14 @@ export const lendingToken: ThunkCreator<Promise<any>> = (
         const state = getState();
         const ethAccount = getEthAccount(state);
         const gasPrice = getGasPriceInWei(state);
-        const iContractWrappers = await getITokenContractWrapper(iToken.address, {
+        let txHash: string;
+        const web3Wrapper = await getWeb3Wrapper();
+
+        const iContractWrappers = await getITokenContractWrapper(defiToken.address, {
             from: ethAccount.toLowerCase(),
             gas: '2000000',
         });
-        const web3Wrapper = await getWeb3Wrapper();
-        let txHash: string;
+
         if (isEth) {
             txHash = await iContractWrappers.mintWithEther(ethAccount.toLowerCase()).sendTransactionAsync({
                 from: ethAccount.toLowerCase(),
@@ -118,7 +120,7 @@ export const lendingToken: ThunkCreator<Promise<any>> = (
     };
 };
 
-export const unLendingToken: ThunkCreator<Promise<any>> = (
+export const unLendingBZXToken: ThunkCreator<Promise<any>> = (
     token: Token,
     iToken: iTokenData,
     amount: BigNumber,

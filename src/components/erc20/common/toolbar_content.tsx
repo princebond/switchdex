@@ -10,13 +10,13 @@ import { NotificationsDropdownContainer } from '../../../components/notification
 import {
     changeSwapBaseToken,
     goToHome,
+    goToHomeDefi,
     goToHomeMarketTrade,
     goToWallet,
     openFiatOnRampModal,
     openSideBar,
     setFiatType,
     setSwapQuoteToken,
-    setTour,
 } from '../../../store/actions';
 import { getCurrentMarketPlace, getGeneralConfig, getSwapBaseToken, getSwapQuoteToken } from '../../../store/selectors';
 import { Theme, themeBreakPoints } from '../../../themes/commons';
@@ -36,6 +36,7 @@ interface DispatchProps {
     onGoToHome: () => any;
     onGoToWallet: () => any;
     onGoToHomeMarketTrade: () => any;
+    onGoToHomeDefi: () => any;
 }
 
 interface OwnProps {
@@ -179,12 +180,14 @@ const ToolbarContent = (props: Props) => {
         );
     }
 
-    const handleTour: React.EventHandler<React.MouseEvent> = e => {
-        dispatch(setTour(true));
-    };
     const handleMarketTradeClick: React.EventHandler<React.MouseEvent> = e => {
         e.preventDefault();
         props.onGoToHomeMarketTrade();
+    };
+
+    const handleDefiClick: React.EventHandler<React.MouseEvent> = e => {
+        e.preventDefault();
+        props.onGoToHomeDefi();
     };
 
     let endContent;
@@ -198,11 +201,13 @@ const ToolbarContent = (props: Props) => {
         endOptContent = (
             <>
                 {/*  <SettingsContentContainer  className={'settings-dropdown'} /> */}
+                <StyledLink href="/defi" onClick={handleDefiClick} className={'defi'}>
+                    DeFi
+                </StyledLink>
                 <StyledLink href="/market-trade" onClick={handleMarketTradeClick} className={'market-trade'}>
                     Swap
                 </StyledLink>
                 <SettingsDropdownContainer className={'settings-dropdown'} />
-                <StyledButton onClick={handleTour}>Tour</StyledButton>
                 <StyledButton onClick={handleFiatModal} className={'buy-eth'}>
                     Buy ETH
                 </StyledButton>
@@ -228,6 +233,7 @@ const mapDispatchToProps = (dispatch: any): DispatchProps => {
         onGoToHome: () => dispatch(goToHome()),
         onGoToWallet: () => dispatch(goToWallet()),
         onGoToHomeMarketTrade: () => dispatch(goToHomeMarketTrade()),
+        onGoToHomeDefi: () => dispatch(goToHomeDefi()),
     };
 };
 

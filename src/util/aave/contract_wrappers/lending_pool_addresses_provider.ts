@@ -7,7 +7,8 @@ import {
     ContractTxFunctionObj,
     SendTransactionOpts,
     BaseContract,
-    SubscriptionManager,PromiseWithTransactionHash,
+    SubscriptionManager,
+    PromiseWithTransactionHash,
     methodAbiToFunctionSignature,
 } from '@0x/base-contract';
 import { schemas } from '@0x/json-schemas';
@@ -32,7 +33,6 @@ import { Web3Wrapper } from '@0x/web3-wrapper';
 import { assert } from '@0x/assert';
 import * as ethers from 'ethers';
 // tslint:enable:no-unused-variable
-
 
 export type LendingPoolAddressesProviderEventArgs =
     | LendingPoolAddressesProviderEthereumAddressUpdatedEventArgs
@@ -125,7 +125,6 @@ export interface LendingPoolAddressesProviderTokenDistributorUpdatedEventArgs ex
     newAddress: string;
 }
 
-
 /* istanbul ignore next */
 // tslint:disable:no-parameter-reassignment
 // tslint:disable-next-line:class-name
@@ -133,15 +132,18 @@ export class LendingPoolAddressesProviderContract extends BaseContract {
     /**
      * @ignore
      */
-public static deployedBytecode: string | undefined;
-public static contractName = 'LendingPoolAddressesProvider';
+    public static deployedBytecode: string | undefined;
+    public static contractName = 'LendingPoolAddressesProvider';
     private readonly _methodABIIndex: { [name: string]: number } = {};
-private readonly _subscriptionManager: SubscriptionManager<LendingPoolAddressesProviderEventArgs, LendingPoolAddressesProviderEvents>;
-public static async deployFrom0xArtifactAsync(
+    private readonly _subscriptionManager: SubscriptionManager<
+        LendingPoolAddressesProviderEventArgs,
+        LendingPoolAddressesProviderEvents
+    >;
+    public static async deployFrom0xArtifactAsync(
         artifact: ContractArtifact | SimpleContractArtifact,
         supportedProvider: SupportedProvider,
         txDefaults: Partial<TxData>,
-        logDecodeDependencies: { [contractName: string]: (ContractArtifact | SimpleContractArtifact) },
+        logDecodeDependencies: { [contractName: string]: ContractArtifact | SimpleContractArtifact },
     ): Promise<LendingPoolAddressesProviderContract> {
         assert.doesConformToSchema('txDefaults', txDefaults, schemas.txDataSchema, [
             schemas.addressSchema,
@@ -160,7 +162,13 @@ public static async deployFrom0xArtifactAsync(
                 logDecodeDependenciesAbiOnly[key] = logDecodeDependencies[key].compilerOutput.abi;
             }
         }
-        return LendingPoolAddressesProviderContract.deployAsync(bytecode, abi, provider, txDefaults, logDecodeDependenciesAbiOnly, );
+        return LendingPoolAddressesProviderContract.deployAsync(
+            bytecode,
+            abi,
+            provider,
+            txDefaults,
+            logDecodeDependenciesAbiOnly,
+        );
     }
     public static async deployAsync(
         bytecode: string,
@@ -177,12 +185,8 @@ public static async deployFrom0xArtifactAsync(
         ]);
         const provider = providerUtils.standardizeOrThrow(supportedProvider);
         const constructorAbi = BaseContract._lookupConstructorAbi(abi);
-        [] = BaseContract._formatABIDataItemList(
-            constructorAbi.inputs,
-            [],
-            BaseContract._bigNumberToString,
-        );
-        //@ts-ignore
+        [] = BaseContract._formatABIDataItemList(constructorAbi.inputs, [], BaseContract._bigNumberToString);
+        // @ts-ignore
         const iface = new ethers.utils.Interface(abi);
         const deployInfo = iface.deployFunction;
         const txData = deployInfo.encode(bytecode, []);
@@ -198,18 +202,22 @@ public static async deployFrom0xArtifactAsync(
         logUtils.log(`transactionHash: ${txHash}`);
         const txReceipt = await web3Wrapper.awaitTransactionSuccessAsync(txHash);
         logUtils.log(`LendingPoolAddressesProvider successfully deployed at ${txReceipt.contractAddress}`);
-        const contractInstance = new LendingPoolAddressesProviderContract(txReceipt.contractAddress as string, provider, txDefaults, logDecodeDependencies);
+        const contractInstance = new LendingPoolAddressesProviderContract(
+            txReceipt.contractAddress as string,
+            provider,
+            txDefaults,
+            logDecodeDependencies,
+        );
         contractInstance.constructorArgs = [];
         return contractInstance;
     }
-
 
     /**
      * @returns      The contract ABI
      */
     public static ABI(): ContractAbi {
         const abi = [
-            { 
+            {
                 anonymous: false,
                 inputs: [
                     {
@@ -219,11 +227,10 @@ public static async deployFrom0xArtifactAsync(
                     },
                 ],
                 name: 'EthereumAddressUpdated',
-                outputs: [
-                ],
+                outputs: [],
                 type: 'event',
             },
-            { 
+            {
                 anonymous: false,
                 inputs: [
                     {
@@ -233,11 +240,10 @@ public static async deployFrom0xArtifactAsync(
                     },
                 ],
                 name: 'FeeProviderUpdated',
-                outputs: [
-                ],
+                outputs: [],
                 type: 'event',
             },
-            { 
+            {
                 anonymous: false,
                 inputs: [
                     {
@@ -247,11 +253,10 @@ public static async deployFrom0xArtifactAsync(
                     },
                 ],
                 name: 'LendingPoolConfiguratorUpdated',
-                outputs: [
-                ],
+                outputs: [],
                 type: 'event',
             },
-            { 
+            {
                 anonymous: false,
                 inputs: [
                     {
@@ -261,11 +266,10 @@ public static async deployFrom0xArtifactAsync(
                     },
                 ],
                 name: 'LendingPoolCoreUpdated',
-                outputs: [
-                ],
+                outputs: [],
                 type: 'event',
             },
-            { 
+            {
                 anonymous: false,
                 inputs: [
                     {
@@ -275,11 +279,10 @@ public static async deployFrom0xArtifactAsync(
                     },
                 ],
                 name: 'LendingPoolDataProviderUpdated',
-                outputs: [
-                ],
+                outputs: [],
                 type: 'event',
             },
-            { 
+            {
                 anonymous: false,
                 inputs: [
                     {
@@ -289,11 +292,10 @@ public static async deployFrom0xArtifactAsync(
                     },
                 ],
                 name: 'LendingPoolLiquidationManagerUpdated',
-                outputs: [
-                ],
+                outputs: [],
                 type: 'event',
             },
-            { 
+            {
                 anonymous: false,
                 inputs: [
                     {
@@ -303,11 +305,10 @@ public static async deployFrom0xArtifactAsync(
                     },
                 ],
                 name: 'LendingPoolManagerUpdated',
-                outputs: [
-                ],
+                outputs: [],
                 type: 'event',
             },
-            { 
+            {
                 anonymous: false,
                 inputs: [
                     {
@@ -317,11 +318,10 @@ public static async deployFrom0xArtifactAsync(
                     },
                 ],
                 name: 'LendingPoolParametersProviderUpdated',
-                outputs: [
-                ],
+                outputs: [],
                 type: 'event',
             },
-            { 
+            {
                 anonymous: false,
                 inputs: [
                     {
@@ -331,11 +331,10 @@ public static async deployFrom0xArtifactAsync(
                     },
                 ],
                 name: 'LendingPoolUpdated',
-                outputs: [
-                ],
+                outputs: [],
                 type: 'event',
             },
-            { 
+            {
                 anonymous: false,
                 inputs: [
                     {
@@ -345,11 +344,10 @@ public static async deployFrom0xArtifactAsync(
                     },
                 ],
                 name: 'LendingRateOracleUpdated',
-                outputs: [
-                ],
+                outputs: [],
                 type: 'event',
             },
-            { 
+            {
                 anonymous: false,
                 inputs: [
                     {
@@ -364,11 +362,10 @@ public static async deployFrom0xArtifactAsync(
                     },
                 ],
                 name: 'OwnershipTransferred',
-                outputs: [
-                ],
+                outputs: [],
                 type: 'event',
             },
-            { 
+            {
                 anonymous: false,
                 inputs: [
                     {
@@ -378,11 +375,10 @@ public static async deployFrom0xArtifactAsync(
                     },
                 ],
                 name: 'PriceOracleUpdated',
-                outputs: [
-                ],
+                outputs: [],
                 type: 'event',
             },
-            { 
+            {
                 anonymous: false,
                 inputs: [
                     {
@@ -397,11 +393,10 @@ public static async deployFrom0xArtifactAsync(
                     },
                 ],
                 name: 'ProxyCreated',
-                outputs: [
-                ],
+                outputs: [],
                 type: 'event',
             },
-            { 
+            {
                 anonymous: false,
                 inputs: [
                     {
@@ -411,11 +406,10 @@ public static async deployFrom0xArtifactAsync(
                     },
                 ],
                 name: 'TokenDistributorUpdated',
-                outputs: [
-                ],
+                outputs: [],
                 type: 'event',
             },
-            { 
+            {
                 constant: true,
                 inputs: [
                     {
@@ -434,10 +428,9 @@ public static async deployFrom0xArtifactAsync(
                 stateMutability: 'view',
                 type: 'function',
             },
-            { 
+            {
                 constant: true,
-                inputs: [
-                ],
+                inputs: [],
                 name: 'isOwner',
                 outputs: [
                     {
@@ -449,10 +442,9 @@ public static async deployFrom0xArtifactAsync(
                 stateMutability: 'view',
                 type: 'function',
             },
-            { 
+            {
                 constant: true,
-                inputs: [
-                ],
+                inputs: [],
                 name: 'owner',
                 outputs: [
                     {
@@ -464,18 +456,16 @@ public static async deployFrom0xArtifactAsync(
                 stateMutability: 'view',
                 type: 'function',
             },
-            { 
+            {
                 constant: false,
-                inputs: [
-                ],
+                inputs: [],
                 name: 'renounceOwnership',
-                outputs: [
-                ],
+                outputs: [],
                 payable: false,
                 stateMutability: 'nonpayable',
                 type: 'function',
             },
-            { 
+            {
                 constant: false,
                 inputs: [
                     {
@@ -484,16 +474,14 @@ public static async deployFrom0xArtifactAsync(
                     },
                 ],
                 name: 'transferOwnership',
-                outputs: [
-                ],
+                outputs: [],
                 payable: false,
                 stateMutability: 'nonpayable',
                 type: 'function',
             },
-            { 
+            {
                 constant: true,
-                inputs: [
-                ],
+                inputs: [],
                 name: 'getLendingPool',
                 outputs: [
                     {
@@ -505,7 +493,7 @@ public static async deployFrom0xArtifactAsync(
                 stateMutability: 'view',
                 type: 'function',
             },
-            { 
+            {
                 constant: false,
                 inputs: [
                     {
@@ -514,16 +502,14 @@ public static async deployFrom0xArtifactAsync(
                     },
                 ],
                 name: 'setLendingPoolImpl',
-                outputs: [
-                ],
+                outputs: [],
                 payable: false,
                 stateMutability: 'nonpayable',
                 type: 'function',
             },
-            { 
+            {
                 constant: true,
-                inputs: [
-                ],
+                inputs: [],
                 name: 'getLendingPoolCore',
                 outputs: [
                     {
@@ -535,7 +521,7 @@ public static async deployFrom0xArtifactAsync(
                 stateMutability: 'view',
                 type: 'function',
             },
-            { 
+            {
                 constant: false,
                 inputs: [
                     {
@@ -544,16 +530,14 @@ public static async deployFrom0xArtifactAsync(
                     },
                 ],
                 name: 'setLendingPoolCoreImpl',
-                outputs: [
-                ],
+                outputs: [],
                 payable: false,
                 stateMutability: 'nonpayable',
                 type: 'function',
             },
-            { 
+            {
                 constant: true,
-                inputs: [
-                ],
+                inputs: [],
                 name: 'getLendingPoolConfigurator',
                 outputs: [
                     {
@@ -565,7 +549,7 @@ public static async deployFrom0xArtifactAsync(
                 stateMutability: 'view',
                 type: 'function',
             },
-            { 
+            {
                 constant: false,
                 inputs: [
                     {
@@ -574,16 +558,14 @@ public static async deployFrom0xArtifactAsync(
                     },
                 ],
                 name: 'setLendingPoolConfiguratorImpl',
-                outputs: [
-                ],
+                outputs: [],
                 payable: false,
                 stateMutability: 'nonpayable',
                 type: 'function',
             },
-            { 
+            {
                 constant: true,
-                inputs: [
-                ],
+                inputs: [],
                 name: 'getLendingPoolDataProvider',
                 outputs: [
                     {
@@ -595,7 +577,7 @@ public static async deployFrom0xArtifactAsync(
                 stateMutability: 'view',
                 type: 'function',
             },
-            { 
+            {
                 constant: false,
                 inputs: [
                     {
@@ -604,16 +586,14 @@ public static async deployFrom0xArtifactAsync(
                     },
                 ],
                 name: 'setLendingPoolDataProviderImpl',
-                outputs: [
-                ],
+                outputs: [],
                 payable: false,
                 stateMutability: 'nonpayable',
                 type: 'function',
             },
-            { 
+            {
                 constant: true,
-                inputs: [
-                ],
+                inputs: [],
                 name: 'getLendingPoolParametersProvider',
                 outputs: [
                     {
@@ -625,7 +605,7 @@ public static async deployFrom0xArtifactAsync(
                 stateMutability: 'view',
                 type: 'function',
             },
-            { 
+            {
                 constant: false,
                 inputs: [
                     {
@@ -634,16 +614,14 @@ public static async deployFrom0xArtifactAsync(
                     },
                 ],
                 name: 'setLendingPoolParametersProviderImpl',
-                outputs: [
-                ],
+                outputs: [],
                 payable: false,
                 stateMutability: 'nonpayable',
                 type: 'function',
             },
-            { 
+            {
                 constant: true,
-                inputs: [
-                ],
+                inputs: [],
                 name: 'getFeeProvider',
                 outputs: [
                     {
@@ -655,7 +633,7 @@ public static async deployFrom0xArtifactAsync(
                 stateMutability: 'view',
                 type: 'function',
             },
-            { 
+            {
                 constant: false,
                 inputs: [
                     {
@@ -664,16 +642,14 @@ public static async deployFrom0xArtifactAsync(
                     },
                 ],
                 name: 'setFeeProviderImpl',
-                outputs: [
-                ],
+                outputs: [],
                 payable: false,
                 stateMutability: 'nonpayable',
                 type: 'function',
             },
-            { 
+            {
                 constant: true,
-                inputs: [
-                ],
+                inputs: [],
                 name: 'getLendingPoolLiquidationManager',
                 outputs: [
                     {
@@ -685,7 +661,7 @@ public static async deployFrom0xArtifactAsync(
                 stateMutability: 'view',
                 type: 'function',
             },
-            { 
+            {
                 constant: false,
                 inputs: [
                     {
@@ -694,16 +670,14 @@ public static async deployFrom0xArtifactAsync(
                     },
                 ],
                 name: 'setLendingPoolLiquidationManager',
-                outputs: [
-                ],
+                outputs: [],
                 payable: false,
                 stateMutability: 'nonpayable',
                 type: 'function',
             },
-            { 
+            {
                 constant: true,
-                inputs: [
-                ],
+                inputs: [],
                 name: 'getLendingPoolManager',
                 outputs: [
                     {
@@ -715,7 +689,7 @@ public static async deployFrom0xArtifactAsync(
                 stateMutability: 'view',
                 type: 'function',
             },
-            { 
+            {
                 constant: false,
                 inputs: [
                     {
@@ -724,16 +698,14 @@ public static async deployFrom0xArtifactAsync(
                     },
                 ],
                 name: 'setLendingPoolManager',
-                outputs: [
-                ],
+                outputs: [],
                 payable: false,
                 stateMutability: 'nonpayable',
                 type: 'function',
             },
-            { 
+            {
                 constant: true,
-                inputs: [
-                ],
+                inputs: [],
                 name: 'getPriceOracle',
                 outputs: [
                     {
@@ -745,7 +717,7 @@ public static async deployFrom0xArtifactAsync(
                 stateMutability: 'view',
                 type: 'function',
             },
-            { 
+            {
                 constant: false,
                 inputs: [
                     {
@@ -754,16 +726,14 @@ public static async deployFrom0xArtifactAsync(
                     },
                 ],
                 name: 'setPriceOracle',
-                outputs: [
-                ],
+                outputs: [],
                 payable: false,
                 stateMutability: 'nonpayable',
                 type: 'function',
             },
-            { 
+            {
                 constant: true,
-                inputs: [
-                ],
+                inputs: [],
                 name: 'getLendingRateOracle',
                 outputs: [
                     {
@@ -775,7 +745,7 @@ public static async deployFrom0xArtifactAsync(
                 stateMutability: 'view',
                 type: 'function',
             },
-            { 
+            {
                 constant: false,
                 inputs: [
                     {
@@ -784,16 +754,14 @@ public static async deployFrom0xArtifactAsync(
                     },
                 ],
                 name: 'setLendingRateOracle',
-                outputs: [
-                ],
+                outputs: [],
                 payable: false,
                 stateMutability: 'nonpayable',
                 type: 'function',
             },
-            { 
+            {
                 constant: true,
-                inputs: [
-                ],
+                inputs: [],
                 name: 'getTokenDistributor',
                 outputs: [
                     {
@@ -805,7 +773,7 @@ public static async deployFrom0xArtifactAsync(
                 stateMutability: 'view',
                 type: 'function',
             },
-            { 
+            {
                 constant: false,
                 inputs: [
                     {
@@ -814,8 +782,7 @@ public static async deployFrom0xArtifactAsync(
                     },
                 ],
                 name: 'setTokenDistributor',
-                outputs: [
-                ],
+                outputs: [],
                 payable: false,
                 stateMutability: 'nonpayable',
                 type: 'function',
@@ -851,82 +818,66 @@ public static async deployFrom0xArtifactAsync(
         return abiEncoder.getSelector();
     }
 
-    public getAddress(
-            _key: string,
-    ): ContractFunctionObj<string
-> {
-        const self = this as any as LendingPoolAddressesProviderContract;
-            assert.isString('_key', _key);
+    public getAddress(_key: string): ContractFunctionObj<string> {
+        const self = (this as any) as LendingPoolAddressesProviderContract;
+        assert.isString('_key', _key);
         const functionSignature = 'getAddress(bytes32)';
 
         return {
-            async callAsync(
-                callData: Partial<CallData> = {},
-                defaultBlock?: BlockParam,
-            ): Promise<string
-            > {
+            async callAsync(callData: Partial<CallData> = {}, defaultBlock?: BlockParam): Promise<string> {
                 BaseContract._assertCallParams(callData, defaultBlock);
-                const rawCallResult = await self._performCallAsync({ ...callData, data: this.getABIEncodedTransactionData() }, defaultBlock);
+                const rawCallResult = await self._performCallAsync(
+                    { ...callData, data: this.getABIEncodedTransactionData() },
+                    defaultBlock,
+                );
                 const abiEncoder = self._lookupAbiEncoder(functionSignature);
-                return abiEncoder.strictDecodeReturnValue<string
-            >(rawCallResult);
+                return abiEncoder.strictDecodeReturnValue<string>(rawCallResult);
             },
             getABIEncodedTransactionData(): string {
-                return self._strictEncodeArguments(functionSignature, [_key
-            ]);
+                return self._strictEncodeArguments(functionSignature, [_key]);
             },
-        }
-    };
-    public isOwner(
-    ): ContractFunctionObj<boolean
-> {
-        const self = this as any as LendingPoolAddressesProviderContract;
+        };
+    }
+    public isOwner(): ContractFunctionObj<boolean> {
+        const self = (this as any) as LendingPoolAddressesProviderContract;
         const functionSignature = 'isOwner()';
 
         return {
-            async callAsync(
-                callData: Partial<CallData> = {},
-                defaultBlock?: BlockParam,
-            ): Promise<boolean
-            > {
+            async callAsync(callData: Partial<CallData> = {}, defaultBlock?: BlockParam): Promise<boolean> {
                 BaseContract._assertCallParams(callData, defaultBlock);
-                const rawCallResult = await self._performCallAsync({ ...callData, data: this.getABIEncodedTransactionData() }, defaultBlock);
+                const rawCallResult = await self._performCallAsync(
+                    { ...callData, data: this.getABIEncodedTransactionData() },
+                    defaultBlock,
+                );
                 const abiEncoder = self._lookupAbiEncoder(functionSignature);
-                return abiEncoder.strictDecodeReturnValue<boolean
-            >(rawCallResult);
+                return abiEncoder.strictDecodeReturnValue<boolean>(rawCallResult);
             },
             getABIEncodedTransactionData(): string {
                 return self._strictEncodeArguments(functionSignature, []);
             },
-        }
-    };
-    public owner(
-    ): ContractFunctionObj<string
-> {
-        const self = this as any as LendingPoolAddressesProviderContract;
+        };
+    }
+    public owner(): ContractFunctionObj<string> {
+        const self = (this as any) as LendingPoolAddressesProviderContract;
         const functionSignature = 'owner()';
 
         return {
-            async callAsync(
-                callData: Partial<CallData> = {},
-                defaultBlock?: BlockParam,
-            ): Promise<string
-            > {
+            async callAsync(callData: Partial<CallData> = {}, defaultBlock?: BlockParam): Promise<string> {
                 BaseContract._assertCallParams(callData, defaultBlock);
-                const rawCallResult = await self._performCallAsync({ ...callData, data: this.getABIEncodedTransactionData() }, defaultBlock);
+                const rawCallResult = await self._performCallAsync(
+                    { ...callData, data: this.getABIEncodedTransactionData() },
+                    defaultBlock,
+                );
                 const abiEncoder = self._lookupAbiEncoder(functionSignature);
-                return abiEncoder.strictDecodeReturnValue<string
-            >(rawCallResult);
+                return abiEncoder.strictDecodeReturnValue<string>(rawCallResult);
             },
             getABIEncodedTransactionData(): string {
                 return self._strictEncodeArguments(functionSignature, []);
             },
-        }
-    };
-    public renounceOwnership(
-    ): ContractTxFunctionObj<void
-> {
-        const self = this as any as LendingPoolAddressesProviderContract;
+        };
+    }
+    public renounceOwnership(): ContractTxFunctionObj<void> {
+        const self = (this as any) as LendingPoolAddressesProviderContract;
         const functionSignature = 'renounceOwnership()';
 
         return {
@@ -949,36 +900,30 @@ public static async deployFrom0xArtifactAsync(
             ): PromiseWithTransactionHash<TransactionReceiptWithDecodedLogs> {
                 return self._promiseWithTransactionHash(this.sendTransactionAsync(txData, opts), opts);
             },
-            async estimateGasAsync(
-                txData?: Partial<TxData> | undefined,
-            ): Promise<number> {
-                const txDataWithDefaults = await self._applyDefaultsToTxDataAsync(
-                    { ...txData, data: this.getABIEncodedTransactionData() }
-                );
+            async estimateGasAsync(txData?: Partial<TxData> | undefined): Promise<number> {
+                const txDataWithDefaults = await self._applyDefaultsToTxDataAsync({
+                    ...txData,
+                    data: this.getABIEncodedTransactionData(),
+                });
                 return self._web3Wrapper.estimateGasAsync(txDataWithDefaults);
             },
-            async callAsync(
-                callData: Partial<CallData> = {},
-                defaultBlock?: BlockParam,
-            ): Promise<void
-            > {
+            async callAsync(callData: Partial<CallData> = {}, defaultBlock?: BlockParam): Promise<void> {
                 BaseContract._assertCallParams(callData, defaultBlock);
-                const rawCallResult = await self._performCallAsync({ ...callData, data: this.getABIEncodedTransactionData() }, defaultBlock);
+                const rawCallResult = await self._performCallAsync(
+                    { ...callData, data: this.getABIEncodedTransactionData() },
+                    defaultBlock,
+                );
                 const abiEncoder = self._lookupAbiEncoder(functionSignature);
-                return abiEncoder.strictDecodeReturnValue<void
-            >(rawCallResult);
+                return abiEncoder.strictDecodeReturnValue<void>(rawCallResult);
             },
             getABIEncodedTransactionData(): string {
                 return self._strictEncodeArguments(functionSignature, []);
             },
-        }
-    };
-    public transferOwnership(
-            newOwner: string,
-    ): ContractTxFunctionObj<void
-> {
-        const self = this as any as LendingPoolAddressesProviderContract;
-            assert.isString('newOwner', newOwner);
+        };
+    }
+    public transferOwnership(newOwner: string): ContractTxFunctionObj<void> {
+        const self = (this as any) as LendingPoolAddressesProviderContract;
+        assert.isString('newOwner', newOwner);
         const functionSignature = 'transferOwnership(address)';
 
         return {
@@ -1001,60 +946,49 @@ public static async deployFrom0xArtifactAsync(
             ): PromiseWithTransactionHash<TransactionReceiptWithDecodedLogs> {
                 return self._promiseWithTransactionHash(this.sendTransactionAsync(txData, opts), opts);
             },
-            async estimateGasAsync(
-                txData?: Partial<TxData> | undefined,
-            ): Promise<number> {
-                const txDataWithDefaults = await self._applyDefaultsToTxDataAsync(
-                    { ...txData, data: this.getABIEncodedTransactionData() }
-                );
+            async estimateGasAsync(txData?: Partial<TxData> | undefined): Promise<number> {
+                const txDataWithDefaults = await self._applyDefaultsToTxDataAsync({
+                    ...txData,
+                    data: this.getABIEncodedTransactionData(),
+                });
                 return self._web3Wrapper.estimateGasAsync(txDataWithDefaults);
             },
-            async callAsync(
-                callData: Partial<CallData> = {},
-                defaultBlock?: BlockParam,
-            ): Promise<void
-            > {
+            async callAsync(callData: Partial<CallData> = {}, defaultBlock?: BlockParam): Promise<void> {
                 BaseContract._assertCallParams(callData, defaultBlock);
-                const rawCallResult = await self._performCallAsync({ ...callData, data: this.getABIEncodedTransactionData() }, defaultBlock);
+                const rawCallResult = await self._performCallAsync(
+                    { ...callData, data: this.getABIEncodedTransactionData() },
+                    defaultBlock,
+                );
                 const abiEncoder = self._lookupAbiEncoder(functionSignature);
-                return abiEncoder.strictDecodeReturnValue<void
-            >(rawCallResult);
+                return abiEncoder.strictDecodeReturnValue<void>(rawCallResult);
             },
             getABIEncodedTransactionData(): string {
-                return self._strictEncodeArguments(functionSignature, [newOwner.toLowerCase()
-            ]);
+                return self._strictEncodeArguments(functionSignature, [newOwner.toLowerCase()]);
             },
-        }
-    };
-    public getLendingPool(
-    ): ContractFunctionObj<string
-> {
-        const self = this as any as LendingPoolAddressesProviderContract;
+        };
+    }
+    public getLendingPool(): ContractFunctionObj<string> {
+        const self = (this as any) as LendingPoolAddressesProviderContract;
         const functionSignature = 'getLendingPool()';
 
         return {
-            async callAsync(
-                callData: Partial<CallData> = {},
-                defaultBlock?: BlockParam,
-            ): Promise<string
-            > {
+            async callAsync(callData: Partial<CallData> = {}, defaultBlock?: BlockParam): Promise<string> {
                 BaseContract._assertCallParams(callData, defaultBlock);
-                const rawCallResult = await self._performCallAsync({ ...callData, data: this.getABIEncodedTransactionData() }, defaultBlock);
+                const rawCallResult = await self._performCallAsync(
+                    { ...callData, data: this.getABIEncodedTransactionData() },
+                    defaultBlock,
+                );
                 const abiEncoder = self._lookupAbiEncoder(functionSignature);
-                return abiEncoder.strictDecodeReturnValue<string
-            >(rawCallResult);
+                return abiEncoder.strictDecodeReturnValue<string>(rawCallResult);
             },
             getABIEncodedTransactionData(): string {
                 return self._strictEncodeArguments(functionSignature, []);
             },
-        }
-    };
-    public setLendingPoolImpl(
-            _pool: string,
-    ): ContractTxFunctionObj<void
-> {
-        const self = this as any as LendingPoolAddressesProviderContract;
-            assert.isString('_pool', _pool);
+        };
+    }
+    public setLendingPoolImpl(_pool: string): ContractTxFunctionObj<void> {
+        const self = (this as any) as LendingPoolAddressesProviderContract;
+        assert.isString('_pool', _pool);
         const functionSignature = 'setLendingPoolImpl(address)';
 
         return {
@@ -1077,60 +1011,49 @@ public static async deployFrom0xArtifactAsync(
             ): PromiseWithTransactionHash<TransactionReceiptWithDecodedLogs> {
                 return self._promiseWithTransactionHash(this.sendTransactionAsync(txData, opts), opts);
             },
-            async estimateGasAsync(
-                txData?: Partial<TxData> | undefined,
-            ): Promise<number> {
-                const txDataWithDefaults = await self._applyDefaultsToTxDataAsync(
-                    { ...txData, data: this.getABIEncodedTransactionData() }
-                );
+            async estimateGasAsync(txData?: Partial<TxData> | undefined): Promise<number> {
+                const txDataWithDefaults = await self._applyDefaultsToTxDataAsync({
+                    ...txData,
+                    data: this.getABIEncodedTransactionData(),
+                });
                 return self._web3Wrapper.estimateGasAsync(txDataWithDefaults);
             },
-            async callAsync(
-                callData: Partial<CallData> = {},
-                defaultBlock?: BlockParam,
-            ): Promise<void
-            > {
+            async callAsync(callData: Partial<CallData> = {}, defaultBlock?: BlockParam): Promise<void> {
                 BaseContract._assertCallParams(callData, defaultBlock);
-                const rawCallResult = await self._performCallAsync({ ...callData, data: this.getABIEncodedTransactionData() }, defaultBlock);
+                const rawCallResult = await self._performCallAsync(
+                    { ...callData, data: this.getABIEncodedTransactionData() },
+                    defaultBlock,
+                );
                 const abiEncoder = self._lookupAbiEncoder(functionSignature);
-                return abiEncoder.strictDecodeReturnValue<void
-            >(rawCallResult);
+                return abiEncoder.strictDecodeReturnValue<void>(rawCallResult);
             },
             getABIEncodedTransactionData(): string {
-                return self._strictEncodeArguments(functionSignature, [_pool.toLowerCase()
-            ]);
+                return self._strictEncodeArguments(functionSignature, [_pool.toLowerCase()]);
             },
-        }
-    };
-    public getLendingPoolCore(
-    ): ContractFunctionObj<string
-> {
-        const self = this as any as LendingPoolAddressesProviderContract;
+        };
+    }
+    public getLendingPoolCore(): ContractFunctionObj<string> {
+        const self = (this as any) as LendingPoolAddressesProviderContract;
         const functionSignature = 'getLendingPoolCore()';
 
         return {
-            async callAsync(
-                callData: Partial<CallData> = {},
-                defaultBlock?: BlockParam,
-            ): Promise<string
-            > {
+            async callAsync(callData: Partial<CallData> = {}, defaultBlock?: BlockParam): Promise<string> {
                 BaseContract._assertCallParams(callData, defaultBlock);
-                const rawCallResult = await self._performCallAsync({ ...callData, data: this.getABIEncodedTransactionData() }, defaultBlock);
+                const rawCallResult = await self._performCallAsync(
+                    { ...callData, data: this.getABIEncodedTransactionData() },
+                    defaultBlock,
+                );
                 const abiEncoder = self._lookupAbiEncoder(functionSignature);
-                return abiEncoder.strictDecodeReturnValue<string
-            >(rawCallResult);
+                return abiEncoder.strictDecodeReturnValue<string>(rawCallResult);
             },
             getABIEncodedTransactionData(): string {
                 return self._strictEncodeArguments(functionSignature, []);
             },
-        }
-    };
-    public setLendingPoolCoreImpl(
-            _lendingPoolCore: string,
-    ): ContractTxFunctionObj<void
-> {
-        const self = this as any as LendingPoolAddressesProviderContract;
-            assert.isString('_lendingPoolCore', _lendingPoolCore);
+        };
+    }
+    public setLendingPoolCoreImpl(_lendingPoolCore: string): ContractTxFunctionObj<void> {
+        const self = (this as any) as LendingPoolAddressesProviderContract;
+        assert.isString('_lendingPoolCore', _lendingPoolCore);
         const functionSignature = 'setLendingPoolCoreImpl(address)';
 
         return {
@@ -1153,60 +1076,49 @@ public static async deployFrom0xArtifactAsync(
             ): PromiseWithTransactionHash<TransactionReceiptWithDecodedLogs> {
                 return self._promiseWithTransactionHash(this.sendTransactionAsync(txData, opts), opts);
             },
-            async estimateGasAsync(
-                txData?: Partial<TxData> | undefined,
-            ): Promise<number> {
-                const txDataWithDefaults = await self._applyDefaultsToTxDataAsync(
-                    { ...txData, data: this.getABIEncodedTransactionData() }
-                );
+            async estimateGasAsync(txData?: Partial<TxData> | undefined): Promise<number> {
+                const txDataWithDefaults = await self._applyDefaultsToTxDataAsync({
+                    ...txData,
+                    data: this.getABIEncodedTransactionData(),
+                });
                 return self._web3Wrapper.estimateGasAsync(txDataWithDefaults);
             },
-            async callAsync(
-                callData: Partial<CallData> = {},
-                defaultBlock?: BlockParam,
-            ): Promise<void
-            > {
+            async callAsync(callData: Partial<CallData> = {}, defaultBlock?: BlockParam): Promise<void> {
                 BaseContract._assertCallParams(callData, defaultBlock);
-                const rawCallResult = await self._performCallAsync({ ...callData, data: this.getABIEncodedTransactionData() }, defaultBlock);
+                const rawCallResult = await self._performCallAsync(
+                    { ...callData, data: this.getABIEncodedTransactionData() },
+                    defaultBlock,
+                );
                 const abiEncoder = self._lookupAbiEncoder(functionSignature);
-                return abiEncoder.strictDecodeReturnValue<void
-            >(rawCallResult);
+                return abiEncoder.strictDecodeReturnValue<void>(rawCallResult);
             },
             getABIEncodedTransactionData(): string {
-                return self._strictEncodeArguments(functionSignature, [_lendingPoolCore.toLowerCase()
-            ]);
+                return self._strictEncodeArguments(functionSignature, [_lendingPoolCore.toLowerCase()]);
             },
-        }
-    };
-    public getLendingPoolConfigurator(
-    ): ContractFunctionObj<string
-> {
-        const self = this as any as LendingPoolAddressesProviderContract;
+        };
+    }
+    public getLendingPoolConfigurator(): ContractFunctionObj<string> {
+        const self = (this as any) as LendingPoolAddressesProviderContract;
         const functionSignature = 'getLendingPoolConfigurator()';
 
         return {
-            async callAsync(
-                callData: Partial<CallData> = {},
-                defaultBlock?: BlockParam,
-            ): Promise<string
-            > {
+            async callAsync(callData: Partial<CallData> = {}, defaultBlock?: BlockParam): Promise<string> {
                 BaseContract._assertCallParams(callData, defaultBlock);
-                const rawCallResult = await self._performCallAsync({ ...callData, data: this.getABIEncodedTransactionData() }, defaultBlock);
+                const rawCallResult = await self._performCallAsync(
+                    { ...callData, data: this.getABIEncodedTransactionData() },
+                    defaultBlock,
+                );
                 const abiEncoder = self._lookupAbiEncoder(functionSignature);
-                return abiEncoder.strictDecodeReturnValue<string
-            >(rawCallResult);
+                return abiEncoder.strictDecodeReturnValue<string>(rawCallResult);
             },
             getABIEncodedTransactionData(): string {
                 return self._strictEncodeArguments(functionSignature, []);
             },
-        }
-    };
-    public setLendingPoolConfiguratorImpl(
-            _configurator: string,
-    ): ContractTxFunctionObj<void
-> {
-        const self = this as any as LendingPoolAddressesProviderContract;
-            assert.isString('_configurator', _configurator);
+        };
+    }
+    public setLendingPoolConfiguratorImpl(_configurator: string): ContractTxFunctionObj<void> {
+        const self = (this as any) as LendingPoolAddressesProviderContract;
+        assert.isString('_configurator', _configurator);
         const functionSignature = 'setLendingPoolConfiguratorImpl(address)';
 
         return {
@@ -1229,60 +1141,49 @@ public static async deployFrom0xArtifactAsync(
             ): PromiseWithTransactionHash<TransactionReceiptWithDecodedLogs> {
                 return self._promiseWithTransactionHash(this.sendTransactionAsync(txData, opts), opts);
             },
-            async estimateGasAsync(
-                txData?: Partial<TxData> | undefined,
-            ): Promise<number> {
-                const txDataWithDefaults = await self._applyDefaultsToTxDataAsync(
-                    { ...txData, data: this.getABIEncodedTransactionData() }
-                );
+            async estimateGasAsync(txData?: Partial<TxData> | undefined): Promise<number> {
+                const txDataWithDefaults = await self._applyDefaultsToTxDataAsync({
+                    ...txData,
+                    data: this.getABIEncodedTransactionData(),
+                });
                 return self._web3Wrapper.estimateGasAsync(txDataWithDefaults);
             },
-            async callAsync(
-                callData: Partial<CallData> = {},
-                defaultBlock?: BlockParam,
-            ): Promise<void
-            > {
+            async callAsync(callData: Partial<CallData> = {}, defaultBlock?: BlockParam): Promise<void> {
                 BaseContract._assertCallParams(callData, defaultBlock);
-                const rawCallResult = await self._performCallAsync({ ...callData, data: this.getABIEncodedTransactionData() }, defaultBlock);
+                const rawCallResult = await self._performCallAsync(
+                    { ...callData, data: this.getABIEncodedTransactionData() },
+                    defaultBlock,
+                );
                 const abiEncoder = self._lookupAbiEncoder(functionSignature);
-                return abiEncoder.strictDecodeReturnValue<void
-            >(rawCallResult);
+                return abiEncoder.strictDecodeReturnValue<void>(rawCallResult);
             },
             getABIEncodedTransactionData(): string {
-                return self._strictEncodeArguments(functionSignature, [_configurator.toLowerCase()
-            ]);
+                return self._strictEncodeArguments(functionSignature, [_configurator.toLowerCase()]);
             },
-        }
-    };
-    public getLendingPoolDataProvider(
-    ): ContractFunctionObj<string
-> {
-        const self = this as any as LendingPoolAddressesProviderContract;
+        };
+    }
+    public getLendingPoolDataProvider(): ContractFunctionObj<string> {
+        const self = (this as any) as LendingPoolAddressesProviderContract;
         const functionSignature = 'getLendingPoolDataProvider()';
 
         return {
-            async callAsync(
-                callData: Partial<CallData> = {},
-                defaultBlock?: BlockParam,
-            ): Promise<string
-            > {
+            async callAsync(callData: Partial<CallData> = {}, defaultBlock?: BlockParam): Promise<string> {
                 BaseContract._assertCallParams(callData, defaultBlock);
-                const rawCallResult = await self._performCallAsync({ ...callData, data: this.getABIEncodedTransactionData() }, defaultBlock);
+                const rawCallResult = await self._performCallAsync(
+                    { ...callData, data: this.getABIEncodedTransactionData() },
+                    defaultBlock,
+                );
                 const abiEncoder = self._lookupAbiEncoder(functionSignature);
-                return abiEncoder.strictDecodeReturnValue<string
-            >(rawCallResult);
+                return abiEncoder.strictDecodeReturnValue<string>(rawCallResult);
             },
             getABIEncodedTransactionData(): string {
                 return self._strictEncodeArguments(functionSignature, []);
             },
-        }
-    };
-    public setLendingPoolDataProviderImpl(
-            _provider: string,
-    ): ContractTxFunctionObj<void
-> {
-        const self = this as any as LendingPoolAddressesProviderContract;
-            assert.isString('_provider', _provider);
+        };
+    }
+    public setLendingPoolDataProviderImpl(_provider: string): ContractTxFunctionObj<void> {
+        const self = (this as any) as LendingPoolAddressesProviderContract;
+        assert.isString('_provider', _provider);
         const functionSignature = 'setLendingPoolDataProviderImpl(address)';
 
         return {
@@ -1305,60 +1206,49 @@ public static async deployFrom0xArtifactAsync(
             ): PromiseWithTransactionHash<TransactionReceiptWithDecodedLogs> {
                 return self._promiseWithTransactionHash(this.sendTransactionAsync(txData, opts), opts);
             },
-            async estimateGasAsync(
-                txData?: Partial<TxData> | undefined,
-            ): Promise<number> {
-                const txDataWithDefaults = await self._applyDefaultsToTxDataAsync(
-                    { ...txData, data: this.getABIEncodedTransactionData() }
-                );
+            async estimateGasAsync(txData?: Partial<TxData> | undefined): Promise<number> {
+                const txDataWithDefaults = await self._applyDefaultsToTxDataAsync({
+                    ...txData,
+                    data: this.getABIEncodedTransactionData(),
+                });
                 return self._web3Wrapper.estimateGasAsync(txDataWithDefaults);
             },
-            async callAsync(
-                callData: Partial<CallData> = {},
-                defaultBlock?: BlockParam,
-            ): Promise<void
-            > {
+            async callAsync(callData: Partial<CallData> = {}, defaultBlock?: BlockParam): Promise<void> {
                 BaseContract._assertCallParams(callData, defaultBlock);
-                const rawCallResult = await self._performCallAsync({ ...callData, data: this.getABIEncodedTransactionData() }, defaultBlock);
+                const rawCallResult = await self._performCallAsync(
+                    { ...callData, data: this.getABIEncodedTransactionData() },
+                    defaultBlock,
+                );
                 const abiEncoder = self._lookupAbiEncoder(functionSignature);
-                return abiEncoder.strictDecodeReturnValue<void
-            >(rawCallResult);
+                return abiEncoder.strictDecodeReturnValue<void>(rawCallResult);
             },
             getABIEncodedTransactionData(): string {
-                return self._strictEncodeArguments(functionSignature, [_provider.toLowerCase()
-            ]);
+                return self._strictEncodeArguments(functionSignature, [_provider.toLowerCase()]);
             },
-        }
-    };
-    public getLendingPoolParametersProvider(
-    ): ContractFunctionObj<string
-> {
-        const self = this as any as LendingPoolAddressesProviderContract;
+        };
+    }
+    public getLendingPoolParametersProvider(): ContractFunctionObj<string> {
+        const self = (this as any) as LendingPoolAddressesProviderContract;
         const functionSignature = 'getLendingPoolParametersProvider()';
 
         return {
-            async callAsync(
-                callData: Partial<CallData> = {},
-                defaultBlock?: BlockParam,
-            ): Promise<string
-            > {
+            async callAsync(callData: Partial<CallData> = {}, defaultBlock?: BlockParam): Promise<string> {
                 BaseContract._assertCallParams(callData, defaultBlock);
-                const rawCallResult = await self._performCallAsync({ ...callData, data: this.getABIEncodedTransactionData() }, defaultBlock);
+                const rawCallResult = await self._performCallAsync(
+                    { ...callData, data: this.getABIEncodedTransactionData() },
+                    defaultBlock,
+                );
                 const abiEncoder = self._lookupAbiEncoder(functionSignature);
-                return abiEncoder.strictDecodeReturnValue<string
-            >(rawCallResult);
+                return abiEncoder.strictDecodeReturnValue<string>(rawCallResult);
             },
             getABIEncodedTransactionData(): string {
                 return self._strictEncodeArguments(functionSignature, []);
             },
-        }
-    };
-    public setLendingPoolParametersProviderImpl(
-            _parametersProvider: string,
-    ): ContractTxFunctionObj<void
-> {
-        const self = this as any as LendingPoolAddressesProviderContract;
-            assert.isString('_parametersProvider', _parametersProvider);
+        };
+    }
+    public setLendingPoolParametersProviderImpl(_parametersProvider: string): ContractTxFunctionObj<void> {
+        const self = (this as any) as LendingPoolAddressesProviderContract;
+        assert.isString('_parametersProvider', _parametersProvider);
         const functionSignature = 'setLendingPoolParametersProviderImpl(address)';
 
         return {
@@ -1381,60 +1271,49 @@ public static async deployFrom0xArtifactAsync(
             ): PromiseWithTransactionHash<TransactionReceiptWithDecodedLogs> {
                 return self._promiseWithTransactionHash(this.sendTransactionAsync(txData, opts), opts);
             },
-            async estimateGasAsync(
-                txData?: Partial<TxData> | undefined,
-            ): Promise<number> {
-                const txDataWithDefaults = await self._applyDefaultsToTxDataAsync(
-                    { ...txData, data: this.getABIEncodedTransactionData() }
-                );
+            async estimateGasAsync(txData?: Partial<TxData> | undefined): Promise<number> {
+                const txDataWithDefaults = await self._applyDefaultsToTxDataAsync({
+                    ...txData,
+                    data: this.getABIEncodedTransactionData(),
+                });
                 return self._web3Wrapper.estimateGasAsync(txDataWithDefaults);
             },
-            async callAsync(
-                callData: Partial<CallData> = {},
-                defaultBlock?: BlockParam,
-            ): Promise<void
-            > {
+            async callAsync(callData: Partial<CallData> = {}, defaultBlock?: BlockParam): Promise<void> {
                 BaseContract._assertCallParams(callData, defaultBlock);
-                const rawCallResult = await self._performCallAsync({ ...callData, data: this.getABIEncodedTransactionData() }, defaultBlock);
+                const rawCallResult = await self._performCallAsync(
+                    { ...callData, data: this.getABIEncodedTransactionData() },
+                    defaultBlock,
+                );
                 const abiEncoder = self._lookupAbiEncoder(functionSignature);
-                return abiEncoder.strictDecodeReturnValue<void
-            >(rawCallResult);
+                return abiEncoder.strictDecodeReturnValue<void>(rawCallResult);
             },
             getABIEncodedTransactionData(): string {
-                return self._strictEncodeArguments(functionSignature, [_parametersProvider.toLowerCase()
-            ]);
+                return self._strictEncodeArguments(functionSignature, [_parametersProvider.toLowerCase()]);
             },
-        }
-    };
-    public getFeeProvider(
-    ): ContractFunctionObj<string
-> {
-        const self = this as any as LendingPoolAddressesProviderContract;
+        };
+    }
+    public getFeeProvider(): ContractFunctionObj<string> {
+        const self = (this as any) as LendingPoolAddressesProviderContract;
         const functionSignature = 'getFeeProvider()';
 
         return {
-            async callAsync(
-                callData: Partial<CallData> = {},
-                defaultBlock?: BlockParam,
-            ): Promise<string
-            > {
+            async callAsync(callData: Partial<CallData> = {}, defaultBlock?: BlockParam): Promise<string> {
                 BaseContract._assertCallParams(callData, defaultBlock);
-                const rawCallResult = await self._performCallAsync({ ...callData, data: this.getABIEncodedTransactionData() }, defaultBlock);
+                const rawCallResult = await self._performCallAsync(
+                    { ...callData, data: this.getABIEncodedTransactionData() },
+                    defaultBlock,
+                );
                 const abiEncoder = self._lookupAbiEncoder(functionSignature);
-                return abiEncoder.strictDecodeReturnValue<string
-            >(rawCallResult);
+                return abiEncoder.strictDecodeReturnValue<string>(rawCallResult);
             },
             getABIEncodedTransactionData(): string {
                 return self._strictEncodeArguments(functionSignature, []);
             },
-        }
-    };
-    public setFeeProviderImpl(
-            _feeProvider: string,
-    ): ContractTxFunctionObj<void
-> {
-        const self = this as any as LendingPoolAddressesProviderContract;
-            assert.isString('_feeProvider', _feeProvider);
+        };
+    }
+    public setFeeProviderImpl(_feeProvider: string): ContractTxFunctionObj<void> {
+        const self = (this as any) as LendingPoolAddressesProviderContract;
+        assert.isString('_feeProvider', _feeProvider);
         const functionSignature = 'setFeeProviderImpl(address)';
 
         return {
@@ -1457,60 +1336,49 @@ public static async deployFrom0xArtifactAsync(
             ): PromiseWithTransactionHash<TransactionReceiptWithDecodedLogs> {
                 return self._promiseWithTransactionHash(this.sendTransactionAsync(txData, opts), opts);
             },
-            async estimateGasAsync(
-                txData?: Partial<TxData> | undefined,
-            ): Promise<number> {
-                const txDataWithDefaults = await self._applyDefaultsToTxDataAsync(
-                    { ...txData, data: this.getABIEncodedTransactionData() }
-                );
+            async estimateGasAsync(txData?: Partial<TxData> | undefined): Promise<number> {
+                const txDataWithDefaults = await self._applyDefaultsToTxDataAsync({
+                    ...txData,
+                    data: this.getABIEncodedTransactionData(),
+                });
                 return self._web3Wrapper.estimateGasAsync(txDataWithDefaults);
             },
-            async callAsync(
-                callData: Partial<CallData> = {},
-                defaultBlock?: BlockParam,
-            ): Promise<void
-            > {
+            async callAsync(callData: Partial<CallData> = {}, defaultBlock?: BlockParam): Promise<void> {
                 BaseContract._assertCallParams(callData, defaultBlock);
-                const rawCallResult = await self._performCallAsync({ ...callData, data: this.getABIEncodedTransactionData() }, defaultBlock);
+                const rawCallResult = await self._performCallAsync(
+                    { ...callData, data: this.getABIEncodedTransactionData() },
+                    defaultBlock,
+                );
                 const abiEncoder = self._lookupAbiEncoder(functionSignature);
-                return abiEncoder.strictDecodeReturnValue<void
-            >(rawCallResult);
+                return abiEncoder.strictDecodeReturnValue<void>(rawCallResult);
             },
             getABIEncodedTransactionData(): string {
-                return self._strictEncodeArguments(functionSignature, [_feeProvider.toLowerCase()
-            ]);
+                return self._strictEncodeArguments(functionSignature, [_feeProvider.toLowerCase()]);
             },
-        }
-    };
-    public getLendingPoolLiquidationManager(
-    ): ContractFunctionObj<string
-> {
-        const self = this as any as LendingPoolAddressesProviderContract;
+        };
+    }
+    public getLendingPoolLiquidationManager(): ContractFunctionObj<string> {
+        const self = (this as any) as LendingPoolAddressesProviderContract;
         const functionSignature = 'getLendingPoolLiquidationManager()';
 
         return {
-            async callAsync(
-                callData: Partial<CallData> = {},
-                defaultBlock?: BlockParam,
-            ): Promise<string
-            > {
+            async callAsync(callData: Partial<CallData> = {}, defaultBlock?: BlockParam): Promise<string> {
                 BaseContract._assertCallParams(callData, defaultBlock);
-                const rawCallResult = await self._performCallAsync({ ...callData, data: this.getABIEncodedTransactionData() }, defaultBlock);
+                const rawCallResult = await self._performCallAsync(
+                    { ...callData, data: this.getABIEncodedTransactionData() },
+                    defaultBlock,
+                );
                 const abiEncoder = self._lookupAbiEncoder(functionSignature);
-                return abiEncoder.strictDecodeReturnValue<string
-            >(rawCallResult);
+                return abiEncoder.strictDecodeReturnValue<string>(rawCallResult);
             },
             getABIEncodedTransactionData(): string {
                 return self._strictEncodeArguments(functionSignature, []);
             },
-        }
-    };
-    public setLendingPoolLiquidationManager(
-            _manager: string,
-    ): ContractTxFunctionObj<void
-> {
-        const self = this as any as LendingPoolAddressesProviderContract;
-            assert.isString('_manager', _manager);
+        };
+    }
+    public setLendingPoolLiquidationManager(_manager: string): ContractTxFunctionObj<void> {
+        const self = (this as any) as LendingPoolAddressesProviderContract;
+        assert.isString('_manager', _manager);
         const functionSignature = 'setLendingPoolLiquidationManager(address)';
 
         return {
@@ -1533,60 +1401,49 @@ public static async deployFrom0xArtifactAsync(
             ): PromiseWithTransactionHash<TransactionReceiptWithDecodedLogs> {
                 return self._promiseWithTransactionHash(this.sendTransactionAsync(txData, opts), opts);
             },
-            async estimateGasAsync(
-                txData?: Partial<TxData> | undefined,
-            ): Promise<number> {
-                const txDataWithDefaults = await self._applyDefaultsToTxDataAsync(
-                    { ...txData, data: this.getABIEncodedTransactionData() }
-                );
+            async estimateGasAsync(txData?: Partial<TxData> | undefined): Promise<number> {
+                const txDataWithDefaults = await self._applyDefaultsToTxDataAsync({
+                    ...txData,
+                    data: this.getABIEncodedTransactionData(),
+                });
                 return self._web3Wrapper.estimateGasAsync(txDataWithDefaults);
             },
-            async callAsync(
-                callData: Partial<CallData> = {},
-                defaultBlock?: BlockParam,
-            ): Promise<void
-            > {
+            async callAsync(callData: Partial<CallData> = {}, defaultBlock?: BlockParam): Promise<void> {
                 BaseContract._assertCallParams(callData, defaultBlock);
-                const rawCallResult = await self._performCallAsync({ ...callData, data: this.getABIEncodedTransactionData() }, defaultBlock);
+                const rawCallResult = await self._performCallAsync(
+                    { ...callData, data: this.getABIEncodedTransactionData() },
+                    defaultBlock,
+                );
                 const abiEncoder = self._lookupAbiEncoder(functionSignature);
-                return abiEncoder.strictDecodeReturnValue<void
-            >(rawCallResult);
+                return abiEncoder.strictDecodeReturnValue<void>(rawCallResult);
             },
             getABIEncodedTransactionData(): string {
-                return self._strictEncodeArguments(functionSignature, [_manager.toLowerCase()
-            ]);
+                return self._strictEncodeArguments(functionSignature, [_manager.toLowerCase()]);
             },
-        }
-    };
-    public getLendingPoolManager(
-    ): ContractFunctionObj<string
-> {
-        const self = this as any as LendingPoolAddressesProviderContract;
+        };
+    }
+    public getLendingPoolManager(): ContractFunctionObj<string> {
+        const self = (this as any) as LendingPoolAddressesProviderContract;
         const functionSignature = 'getLendingPoolManager()';
 
         return {
-            async callAsync(
-                callData: Partial<CallData> = {},
-                defaultBlock?: BlockParam,
-            ): Promise<string
-            > {
+            async callAsync(callData: Partial<CallData> = {}, defaultBlock?: BlockParam): Promise<string> {
                 BaseContract._assertCallParams(callData, defaultBlock);
-                const rawCallResult = await self._performCallAsync({ ...callData, data: this.getABIEncodedTransactionData() }, defaultBlock);
+                const rawCallResult = await self._performCallAsync(
+                    { ...callData, data: this.getABIEncodedTransactionData() },
+                    defaultBlock,
+                );
                 const abiEncoder = self._lookupAbiEncoder(functionSignature);
-                return abiEncoder.strictDecodeReturnValue<string
-            >(rawCallResult);
+                return abiEncoder.strictDecodeReturnValue<string>(rawCallResult);
             },
             getABIEncodedTransactionData(): string {
                 return self._strictEncodeArguments(functionSignature, []);
             },
-        }
-    };
-    public setLendingPoolManager(
-            _lendingPoolManager: string,
-    ): ContractTxFunctionObj<void
-> {
-        const self = this as any as LendingPoolAddressesProviderContract;
-            assert.isString('_lendingPoolManager', _lendingPoolManager);
+        };
+    }
+    public setLendingPoolManager(_lendingPoolManager: string): ContractTxFunctionObj<void> {
+        const self = (this as any) as LendingPoolAddressesProviderContract;
+        assert.isString('_lendingPoolManager', _lendingPoolManager);
         const functionSignature = 'setLendingPoolManager(address)';
 
         return {
@@ -1609,60 +1466,49 @@ public static async deployFrom0xArtifactAsync(
             ): PromiseWithTransactionHash<TransactionReceiptWithDecodedLogs> {
                 return self._promiseWithTransactionHash(this.sendTransactionAsync(txData, opts), opts);
             },
-            async estimateGasAsync(
-                txData?: Partial<TxData> | undefined,
-            ): Promise<number> {
-                const txDataWithDefaults = await self._applyDefaultsToTxDataAsync(
-                    { ...txData, data: this.getABIEncodedTransactionData() }
-                );
+            async estimateGasAsync(txData?: Partial<TxData> | undefined): Promise<number> {
+                const txDataWithDefaults = await self._applyDefaultsToTxDataAsync({
+                    ...txData,
+                    data: this.getABIEncodedTransactionData(),
+                });
                 return self._web3Wrapper.estimateGasAsync(txDataWithDefaults);
             },
-            async callAsync(
-                callData: Partial<CallData> = {},
-                defaultBlock?: BlockParam,
-            ): Promise<void
-            > {
+            async callAsync(callData: Partial<CallData> = {}, defaultBlock?: BlockParam): Promise<void> {
                 BaseContract._assertCallParams(callData, defaultBlock);
-                const rawCallResult = await self._performCallAsync({ ...callData, data: this.getABIEncodedTransactionData() }, defaultBlock);
+                const rawCallResult = await self._performCallAsync(
+                    { ...callData, data: this.getABIEncodedTransactionData() },
+                    defaultBlock,
+                );
                 const abiEncoder = self._lookupAbiEncoder(functionSignature);
-                return abiEncoder.strictDecodeReturnValue<void
-            >(rawCallResult);
+                return abiEncoder.strictDecodeReturnValue<void>(rawCallResult);
             },
             getABIEncodedTransactionData(): string {
-                return self._strictEncodeArguments(functionSignature, [_lendingPoolManager.toLowerCase()
-            ]);
+                return self._strictEncodeArguments(functionSignature, [_lendingPoolManager.toLowerCase()]);
             },
-        }
-    };
-    public getPriceOracle(
-    ): ContractFunctionObj<string
-> {
-        const self = this as any as LendingPoolAddressesProviderContract;
+        };
+    }
+    public getPriceOracle(): ContractFunctionObj<string> {
+        const self = (this as any) as LendingPoolAddressesProviderContract;
         const functionSignature = 'getPriceOracle()';
 
         return {
-            async callAsync(
-                callData: Partial<CallData> = {},
-                defaultBlock?: BlockParam,
-            ): Promise<string
-            > {
+            async callAsync(callData: Partial<CallData> = {}, defaultBlock?: BlockParam): Promise<string> {
                 BaseContract._assertCallParams(callData, defaultBlock);
-                const rawCallResult = await self._performCallAsync({ ...callData, data: this.getABIEncodedTransactionData() }, defaultBlock);
+                const rawCallResult = await self._performCallAsync(
+                    { ...callData, data: this.getABIEncodedTransactionData() },
+                    defaultBlock,
+                );
                 const abiEncoder = self._lookupAbiEncoder(functionSignature);
-                return abiEncoder.strictDecodeReturnValue<string
-            >(rawCallResult);
+                return abiEncoder.strictDecodeReturnValue<string>(rawCallResult);
             },
             getABIEncodedTransactionData(): string {
                 return self._strictEncodeArguments(functionSignature, []);
             },
-        }
-    };
-    public setPriceOracle(
-            _priceOracle: string,
-    ): ContractTxFunctionObj<void
-> {
-        const self = this as any as LendingPoolAddressesProviderContract;
-            assert.isString('_priceOracle', _priceOracle);
+        };
+    }
+    public setPriceOracle(_priceOracle: string): ContractTxFunctionObj<void> {
+        const self = (this as any) as LendingPoolAddressesProviderContract;
+        assert.isString('_priceOracle', _priceOracle);
         const functionSignature = 'setPriceOracle(address)';
 
         return {
@@ -1685,60 +1531,49 @@ public static async deployFrom0xArtifactAsync(
             ): PromiseWithTransactionHash<TransactionReceiptWithDecodedLogs> {
                 return self._promiseWithTransactionHash(this.sendTransactionAsync(txData, opts), opts);
             },
-            async estimateGasAsync(
-                txData?: Partial<TxData> | undefined,
-            ): Promise<number> {
-                const txDataWithDefaults = await self._applyDefaultsToTxDataAsync(
-                    { ...txData, data: this.getABIEncodedTransactionData() }
-                );
+            async estimateGasAsync(txData?: Partial<TxData> | undefined): Promise<number> {
+                const txDataWithDefaults = await self._applyDefaultsToTxDataAsync({
+                    ...txData,
+                    data: this.getABIEncodedTransactionData(),
+                });
                 return self._web3Wrapper.estimateGasAsync(txDataWithDefaults);
             },
-            async callAsync(
-                callData: Partial<CallData> = {},
-                defaultBlock?: BlockParam,
-            ): Promise<void
-            > {
+            async callAsync(callData: Partial<CallData> = {}, defaultBlock?: BlockParam): Promise<void> {
                 BaseContract._assertCallParams(callData, defaultBlock);
-                const rawCallResult = await self._performCallAsync({ ...callData, data: this.getABIEncodedTransactionData() }, defaultBlock);
+                const rawCallResult = await self._performCallAsync(
+                    { ...callData, data: this.getABIEncodedTransactionData() },
+                    defaultBlock,
+                );
                 const abiEncoder = self._lookupAbiEncoder(functionSignature);
-                return abiEncoder.strictDecodeReturnValue<void
-            >(rawCallResult);
+                return abiEncoder.strictDecodeReturnValue<void>(rawCallResult);
             },
             getABIEncodedTransactionData(): string {
-                return self._strictEncodeArguments(functionSignature, [_priceOracle.toLowerCase()
-            ]);
+                return self._strictEncodeArguments(functionSignature, [_priceOracle.toLowerCase()]);
             },
-        }
-    };
-    public getLendingRateOracle(
-    ): ContractFunctionObj<string
-> {
-        const self = this as any as LendingPoolAddressesProviderContract;
+        };
+    }
+    public getLendingRateOracle(): ContractFunctionObj<string> {
+        const self = (this as any) as LendingPoolAddressesProviderContract;
         const functionSignature = 'getLendingRateOracle()';
 
         return {
-            async callAsync(
-                callData: Partial<CallData> = {},
-                defaultBlock?: BlockParam,
-            ): Promise<string
-            > {
+            async callAsync(callData: Partial<CallData> = {}, defaultBlock?: BlockParam): Promise<string> {
                 BaseContract._assertCallParams(callData, defaultBlock);
-                const rawCallResult = await self._performCallAsync({ ...callData, data: this.getABIEncodedTransactionData() }, defaultBlock);
+                const rawCallResult = await self._performCallAsync(
+                    { ...callData, data: this.getABIEncodedTransactionData() },
+                    defaultBlock,
+                );
                 const abiEncoder = self._lookupAbiEncoder(functionSignature);
-                return abiEncoder.strictDecodeReturnValue<string
-            >(rawCallResult);
+                return abiEncoder.strictDecodeReturnValue<string>(rawCallResult);
             },
             getABIEncodedTransactionData(): string {
                 return self._strictEncodeArguments(functionSignature, []);
             },
-        }
-    };
-    public setLendingRateOracle(
-            _lendingRateOracle: string,
-    ): ContractTxFunctionObj<void
-> {
-        const self = this as any as LendingPoolAddressesProviderContract;
-            assert.isString('_lendingRateOracle', _lendingRateOracle);
+        };
+    }
+    public setLendingRateOracle(_lendingRateOracle: string): ContractTxFunctionObj<void> {
+        const self = (this as any) as LendingPoolAddressesProviderContract;
+        assert.isString('_lendingRateOracle', _lendingRateOracle);
         const functionSignature = 'setLendingRateOracle(address)';
 
         return {
@@ -1761,60 +1596,49 @@ public static async deployFrom0xArtifactAsync(
             ): PromiseWithTransactionHash<TransactionReceiptWithDecodedLogs> {
                 return self._promiseWithTransactionHash(this.sendTransactionAsync(txData, opts), opts);
             },
-            async estimateGasAsync(
-                txData?: Partial<TxData> | undefined,
-            ): Promise<number> {
-                const txDataWithDefaults = await self._applyDefaultsToTxDataAsync(
-                    { ...txData, data: this.getABIEncodedTransactionData() }
-                );
+            async estimateGasAsync(txData?: Partial<TxData> | undefined): Promise<number> {
+                const txDataWithDefaults = await self._applyDefaultsToTxDataAsync({
+                    ...txData,
+                    data: this.getABIEncodedTransactionData(),
+                });
                 return self._web3Wrapper.estimateGasAsync(txDataWithDefaults);
             },
-            async callAsync(
-                callData: Partial<CallData> = {},
-                defaultBlock?: BlockParam,
-            ): Promise<void
-            > {
+            async callAsync(callData: Partial<CallData> = {}, defaultBlock?: BlockParam): Promise<void> {
                 BaseContract._assertCallParams(callData, defaultBlock);
-                const rawCallResult = await self._performCallAsync({ ...callData, data: this.getABIEncodedTransactionData() }, defaultBlock);
+                const rawCallResult = await self._performCallAsync(
+                    { ...callData, data: this.getABIEncodedTransactionData() },
+                    defaultBlock,
+                );
                 const abiEncoder = self._lookupAbiEncoder(functionSignature);
-                return abiEncoder.strictDecodeReturnValue<void
-            >(rawCallResult);
+                return abiEncoder.strictDecodeReturnValue<void>(rawCallResult);
             },
             getABIEncodedTransactionData(): string {
-                return self._strictEncodeArguments(functionSignature, [_lendingRateOracle.toLowerCase()
-            ]);
+                return self._strictEncodeArguments(functionSignature, [_lendingRateOracle.toLowerCase()]);
             },
-        }
-    };
-    public getTokenDistributor(
-    ): ContractFunctionObj<string
-> {
-        const self = this as any as LendingPoolAddressesProviderContract;
+        };
+    }
+    public getTokenDistributor(): ContractFunctionObj<string> {
+        const self = (this as any) as LendingPoolAddressesProviderContract;
         const functionSignature = 'getTokenDistributor()';
 
         return {
-            async callAsync(
-                callData: Partial<CallData> = {},
-                defaultBlock?: BlockParam,
-            ): Promise<string
-            > {
+            async callAsync(callData: Partial<CallData> = {}, defaultBlock?: BlockParam): Promise<string> {
                 BaseContract._assertCallParams(callData, defaultBlock);
-                const rawCallResult = await self._performCallAsync({ ...callData, data: this.getABIEncodedTransactionData() }, defaultBlock);
+                const rawCallResult = await self._performCallAsync(
+                    { ...callData, data: this.getABIEncodedTransactionData() },
+                    defaultBlock,
+                );
                 const abiEncoder = self._lookupAbiEncoder(functionSignature);
-                return abiEncoder.strictDecodeReturnValue<string
-            >(rawCallResult);
+                return abiEncoder.strictDecodeReturnValue<string>(rawCallResult);
             },
             getABIEncodedTransactionData(): string {
                 return self._strictEncodeArguments(functionSignature, []);
             },
-        }
-    };
-    public setTokenDistributor(
-            _tokenDistributor: string,
-    ): ContractTxFunctionObj<void
-> {
-        const self = this as any as LendingPoolAddressesProviderContract;
-            assert.isString('_tokenDistributor', _tokenDistributor);
+        };
+    }
+    public setTokenDistributor(_tokenDistributor: string): ContractTxFunctionObj<void> {
+        const self = (this as any) as LendingPoolAddressesProviderContract;
+        assert.isString('_tokenDistributor', _tokenDistributor);
         const functionSignature = 'setTokenDistributor(address)';
 
         return {
@@ -1837,31 +1661,27 @@ public static async deployFrom0xArtifactAsync(
             ): PromiseWithTransactionHash<TransactionReceiptWithDecodedLogs> {
                 return self._promiseWithTransactionHash(this.sendTransactionAsync(txData, opts), opts);
             },
-            async estimateGasAsync(
-                txData?: Partial<TxData> | undefined,
-            ): Promise<number> {
-                const txDataWithDefaults = await self._applyDefaultsToTxDataAsync(
-                    { ...txData, data: this.getABIEncodedTransactionData() }
-                );
+            async estimateGasAsync(txData?: Partial<TxData> | undefined): Promise<number> {
+                const txDataWithDefaults = await self._applyDefaultsToTxDataAsync({
+                    ...txData,
+                    data: this.getABIEncodedTransactionData(),
+                });
                 return self._web3Wrapper.estimateGasAsync(txDataWithDefaults);
             },
-            async callAsync(
-                callData: Partial<CallData> = {},
-                defaultBlock?: BlockParam,
-            ): Promise<void
-            > {
+            async callAsync(callData: Partial<CallData> = {}, defaultBlock?: BlockParam): Promise<void> {
                 BaseContract._assertCallParams(callData, defaultBlock);
-                const rawCallResult = await self._performCallAsync({ ...callData, data: this.getABIEncodedTransactionData() }, defaultBlock);
+                const rawCallResult = await self._performCallAsync(
+                    { ...callData, data: this.getABIEncodedTransactionData() },
+                    defaultBlock,
+                );
                 const abiEncoder = self._lookupAbiEncoder(functionSignature);
-                return abiEncoder.strictDecodeReturnValue<void
-            >(rawCallResult);
+                return abiEncoder.strictDecodeReturnValue<void>(rawCallResult);
             },
             getABIEncodedTransactionData(): string {
-                return self._strictEncodeArguments(functionSignature, [_tokenDistributor.toLowerCase()
-            ]);
+                return self._strictEncodeArguments(functionSignature, [_tokenDistributor.toLowerCase()]);
             },
-        }
-    };
+        };
+    }
 
     /**
      * Subscribe to an event type emitted by the LendingPoolAddressesProvider contract.
@@ -1938,13 +1758,21 @@ public static async deployFrom0xArtifactAsync(
         logDecodeDependencies?: { [contractName: string]: ContractAbi },
         deployedBytecode: string | undefined = LendingPoolAddressesProviderContract.deployedBytecode,
     ) {
-        super('LendingPoolAddressesProvider', LendingPoolAddressesProviderContract.ABI(), address, supportedProvider, txDefaults, logDecodeDependencies, deployedBytecode);
-        classUtils.bindAll(this, ['_abiEncoderByFunctionSignature', 'address', '_web3Wrapper']);
-this._subscriptionManager = new SubscriptionManager<LendingPoolAddressesProviderEventArgs, LendingPoolAddressesProviderEvents>(
+        super(
+            'LendingPoolAddressesProvider',
             LendingPoolAddressesProviderContract.ABI(),
-            this._web3Wrapper,
+            address,
+            supportedProvider,
+            txDefaults,
+            logDecodeDependencies,
+            deployedBytecode,
         );
-LendingPoolAddressesProviderContract.ABI().forEach((item, index) => {
+        classUtils.bindAll(this, ['_abiEncoderByFunctionSignature', 'address', '_web3Wrapper']);
+        this._subscriptionManager = new SubscriptionManager<
+            LendingPoolAddressesProviderEventArgs,
+            LendingPoolAddressesProviderEvents
+        >(LendingPoolAddressesProviderContract.ABI(), this._web3Wrapper);
+        LendingPoolAddressesProviderContract.ABI().forEach((item, index) => {
             if (item.type === 'function') {
                 const methodAbi = item as MethodAbi;
                 this._methodABIIndex[methodAbi.name] = index;

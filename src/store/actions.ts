@@ -4,6 +4,7 @@ import { getKnownTokens } from '../util/known_tokens';
 import { getLogger } from '../util/logger';
 import { BZXLoadingState, MARKETPLACES } from '../util/types';
 
+import { fetchAave } from './aave/actions';
 import { fetchLaunchpad, updateGasInfo, updateTokenBalances } from './blockchain/actions';
 import { fetchBZX, initBZX } from './bzx/actions';
 import { getAllCollectibles } from './collectibles/actions';
@@ -32,6 +33,7 @@ export * from './market/actions';
 export * from './collectibles/actions';
 export * from './swap/actions';
 export * from './aave/actions';
+export * from './defi/actions';
 
 const logger = getLogger('Store::Actions');
 
@@ -64,9 +66,9 @@ export const updateStore = () => {
                     // dispatch(updateBZXStore());
                     break;
                 case MARKETPLACES.Defi:
-                        // Updated in market price tokens
-                        // dispatch(updateBZXStore());
-                        break;
+                    // Updated in market price tokens
+                    dispatch(updateDefiStore());
+                    break;
 
                 case MARKETPLACES.MarketTrade:
                     // Updated in market price tokens
@@ -148,7 +150,16 @@ export const updateBZXStore = () => {
                 dispatch(fetchBZX());
             }
         } catch (error) {
-            logger.error('Failed to update Launchpad', error);
+            logger.error('Failed to update BZX', error);
+        }
+    };
+};
+export const updateDefiStore = () => {
+    return async (dispatch: any, getState: any) => {
+        try {
+            dispatch(fetchAave());
+        } catch (error) {
+            logger.error('Failed to update Defi Store', error);
         }
     };
 };
