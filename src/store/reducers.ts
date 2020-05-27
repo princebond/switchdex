@@ -5,6 +5,7 @@ import { ActionType } from 'typesafe-actions';
 
 import { StoreState } from '../util/types';
 
+import { aave } from './aave/reducers';
 import * as actions from './actions';
 import { blockchain } from './blockchain/reducers';
 import { bzx } from './bzx/reducers';
@@ -25,5 +26,6 @@ export const createRootReducer = (history: History) =>
         market,
         collectibles,
         bzx,
+        aave,
         swap,
     });

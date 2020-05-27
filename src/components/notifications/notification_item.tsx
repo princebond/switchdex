@@ -162,10 +162,16 @@ class NotificationItem extends React.Component<Props, State> {
                 operation = 'Transfer Sent';
                 break;
             case NotificationKind.LendingComplete:
-                operation = 'Lending Complete';
+                operation = 'Deposit Complete';
                 break;
             case NotificationKind.UnLendingComplete:
-                operation = 'Unlending Complete';
+                operation = 'Withdraw Complete';
+                break;
+            case NotificationKind.BorrowComplete:
+                operation = 'Borrow Complete';
+                break;
+            case NotificationKind.RepayComplete:
+                operation = 'Repay Complete';
                 break;
             default: {
                 const _exhaustiveCheck: never = item;

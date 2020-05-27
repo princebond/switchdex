@@ -18,9 +18,13 @@ export const getStepTitle = (step: Step): string => {
         case StepKind.TransferToken:
             return 'Transfer';
         case StepKind.LendingToken:
-            return 'Lending';
+            return 'Deposit';
         case StepKind.UnLendingToken:
-            return 'Unlending';
+            return 'Withdraw';
+        case StepKind.BorrowToken:
+            return 'Borrow';
+        case StepKind.RepayToken:
+            return 'Repay';
         case StepKind.SubmitConfig:
             return 'Dex Config';
         default:
@@ -34,6 +38,7 @@ export const isLongStep = (step: Step): boolean => {
         case StepKind.SellCollectible:
         case StepKind.BuySellLimit:
         case StepKind.UnLendingToken:
+        case StepKind.BorrowToken:
         case StepKind.SubmitConfig:
             return false;
         case StepKind.BuySellMarket:
@@ -43,6 +48,7 @@ export const isLongStep = (step: Step): boolean => {
         case StepKind.WrapEth:
         case StepKind.TransferToken:
         case StepKind.LendingToken:
+        case StepKind.RepayToken:
         case StepKind.BuyCollectible:
             return true;
         default:

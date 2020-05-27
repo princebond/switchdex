@@ -5,7 +5,6 @@ import { useDispatch } from 'react-redux';
 import styled from 'styled-components';
 
 import { setGeneralConfig } from '../../../../store/actions';
-import { themeDimensions } from '../../../../themes/commons';
 import { GeneralConfig } from '../../../../util/types';
 import { AccordionCollapse } from '../../../common/accordion_collapse';
 import { StyledInput } from '../../../common/final_form/styled_input';

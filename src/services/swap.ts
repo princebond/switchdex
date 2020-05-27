@@ -54,6 +54,7 @@ export class SwapService {
         isETHSell: boolean,
         quote: MarketBuySwapQuote | MarketSellSwapQuote,
     ): Promise<string> {
+        // TODO: if ETH was specified as the token to sell but we have enought WETH, not use the forwarder
         // If ETH was specified as the token to sell then we use the Forwarder
         const extensionContractType = isETHSell ? ExtensionContractType.Forwarder : ExtensionContractType.None;
         return this._swapQuoteConsumer.executeSwapQuoteOrThrowAsync(quote, {

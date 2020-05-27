@@ -3,6 +3,7 @@ import { BigNumber } from '@0x/utils';
 import { createSelector } from 'reselect';
 
 import {
+    DEFI_APP_BASE_PATH,
     ERC20_APP_BASE_PATH,
     ERC721_APP_BASE_PATH,
     FIAT_RAMP_APP_BASE_PATH,
@@ -89,6 +90,12 @@ export const getSelectedCollectible = (state: StoreState) => state.collectibles.
 export const getCurrentRoutePath = (state: StoreState) => state.router.location.pathname;
 export const getRouterLocationSearch = (state: StoreState) => state.router.location.search;
 export const getAccountMarketStats = (state: StoreState) => state.relayer.accountMarketStats;
+export const getDefiProtocol = (state: StoreState) => state.aave.protocol;
+export const getATokensData = (state: StoreState) => state.aave.aTokensData;
+export const getAaveCurrency = (state: StoreState) => state.aave.currency;
+export const getAaveLoadingState = (state: StoreState) => state.aave.aaveLoadingState;
+export const getAaveReservesGQLResponse = (state: StoreState) => state.aave.aaveReservesGQLResponse;
+export const getAaveUserAccountData = (state: StoreState) => state.aave.userAccountData;
 export const getITokensData = (state: StoreState) => state.bzx.iTokensData;
 export const getBZXiTokensList = (state: StoreState) => state.bzx.TokensList;
 export const getBZXLoadingState = (state: StoreState) => state.bzx.bzxLoadingState;
@@ -133,6 +140,8 @@ export const getCurrentMarketPlace = createSelector(getCurrentRoutePath, (curren
         return MARKETPLACES.FiatRamp;
     } else if (currentRoute.includes(MARKET_APP_BASE_PATH)) {
         return MARKETPLACES.MarketTrade;
+    } else if (currentRoute.includes(DEFI_APP_BASE_PATH)) {
+        return MARKETPLACES.Defi;
     } else {
         return MARKETPLACES.ERC20;
     }

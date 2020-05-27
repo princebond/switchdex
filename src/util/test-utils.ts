@@ -107,6 +107,7 @@ export const tokenFactory = Factory.Sync.makeFactory<Token>({
     symbol: Factory.each(i => `MOCK${i}`),
     icon: undefined,
     listed: true,
+    isStableCoin: false,
 });
 
 export const tokenMetaDataFactory = Factory.Sync.makeFactory<TokenMetaData>({

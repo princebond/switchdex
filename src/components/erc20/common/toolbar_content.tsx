@@ -10,6 +10,7 @@ import { NotificationsDropdownContainer } from '../../../components/notification
 import {
     changeSwapBaseToken,
     goToHome,
+    goToHomeDefi,
     goToHomeMarketTrade,
     goToWallet,
     openFiatOnRampModal,
@@ -35,6 +36,7 @@ interface DispatchProps {
     onGoToHome: () => any;
     onGoToWallet: () => any;
     onGoToHomeMarketTrade: () => any;
+    onGoToHomeDefi: () => any;
 }
 
 interface OwnProps {
@@ -183,6 +185,11 @@ const ToolbarContent = (props: Props) => {
         props.onGoToHomeMarketTrade();
     };
 
+    const handleDefiClick: React.EventHandler<React.MouseEvent> = e => {
+        e.preventDefault();
+        props.onGoToHomeDefi();
+    };
+
     let endContent;
     if (isMobile(props.windowWidth)) {
         endContent = (
@@ -194,6 +201,9 @@ const ToolbarContent = (props: Props) => {
         endOptContent = (
             <>
                 {/*  <SettingsContentContainer  className={'settings-dropdown'} /> */}
+                <StyledLink href="/defi" onClick={handleDefiClick} className={'defi'}>
+                    DeFi
+                </StyledLink>
                 <StyledLink href="/market-trade" onClick={handleMarketTradeClick} className={'market-trade'}>
                     Swap
                 </StyledLink>
@@ -223,6 +233,7 @@ const mapDispatchToProps = (dispatch: any): DispatchProps => {
         onGoToHome: () => dispatch(goToHome()),
         onGoToWallet: () => dispatch(goToWallet()),
         onGoToHomeMarketTrade: () => dispatch(goToHomeMarketTrade()),
+        onGoToHomeDefi: () => dispatch(goToHomeDefi()),
     };
 };
 

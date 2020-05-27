@@ -17,6 +17,7 @@ import { getConfigFromNameOrDomain } from '../../services/config';
 import { LocalStorage } from '../../services/local_storage';
 import { Theme } from '../../themes/commons';
 import { getThemeFromConfigDex } from '../../themes/theme_meta_data_utils';
+import { ATokenData, Protocol } from '../../util/aave/types';
 import { getCurrencyPairByTokensSymbol } from '../../util/known_currency_pairs';
 import { getKnownTokens, getWethAssetData, isWeth } from '../../util/known_tokens';
 import {
@@ -28,10 +29,12 @@ import {
 } from '../../util/orders';
 import {
     createBasicBuyCollectibleSteps,
+    createBorrowTokenSteps,
     createBuySellLimitMatchingSteps,
     createBuySellLimitSteps,
     createBuySellMarketSteps,
     createLendingTokenSteps,
+    createRepayTokenSteps,
     createSellCollectibleSteps,
     createSwapMarketSteps,
 } from '../../util/steps_modals_generation';
@@ -536,8 +539,9 @@ export const startBuySellLimitMatchingSteps: ThunkCreator = (
 export const startLendingTokenSteps: ThunkCreator = (
     amount: BigNumber,
     token: Token,
-    iToken: iTokenData,
+    defiToken: iTokenData | ATokenData,
     isEth: boolean,
+    protocol: Protocol,
 ) => {
     return async (dispatch, getState) => {
         const state = getState();
@@ -550,7 +554,15 @@ export const startLendingTokenSteps: ThunkCreator = (
             throw new InsufficientTokenBalanceException(token.symbol);
         }
 
-        const lendingTokenFlow: Step[] = createLendingTokenSteps(iToken, token, wethBalance, ethBalance, amount, isEth);
+        const lendingTokenFlow: Step[] = createLendingTokenSteps(
+            defiToken,
+            token,
+            wethBalance,
+            ethBalance,
+            amount,
+            isEth,
+            protocol,
+        );
 
         dispatch(setStepsModalCurrentStep(lendingTokenFlow[0]));
         dispatch(setStepsModalPendingSteps(lendingTokenFlow.slice(1)));
@@ -558,10 +570,78 @@ export const startLendingTokenSteps: ThunkCreator = (
     };
 };
 
+export const startBorrowTokenSteps: ThunkCreator = (
+    amount: BigNumber,
+    token: Token,
+    defiToken: iTokenData | ATokenData,
+    isEth: boolean,
+    protocol: Protocol,
+) => {
+    return async (dispatch, getState) => {
+        const state = getState();
+        const ethBalance = selectors.getEthBalance(state);
+        const wethBalance = selectors.getWethBalance(state);
+        const totalEthBalance = selectors.getTotalEthBalance(state);
+        const isEthAndWethNotEnoughBalance = isEth && totalEthBalance.isLessThan(amount);
+
+        if (isEthAndWethNotEnoughBalance) {
+            throw new InsufficientTokenBalanceException(token.symbol);
+        }
+
+        const borrowTokenFlow: Step[] = createBorrowTokenSteps(
+            defiToken,
+            token,
+            wethBalance,
+            ethBalance,
+            amount,
+            isEth,
+            protocol,
+        );
+
+        dispatch(setStepsModalCurrentStep(borrowTokenFlow[0]));
+        dispatch(setStepsModalPendingSteps(borrowTokenFlow.slice(1)));
+        dispatch(setStepsModalDoneSteps([]));
+    };
+};
+
+export const startRepayTokenSteps: ThunkCreator = (
+    amount: BigNumber,
+    token: Token,
+    defiToken: iTokenData | ATokenData,
+    isEth: boolean,
+    protocol: Protocol,
+) => {
+    return async (dispatch, getState) => {
+        const state = getState();
+        const ethBalance = selectors.getEthBalance(state);
+        const wethBalance = selectors.getWethBalance(state);
+        const totalEthBalance = selectors.getTotalEthBalance(state);
+        const isEthAndWethNotEnoughBalance = isEth && totalEthBalance.isLessThan(amount);
+
+        if (isEthAndWethNotEnoughBalance) {
+            throw new InsufficientTokenBalanceException(token.symbol);
+        }
+
+        const repayTokenFlow: Step[] = createRepayTokenSteps(
+            defiToken,
+            token,
+            wethBalance,
+            ethBalance,
+            amount,
+            isEth,
+            protocol,
+        );
+
+        dispatch(setStepsModalCurrentStep(repayTokenFlow[0]));
+        dispatch(setStepsModalPendingSteps(repayTokenFlow.slice(1)));
+        dispatch(setStepsModalDoneSteps([]));
+    };
+};
+
 export const startUnLendingTokenSteps: ThunkCreator = (
     amount: BigNumber,
     token: Token,
-    iToken: iTokenData,
+    defiToken: iTokenData | ATokenData,
     isEth: boolean,
 ) => {
     return async dispatch => {
@@ -570,7 +650,7 @@ export const startUnLendingTokenSteps: ThunkCreator = (
             amount,
             token,
             isEth,
-            iToken,
+            defiToken,
             isLending: false,
         };
 
@@ -947,6 +1027,53 @@ export const addUnLendingTokenNotification: ThunkCreator = (
                 {
                     id,
                     kind: NotificationKind.UnLendingComplete,
+                    amount,
+                    token,
+                    tx,
+                    timestamp: new Date(),
+                },
+            ]),
+        );
+    };
+    // tslint:disable-next-line: max-file-line-count
+};
+
+export const addBorrowTokenNotification: ThunkCreator = (
+    id: string,
+    amount: BigNumber,
+    token: Token,
+    address: string,
+    tx: Promise<any>,
+) => {
+    return async dispatch => {
+        dispatch(
+            addNotifications([
+                {
+                    id,
+                    kind: NotificationKind.BorrowComplete,
+                    amount,
+                    token,
+                    tx,
+                    timestamp: new Date(),
+                },
+            ]),
+        );
+    };
+};
+
+export const addRepayTokenNotification: ThunkCreator = (
+    id: string,
+    amount: BigNumber,
+    token: Token,
+    address: string,
+    tx: Promise<any>,
+) => {
+    return async dispatch => {
+        dispatch(
+            addNotifications([
+                {
+                    id,
+                    kind: NotificationKind.RepayComplete,
                     amount,
                     token,
                     tx,

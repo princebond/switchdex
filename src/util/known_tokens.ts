@@ -327,6 +327,7 @@ export const getTokenMetadaDataFromContract = async (address: string): Promise<T
             displayDecimals: 2,
             minAmount: 0,
             listed: false,
+            isStableCoin: false,
         };
         return token;
     } catch (e) {
@@ -349,6 +350,7 @@ export const getTokenMetadaDataFromServer = async (address: string): Promise<Tok
             displayDecimals: 2,
             minAmount: 0,
             listed: false,
+            isStableCoin: false,
         };
         return token;
     } catch (e) {

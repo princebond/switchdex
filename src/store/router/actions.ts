@@ -2,6 +2,7 @@ import { push, replace } from 'connected-react-router';
 import queryString from 'query-string';
 
 import {
+    DEFI_APP_BASE_PATH,
     ERC20_APP_BASE_PATH,
     ERC721_APP_BASE_PATH,
     LAUNCHPAD_APP_BASE_PATH,
@@ -20,6 +21,7 @@ export const goToHome: ThunkCreator = () => {
         const isRoutes =
             currentRoute.includes(ERC20_APP_BASE_PATH) ||
             currentRoute.includes(MARGIN_APP_BASE_PATH) ||
+            currentRoute.includes(DEFI_APP_BASE_PATH) ||
             currentRoute.includes(LAUNCHPAD_APP_BASE_PATH) ||
             currentRoute.includes(MARKET_APP_BASE_PATH);
         isRoutes ? dispatch(goToHomeErc20()) : dispatch(goToHomeErc721());
@@ -84,6 +86,19 @@ export const goToHomeMarketTrade: ThunkCreator = () => {
             push({
                 ...state.router.location,
                 pathname: `${MARKET_APP_BASE_PATH}`,
+            }),
+        );
+    };
+};
+
+export const goToHomeDefi: ThunkCreator = () => {
+    return async (dispatch, getState) => {
+        const state = getState();
+
+        dispatch(
+            push({
+                ...state.router.location,
+                pathname: `${DEFI_APP_BASE_PATH}`,
             }),
         );
     };

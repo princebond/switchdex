@@ -280,6 +280,8 @@ export const updateMarketPriceTokens: ThunkCreator = () => {
             wethBalance ? (tBalances = [...tokenBalances, wethBalance]) : (tBalances = [...tokenBalances]);
             const tokensPrices = await getMarketPriceTokens(tBalances);
             dispatch(fetchMarketPriceTokensUpdate(tokensPrices));
+            console.log(' I am here');
+            console.log(tokensPrices);
         } catch (err) {
             dispatch(fetchMarketPriceTokensError(err));
         }

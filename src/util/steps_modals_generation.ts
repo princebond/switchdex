@@ -3,6 +3,8 @@ import { assetDataUtils } from '@0x/order-utils';
 import { ERC20AssetData, SignedOrder } from '@0x/types';
 import { BigNumber } from '@0x/utils';
 
+import { LENDING_POOL_CORE_ADDRESS } from './aave/constants';
+import { ATokenData, Protocol } from './aave/types';
 import { isWeth, isZrx } from './known_tokens';
 import {
     Collectible,
@@ -372,13 +374,14 @@ export const createSwapMarketSteps = (
 };
 
 export const createLendingTokenSteps = (
-    iToken: iTokenData,
+    defiToken: iTokenData | ATokenData,
     token: Token,
     // tokenBalances: TokenBalance[],
     wethTokenBalance: BigNumber,
     ethBalance: BigNumber,
     amount: BigNumber,
     isEth: boolean,
+    protocol: Protocol,
 ): Step[] => {
     const lendingTokenFlow: Step[] = [];
     if (isEth) {
@@ -395,7 +398,7 @@ export const createLendingTokenSteps = (
             // unwrapp eth here
         }
     } else {
-        const unlockTokenStep = getUnlockLendingTokenStepIfNeeded(iToken, token);
+        const unlockTokenStep = getUnlockLendingTokenStepIfNeeded(defiToken, token, protocol);
         if (unlockTokenStep) {
             lendingTokenFlow.push(unlockTokenStep);
         }
@@ -405,21 +408,123 @@ export const createLendingTokenSteps = (
         kind: StepKind.LendingToken,
         amount,
         token,
-        iToken,
+        defiToken,
         isEth,
         isLending: true,
     });
     return lendingTokenFlow;
 };
 
-export const getUnlockLendingTokenStepIfNeeded = (iToken: iTokenData, token: Token): StepToggleTokenLock | null => {
-    if (iToken.isUnlocked) {
+export const createBorrowTokenSteps = (
+    defiToken: iTokenData | ATokenData,
+    token: Token,
+    // tokenBalances: TokenBalance[],
+    wethTokenBalance: BigNumber,
+    ethBalance: BigNumber,
+    amount: BigNumber,
+    isEth: boolean,
+    protocol: Protocol,
+): Step[] => {
+    const borrowTokenFlow: Step[] = [];
+    if (isEth) {
+        if (amount.isGreaterThan(ethBalance)) {
+            const newWethBalance = wethTokenBalance.minus(amount.minus(ethBalance));
+            const currentWethBalance = wethTokenBalance;
+            const wrapEthStep: StepWrapEth = {
+                kind: StepKind.WrapEth,
+                currentWethBalance,
+                newWethBalance,
+                context: 'standalone',
+            };
+            borrowTokenFlow.push(wrapEthStep);
+            // unwrapp eth here
+        }
+    } else {
+        /* const unlockTokenStep = getUnlockLendingTokenStepIfNeeded(defiToken, token, protocol);
+        if (unlockTokenStep) {
+            borrowTokenFlow.push(unlockTokenStep);
+        }*/
+    }
+    const isBorrow = true;
+
+    borrowTokenFlow.push({
+        kind: StepKind.BorrowToken,
+        amount,
+        token,
+        defiToken,
+        isEth,
+        isBorrow,
+    });
+    return borrowTokenFlow;
+};
+
+export const createRepayTokenSteps = (
+    defiToken: iTokenData | ATokenData,
+    token: Token,
+    // tokenBalances: TokenBalance[],
+    wethTokenBalance: BigNumber,
+    ethBalance: BigNumber,
+    amount: BigNumber,
+    isEth: boolean,
+    protocol: Protocol,
+): Step[] => {
+    const repayTokenFlow: Step[] = [];
+    if (isEth) {
+        if (amount.isGreaterThan(ethBalance)) {
+            const newWethBalance = wethTokenBalance.minus(amount.minus(ethBalance));
+            const currentWethBalance = wethTokenBalance;
+            const wrapEthStep: StepWrapEth = {
+                kind: StepKind.WrapEth,
+                currentWethBalance,
+                newWethBalance,
+                context: 'standalone',
+            };
+            repayTokenFlow.push(wrapEthStep);
+            // unwrapp eth here
+        }
+    } else {
+        const unlockTokenStep = getUnlockLendingTokenStepIfNeeded(defiToken, token, protocol);
+        if (unlockTokenStep) {
+            repayTokenFlow.push(unlockTokenStep);
+        }
+    }
+    const isBorrow = false;
+
+    repayTokenFlow.push({
+        kind: StepKind.RepayToken,
+        amount,
+        token,
+        defiToken,
+        isEth,
+        isBorrow,
+    });
+    return repayTokenFlow;
+};
+
+export const getUnlockLendingTokenStepIfNeeded = (
+    defiToken: iTokenData | ATokenData,
+    token: Token,
+    protocol: Protocol,
+): StepToggleTokenLock | null => {
+    let address;
+    switch (protocol) {
+        case Protocol.Aave:
+            address = LENDING_POOL_CORE_ADDRESS;
+            break;
+        case Protocol.Bzx:
+            address = defiToken.address;
+            break;
+        default:
+            break;
+    }
+
+    if (defiToken.isUnlocked) {
         return null;
     } else {
         return {
             kind: StepKind.ToggleTokenLock,
             token,
-            address: iToken.address,
+            address,
             isUnlocked: false,
             context: 'lending',
         };
