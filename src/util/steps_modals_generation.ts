@@ -475,7 +475,7 @@ export const getWrapEthStepIfNeeded = (
     if (side === OrderSide.Sell && isQuote) {
         return null;
     }
-     // Weth needed when creating a sell order and it is not a quote
+    // Weth needed when creating a sell order and it is not a quote
     if (side === OrderSide.Buy && !isQuote) {
         return null;
     }

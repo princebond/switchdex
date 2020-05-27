@@ -14,15 +14,17 @@ export const buildOrderFilledNotification = (
     const side: OrderSide = getOrderSideFromFillEvent(knownTokens, log, markets);
     let exchangedTokenAddress: string;
     let exchangedToken: Token;
-    exchangedTokenAddress = OrderSide.Sell
-        ? (assetDataUtils.decodeAssetDataOrThrow(args.makerAssetData) as ERC20AssetData).tokenAddress
-        : (assetDataUtils.decodeAssetDataOrThrow(args.takerAssetData) as ERC20AssetData).tokenAddress;
+    exchangedTokenAddress =
+        side === OrderSide.Sell
+            ? (assetDataUtils.decodeAssetDataOrThrow(args.makerAssetData) as ERC20AssetData).tokenAddress
+            : (assetDataUtils.decodeAssetDataOrThrow(args.takerAssetData) as ERC20AssetData).tokenAddress;
 
     exchangedToken = knownTokens.getTokenByAddress(exchangedTokenAddress);
+
     return {
         id: `${log.transactionHash}-${log.logIndex}`,
         kind: NotificationKind.OrderFilled,
-        amount: side === OrderSide.Buy ? args.takerAssetFilledAmount : args.makerAssetFilledAmount,
+        amount: side === OrderSide.Sell ? args.makerAssetFilledAmount : args.takerAssetFilledAmount,
         side,
         timestamp: new Date(),
         token: exchangedToken,
