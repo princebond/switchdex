@@ -38,6 +38,7 @@ export interface CalculateSwapQuoteParams {
 
 export enum ChainId {
     Mainnet = 1,
+    Ropsten = 3,
     Kovan = 42,
     Ganache = 1337,
 }

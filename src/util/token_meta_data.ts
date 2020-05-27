@@ -29,6 +29,7 @@ export const getWethTokenFromTokensMetaDataByNetworkId = (tokensMetaData: TokenM
         description: tokenMetaData.description || undefined,
         verisafe_sticker: undefined,
         listed: true,
+        isStableCoin: tokenMetaData.isStableCoin ? true : false,
     };
 };
 
@@ -66,6 +67,7 @@ export const mapTokensMetaDataToTokenByNetworkId = (tokensMetaData: TokenMetaDat
                     description: tokenMetaData.description || undefined,
                     verisafe_sticker: tokenMetaData.verisafe_sticker || undefined,
                     listed: true,
+                    isStableCoin: tokenMetaData.isStableCoin ? true : false,
                 };
             },
         );
@@ -99,6 +101,7 @@ export const mapTokensMetaDataFromForm = (tokensMetaData: TokenMetaData[]): Toke
                     description: tokenMetaData.description || undefined,
                     verisafe_sticker: tokenMetaData.verisafe_sticker || undefined,
                     listed: true,
+                    isStableCoin: tokenMetaData.isStableCoin ? true : false,
                 };
             },
         );

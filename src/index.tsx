@@ -9,6 +9,7 @@ import 'sanitize.css';
 
 import {
     DEFAULT_BASE_PATH,
+    DEFI_APP_BASE_PATH,
     ERC20_APP_BASE_PATH,
     ERC721_APP_BASE_PATH,
     FIAT_RAMP_APP_BASE_PATH,
@@ -60,6 +61,7 @@ const Web3WrappedApp = (
                         <Route path={ERC20_APP_BASE_PATH} component={Erc20App} />
                         <Route path={LAUNCHPAD_APP_BASE_PATH} component={LaunchpadApp} />
                         <Route path={MARGIN_APP_BASE_PATH} component={MarginApp} />
+                        <Route path={DEFI_APP_BASE_PATH} component={MarginApp} />
                         <Route path={INSTANT_APP_BASE_PATH} component={InstantApp} />
                         <Route path={ERC721_APP_BASE_PATH} component={Erc721App} />
                         <Route path={FIAT_RAMP_APP_BASE_PATH} component={FiatApp} />

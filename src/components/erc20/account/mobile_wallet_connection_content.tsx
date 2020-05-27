@@ -6,6 +6,7 @@ import styled from 'styled-components';
 
 import {
     goToHome,
+    goToHomeDefi,
     goToHomeLaunchpad,
     goToHomeMarketTrade,
     goToWallet,
@@ -89,6 +90,11 @@ export const MobileWalletConnectionContent = () => {
         dispatch(openSideBar(false));
     };
 
+    const onGoToDefi = () => {
+        dispatch(goToHomeDefi());
+        dispatch(openSideBar(false));
+    };
+
     const viewAccountExplorer = () => {
         viewAddressOnEtherscan(ethAccount);
     };
@@ -101,6 +107,7 @@ export const MobileWalletConnectionContent = () => {
     const onLogoutWallet = () => {
         dispatch(logoutWallet());
     };
+
     const status: string = ethAccount ? 'active' : '';
 
     const ethAccountText = ethAccount ? `${truncateAddress(ethAccount)}` : 'Not connected';
@@ -118,6 +125,7 @@ export const MobileWalletConnectionContent = () => {
                 <ListItem onClick={onGoToWallet}>Wallet</ListItem>
                 <ListItem onClick={onGoToMarketTrade}>Market Trade</ListItem>
                 <ListItem onClick={onGoToLaunchpad}>Launchpad</ListItem>
+                <ListItem onClick={onGoToDefi}>DeFi</ListItem>
                 {/*<ListItem onClick={onGoToMarginLend}>Lend</ListItem>*/}
                 <hr />
                 <CopyToClipboard text={ethAccount ? ethAccount : ''}>

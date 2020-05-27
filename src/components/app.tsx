@@ -145,7 +145,9 @@ class App extends React.Component<Props> {
         if (
             !this._updatePriceTokensInterval &&
             UPDATE_TOKENS_PRICE_INTERVAL !== 0 &&
-            (MARKETPLACE === MARKETPLACES.ERC20 || MARKETPLACE === MARKETPLACES.Margin)
+            (MARKETPLACE === MARKETPLACES.ERC20 ||
+                MARKETPLACE === MARKETPLACES.Margin ||
+                MARKETPLACE === MARKETPLACES.Defi)
         ) {
             this._updatePriceTokensInterval = window.setInterval(async () => {
                 this.props.onUpdateMarketPriceTokens();

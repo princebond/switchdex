@@ -32,9 +32,6 @@ export const initializeWeb3Wrapper = async (wallet: Wallet): Promise<Web3Wrapper
         case Wallet.Fortmatic:
             web3Wrapper = await initFortmatic();
             break;
-        case Wallet.Coinbase:
-            web3Wrapper = await initWalletConnect();
-            break;
         case Wallet.Enjin:
             web3Wrapper = await initEnjin();
             break;

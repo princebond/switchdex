@@ -2,8 +2,6 @@ import { ERC20TokenContract } from '@0x/contract-wrappers';
 import { BigNumber } from '@0x/utils';
 import { TxData } from '@0x/web3-wrapper';
 
-import { iTokenContract } from '../util/bzx/contract_wrappers/i_token';
-import { TokenizedRegistryContract } from '../util/bzx/contract_wrappers/tokenized_registry';
 import { getTokenizedRegistryAddress } from '../util/bzx/contracts';
 import { getKnownTokens } from '../util/known_tokens';
 import { iTokenData, TokenMetadataBZX } from '../util/types';
@@ -13,11 +11,14 @@ import { getWeb3Wrapper } from './web3_wrapper';
 
 export const getITokenContractWrapper = async (address: string, partialTxData: Partial<TxData>) => {
     const web3Wrapper = await getWeb3Wrapper();
+    const iTokenContract = (await import('../util/bzx/contract_wrappers/i_token')).iTokenContract;
     return new iTokenContract(address, web3Wrapper.getProvider(), partialTxData);
 };
 
 export const getTokenizedRegistryContractWrapper = async (partialTxData: Partial<TxData>) => {
     const web3Wrapper = await getWeb3Wrapper();
+    const TokenizedRegistryContract = (await import('../util/bzx/contract_wrappers/tokenized_registry'))
+        .TokenizedRegistryContract;
     return new TokenizedRegistryContract(getTokenizedRegistryAddress(), web3Wrapper.getProvider(), partialTxData);
 };
 

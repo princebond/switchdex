@@ -586,5 +586,5 @@ const mapDispatchToProps = {
 
 const WalletTokenBalancesContainer = withTheme(connect(mapStateToProps, mapDispatchToProps)(WalletTokenBalances));
 
-// tslint:disable-next-line: max-file-line-count
+// tslint:disable-next-line: ma-xfile-line-count
 export { WalletTokenBalances, WalletTokenBalancesContainer };

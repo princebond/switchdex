@@ -72,6 +72,7 @@ const NotificationDropdownTitle = styled.h1`
 const NoNotifications = styled.div`
     line-height: 3em;
     text-align: center;
+    color: ${props => props.theme.componentsTheme.textColorCommon};
 `;
 
 class NotificationsDropdown extends React.Component<Props, {}> {

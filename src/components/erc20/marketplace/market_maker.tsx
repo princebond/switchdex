@@ -345,7 +345,7 @@ const MarketMaker = (props: Props) => {
             buyAmount: amt,
             sellAmount: undefined,
             from: undefined,
-            isETHSell: false,
+            isETHSell: isWeth(quoteToken.symbol),
         };
         const sellParams: CalculateSwapQuoteParams = {
             buyTokenAddress: quoteToken.address,
@@ -353,7 +353,7 @@ const MarketMaker = (props: Props) => {
             buyAmount: undefined,
             sellAmount: amt,
             from: undefined,
-            isETHSell: isWeth(quoteToken.symbol),
+            isETHSell: isWeth(baseToken.symbol),
         };
         if (web3State !== Web3State.Done) {
             return;

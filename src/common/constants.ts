@@ -8,6 +8,7 @@ export const ERC20_APP_BASE_PATH = '/erc20';
 export const MARKET_APP_BASE_PATH = '/market-trade';
 export const LAUNCHPAD_APP_BASE_PATH = '/launchpad';
 export const MARGIN_APP_BASE_PATH = '/margin';
+export const DEFI_APP_BASE_PATH = '/defi';
 export const INSTANT_APP_BASE_PATH = '/instant';
 export const FIAT_RAMP_APP_BASE_PATH = '/fiat-onramp';
 export const MARKET_MAKER_APP_BASE_PATH = `${ERC20_APP_BASE_PATH}/market-maker`;
