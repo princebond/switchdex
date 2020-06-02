@@ -6,30 +6,34 @@
 [![devDependencies Status](https://david-dm.org/verisafe/veridex/dev-status.svg)](https://david-dm.org/verisafe/veridex?type=dev)
 [![Coverage Status](https://coveralls.io/repos/github/VeriSafe/VeriDex/badge.svg?branch=development)](https://coveralls.io/github/VeriSafe/VeriDex?branch=development)
 
-This project is forked from [0x-launch-kit-fronted](https://github/0xproject/0x-launch-kit-frontend) and it have a goal to be the most complete open-source 0x based dex out there. The code here will try to be on sync with the 0x frontend, but with the additional features proposed on the TODO, tests will be include following 0x style.
+This project is forked from [veridex](https://github/verisafe/veridex) and it have a goal to be the most complete open-source 0x based dex out there. 
 
-This source code is used on the [VeriSafe Dex as a service](https://steemit.com/zerox/@joaocampos/veridex-network-dex-as-a-service).
-
-This repo ships with both an ERC-20 token trading interface and an ERC-721 marketplace interface. However, for now, only improvements on ERC-20 token trading will be done.
+This repo ships with both an ERC-20 token trading interface and an ERC-721 marketplace interface.
 
 To use this fork the following actions are required:
 
--   Add VSF, 0xbitcoin and 0x as pairs
+-   Add ESH, SDEX, DESH and 0x as pairs
 -   Lets us know you are using this fork
--   Add a Powered by 0x and VeriSafe
+-   Add a Powered by 0x and Switch
 -   Don't use another pool associated with this code besides the one on: [Veridex Pool](https://0x.org/zrx/staking/pool/16). If you are market maker you can join Veridex market pool at [Join as Maker](https://dex.verisafe.io/#/erc20/join-as-maker)
 
-With your help, we can be self-sustainable and complete the long list of TODO's. If you want a feature that is not present on the TODO list, please open an issue requesting a feature request.
+## Adding token 
+
+Please follow all the instructions here: [ADD TOKEN](ADD_TOKEN.md)
+
+## Adding token to launchpad
+
+Please follow all the instructions here: [ADD TOKEN LAUNCHPAD](ADD_TOKEN_LAUNCHPAD.md)
 
 ## Deployed DEX's
 
-List of deployed dex's using this source code:
+List of deployed dex's using forks of this source code:
 
 -   [VeriDex](https://dex.verisafe.io)
 -   [0xChange](https://0xchange.verisafe.io)
 -   [Belifex](https://dex-belifex.com)
 
-If you are using the source code of this fork, please let me know! Help the project adding VSF as a pair on your fork!
+If you are using the source code of this fork, please let me know! Help the project adding ESH as a pair on your fork!
 
 If you have the URL of an existing relayer, you can use this frontend against it. After installing the dependencies, start the application with this command, replacing `RELAYER_URL` and `RELAYER_WS_URL` with the proper value:
 
@@ -97,14 +101,14 @@ REACT_APP_RELAYER_URL='http://localhost:3000/v3' REACT_APP_RELAYER_WS_URL='ws://
 ```
 
 ```
-git clone git@github.com:VeriSafe/veridex.git
+git clone git@github.com:SwitchOS/veridex.git
 cd Veridex
 yarn
 ```
 
 ## TODO
 
-This is a detailed list of planned features to add to this DEX (includes VeriDex backend) on long term:
+This is a detailed list of planned features to add to this DEX (includes Switch backend) on long term:
 
 -   [x] List Dex Trades
 -   [x] Add troll box using ChatBro
@@ -139,7 +143,7 @@ This is a detailed list of planned features to add to this DEX (includes VeriDex
 -   [ ] [i18n](https://github.com/i18next/react-i18next)
 -   [x] Add [tour](https://github.com/elrumordelaluz/reactour)
 -   [ ] Add crypto price calculator
--   [ ] Add Swap interface
+-   [x] Add Swap interface
 -   [ ] Add Token factory
 
 ## Planned Wallets Support
@@ -148,13 +152,13 @@ This is a detailed list of planned features to add to this DEX (includes VeriDex
 -   [ ] [Torus](https://docs.tor.us/developers/getting-started)
 -   [x] [Portis](https://developers.portis.io/)
 -   [x] [Fortmatic](https://developers.fortmatic.com/)
--   [ ] [WalletConnect](https://docs.walletconnect.org/)
+-   [x] [WalletConnect](https://docs.walletconnect.org/)
 -   [x] [EnjinWallet](https://enjin.io/products/wallet)
 -   [x] [CoinbaseWallet](https://wallet.coinbase.com/)
 -   [x] [TrustWallet](https://trustwallet.com)
 -   [x] [CipherBrowser](https://www.cipherbrowser.com/)
 
-### Using VeriDex relayer
+### Using Switch relayer
 
 ```
 
@@ -162,7 +166,7 @@ REACT_APP_RELAYER_URL='https://dex-backend.verisafe.io/v3' yarn start
 
 ```
 
-[VeriDEX OPEN API SPEC](https://verisafe.github.io/veridex-api-spec/)
+[Switch OPEN API SPEC](https://switchos.github.io/veridex-api-spec/)
 
 This relayer has additional endpoints to enable market view data with stats and candles. We will be adding as an opt-in option use these features in your frontend. That way you can use a Standard Relayer without any issues.
 

@@ -102,14 +102,10 @@ export const TokensListing = () => {
         <>
             <StyledH1>Trade Listings</StyledH1>
             <StyledP>
-                Project listings on Veridex are at a promotional cost of 1 ETH without negotiation. Send the amount to
-                this address: {CopyContent(feeRecipient, feeRecipient, 0)} , if you wanna your project being officially
-                listed contact @jcampos8 on telegram with the transaction hash. We include an announcement in our
-                Twitter and Telegram, and also we could promote an AMA to showcase your project. Please note that we
-                only list non security tokens and tokens without any signal of fraud.
+                Project listings on Switch Dex follows strict rules for deployement please reach our telegram for discussing.
             </StyledP>
             <StyledP>
-                If you don't wanna spent on listings and don't mind the warning on the trade interface you could
+                If you  wanna  you could
                 directly add your token using on directly the contract address as follows
             </StyledP>
             <StyledP>Type your contract address to generate the url's: {input} </StyledP>
@@ -137,7 +133,7 @@ export const TokensListing = () => {
             </StyledP>
 
             <StyledP>
-                If you don't wanna invest one 1 ETH and get your IEO running, the UI also support insert token contract
+                If you don't wanna list your token as default and get your IEO running, the UI also support insert token contract
                 directly
             </StyledP>
 
