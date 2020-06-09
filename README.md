@@ -144,7 +144,15 @@ This is a detailed list of planned features to add to this DEX (includes Switch 
 -   [x] Add [tour](https://github.com/elrumordelaluz/reactour)
 -   [ ] Add crypto price calculator
 -   [x] Add Swap interface
--   [ ] Add Token factory
+
+
+## IDEAS FOR COMMUNITY DEVELOPERS
+
+This is some ideas that community devs could work to add value to this dex on long term.
+
+- [] Create simple swap interface with support for meta transactions Eg [Meta](https://0x.org/docs/guides/unlocking-meta-transaction-swaps)
+- []  Add Token factory
+- []  Wizard for Marketplace
 
 ## Planned Wallets Support
 

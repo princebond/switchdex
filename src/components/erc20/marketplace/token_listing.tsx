@@ -102,7 +102,7 @@ export const TokensListing = () => {
         <>
             <StyledH1>Trade Listings</StyledH1>
             <StyledP>
-                Project listings on Switch Dex follows strict rules for deployement please reach our telegram for discussing.
+                Project listings on Switch Dex follows strict rules for deployment please reach our telegram for discussing.
             </StyledP>
             <StyledP>
                 If you  wanna  you could
@@ -125,11 +125,9 @@ export const TokensListing = () => {
 
             <StyledP>
                 {' '}
-                IEO listings are at a promotional cost of 1 ETH without negotiation. Send the amount to this address:{' '}
-                {CopyContent(feeRecipient, feeRecipient, 6)}, if you wanna your project being officially listed contact
-                @jcampos8 on telegram with the transaction hash. We include an announcement in our Twitter and Telegram,
-                and also we could promote an AMA in our official telegram to showcase your project. Please note that we
-                only list non security tokens and tokens without any signal of fraud.
+                <StyledP>
+                Project listings on Switch Dex follows strict rules for deployment please reach our telegram for discussing.
+            </StyledP>
             </StyledP>
 
             <StyledP>
@@ -145,7 +143,7 @@ export const TokensListing = () => {
             </StyledP>
 
             <StyledP>After you place orders, your users can get your token directly using the following links:</StyledP>
-            <StyledP> Buy with Webbrowser: {CopyContent(ieoInstantLink, ieoInstantLink, 8)}</StyledP>
+            <StyledP> Buy with WebBrowser: {CopyContent(ieoInstantLink, ieoInstantLink, 8)}</StyledP>
             <StyledP> Buy with Trust: {CopyContent(ieoInstantTrustLink, ieoInstantTrustLink, 9)}</StyledP>
         </>
     );

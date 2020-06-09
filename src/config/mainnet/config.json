@@ -1,10 +1,10 @@
 {
     "general": {
-        "title": "Switch",
+        "title": "SwitchDex",
         "icon": "assets/icons/esh.svg",
         "social": {
             "telegram_url": "https://t.me/ethershiftco",
-            "twitter_url": "https://t.me/ethershiftco"
+            "twitter_url": "https://twitter.com/SwitchAg"
         }
     },
     "tokens": [
@@ -32,7 +32,7 @@
             "symbol": "ghost",
             "name": "Ghost",
             "primaryColor": "#081e6e",
-            "icon": "assets/icons/esh.svg",
+            "icon": "assets/icons/ghost.svg",
             "addresses": {
                 "1": "0x4c327471c44b2dacd6e90525f9d629bd2e4f662c",
                 "3": "0xba3a79d758f19efe588247388754b8e4d6edda81",
@@ -41,9 +41,48 @@
             "id": "ghost",
             "unified_cryptoasset_id": 3365,
             "displayDecimals": 0,
-            "description": "Ghost",
-            "website": "https://switch.ag/",
+            "description": "GHOST is a proof of stake privacy coin to help make you nothing but a 'ghost' when transacting online!",
+            "website": "https://www.ghostbymcafee.com/",
             "c_id": "ghost",
+            "isStableCoin": false
+        },
+        {
+            "decimals": 18,
+            "symbol": "sdex",
+            "name": "SDex",
+            "primaryColor": "#081e6e",
+            "icon": "assets/icons/esh.svg",
+            "addresses": {
+                "1": "0x77678cfd0f2b55152adc6599db9f988ab28d72f2",
+                "3": "0xba3a79d758f19efe588247388754b8e4d6edda81",
+                "42": "0xBA3a79D758f19eFe588247388754b8e4d6EddA81"
+            },
+            "id": "sdex",
+            "unified_cryptoasset_id": 3365,
+            "displayDecimals": 0,
+            "description": "Sdex gives 50 % collected fees on switchdex to users",
+            "website": "https://switch.ag/",
+            "c_id": "sdex",
+            "isStableCoin": false
+        },
+
+        {
+            "decimals": 18,
+            "symbol": "desh",
+            "name": "Desh",
+            "primaryColor": "#081e6e",
+            "icon": "assets/icons/esh.svg",
+            "addresses": {
+                "1": "0x28f2c01a3d86ee4faf037147f0aeb49c2eab47ce",
+                "3": "0xba3a79d758f19efe588247388754b8e4d6edda81",
+                "42": "0xBA3a79D758f19eFe588247388754b8e4d6EddA81"
+            },
+            "id": "desh",
+            "unified_cryptoasset_id": 3365,
+            "displayDecimals": 0,
+            "description": "Desh gives 50 % collected fees on switch aggregator to users",
+            "website": "https://switch.ag/",
+            "c_id": "desh",
             "isStableCoin": false
         },
         {
@@ -381,123 +420,6 @@
             "website": "https://gemini.com/dollar",
             "description": "The world’s first regulated stablecoin, designed for high scale and usability in all kinds of transactions.The world’s first regulated stablecoin, designed for high scale and usability in all kinds of transactions.",
             "isStableCoin": true
-        },
-        {
-            "decimals": 18,
-            "symbol": "jlt",
-            "name": "Jilt",
-            "primaryColor": "#4bb0c6",
-            "icon": "assets/icons/jlt.svg",
-            "addresses": {
-                "1": "0xb6957bf56805faed7f1bae30eaebe918b8baff71"
-            },
-            "displayDecimals": 0,
-            "description": "Our token will simplify your crypto purchasing experience. The goal is to provide user-friendly, efficient, and secure solutions by utilizing blockchain technology.",
-            "website": "https://www.jiltokens.io/",
-            "c_id": "jilt",
-            "isStableCoin": false    
-
-        },
-        {
-            "decimals": 18,
-            "symbol": "sntvt",
-            "name": "Sentivate",
-            "primaryColor": "#fe2e57",
-            "icon": "assets/icons/sntvt.svg",
-            "unified_cryptoasset_id": 3917,
-            "addresses": {
-                "1": "0x7865af71cf0b288b4e7f654f4f7851eb46a2b7f8"
-            },
-            "displayDecimals": 0,
-            "c_id": "sentivate",
-            "website": "https://sentivate.com/",
-            "description": "Sentivate is a hybrid web built to be a viable & realistic replacement<br /> for the modern web",
-            "isStableCoin": false
-        },
-        {
-            "decimals": 18,
-            "symbol": "pixby",
-            "name": "PIXBY",
-            "primaryColor": "#080f0f",
-            "icon": "assets/icons/pixby.svg",
-            "addresses": {
-                "1": "0xB53e08B97724126Bda6d237B94F766c0b81C90fE"
-            },
-            "displayDecimals": 0,
-            "description": "PIXBY is building a new incentive based ecosystem with Passive income protocol that enables users<br /> to get return on investment, and smart contract based Freelance Marketplace.",
-            "website": "https://pixby.io/",
-            "social": {
-                "telegram_url": "https://t.me/pixbytoken",
-                "twitter_url": "http://twitter.com/pixbytoken",
-                "reddit_url": "https://www.reddit.com/r/PIXBYTOKEN/",
-                "bitcointalk_url": "https://bitcointalk.org/index.php?topic=5182019"
-            }, 
-            "c_id": "pixby",
-            "isStableCoin": false
-        },
-        {
-            "decimals": 18,
-            "symbol": "trusd",
-            "name": "TrustUsd",
-            "primaryColor": "#006fc1",
-            "icon": "assets/icons/trusd.svg",
-            "addresses": {
-                "1": "0xdd436a0dce9244b36599ae7b22f0373b4e33992d"
-            },
-            "displayDecimals": 0,
-            "description": "TrustUSD is building a financial ecosystem that encompasses the benefits of traditional fiat-backed stable coins",
-            "website": "https://unitedtrust.co/",
-            "social": {
-                "telegram_url": "https://t.me/TrustUSD",
-                "twitter_url": " https://twitter.com/trstusd"
-            },
-            "c_id": "trustusd",
-            "isStableCoin": false
-        },
-        {
-            "decimals": 8,
-            "symbol": "trf",
-            "name": "TrifoliumCoin",
-            "primaryColor": "#1d1d1d",
-            "icon": "assets/icons/trf.svg",
-            "addresses": {
-                "1": "0xaf3573e1e223c601340ade1f1d52cd106b264367"
-            },
-            "displayDecimals": 0,
-            "description": "Trifolium Coin (TRF) is a cryptocurrency created on the basis of fast approval period and low fee.",
-            "website": "https://www.trifoliumcoin.com",
-            "social": {
-                "telegram_url": "https://t.me/Trifolium_Coin",
-                "twitter_url": "https://twitter.com/trifoliumcoin"
-            },
-            "c_id": "trifolium-coin",
-            "isStableCoin": false
-        },
-        {
-            "decimals": 8,
-            "symbol": "kiwi",
-            "name": "KIWI Token",
-            "primaryColor": "#ffffff",
-            "icon": "assets/icons/kiwi.svg",
-            "addresses": {
-                "1": "0x2bf91c18cd4ae9c2f2858ef9fe518180f7b5096d"
-            },
-            "displayDecimals": 0,
-            "c_id": "kiwi-token",
-            "isStableCoin": false
-        },
-        {
-            "decimals": 6,
-            "symbol": "cusd",
-            "name": "CUSD",
-            "primaryColor": "#5390cf",
-            "icon": "assets/icons/cusd.svg",
-            "addresses": {
-                "1": "0x5c406d99e04b8494dc253fcc52943ef82bca7d75"
-            },
-            "displayDecimals": 2,
-            "description": "A fast way to transfer money globally in secured digital transactions.",
-            "website": "https://cusd.money/"
         }
     ],
     "pairs": [
@@ -507,7 +429,16 @@
             "config": {
                 "basePrecision": 0,
                 "pricePrecision": 8,
-                "minAmount": 10000
+                "minAmount": 1
+            }
+        },
+        {
+            "base": "ghost",
+            "quote": "weth",
+            "config": {
+                "basePrecision": 0,
+                "pricePrecision": 8,
+                "minAmount": 0.1
             }
         },
         {
@@ -516,7 +447,7 @@
             "config": {
                 "basePrecision": 3,
                 "pricePrecision": 5,
-                "minAmount": 0.001
+                "minAmount": 0.01
             }
         },
         {
@@ -534,54 +465,29 @@
             "config": {
                 "basePrecision": 2,
                 "pricePrecision": 6,
-                "minAmount": 0.001
+                "minAmount": 0.01
             }
         },
         {
-            "base": "pixby",
+            "base": "sdex",
             "quote": "weth",
             "config": {
-                "basePrecision": 0,
+                "basePrecision": 6,
                 "pricePrecision": 8,
-                "minAmount": 1
+                "minAmount": 0.00001
             }
         },
         {
-            "base": "trf",
+            "base": "desh",
             "quote": "weth",
             "config": {
-                "basePrecision": 0,
+                "basePrecision": 6,
                 "pricePrecision": 8,
-                "minAmount": 1
+                "minAmount": 0.00001
             }
         },
-        {
-            "base": "trusd",
-            "quote": "weth",
-            "config": {
-                "basePrecision": 0,
-                "pricePrecision": 8,
-                "minAmount": 1
-            }
-        },
-        {
-            "base": "kiwi",
-            "quote": "weth",
-            "config": {
-                "basePrecision": 0,
-                "pricePrecision": 8,
-                "minAmount": 1
-            }
-        },
-        {
-            "base": "0xbtc",
-            "quote": "esh",
-            "config": {
-                "basePrecision": 0,
-                "pricePrecision": 2,
-                "minAmount": 1
-            }
-        },
+
+
         {
             "base": "esh",
             "quote": "usdc",
@@ -609,14 +515,6 @@
                 "minAmount": 10
             }
         },
-        {
-            "base": "cusd",
-            "quote": "weth",
-            "config": {
-                "basePrecision": 2,
-                "pricePrecision": 6
-            }
-        },  
         {
             "base": "bat",
             "quote": "weth",
@@ -675,24 +573,6 @@
                 "pricePrecision": 8,
                 "minAmount": 1
             }
-        },
-        {
-            "base": "sntvt",
-            "quote": "weth",
-            "config": {
-                "basePrecision": 0,
-                "pricePrecision": 8,
-                "minAmount": 10
-            }
-        },
-        {
-            "base": "jlt",
-            "quote": "weth",
-            "config": {
-                "basePrecision": 0,
-                "pricePrecision": 8,
-                "minAmount": 1000
-            }
         }
     ],
     "marketFilters": [
@@ -705,7 +585,7 @@
             "value": "dai"
         },
         {
-            "text": "SWITCH",
+            "text": "ESH",
             "value": "esh"
         }
     ]

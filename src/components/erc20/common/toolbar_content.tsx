@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { connect, useDispatch, useSelector } from 'react-redux';
 import { useLocation } from 'react-router';
 import styled, { withTheme } from 'styled-components';
@@ -18,7 +18,7 @@ import {
     setFiatType,
     setSwapQuoteToken,
 } from '../../../store/actions';
-import { getCurrentMarketPlace, getGeneralConfig, getSwapBaseToken, getSwapQuoteToken } from '../../../store/selectors';
+import { getCurrentMarketPlace, getGeneralConfig, getSwapBaseToken, getSwapQuoteToken, getEthAccount, getBaseToken } from '../../../store/selectors';
 import { Theme, themeBreakPoints } from '../../../themes/commons';
 import { isMobile } from '../../../util/screen';
 import { MARKETPLACES } from '../../../util/types';
@@ -31,6 +31,7 @@ import { WalletConnectionContentContainer } from '../account/wallet_connection_c
 
 import { MarketsDropdownStatsContainer } from './markets_dropdown_stats';
 import { SwapDropdownContainer } from './swap_dropdown';
+import { TransakWidget } from './transak_widget';
 
 interface DispatchProps {
     onGoToHome: () => any;
@@ -113,10 +114,13 @@ const ToolbarContent = (props: Props) => {
         e.preventDefault();
         props.onGoToHome();
     };
+    const [isEnableFiat, setIsEnableFiat] = useState(false);
     const generalConfig = useSelector(getGeneralConfig);
     const marketplace = useSelector(getCurrentMarketPlace);
     const baseSwapToken = useSelector(getSwapBaseToken);
     const quoteSwapToken = useSelector(getSwapQuoteToken);
+    const walletAddress = useSelector(getEthAccount);
+    const baseToken =    useSelector(getBaseToken);
     const location = useLocation();
     const isHome = location.pathname === ERC20_APP_BASE_PATH || location.pathname === `${ERC20_APP_BASE_PATH}/`;
 
@@ -131,6 +135,16 @@ const ToolbarContent = (props: Props) => {
         dispatch(setFiatType('CARDS'));
         dispatch(openFiatOnRampModal(true));
     };
+    const handleTransakModal: React.EventHandler<React.MouseEvent> = e => {
+        e.preventDefault();
+        setIsEnableFiat(!isEnableFiat);
+    };
+    const onCloseTransakModal = () => {
+        setIsEnableFiat(false);
+
+    }
+
+
     const onClickSwap: React.EventHandler<React.MouseEvent> = e => {
         e.preventDefault();
         dispatch(setSwapQuoteToken(baseSwapToken));
@@ -201,6 +215,9 @@ const ToolbarContent = (props: Props) => {
         endOptContent = (
             <>
                 {/*  <SettingsContentContainer  className={'settings-dropdown'} /> */}
+                <StyledButton onClick={handleTransakModal} className={'buy-fiat'}>
+                    FIAT
+                </StyledButton>
                 <StyledLink href="/defi" onClick={handleDefiClick} className={'defi'}>
                     DeFi
                 </StyledLink>
@@ -211,6 +228,7 @@ const ToolbarContent = (props: Props) => {
                 <StyledButton onClick={handleFiatModal} className={'buy-eth'}>
                     Buy ETH
                 </StyledButton>
+                {isEnableFiat && <TransakWidget walletAddress={walletAddress} tokenSymbol={(baseToken && baseToken.symbol.toUpperCase()) || 'ETH'} onClose={onCloseTransakModal}/> }
             </>
         );
 

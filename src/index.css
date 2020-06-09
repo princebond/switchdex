@@ -31,7 +31,9 @@ code {
 #zerox-widget{
     z-index: 99999999;
 }
-
+#transak_modal{
+  z-index: 99999999 !important;
+}
 
 
 

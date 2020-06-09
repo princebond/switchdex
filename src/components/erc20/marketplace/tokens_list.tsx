@@ -5,7 +5,6 @@ import { getKnownTokens } from '../../../util/known_tokens';
 import { getEtherscanLinkForToken } from '../../../util/tokens';
 import { Card } from '../../common/card';
 import { TokenIcon } from '../../common/icons/token_icon';
-import { VeriSafeStickerIcon } from '../../common/icons/verisafe_sticker';
 import { CustomTD, Table, TH, THead, THLast, TR } from '../../common/table';
 import { IconType, Tooltip } from '../../common/tooltip';
 
@@ -94,7 +93,6 @@ class TokensList extends React.PureComponent {
             ) : (
                 '-'
             );
-            const sticker = token.verisafe_sticker ? <VeriSafeStickerIcon type={'gold'} /> : '-';
 
             return (
                 <TR key={symbol}>
@@ -115,7 +113,6 @@ class TokensList extends React.PureComponent {
                         </LabelWrapper>
                     </CustomTDTokenName>
                     <CustomTD styles={{ borderBottom: true, textAlign: 'left' }}>{website}</CustomTD>
-                    <CustomTD styles={{ borderBottom: true, textAlign: 'left' }}>{sticker}</CustomTD>
                 </TR>
             );
         });
@@ -129,7 +126,6 @@ class TokensList extends React.PureComponent {
                         <THStyled>Token</THStyled>
                         <THStyled>{}</THStyled>
                         <THStyled styles={{ textAlign: 'left' }}>Website</THStyled>
-                        <THLast styles={{ textAlign: 'left' }}>VeriSafe Approval</THLast>
                     </TR>
                 </THead>
                 <TBody>{tokensRows}</TBody>

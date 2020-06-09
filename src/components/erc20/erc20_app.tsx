@@ -10,6 +10,7 @@ import { getERC20Theme } from '../../store/selectors';
 import { PageLoading } from '../common/page_loading';
 
 import ToolbarContentContainer from './common/toolbar_content';
+import TransakPage from './pages/transak';
 
 const toolbar = <ToolbarContentContainer />;
 
@@ -36,6 +37,7 @@ const Erc20App = () => {
                         <Route exact={true} path={`${ERC20_APP_BASE_PATH}/join-as-maker`} component={JoinAsMakerPage} />
                         <Route exact={true} path={`${ERC20_APP_BASE_PATH}/listed-tokens`} component={TokensListPage} />
                         <Route exact={true} path={`${ERC20_APP_BASE_PATH}/dex-wizard`} component={WizardPage} />
+                        <Route exact={true} path={`${ERC20_APP_BASE_PATH}/buy-with-fiat`} component={TransakPage} />
                         <Route exact={true} path={MARKET_MAKER_APP_BASE_PATH} component={MarketMakerPage} />
                         <Route
                             exact={true}
