@@ -25,25 +25,22 @@ const loadScript = (callback: any) => {
     }
 };
 
-
 interface Props {
-    enable?:string;
+    enable?: string;
     tokenSymbol?: string;
     walletAddress?: string;
     onClose?: any;
-  
-    
+
   /*  tokenAddress: string;
     walletAddress: string;*/
 }
-
 
 declare var TransakSDK: any;
 
 export const TransakWidget = (props: Props) => {
 
     const launchTransak = async () => {
-        let transak = new TransakSDK.default({
+        const transak = new TransakSDK.default({
             apiKey: '30bec7d3-ec08-48ff-87db-486cb5744cf5', // Your API Key
             environment: 'STAGING', // STAGING/PRODUCTION
             defaultCryptoCurrency: props.tokenSymbol || 'ETH',
@@ -57,16 +54,15 @@ export const TransakWidget = (props: Props) => {
             hideMenu: true,
           });
 
-          transak.init();
+        transak.init();
 
-          transak
-          .on(transak.EVENTS.TRANSAK_WIDGET_CLOSE, (data:any) => {
+        transak
+          .on(transak.EVENTS.TRANSAK_WIDGET_CLOSE, (data: any) => {
               props.onClose();
-            //console.log(data)
+            // console.log(data)
           });
 
     };
-
 
     useEffect(() => {
         loadScript(() => {
@@ -80,11 +76,9 @@ export const TransakWidget = (props: Props) => {
        }
     }, [enable, isScriptReady]);*/
 
-        
-
-        return (
+    return (
             <>
             </>
         );
 };
-
+

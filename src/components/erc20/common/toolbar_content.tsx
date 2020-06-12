@@ -18,7 +18,7 @@ import {
     setFiatType,
     setSwapQuoteToken,
 } from '../../../store/actions';
-import { getCurrentMarketPlace, getGeneralConfig, getSwapBaseToken, getSwapQuoteToken, getEthAccount, getBaseToken } from '../../../store/selectors';
+import { getBaseToken, getCurrentMarketPlace, getEthAccount, getGeneralConfig, getSwapBaseToken, getSwapQuoteToken } from '../../../store/selectors';
 import { Theme, themeBreakPoints } from '../../../themes/commons';
 import { isMobile } from '../../../util/screen';
 import { MARKETPLACES } from '../../../util/types';
@@ -142,8 +142,7 @@ const ToolbarContent = (props: Props) => {
     const onCloseTransakModal = () => {
         setIsEnableFiat(false);
 
-    }
-
+    };
 
     const onClickSwap: React.EventHandler<React.MouseEvent> = e => {
         e.preventDefault();
@@ -215,9 +214,9 @@ const ToolbarContent = (props: Props) => {
         endOptContent = (
             <>
                 {/*  <SettingsContentContainer  className={'settings-dropdown'} /> */}
-                <StyledButton onClick={handleTransakModal} className={'buy-fiat'}>
+               {/* <StyledButton onClick={handleTransakModal} className={'buy-fiat'}>
                     FIAT
-                </StyledButton>
+        </StyledButton>*/}
                 <StyledLink href="/defi" onClick={handleDefiClick} className={'defi'}>
                     DeFi
                 </StyledLink>
@@ -228,7 +227,7 @@ const ToolbarContent = (props: Props) => {
                 <StyledButton onClick={handleFiatModal} className={'buy-eth'}>
                     Buy ETH
                 </StyledButton>
-                {isEnableFiat && <TransakWidget walletAddress={walletAddress} tokenSymbol={(baseToken && baseToken.symbol.toUpperCase()) || 'ETH'} onClose={onCloseTransakModal}/> }
+                {isEnableFiat && <TransakWidget walletAddress={walletAddress} tokenSymbol={(baseToken && baseToken.symbol.toUpperCase()) || 'ETH'} onClose={onCloseTransakModal}/>}
             </>
         );
 

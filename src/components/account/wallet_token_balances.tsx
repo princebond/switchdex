@@ -4,7 +4,7 @@ import { connect } from 'react-redux';
 import styled, { withTheme } from 'styled-components';
 
 import { NETWORK_ID, RELAYER_URL } from '../../common/constants';
-import { openFiatOnRampModal, startToggleTokenLockSteps, startTranferTokenSteps, setFiatType } from '../../store/actions';
+import { openFiatOnRampModal, setFiatType, startToggleTokenLockSteps, startTranferTokenSteps } from '../../store/actions';
 import {
     getEthAccount,
     getEthBalance,
@@ -312,7 +312,7 @@ class WalletTokenBalances extends React.PureComponent<Props, State> {
         const openFiatOnRamp = () => {
             onSetFiatType('CARDS');
             onClickOpenFiatOnRampModal(true);
-            
+
         };
 
         const totalEthRow = (

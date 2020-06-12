@@ -1,5 +1,4 @@
-import React, { ChangeEvent, useState } from 'react';
-
+import React from 'react';
 import styled from 'styled-components';
 
 import { Card } from '../../common/card';
@@ -13,10 +12,7 @@ const StyledP = styled.p`
     color: ${props => props.theme.componentsTheme.textColorCommon};
 `;
 
-
-
 export const TransakComponent = () => {
-  
 
     const content = (
         <>
@@ -25,7 +21,7 @@ export const TransakComponent = () => {
     );
 
     return <StyledCard title="Transak">{content}
-    
+
     <TransakWidget />
     </StyledCard>;
 };

@@ -5,7 +5,7 @@ import { getKnownTokens } from '../../../util/known_tokens';
 import { getEtherscanLinkForToken } from '../../../util/tokens';
 import { Card } from '../../common/card';
 import { TokenIcon } from '../../common/icons/token_icon';
-import { CustomTD, Table, TH, THead, THLast, TR } from '../../common/table';
+import { CustomTD, Table, TH, THead, TR } from '../../common/table';
 import { IconType, Tooltip } from '../../common/tooltip';
 
 const THStyled = styled(TH)`
