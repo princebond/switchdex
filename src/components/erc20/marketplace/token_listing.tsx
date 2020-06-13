@@ -100,17 +100,12 @@ export const TokensListing = () => {
 
     content = (
         <>
-            <StyledH1>Trade Listings</StyledH1>
+            <StyledH1>Add A Token To SwitchDex</StyledH1>
             <StyledP>
-                Project listings on Veridex are at a promotional cost of 1 ETH without negotiation. Send the amount to
-                this address: {CopyContent(feeRecipient, feeRecipient, 0)} , if you wanna your project being officially
-                listed contact @jcampos8 on telegram with the transaction hash. We include an announcement in our
-                Twitter and Telegram, and also we could promote an AMA to showcase your project. Please note that we
-                only list non security tokens and tokens without any signal of fraud.
+              SwitchDex allows you to trade any ERC20 token, any time, and we charge 0 fees for listing. 
             </StyledP>
             <StyledP>
-                If you don't wanna spent on listings and don't mind the warning on the trade interface you could
-                directly add your token using on directly the contract address as follows
+            To add a token to SwitchDex, simply past the contract address in the box below and your trading URL's will be generated instantly. 
             </StyledP>
             <StyledP>Type your contract address to generate the url's: {input} </StyledP>
             <StyledP>Trade URL: {CopyContent(erc20TradeLink, erc20TradeLink, 1)}</StyledP>
@@ -125,19 +120,17 @@ export const TokensListing = () => {
                 <li>Easy Buy URL: {CopyContent(instantTrustLink, instantTrustLink, 5)}</li>
             </StyledP>
 
-            <StyledH1>IEO Listings</StyledH1>
+           {/* <StyledH1>IEO Listings</StyledH1>
 
             <StyledP>
                 {' '}
-                IEO listings are at a promotional cost of 1 ETH without negotiation. Send the amount to this address:{' '}
-                {CopyContent(feeRecipient, feeRecipient, 6)}, if you wanna your project being officially listed contact
-                @jcampos8 on telegram with the transaction hash. We include an announcement in our Twitter and Telegram,
-                and also we could promote an AMA in our official telegram to showcase your project. Please note that we
-                only list non security tokens and tokens without any signal of fraud.
+                <StyledP>
+                Project listings on Switch Dex follows strict rules for deployment please reach our telegram for discussing.
+            </StyledP>
             </StyledP>
 
             <StyledP>
-                If you don't wanna invest one 1 ETH and get your IEO running, the UI also support insert token contract
+                If you don't wanna list your token as default and get your IEO running, the UI also support insert token contract
                 directly
             </StyledP>
 
@@ -149,10 +142,10 @@ export const TokensListing = () => {
             </StyledP>
 
             <StyledP>After you place orders, your users can get your token directly using the following links:</StyledP>
-            <StyledP> Buy with Webbrowser: {CopyContent(ieoInstantLink, ieoInstantLink, 8)}</StyledP>
-            <StyledP> Buy with Trust: {CopyContent(ieoInstantTrustLink, ieoInstantTrustLink, 9)}</StyledP>
+            <StyledP> Buy with WebBrowser: {CopyContent(ieoInstantLink, ieoInstantLink, 8)}</StyledP>
+           <StyledP> Buy with Trust: {CopyContent(ieoInstantTrustLink, ieoInstantTrustLink, 9)}</StyledP>*/}
         </>
     );
 
-    return <StyledListingsCard title="Token Listings and IEO">{content}</StyledListingsCard>;
+    return <StyledListingsCard title="Add A Token To SwitchDex">{content}</StyledListingsCard>;
 };

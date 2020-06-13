@@ -1,7 +1,7 @@
 import { ConnectedRouter } from 'connected-react-router';
 import React, { lazy, Suspense } from 'react';
 import ReactDOM from 'react-dom';
-import ReactGA from 'react-ga';
+// import ReactGA from 'react-ga';
 import ReactModal from 'react-modal';
 import { Provider } from 'react-redux';
 import { Redirect, Route, Switch } from 'react-router';
@@ -29,12 +29,12 @@ import { envUtil } from './util/env';
 import LaunchpadApp from './components/erc20/launchpad_app';
 import MarginApp from './components/erc20/margin_app';*/
 
-// Adding analytics
-ReactGA.initialize(process.env.REACT_APP_ANALYTICS || '');
+// Adding analytics -- Switch not collects user data
+/*ReactGA.initialize(process.env.REACT_APP_ANALYTICS || '');
 
 history.listen(his => {
     ReactGA.pageview(his.pathname + his.search);
-});
+});*/
 
 ReactModal.setAppElement('#root');
 

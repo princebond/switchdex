@@ -192,8 +192,8 @@ export const Footer: React.FC<Props> = props => {
                     </HrefStyled>
                 )}
                 {marketplace !== MARKETPLACES.ERC721 && <Pipe>|</Pipe>}
-                <HrefStyled
-                    href="https://www.verisafe.io/terms-and-conditions"
+             {  /* <HrefStyled
+                    href=""
                     target="_blank"
                     rel="noopener noreferrer"
                     className="link"
@@ -202,20 +202,9 @@ export const Footer: React.FC<Props> = props => {
                 </HrefStyled>
                 <Pipe>|</Pipe>
                 <br className="break" />
-                <HrefStyled href="https://www.verisafe.io/privacy-policy" target="_blank" rel="noopener noreferrer">
+                <HrefStyled href="" target="_blank" rel="noopener noreferrer">
                     Privacy Policy
-                </HrefStyled>
-                {marketplace !== MARKETPLACES.ERC721 && <Pipe>|</Pipe>}
-                {marketplace !== MARKETPLACES.ERC721 && (
-                    <HrefStyled
-                        href="https://steemit.com/veridex/@joaocampos/tutorial-to-use-veridex-at-dex-verisafe-io-https-dex-verisafe-io"
-                        target="_blank"
-                        rel="noopener noreferrer"
-                    >
-                        Tutorial
-                    </HrefStyled>
-                )}
-                <Pipe>|</Pipe>
+                </HrefStyled> */}
                 {marketplace !== MARKETPLACES.ERC721 && (
                     <HrefStyled href={`/listings`} onClick={handleListingsClick}>
                         Listings

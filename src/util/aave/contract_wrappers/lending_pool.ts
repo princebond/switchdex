@@ -1882,7 +1882,7 @@ export class LendingPoolContract extends BaseContract {
             BigNumber,
             BigNumber,
             string,
-            BigNumber,
+            BigNumber
         ]
     > {
         const self = (this as any) as LendingPoolContract;
@@ -1907,7 +1907,7 @@ export class LendingPoolContract extends BaseContract {
                     BigNumber,
                     BigNumber,
                     string,
-                    BigNumber,
+                    BigNumber
                 ]
             > {
                 BaseContract._assertCallParams(callData, defaultBlock);
@@ -1930,7 +1930,7 @@ export class LendingPoolContract extends BaseContract {
                         BigNumber,
                         BigNumber,
                         string,
-                        BigNumber,
+                        BigNumber
                     ]
                 >(rawCallResult);
             },
@@ -1992,7 +1992,7 @@ export class LendingPoolContract extends BaseContract {
                     BigNumber,
                     BigNumber,
                     BigNumber,
-                    boolean,
+                    boolean
                 ]
             > {
                 BaseContract._assertCallParams(callData, defaultBlock);
@@ -2012,7 +2012,7 @@ export class LendingPoolContract extends BaseContract {
                         BigNumber,
                         BigNumber,
                         BigNumber,
-                        boolean,
+                        boolean
                     ]
                 >(rawCallResult);
             },

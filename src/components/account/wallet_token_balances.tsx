@@ -4,7 +4,7 @@ import { connect } from 'react-redux';
 import styled, { withTheme } from 'styled-components';
 
 import { NETWORK_ID, RELAYER_URL } from '../../common/constants';
-import { openFiatOnRampModal, startToggleTokenLockSteps, startTranferTokenSteps } from '../../store/actions';
+import { openFiatOnRampModal, setFiatType, startToggleTokenLockSteps, startTranferTokenSteps } from '../../store/actions';
 import {
     getEthAccount,
     getEthBalance,
@@ -45,6 +45,7 @@ interface DispatchProps {
     onStartToggleTokenLockSteps: (token: Token, isUnlocked: boolean) => void;
     onSubmitTransferToken: (amount: BigNumber, token: Token, address: string, isEth: boolean) => Promise<any>;
     onClickOpenFiatOnRampModal: (isOpen: boolean) => void;
+    onSetFiatType: any;
 }
 
 type Props = StateProps & DispatchProps & OwnProps;
@@ -277,6 +278,7 @@ class WalletTokenBalances extends React.PureComponent<Props, State> {
             ethUsd,
             wallet,
             onClickOpenFiatOnRampModal,
+            onSetFiatType,
         } = this.props;
 
         if (!wethTokenBalance) {
@@ -308,7 +310,9 @@ class WalletTokenBalances extends React.PureComponent<Props, State> {
         };
 
         const openFiatOnRamp = () => {
+            onSetFiatType('CARDS');
             onClickOpenFiatOnRampModal(true);
+
         };
 
         const totalEthRow = (
@@ -582,6 +586,7 @@ const mapDispatchToProps = {
     onStartToggleTokenLockSteps: startToggleTokenLockSteps,
     onSubmitTransferToken: startTranferTokenSteps,
     onClickOpenFiatOnRampModal: openFiatOnRampModal,
+    onSetFiatType: setFiatType,
 };
 
 const WalletTokenBalancesContainer = withTheme(connect(mapStateToProps, mapDispatchToProps)(WalletTokenBalances));

@@ -17,7 +17,6 @@ import { Button } from '../../common/button';
 import { CardBase } from '../../common/card_base';
 import { Dropdown, DropdownPositions } from '../../common/dropdown';
 import { DropdownTextItem } from '../../common/dropdown_text_item';
-import { ChevronDownIcon } from '../../common/icons/chevron_down_icon';
 
 const LayoutDropdownHeaderWrapper = styled.div`
     align-items: center;
@@ -41,7 +40,7 @@ const DropdownBody = styled(CardBase)`
     max-height: 100%;
     max-width: 100%;
     width: 190px;
-    height: 280px;
+    height: 380px;
 `;
 const DropdownWrapper = styled(Dropdown)`
     z-index: 100;
@@ -138,8 +137,8 @@ export const SettingsDropdownContainer = (props: any) => {
     const header = (
         <LayoutDropdownHeaderWrapper>
             <WalletConnectionStatusText>⚙</WalletConnectionStatusText>
-            <ChevronDownIcon />
-        </LayoutDropdownHeaderWrapper>
+               {/* <ChevronDownIcon />*/}
+    </LayoutDropdownHeaderWrapper>
     );
     const layouts: ReactGridLayout.Layouts = JSON.parse(useSelector(getERC20Layout));
     const themeName = useSelector(getThemeName);
@@ -306,7 +305,7 @@ export const SettingsDropdownContainer = (props: any) => {
         <DropdownWrapper
             body={body}
             header={header}
-            horizontalPosition={DropdownPositions.Right}
+            horizontalPosition={DropdownPositions.Center}
             shouldCloseDropdownOnClickOutside={false}
             {...props}
         />

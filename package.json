@@ -1,6 +1,6 @@
 {
-    "name": "veridex",
-    "version": "0.3.0",
+    "name": "switchdex",
+    "version": "0.4.0",
     "private": true,
     "dependencies": {
         "@0x/asset-swapper": "^4.4.0",

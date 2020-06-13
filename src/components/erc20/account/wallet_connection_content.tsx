@@ -12,7 +12,7 @@ import {
     logoutWallet,
 } from '../../../store/actions';
 import { getEthAccount } from '../../../store/selectors';
-import { connectToExplorer, viewOnFabrx } from '../../../util/external_services';
+import { viewOnFabrx } from '../../../util/external_services';
 import { truncateAddress } from '../../../util/number_utils';
 import { viewAddressOnEtherscan } from '../../../util/transaction_link';
 import { StoreState } from '../../../util/types';
@@ -75,10 +75,10 @@ class WalletConnectionContent extends React.PureComponent<Props> {
                     <DropdownTextItem text="Copy Address to Clipboard" />
                 </CopyToClipboard>
                 <DropdownTextItem onClick={viewAccountExplorer} text="View Address on Etherscan" />
-                <DropdownTextItem onClick={onGoToHomeMarketTrade} text="Market Trade" />
-                <DropdownTextItem onClick={connectToExplorer} text="Track DEX volume" />
-                <DropdownTextItem onClick={openFabrx} text="Set Alerts" />
-                <DropdownTextItem onClick={onGoToHomeLaunchpad} text="Launchpad" />
+                {/*<DropdownTextItem onClick={onGoToHomeMarketTrade} text="Market Trade" /> */}
+                {/*<DropdownTextItem onClick={connectToExplorer} text="Track DEX volume" /> */}
+                {/*<DropdownTextItem onClick={openFabrx} text="Set Alerts" />*/}
+              {/*  <DropdownTextItem onClick={onGoToHomeLaunchpad} text="Launchpad" />*/}
                 <DropdownTextItem onClick={onGoToHomeMarketMaker} text="Market Maker" />
                 {/* <DropdownTextItem onClick={onGoToHomeMarginLend} text="Lend" />*/}
                 <DropdownTextItem onClick={onLogoutWallet} text="Logout Wallet" />
