@@ -12,27 +12,27 @@ export const generateInstantLink = (address: string) => {
     const knownTokens = getKnownTokens();
     try{
         const token = knownTokens.getTokenByAddress(address);
-        return `https://switchdex.ag/#/instant?token=${token.symbol}`;
+        return `https://mcafeedex.com/#/instant?token=${token.symbol}`;
     }catch{
-        return `https://switchdex.ag/#/instant?token=${address}`;
+        return `https://mcafeedex.com/#/instant?token=${address}`;
     }
 };
 
 export const generateIEOInstantLink = (address: string, makerAddress: string) => {
-    return `https://switchdex.ag/#/instant?token=${address}&makerAddress=${makerAddress}&isEIO=true`;
+    return `https://mcafeedex.com/#/instant?token=${address}&makerAddress=${makerAddress}&isEIO=true`;
 };
 
 export const generateIEODashboardLink = (address: string, makerAddress: string) => {
-    return `https://switchdex.ag/#/launchpad/orders?token=${address}&makerAddress=${makerAddress}&isEIO=true`;
+    return `https://mcafeedex.com/#/launchpad/orders?token=${address}&makerAddress=${makerAddress}&isEIO=true`;
 };
 
 export const generateERC20TradeLink = (address: string) => {
     const knownTokens = getKnownTokens();
     try{
         const token = knownTokens.getTokenByAddress(address);
-        return `https://switchdex.ag/#/erc20?base=${token.symbol}&quote=weth`;
+        return `https://mcafeedex.com/#/erc20?base=${token.symbol}&quote=weth`;
     }catch{
-        return `https://switchdex.ag/#/erc20?base=${address}&quote=weth`;
+        return `https://mcafeedex.com/#/erc20?base=${address}&quote=weth`;
     }  
 };
 
@@ -40,8 +40,8 @@ export const generateERC20MarketTradeLink = (address: string) => {
     const knownTokens = getKnownTokens();
     try{
         const token = knownTokens.getTokenByAddress(address);
-        return `https://switchdex.ag/#/market-trade?token=${token.symbol}`;
+        return `https://mcafeedex.com/#/market-trade?token=${token.symbol}`;
     }catch{
-        return `https://switchdex.ag/#/market-trade?token=${address}`;
+        return `https://mcafeedex.com/#/market-trade?token=${address}`;
     }  
 };

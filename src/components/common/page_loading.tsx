@@ -8,7 +8,7 @@ const Ball = styled.div`
     color: white;
 `;
 
-export const PageLoading = ({ text = 'SwitchDex Loading ...' }) => (
+export const PageLoading = ({ text = 'McafeeDex Loading ...' }) => (
     <div className="black-overlay">
         <Ball className="la-ball-square-clockwise-spin la-2x">
             <div />

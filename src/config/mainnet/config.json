@@ -1,7 +1,7 @@
 {
     "general": {
-        "title": "SwitchDex",
-        "icon": "assets/icons/esh.svg",
+        "title": "McafeeDex",
+        "icon": "assets/icons/mcafee.svg",
         "social": {
             "telegram_url": "https://t.me/ethershiftco",
             "twitter_url": "https://twitter.com/SwitchAg"
@@ -424,15 +424,6 @@
     ],
     "pairs": [
         {
-            "base": "esh",
-            "quote": "weth",
-            "config": {
-                "basePrecision": 0,
-                "pricePrecision": 8,
-                "minAmount": 1
-            }
-        },
-        {
             "base": "ghost",
             "quote": "weth",
             "config": {
@@ -441,6 +432,15 @@
                 "minAmount": 0.1
             }
         },
+        {
+            "base": "esh",
+            "quote": "weth",
+            "config": {
+                "basePrecision": 0,
+                "pricePrecision": 8,
+                "minAmount": 1
+            }
+        }, 
         {
             "base": "weth",
             "quote": "dai",
