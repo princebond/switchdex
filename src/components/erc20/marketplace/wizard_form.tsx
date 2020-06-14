@@ -173,7 +173,7 @@ const WizardForm = (_props: Props) => {
                             isOpen={isOpen.generalConfig}
                         />
                         <ThemeForm name="theme" selector={'theme-step'} isOpen={isOpen.theme} />
-                        <TokensForm unshift={unshift} selector={'tokens-step'} isOpen={isOpen.tokens} />
+                        <TokensForm unshift={unshift} selector={'tokens-step'} isOpen={isOpen.tokens} maxTokens={30} />
                         <PairsForm selector={'pairs-step'} isOpen={isOpen.pairs} />
                         <MarketFiltersForm selector={'market-filters-step'} isOpen={isOpen.marketFilters} />
                         <ButtonsContainer>

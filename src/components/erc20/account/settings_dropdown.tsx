@@ -89,10 +89,10 @@ export const FieldContainer = styled.div`
 };*/
 
 const defaultLayouts = {
-    a: { w: 2, h: 56, x: 0, y: 0, i: 'a' },
-    b: { w: 6, h: 40, x: 2, y: 0, i: 'b' },
+    a: { w: 2, h: 56, x: 0, y: 0, i: 'a'  },
+    b: { w: 6, h: 40, x: 2, y: 0, i: 'b'  },
     d: { w: 4, h: 26, x: 8, y: 30, i: 'd' },
-    e: { w: 2, h: 30, x: 8, y: 0, i: 'e' },
+    e: { w: 2, h: 30, x: 8, y: 0, i: 'e'  },
     f: { w: 6, h: 16, x: 2, y: 37, i: 'f' },
     g: { w: 2, h: 30, x: 10, y: 0, i: 'g' },
 };
@@ -237,7 +237,7 @@ export const SettingsDropdownContainer = (props: any) => {
                     style={{ textAlign: 'center' }}
                     text={themeName === 'DARK_THEME' ? ' ☼' : ' ☾'}
                 />
-                <DropdownTextItem onClick={handleWizardClick} style={{ textAlign: 'center' }} text={'Wizard'} />
+                <DropdownTextItem onClick={handleWizardClick} style={{ textAlign: 'center' }} text={'Costumize'} />
                 <DropdownTextItem
                     onClick={onDynamicLayout}
                     style={{ textAlign: 'center' }}

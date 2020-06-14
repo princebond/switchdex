@@ -137,7 +137,7 @@ const UserWizardForm = (_props: Props) => {
         dispatch(setUserConfigData({ config: configDefault }));
         dispatch(initUserConfigData());
         dispatch(setUserConfigData(null));
-        alert('Reset to Veridex defaults');
+        alert('Reset to defaults');
         dispatch(goToHome());
     };
 
@@ -169,7 +169,7 @@ const UserWizardForm = (_props: Props) => {
                             selector={'tokens-step'}
                             title="Tokens"
                             isOpen={isOpen.tokens}
-                            maxTokens={20}
+                            maxTokens={50}
                         />
                         <PairsForm selector={'pairs-step'} title="Pairs" isOpen={isOpen.pairs} />
                         <MarketFiltersForm
