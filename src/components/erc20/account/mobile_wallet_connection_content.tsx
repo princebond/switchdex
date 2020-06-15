@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import CopyToClipboard from 'react-copy-to-clipboard';
 import { useDispatch, useSelector } from 'react-redux';
 import ReactTooltip from 'react-tooltip';
@@ -16,12 +16,13 @@ import {
     setERC20Theme,
     setThemeName,
 } from '../../../store/actions';
-import { getEthAccount, getThemeName } from '../../../store/selectors';
+import { getEthAccount, getThemeName, getBaseToken } from '../../../store/selectors';
 import { getThemeFromConfigDex } from '../../../themes/theme_meta_data_utils';
 import { connectToExplorer, viewOnFabrx } from '../../../util/external_services';
 import { truncateAddress } from '../../../util/number_utils';
 import { viewAddressOnEtherscan } from '../../../util/transaction_link';
 import { WalletConnectionStatusDotStyled, WalletConnectionStatusText } from '../../account/wallet_connection_status';
+import { TransakWidget } from '../common/transak_widget';
 
 const ListContainer = styled.ul`
     list-style-type: none;
@@ -52,10 +53,17 @@ const MenuContainer = styled.div`
 export const MobileWalletConnectionContent = () => {
     const ethAccount = useSelector(getEthAccount);
     const themeName = useSelector(getThemeName);
+    const baseToken = useSelector(getBaseToken);
+    const walletAddress = useSelector(getEthAccount);
     const dispatch = useDispatch();
+    const [isEnableFiat, setIsEnableFiat] = useState(false);
 
     const openFabrx = () => {
         viewOnFabrx(ethAccount);
+    };
+
+    const onCloseTransakModal = () => {
+        setIsEnableFiat(false);
     };
 
     const handleThemeClick = () => {
@@ -108,6 +116,11 @@ export const MobileWalletConnectionContent = () => {
         dispatch(logoutWallet());
     };
 
+    const handleTransakModal: React.EventHandler<React.MouseEvent> = e => {
+        e.preventDefault();
+        setIsEnableFiat(!isEnableFiat);
+    };
+
     const status: string = ethAccount ? 'active' : '';
 
     const ethAccountText = ethAccount ? `${truncateAddress(ethAccount)}` : 'Not connected';
@@ -140,12 +153,21 @@ export const MobileWalletConnectionContent = () => {
                         <ReactTooltip afterShow={afterShowTooltip} />
                     </ListItemFlex>
                 </CopyToClipboard>
+                <ListItem onClick={handleTransakModal}>FIAT</ListItem>
                 <ListItem onClick={onClickFiatOnRampModal}>Buy ETH</ListItem>
                 <ListItem onClick={handleThemeClick}>{themeName === 'DARK_THEME' ? '☼' : '🌑'}</ListItem>
                 <ListItem onClick={viewAccountExplorer}>View Address on Etherscan</ListItem>
                 <ListItem onClick={connectToExplorer}>Track DEX volume</ListItem>
                 {/*    <ListItem onClick={openFabrx}>Set Alerts</ListItem>*/}
                 <ListItem onClick={onLogoutWallet}>Logout Wallet</ListItem>
+                {isEnableFiat && (
+                    <TransakWidget
+                        walletAddress={walletAddress}
+                        tokenSymbol={(baseToken && baseToken.symbol.toUpperCase()) || 'ETH'}
+                        onClose={onCloseTransakModal}
+                        height={'550px'}
+                    />
+                )}
             </ListContainer>
         </MenuContainer>
     );

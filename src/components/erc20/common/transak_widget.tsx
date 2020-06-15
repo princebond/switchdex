@@ -29,6 +29,7 @@ interface Props {
     tokenSymbol?: string;
     walletAddress?: string;
     onClose?: any;
+    height?: string;
 
     /*  tokenAddress: string;
     walletAddress: string;*/
@@ -39,15 +40,15 @@ declare var TransakSDK: any;
 export const TransakWidget = (props: Props) => {
     const launchTransak = async () => {
         const transak = new TransakSDK.default({
-            apiKey: '30bec7d3-ec08-48ff-87db-486cb5744cf5', // Your API Key
-            environment: 'STAGING', // STAGING/PRODUCTION
+            apiKey: 'ba54294b-00f0-4e2d-9df0-1c8e5c77a808', // Your API Key
+            environment: 'PRODUCTION', // STAGING/PRODUCTION
             defaultCryptoCurrency: props.tokenSymbol || 'ETH',
             walletAddress: props.walletAddress || '',
             themeColor: '#02112c', // App theme color in hex
-            fiatCurrency: '', // INR/GBP
+            fiatCurrency: 'USD', // INR/GBP
             redirectURL: '',
             hostURL: window.location.origin,
-            widgetHeight: '650px',
+            widgetHeight: props.height || '650px',
             widgetWidth: '100%',
             hideMenu: true,
         });
@@ -56,7 +57,6 @@ export const TransakWidget = (props: Props) => {
 
         transak.on(transak.EVENTS.TRANSAK_WIDGET_CLOSE, (data: any) => {
             props.onClose();
-            // console.log(data)
         });
     };
 
@@ -65,12 +65,5 @@ export const TransakWidget = (props: Props) => {
             launchTransak();
         });
     }, []);
-
-    /*  useEffect(() => {
-       if(isScriptReady && enable){
-           launchTransak();
-       }
-    }, [enable, isScriptReady]);*/
-
     return <></>;
 };
