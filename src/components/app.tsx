@@ -67,25 +67,37 @@ class App extends React.Component<Props> {
         const origin = window.location.origin;
         // TODO investigate if it is better user replace configs from dex as service
         onInitUserConfig();
-        if (dex) {
-            onInitConfig(dex, undefined);
-        } else if (origin !== VERIDEX_ORIGIN) {
-            onInitConfig(undefined, origin);
-        } else {
-            const themeName = localStorage.getThemeName();
-            onInitTheme(themeName);
-        }
+        const initDexConfigs = async () => {
+            if (dex) {
+                await onInitConfig(dex, undefined);
+            } else if (origin !== VERIDEX_ORIGIN) {
+                await onInitConfig(undefined, origin);
+            } else {
+                const themeName = localStorage.getThemeName();
+                await onInitTheme(themeName);
+            }
+        };
 
         if (MARKETPLACE === MARKETPLACES.Instant || MARKETPLACE === MARKETPLACES.FiatRamp) {
             serviceWorker.unregister();
             return;
         }
+        // Wrapped in promise because errors of dex not being updated on time with configs before started
+        const initDexStateWithWallet = async () => {
+            await initDexConfigs();
+            await this.props.onConnectWallet(walletConnected as Wallet);
+        };
+
+        const initDexStateWithouWallet = async () => {
+            await initDexConfigs();
+            await this.props.onInitWalletState();
+        };
 
         const walletConnected = localStorage.getWalletConnected();
         if (walletConnected !== false && walletConnected !== undefined) {
-            this.props.onConnectWallet(walletConnected as Wallet);
+            initDexStateWithWallet();
         } else {
-            this.props.onInitWalletState();
+            initDexStateWithouWallet();
         }
     };
 

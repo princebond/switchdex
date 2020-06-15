@@ -81,13 +81,13 @@ export const mapTokensMetaDataFromForm = (tokensMetaData: TokenMetaData[]): Toke
                 return {
                     address: tokenMetaData.mainnetAddress || '',
                     symbol: tokenMetaData.symbol,
-                    decimals: tokenMetaData.decimals,
+                    decimals: Number(tokenMetaData.decimals),
                     name: tokenMetaData.name,
                     primaryColor: tokenMetaData.primaryColor,
                     icon: tokenMetaData.icon,
                     displayDecimals:
                         tokenMetaData.displayDecimals !== undefined
-                            ? tokenMetaData.displayDecimals
+                            ? Number(tokenMetaData.displayDecimals)
                             : UI_DECIMALS_DISPLAYED_DEFAULT_PRECISION,
                     id: tokenMetaData.id || undefined,
                     c_id: tokenMetaData.c_id || undefined,

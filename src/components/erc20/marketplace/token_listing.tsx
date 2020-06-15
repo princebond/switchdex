@@ -102,10 +102,11 @@ export const TokensListing = () => {
         <>
             <StyledH1>Add A Token To SwitchDex</StyledH1>
             <StyledP>
-              SwitchDex allows you to trade any ERC20 token, any time, and we charge 0 fees for listing. 
+                SwitchDex allows you to trade any ERC20 token, any time, and we charge 0 fees for listing.
             </StyledP>
             <StyledP>
-            To add a token to SwitchDex, simply past the contract address in the box below and your trading URL's will be generated instantly. 
+                To add a token to SwitchDex, simply past the contract address in the box below and your trading URL's
+                will be generated instantly.
             </StyledP>
             <StyledP>Type your contract address to generate the url's: {input} </StyledP>
             <StyledP>Trade URL: {CopyContent(erc20TradeLink, erc20TradeLink, 1)}</StyledP>
@@ -120,7 +121,7 @@ export const TokensListing = () => {
                 <li>Easy Buy URL: {CopyContent(instantTrustLink, instantTrustLink, 5)}</li>
             </StyledP>
 
-           {/* <StyledH1>IEO Listings</StyledH1>
+            {/* <StyledH1>IEO Listings</StyledH1>
 
             <StyledP>
                 {' '}

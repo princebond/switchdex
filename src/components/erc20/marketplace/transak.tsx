@@ -13,15 +13,13 @@ const StyledP = styled.p`
 `;
 
 export const TransakComponent = () => {
+    const content = <></>;
 
-    const content = (
-        <>
+    return (
+        <StyledCard title="Transak">
+            {content}
 
-        </>
+            <TransakWidget />
+        </StyledCard>
     );
-
-    return <StyledCard title="Transak">{content}
-
-    <TransakWidget />
-    </StyledCard>;
 };

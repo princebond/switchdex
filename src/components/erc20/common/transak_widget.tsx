@@ -1,4 +1,3 @@
-
 import React, { useEffect } from 'react';
 
 /**
@@ -31,14 +30,13 @@ interface Props {
     walletAddress?: string;
     onClose?: any;
 
-  /*  tokenAddress: string;
+    /*  tokenAddress: string;
     walletAddress: string;*/
 }
 
 declare var TransakSDK: any;
 
 export const TransakWidget = (props: Props) => {
-
     const launchTransak = async () => {
         const transak = new TransakSDK.default({
             apiKey: '30bec7d3-ec08-48ff-87db-486cb5744cf5', // Your API Key
@@ -52,16 +50,14 @@ export const TransakWidget = (props: Props) => {
             widgetHeight: '650px',
             widgetWidth: '100%',
             hideMenu: true,
-          });
+        });
 
         transak.init();
 
-        transak
-          .on(transak.EVENTS.TRANSAK_WIDGET_CLOSE, (data: any) => {
-              props.onClose();
+        transak.on(transak.EVENTS.TRANSAK_WIDGET_CLOSE, (data: any) => {
+            props.onClose();
             // console.log(data)
-          });
-
+        });
     };
 
     useEffect(() => {
@@ -70,15 +66,11 @@ export const TransakWidget = (props: Props) => {
         });
     }, []);
 
-  /*  useEffect(() => {
+    /*  useEffect(() => {
        if(isScriptReady && enable){
            launchTransak();
        }
     }, [enable, isScriptReady]);*/
 
-    return (
-            <>
-            </>
-        );
+    return <></>;
 };
-

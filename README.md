@@ -1,4 +1,4 @@
-# Veridex
+# SwitchDex
 
 [![Chat with us on Discord](https://img.shields.io/badge/chat-Discord-blueViolet.svg)](https://discord.gg/JqheZms)
 [![CircleCI](https://circleci.com/gh/0xProject/0x-launch-kit-frontend.svg?style=svg)](https://circleci.com/gh/0xProject/0x-launch-kit-frontend)
@@ -6,7 +6,7 @@
 [![devDependencies Status](https://david-dm.org/verisafe/veridex/dev-status.svg)](https://david-dm.org/verisafe/veridex?type=dev)
 [![Coverage Status](https://coveralls.io/repos/github/VeriSafe/VeriDex/badge.svg?branch=development)](https://coveralls.io/github/VeriSafe/VeriDex?branch=development)
 
-This project is forked from [veridex](https://github/verisafe/veridex) and it have a goal to be the most complete open-source 0x based dex out there. 
+This project is forked from [veridex](https://github/verisafe/veridex) and it have a goal to be the most complete open-source 0x based dex out there.
 
 This repo ships with both an ERC-20 token trading interface and an ERC-721 marketplace interface.
 
@@ -17,7 +17,11 @@ To use this fork the following actions are required:
 -   Add a Powered by 0x and Switch
 -   Don't use another pool associated with this code besides the one on: [Veridex Pool](https://0x.org/zrx/staking/pool/16). If you are market maker you can join Veridex market pool at [Join as Maker](https://dex.verisafe.io/#/erc20/join-as-maker)
 
-## Adding token 
+## Dex Wizard
+
+Please follow these instructions if you plan to use your own domain: [DEX on your domain](ADD_DEX_BY_DOMAIN.md)
+
+## Adding token
 
 Please follow all the instructions here: [ADD TOKEN](ADD_TOKEN.md)
 
@@ -145,14 +149,13 @@ This is a detailed list of planned features to add to this DEX (includes Switch 
 -   [ ] Add crypto price calculator
 -   [x] Add Swap interface
 
-
 ## IDEAS FOR COMMUNITY DEVELOPERS
 
 This is some ideas that community devs could work to add value to this dex on long term.
 
-- [] Create simple swap interface with support for meta transactions Eg [Meta](https://0x.org/docs/guides/unlocking-meta-transaction-swaps)
-- []  Add Token factory
-- []  Wizard for Marketplace
+-   [] Create simple swap interface with support for meta transactions Eg [Meta](https://0x.org/docs/guides/unlocking-meta-transaction-swaps)
+-   [] Add Token factory
+-   [] Wizard for Marketplace
 
 ## Planned Wallets Support
 

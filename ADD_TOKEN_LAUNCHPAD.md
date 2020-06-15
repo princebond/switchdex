@@ -1,17 +1,16 @@
 # Adding Token as Default on Launchpad
 
 Switch dex allows any token to be launched by contract address. If you are a project owner and want
-to launch your token as default on the Switch Dex, your token needs to pass a voting process where ESH holders will vote if your project is worthy to be presented as default. 
+to launch your token as default on the Switch Dex, your token needs to pass a voting process where ESH holders will vote if your project is worthy to be presented as default.
 
 If community approves your token you will have follow benefits:
 
-- Announcement on medium, twitter and all relevant switch channels
-- Token listed on Switch
-
+-   Announcement on medium, twitter and all relevant switch channels
+-   Token listed on Switch
 
 # Requirements
 
-- Register as market maker on Switch ZRX pool, and allow a fee 5% of all sales that goes to ESH holders
+-   Register as market maker on Switch ZRX pool, and allow a fee 5% of all sales that goes to ESH holders
 
 If the token was approved you need to do a pull request to add your token on the config.json file under src/config/mainnet/config-ieo.json with the following template:
 
@@ -36,7 +35,7 @@ If the token was approved you need to do a pull request to add your token on the
             "owners": ["0x6BAB128FE1D552646c002577CD6678Ae02a0d903"],
             "feePercentage": "0.05",
             "endDate": "12-15-2019"
-        },  
+        },
      ]
 ```
 

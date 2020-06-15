@@ -18,7 +18,14 @@ import {
     setFiatType,
     setSwapQuoteToken,
 } from '../../../store/actions';
-import { getBaseToken, getCurrentMarketPlace, getEthAccount, getGeneralConfig, getSwapBaseToken, getSwapQuoteToken } from '../../../store/selectors';
+import {
+    getBaseToken,
+    getCurrentMarketPlace,
+    getEthAccount,
+    getGeneralConfig,
+    getSwapBaseToken,
+    getSwapQuoteToken,
+} from '../../../store/selectors';
 import { Theme, themeBreakPoints } from '../../../themes/commons';
 import { isMobile } from '../../../util/screen';
 import { MARKETPLACES } from '../../../util/types';
@@ -120,7 +127,7 @@ const ToolbarContent = (props: Props) => {
     const baseSwapToken = useSelector(getSwapBaseToken);
     const quoteSwapToken = useSelector(getSwapQuoteToken);
     const walletAddress = useSelector(getEthAccount);
-    const baseToken =    useSelector(getBaseToken);
+    const baseToken = useSelector(getBaseToken);
     const location = useLocation();
     const isHome = location.pathname === ERC20_APP_BASE_PATH || location.pathname === `${ERC20_APP_BASE_PATH}/`;
 
@@ -141,7 +148,6 @@ const ToolbarContent = (props: Props) => {
     };
     const onCloseTransakModal = () => {
         setIsEnableFiat(false);
-
     };
 
     const onClickSwap: React.EventHandler<React.MouseEvent> = e => {
@@ -214,7 +220,7 @@ const ToolbarContent = (props: Props) => {
         endOptContent = (
             <>
                 {/*  <SettingsContentContainer  className={'settings-dropdown'} /> */}
-               {/* <StyledButton onClick={handleTransakModal} className={'buy-fiat'}>
+                {/* <StyledButton onClick={handleTransakModal} className={'buy-fiat'}>
                     FIAT
         </StyledButton>*/}
                 <StyledLink href="/defi" onClick={handleDefiClick} className={'defi'}>
@@ -227,7 +233,13 @@ const ToolbarContent = (props: Props) => {
                 <StyledButton onClick={handleFiatModal} className={'buy-eth'}>
                     Buy ETH
                 </StyledButton>
-                {isEnableFiat && <TransakWidget walletAddress={walletAddress} tokenSymbol={(baseToken && baseToken.symbol.toUpperCase()) || 'ETH'} onClose={onCloseTransakModal}/>}
+                {isEnableFiat && (
+                    <TransakWidget
+                        walletAddress={walletAddress}
+                        tokenSymbol={(baseToken && baseToken.symbol.toUpperCase()) || 'ETH'}
+                        onClose={onCloseTransakModal}
+                    />
+                )}
             </>
         );
 
