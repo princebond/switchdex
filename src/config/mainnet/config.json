@@ -4,7 +4,8 @@
         "icon": "assets/icons/mcafee.svg",
         "social": {
             "telegram_url": "https://t.me/ethershiftco",
-            "twitter_url": "https://twitter.com/SwitchAg"
+            "twitter_url": "https://twitter.com/SwitchAg",
+            "github_url": "https://github.com/SwitchOS/switchdex"
         }
     },
     "tokens": [
@@ -27,7 +28,7 @@
             "c_id": "switch",
             "isStableCoin": false
         },
-          {
+        {
             "decimals": 18,
             "symbol": "ghost",
             "name": "Ghost",
@@ -135,7 +136,7 @@
             "displayDecimals": 8,
             "unified_cryptoasset_id": 3717,
             "website": "https://www.wbtc.network/",
-            "c_id":"wrapped-bitcoin",
+            "c_id": "wrapped-bitcoin",
             "description": "Wrapped Bitcoin delivers the power of Bitcoin with the flexibility of an ERC20 token.",
             "id": "wrapped-bitcoin",
             "isStableCoin": false
@@ -159,7 +160,7 @@
             "website": "https://0x.org",
             "description": "0x is an open protocol that enables the peer-to-peer exchange of assets on the Ethereum blockchain.",
             "c_id": "0x",
-            "isStableCoin": false      
+            "isStableCoin": false
         },
         {
             "decimals": 18,
@@ -230,7 +231,7 @@
                 "50": "0x34d402f14d58e001d8efbe6585051bf9706aa064"
             },
             "website": "https://makerdao.com/",
-            "c_id":"maker",
+            "c_id": "maker",
             "description": "Maker is comprised of a decentralized stablecoin, collateral loans, and community governance.",
             "id": "maker",
             "isStableCoin": false
@@ -247,7 +248,7 @@
             },
             "displayDecimals": 0,
             "website": "https://chain.link/",
-            "c_id":"chainlink",
+            "c_id": "chainlink",
             "description": "Your smart contracts connected to real world data, events and payments.",
             "id": "chainlink",
             "isStableCoin": false
@@ -264,7 +265,7 @@
             },
             "displayDecimals": 3,
             "website": "https://tether.to/",
-            "c_id":"tether",
+            "c_id": "tether",
             "description": "Digital money for a digital age",
             "id": "tether",
             "isStableCoin": true
@@ -281,7 +282,7 @@
             },
             "displayDecimals": 3,
             "website": "http://www.paxos.com/busd",
-            "c_id":"busd",
+            "c_id": "busd",
             "description": "A new stablecoin, issued in partnership with Binance",
             "id": "busd",
             "isStableCoin": true
@@ -298,7 +299,7 @@
             },
             "displayDecimals": 3,
             "website": "https://aave.com/",
-            "c_id":"aave",
+            "c_id": "aave",
             "description": "Aave is an Open Source and Non-Custodial protocol to earn interest on deposits & borrow assets.",
             "id": "aave",
             "isStableCoin": false
@@ -315,7 +316,7 @@
             },
             "displayDecimals": 3,
             "website": "https://www.synthetix.io/",
-            "c_id":"susd",
+            "c_id": "susd",
             "description": "A protocol for trading synthetic assets on Ethereum",
             "id": "susd",
             "isStableCoin": true
@@ -332,7 +333,7 @@
             },
             "displayDecimals": 3,
             "website": "https://decentraland.org/",
-            "c_id":"decentraland",
+            "c_id": "decentraland",
             "description": "Choose your Avatar to enter Decentraland, Your passport to the Metaverse",
             "id": "decentraland",
             "isStableCoin": false
@@ -349,7 +350,7 @@
             },
             "displayDecimals": 3,
             "website": "https://www.synthetix.io/",
-            "c_id":"synthetix-network-token",
+            "c_id": "synthetix-network-token",
             "description": "A protocol for trading synthetic assets on Ethereum",
             "id": "synthetix-network-token",
             "isStableCoin": false
@@ -366,7 +367,7 @@
             },
             "displayDecimals": 3,
             "website": "https://www.augur.net/",
-            "c_id":"augur",
+            "c_id": "augur",
             "description": "Markets for Anyone Anywhere on Anything.",
             "id": "augur",
             "isStableCoin": false
@@ -383,7 +384,7 @@
             },
             "displayDecimals": 0,
             "website": "https://kyber.network/",
-            "c_id":"kyber-network",
+            "c_id": "kyber-network",
             "description": "Kyber is an on-chain liquidity protocol that aggregates liquidity from a wide range of reserves,<br /> powering instant and secure token exchange in any decentralized application.",
             "id": "kyber-network",
             "isStableCoin": false
@@ -400,7 +401,7 @@
             },
             "displayDecimals": 6,
             "website": "https://www.trusttoken.com/trueusd",
-            "c_id":"true-usd",
+            "c_id": "true-usd",
             "description": "The first regulated stablecoin fully backed by the US Dollar.",
             "id": "true-usd",
             "isStableCoin": true
@@ -486,7 +487,6 @@
                 "minAmount": 0.00001
             }
         },
-
 
         {
             "base": "esh",

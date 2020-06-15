@@ -120,7 +120,7 @@ export const TokensListing = () => {
                 <li>Easy Buy URL: {CopyContent(instantTrustLink, instantTrustLink, 5)}</li>
             </StyledP>
 
-           {/* <StyledH1>IEO Listings</StyledH1>
+            {/* <StyledH1>IEO Listings</StyledH1>
 
             <StyledP>
                 {' '}

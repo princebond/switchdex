@@ -192,7 +192,7 @@ export const Footer: React.FC<Props> = props => {
                     </HrefStyled>
                 )}
                 {marketplace !== MARKETPLACES.ERC721 && <Pipe>|</Pipe>}
-             {  /* <HrefStyled
+                {/* <HrefStyled
                     href=""
                     target="_blank"
                     rel="noopener noreferrer"

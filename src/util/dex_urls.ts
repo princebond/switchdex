@@ -1,4 +1,4 @@
-import { getKnownTokens } from "./known_tokens";
+import { getKnownTokens } from './known_tokens';
 
 export const generateTrustWalletDeepLink = (url: string) => {
     return `https://link.trustwallet.com/open_url?coin_id=60&url=${encodeURIComponent(url)}`;
@@ -10,7 +10,7 @@ export const generateMetamaskWalletDeepLink = (url: string) => {
 
 export const generateInstantLink = (address: string) => {
     const knownTokens = getKnownTokens();
-    try{
+    try {
         const token = knownTokens.getTokenByAddress(address);
         return `https://mcafeedex.com/#/instant?token=${token.symbol}`;
     }catch{
@@ -28,7 +28,7 @@ export const generateIEODashboardLink = (address: string, makerAddress: string) 
 
 export const generateERC20TradeLink = (address: string) => {
     const knownTokens = getKnownTokens();
-    try{
+    try {
         const token = knownTokens.getTokenByAddress(address);
         return `https://mcafeedex.com/#/erc20?base=${token.symbol}&quote=weth`;
     }catch{
@@ -38,7 +38,7 @@ export const generateERC20TradeLink = (address: string) => {
 
 export const generateERC20MarketTradeLink = (address: string) => {
     const knownTokens = getKnownTokens();
-    try{
+    try {
         const token = knownTokens.getTokenByAddress(address);
         return `https://mcafeedex.com/#/market-trade?token=${token.symbol}`;
     }catch{

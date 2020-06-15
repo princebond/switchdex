@@ -1,17 +1,16 @@
 # Adding Token as Default
 
 Switch dex allows any token to be added by contract address or users add it to the trading interface. If you are a project owner and want
-to list your token as default on the Switch Dex, your token needs to pass a voting process where ESH holders will vote if your project is worthy to be presented as default. 
+to list your token as default on the Switch Dex, your token needs to pass a voting process where ESH holders will vote if your project is worthy to be presented as default.
 
 If community approves your token you will have follow benefits:
 
-- Announcement on medium, twitter and all relevant switch channels
-- Token listed on Switch
-
+-   Announcement on medium, twitter and all relevant switch channels
+-   Token listed on Switch
 
 # Requirements
 
-- Pay listing fee for integration, this fee is airdroped to ESH holders
+-   Pay listing fee for integration, this fee is airdroped to ESH holders
 
 If the token was approved you need to do a pull request to add your token on the config.json file under src/config/mainnet/config.json with the following template:
 
@@ -35,7 +34,7 @@ If the token was approved you need to do a pull request to add your token on the
             "website": "https://switch.ag/",
             "c_id": "switch",
             "isStableCoin": false
-        },    
+        },
      ]
 ```
 

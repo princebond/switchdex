@@ -125,13 +125,13 @@ export const lendingAToken: ThunkCreator<Promise<any>> = (
         const web3Wrapper = await getWeb3Wrapper();
         let txHash: string;
         if (isEth) {
-            txHash = await lendingPoolWrapper.deposit(AAVE_ETH_TOKEN, amount, 0).sendTransactionAsync({
+            txHash = await lendingPoolWrapper.deposit(AAVE_ETH_TOKEN, amount, 69).sendTransactionAsync({
                 from: ethAccount.toLowerCase(),
                 value: amount.toString(),
                 gasPrice: getTransactionOptions(gasPrice).gasPrice,
             });
         } else {
-            txHash = await lendingPoolWrapper.deposit(token.address, amount, 0).sendTransactionAsync({
+            txHash = await lendingPoolWrapper.deposit(token.address, amount, 69).sendTransactionAsync({
                 from: ethAccount.toLowerCase(),
                 gasPrice: getTransactionOptions(gasPrice).gasPrice,
             });
@@ -240,7 +240,7 @@ export const borrowAToken: ThunkCreator<Promise<any>> = (
         const web3Wrapper = await getWeb3Wrapper();
         // we are using solely variable rate mode
 
-        const txHash = await lendingPoolWrapper.borrow(address, amount, new BigNumber(2), 0).sendTransactionAsync({
+        const txHash = await lendingPoolWrapper.borrow(address, amount, new BigNumber(2), 69).sendTransactionAsync({
             from: ethAccount.toLowerCase(),
             gasPrice: getTransactionOptions(gasPrice).gasPrice,
         });

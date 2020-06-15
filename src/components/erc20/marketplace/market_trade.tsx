@@ -431,7 +431,7 @@ const MarketTrade = (props: Props) => {
         : tabState === OrderSide.Buy
         ? ButtonVariant.Buy
         : ButtonVariant.Sell;
-  /*  const isListed = baseToken ? baseToken.listed : true;
+    /*  const isListed = baseToken ? baseToken.listed : true;
     const msg = 'Token inserted by User. Please proceed with caution and do your own research!';*/
     return (
         <>

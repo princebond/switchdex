@@ -66,7 +66,7 @@ import {
     TokenIEO,
     UserConfigData,
 } from '../../util/types';
-import { setCurrencyPair } from '../market/actions';
+import { setCurrencyPair, setMarketTokens } from '../market/actions';
 import { setFeePercentage, setFeeRecipient } from '../relayer/actions';
 import * as selectors from '../selectors';
 import { getUserConfigData } from '../selectors';
@@ -1171,6 +1171,12 @@ export const initConfigData: ThunkCreator = (queryString: string | undefined, do
                 );
             }
             dispatch(setCurrencyPair(currencyPair));
+            dispatch(
+                setMarketTokens({
+                    baseToken: known_tokens.getTokenBySymbol(currencyPair.base),
+                    quoteToken: known_tokens.getTokenBySymbol(currencyPair.quote),
+                }),
+            );
             dispatch(setGeneralConfig(Config.getConfig().general));
             const localStorage = new LocalStorage(window.localStorage);
             const themeName = localStorage.getThemeName() || Config.getConfig().theme_name;
