@@ -239,8 +239,9 @@ class SwapDropdown extends React.Component<Props, State> {
         );
         const FilterSearchContent = isMobile(windowWidth) ? (
             <>
-                <MarketsFiltersLabel>Tokens</MarketsFiltersLabel>
-                <FilterSearchContainer>
+             <FilterSearchContainer>
+                 <MarketsFiltersLabel>Tokens</MarketsFiltersLabel>
+
                     {/*this._getTokensFilterTabs()*/}
                     {this._getSearchField()}
                 </FilterSearchContainer>

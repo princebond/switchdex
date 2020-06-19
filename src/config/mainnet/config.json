@@ -22,7 +22,7 @@
             },
             "id": "switch",
             "unified_cryptoasset_id": 3365,
-            "displayDecimals": 0,
+            "displayDecimals": 2,
             "description": "Switch give users the ability to seamlessly 'switch' between other assets, buy gift cards, donate to non-profits, and gamble.",
             "website": "https://switch.ag/",
             "c_id": "switch",
@@ -41,10 +41,10 @@
             },
             "id": "ghost",
             "unified_cryptoasset_id": 3365,
-            "displayDecimals": 0,
+            "displayDecimals": 2,
             "description": "GHOST is a proof of stake privacy coin to help make you nothing but a 'ghost' when transacting online!",
             "website": "https://www.ghostbymcafee.com/",
-            "c_id": "ghost",
+            "c_id": "ghost-by-mcafee",
             "isStableCoin": false
         },
         {
@@ -60,7 +60,7 @@
             },
             "id": "sdex",
             "unified_cryptoasset_id": 3365,
-            "displayDecimals": 0,
+            "displayDecimals": 8,
             "description": "Sdex gives 50 % collected fees on switchdex to users",
             "website": "https://switch.ag/",
             "c_id": "sdex",
@@ -80,10 +80,29 @@
             },
             "id": "desh",
             "unified_cryptoasset_id": 3365,
-            "displayDecimals": 0,
+            "displayDecimals": 8,
             "description": "Desh gives 50 % collected fees on switch aggregator to users",
             "website": "https://switch.ag/",
             "c_id": "desh",
+            "isStableCoin": false
+        },
+        {
+            "decimals": 18,
+            "symbol": "whackd",
+            "name": "Whackd",
+            "primaryColor": "#081e6e",
+            "icon": "assets/icons/whackd.svg",
+            "addresses": {
+                "1": "0xcf8335727b776d190f9d15a54e6b9b9348439eee",
+                "3": "0xba3a79d758f19efe588247388754b8e4d6edda81",
+                "42": "0xBA3a79D758f19eFe588247388754b8e4d6EddA81"
+            },
+            "id": "whackd",
+            "unified_cryptoasset_id": 3365,
+            "displayDecimals": 8,
+            "description": "Whacked",
+            "website": "https://whackdtoken.com//",
+            "c_id": "whackd",
             "isStableCoin": false
         },
         {
@@ -116,7 +135,7 @@
                 "50": "0x0b1ba0af832d7c05fd64161e0db78e85978e8082"
             },
             "decimals": 18,
-            "displayDecimals": 2,
+            "displayDecimals": 3,
             "id": "ethereum",
             "c_id": "ethereum",
             "unified_cryptoasset_id": 2396,
@@ -179,6 +198,7 @@
             "website": "https://makerdao.com/en/dai/",
             "description": "Dai is an asset-backed, hard currency for the 21st century.",
             "c_id": "dai",
+            "displayDecimals": 2,
             "isStableCoin": true
         },
         {
@@ -246,7 +266,7 @@
             "addresses": {
                 "1": "0x514910771af9ca656af840dff83e8264ecf986ca"
             },
-            "displayDecimals": 0,
+            "displayDecimals": 2,
             "website": "https://chain.link/",
             "c_id": "chainlink",
             "description": "Your smart contracts connected to real world data, events and payments.",
@@ -382,7 +402,7 @@
             "addresses": {
                 "1": "0xdd974d5c2e2928dea5f71b9825b8b646686bd200"
             },
-            "displayDecimals": 0,
+            "displayDecimals": 2,
             "website": "https://kyber.network/",
             "c_id": "kyber-network",
             "description": "Kyber is an on-chain liquidity protocol that aggregates liquidity from a wide range of reserves,<br /> powering instant and secure token exchange in any decentralized application.",
@@ -416,7 +436,7 @@
             "addresses": {
                 "1": "0x056fd409e1d7a124bd7017459dfea2f387b6d5cd"
             },
-            "displayDecimals": 0,
+            "displayDecimals": 2,
             "c_id": "gemini-dollar",
             "website": "https://gemini.com/dollar",
             "description": "The world’s first regulated stablecoin, designed for high scale and usability in all kinds of transactions.The world’s first regulated stablecoin, designed for high scale and usability in all kinds of transactions.",

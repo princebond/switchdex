@@ -90,6 +90,7 @@ export const buildLimitOrder = async (
     params: BuildLimitOrderParams,
     side: OrderSide,
     expirationTimeSeconds: BigNumber,
+    affiliateAddress?: string,
 ): Promise<Order> => {
     const { account, baseTokenAddress, exchangeAddress, amount, price, quoteTokenAddress } = params;
 
@@ -120,7 +121,7 @@ export const buildLimitOrder = async (
         expirationTimeSeconds,
     };
     // timestamp ? getExpirationTimeFromDate(timestamp) : getExpirationTimeOrdersFromConfig(),
-    return orderHelper.getOrderWithTakerAndFeeConfigFromRelayer(orderConfigRequest);
+    return orderHelper.getOrderWithTakerAndFeeConfigFromRelayer(orderConfigRequest, undefined, affiliateAddress);
 };
 
 export const buildLimitOrderIEO = async (
@@ -173,6 +174,7 @@ export const buildLimitOrderIEO = async (
 export const getOrderWithTakerAndFeeConfigFromRelayer = async (
     orderConfigRequest: OrderConfigRequest,
     isCollectible?: boolean,
+    affiliateAddress?: string,
 ) => {
     const round = (num: BigNumber): BigNumber => num.integerValue(BigNumber.ROUND_FLOOR);
     let orderResult: OrderConfigResponse;
@@ -197,15 +199,20 @@ export const getOrderWithTakerAndFeeConfigFromRelayer = async (
             // Use always Weth as fee, when ETH is on the order. Forwarder needs to make approve asset proxy for all assets.
             // As 0x team always deploying new versions of Forwarder this is needed
             if (isWethTaker || orderConfigRequest.takerAssetData.toLowerCase() === wethAssetData) {
+                // Used to track affiliated dex's, Note remove prefix '0x' to pass library validation
+                const takerFeeAssetData = new BigNumber(TAKER_FEE_PERCENTAGE).isGreaterThan('0')
+                    ? wethAssetData
+                    : NULL_BYTES;
+                /*const takerFeeAssetData = new BigNumber(TAKER_FEE_PERCENTAGE).isGreaterThan('0')
+                ? wethAssetData
+                : NULL_BYTES;*/
                 orderResult = {
                     feeRecipientAddress: FEE_RECIPIENT,
                     senderAddress: ZERO_ADDRESS,
-                    makerFeeAssetData: new BigNumber(MAKER_FEE_PERCENTAGE).isGreaterThan('0')
-                        ? wethAssetData
+                    makerFeeAssetData: affiliateAddress
+                        ? assetDataUtils.encodeERC20AssetData(affiliateAddress)
                         : NULL_BYTES,
-                    takerFeeAssetData: new BigNumber(TAKER_FEE_PERCENTAGE).isGreaterThan('0')
-                        ? wethAssetData
-                        : NULL_BYTES,
+                    takerFeeAssetData,
                     makerFee: isWethTaker
                         ? round(orderConfigRequest.makerAssetAmount.multipliedBy(new BigNumber(MAKER_FEE_PERCENTAGE)))
                         : round(orderConfigRequest.takerAssetAmount.multipliedBy(new BigNumber(MAKER_FEE_PERCENTAGE))),
@@ -214,15 +221,19 @@ export const getOrderWithTakerAndFeeConfigFromRelayer = async (
                         : round(orderConfigRequest.makerAssetAmount.multipliedBy(new BigNumber(TAKER_FEE_PERCENTAGE))),
                 };
             } else {
+                // Used to track affiliated dex's
+                const takerFeeAssetData = new BigNumber(TAKER_FEE_PERCENTAGE).isGreaterThan('0')
+                    ? orderConfigRequest.makerAssetData
+                    : NULL_BYTES;
+                // const  takerFeeAssetData = new BigNumber(TAKER_FEE_PERCENTAGE).isGreaterThan('0') ? orderConfigRequest.makerAssetData : NULL_BYTES;
+
                 orderResult = {
                     feeRecipientAddress: FEE_RECIPIENT,
                     senderAddress: ZERO_ADDRESS,
-                    makerFeeAssetData: new BigNumber(MAKER_FEE_PERCENTAGE).isGreaterThan('0')
-                        ? orderConfigRequest.takerAssetData
+                    makerFeeAssetData: affiliateAddress
+                        ? assetDataUtils.encodeERC20AssetData(affiliateAddress)
                         : NULL_BYTES,
-                    takerFeeAssetData: new BigNumber(TAKER_FEE_PERCENTAGE).isGreaterThan('0')
-                        ? orderConfigRequest.makerAssetData
-                        : NULL_BYTES,
+                    takerFeeAssetData,
                     makerFee: round(
                         orderConfigRequest.takerAssetAmount.multipliedBy(new BigNumber(MAKER_FEE_PERCENTAGE)),
                     ),

@@ -58,6 +58,21 @@ const Label = styled.label<{ color?: string }>`
     margin: 0;
 `;
 
+/*const Span = styled.span<{ isRed?: boolean }>`
+    color: ${props => props.isRed ? 'red' : 'green'};
+    font-size: 14px;
+    font-weight: 500;
+    line-height: normal;
+    margin: 0;
+`;*/
+
+const Span = styled.span`
+    font-size: 14px;
+    font-weight: 500;
+    line-height: normal;
+    margin: 0;
+`;
+
 const MainLabel = styled(Label)``;
 
 /*const FeeLabel = styled(Label)`
@@ -68,6 +83,14 @@ const MainLabel = styled(Label)``;
 const CostLabel = styled(Label)`
     font-weight: 700;
     display: flex;
+`;
+
+const PointerLabel = styled(Label)`
+    font-weight: 700;
+    display: flex;
+    :hover {
+		cursor: pointer;
+	}
 `;
 
 const Wave = styled.div``;
@@ -180,34 +203,64 @@ class MarketTradeDetails extends React.Component<Props, State> {
         const costText = this._getCostLabelStringForRender();
         const priceMedianText = this._getMedianPriceStringForRender();
         const priceMarketTrackerText = this._getPriceMarketRender();
+        const slippage = this._getPriceSlippage();
 
         return (
             <>
-                <LabelContainer>
+                {/*    <LabelContainer>
                     <MainLabel>Order Details</MainLabel>
                 </LabelContainer>
-                {/* <Row>
+               <Row>
                         <FeeLabel>Fee</FeeLabel>
                         <Value>{fee}</Value>
                 </Row>*/}
                 <Row>
                     <CostLabel>
                         {costText}
-                        <StyledTooltip description="Estimated cost without gas and trade fees" />
+                        <StyledTooltip description="Amount without gas and fees" />
                     </CostLabel>
                     <CostValue>{cost}</CostValue>
                 </Row>
                 <Row>
-                    <CostLabel>Median Price:</CostLabel>
-                    <CostValue>{priceMedianText}</CostValue>
+                    <PointerLabel onClick={() => this._switchPrice()}>Price
+                    </PointerLabel>
+                    <CostValue>{slippage}{' '}{priceMedianText}</CostValue>
                 </Row>
                 <Row>
-                    <CostLabel>Price by Coingecko:</CostLabel>
+                    <CostLabel>Price by Coingecko:
+                        <StyledTooltip description="Reference Price" />
+                    </CostLabel>
                     <CostValue>{priceMarketTrackerText}</CostValue>
                 </Row>
             </>
         );
     };
+    private readonly _switchPrice = async () => {
+        const { price, geckoPrice } = this.state;
+        if (!price.isZero()) {
+            this.setState({ price: new BigNumber(1).dividedBy(price) });
+        }
+        if (!geckoPrice.isZero()) {
+            this.setState({ geckoPrice: new BigNumber(1).dividedBy(geckoPrice) });
+        }
+    }
+
+    private readonly _getPriceSlippage =  () => {
+        const { price, geckoPrice } = this.state;
+        const { quoteState } = this.props;
+        if (!price || !geckoPrice) {
+            return null;
+        }
+        if (quoteState === SwapQuoteState.Loading) {
+            return null;
+        }
+        if (!price.isZero() && !geckoPrice.isZero()) {
+            const slippage = geckoPrice.minus(price).dividedBy(geckoPrice).multipliedBy(100);
+            return <Span>({slippage.toFixed(2)}%) </Span>;
+        }
+        return null;
+
+    }
 
     private readonly _updateOrderDetailsState = async () => {
         const { quote, orderSide, baseToken, quoteToken, tokenPrices } = this.props;
@@ -322,11 +375,12 @@ class MarketTradeDetails extends React.Component<Props, State> {
     private readonly _getCostLabelStringForRender = () => {
         const { qouteInUSD, orderSide } = this.props;
         if (qouteInUSD) {
-            return orderSide === OrderSide.Sell ? 'Estimated Total (USD)' : 'Estimated Cost (USD)';
+            return orderSide === OrderSide.Sell ? 'You Receive' : 'You Receive';
         } else {
-            return orderSide === OrderSide.Sell ? 'Estimated Total' : 'Estimated Cost';
+            return orderSide === OrderSide.Sell ? 'You Receive' : 'You Receive';
         }
     };
+
     private readonly _getPriceMarketRender = () => {
         const { quoteToken, quoteState } = this.props;
         const { geckoPrice } = this.state;

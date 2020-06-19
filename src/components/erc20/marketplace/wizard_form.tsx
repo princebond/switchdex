@@ -57,7 +57,7 @@ const WizardForm = (_props: Props) => {
         {
             target: '.general-config-step',
             content:
-                'Welcome to Dex Wizard! Configure your dex with your custom domain, title and logo. Add your ethereum fee recipient  address to receive affiliate fees when supported ',
+                'Welcome to Dex Wizard! Configure your dex with your custom domain, title and logo. Add your ethereum fee recipient address to receive affiliate fees when supported ',
             placementBeacon: 'top',
             disableBeacon: true,
             floaterProps: { disableAnimation: true },
@@ -76,12 +76,12 @@ const WizardForm = (_props: Props) => {
         {
             target: '.pairs-step',
             content:
-                'VSF and Eth pairs are added automatically when you add Tokens. Here you can change the order how the pairs appears on the DEX',
+                'ESH and Eth pairs are added automatically when you add Tokens. Here you can change the order how the pairs appears on the DEX',
             placementBeacon: 'top',
         },
         {
             target: '.market-filters-step',
-            content: 'The market quotes supported by the DEX. Now it is locked at ETH and VSF',
+            content: 'The market quotes supported by the DEX. Now it is locked at ETH and ESH',
             placementBeacon: 'top',
         },
     ];

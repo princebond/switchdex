@@ -237,7 +237,7 @@ export const SettingsDropdownContainer = (props: any) => {
                     style={{ textAlign: 'center' }}
                     text={themeName === 'DARK_THEME' ? ' ☼' : ' ☾'}
                 />
-                <DropdownTextItem onClick={handleWizardClick} style={{ textAlign: 'center' }} text={'Costumize'} />
+                <DropdownTextItem onClick={handleWizardClick} style={{ textAlign: 'center' }} text={'Customize'} />
                 <DropdownTextItem
                     onClick={onDynamicLayout}
                     style={{ textAlign: 'center' }}

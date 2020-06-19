@@ -4,23 +4,6 @@
     },
     "tokens": [
         {
-            "decimals": 18,
-            "symbol": "vsf",
-            "name": "VeriSafe",
-            "primaryColor": "#081e6e",
-            "icon": "assets/icons/vsf.svg",
-            "addresses": {
-                "1": "0xac9ce326e95f51b5005e9fe1dd8085a01f18450c",
-                "3": "0xba3a79d758f19efe588247388754b8e4d6edda81",
-                "42": "0xBA3a79D758f19eFe588247388754b8e4d6EddA81"
-            },
-            "id": "verisafe",
-            "c_id": "verisafe",
-            "displayDecimals": 0,
-            "description": "The transparent ecossystem that crypto needs!",
-            "website": "https://www.verisafe.io"
-        },
-        {
             "symbol": "weth",
             "name": "Wrapped Ether",
             "primaryColor": "#3333ff",
@@ -110,30 +93,12 @@
     ],
     "pairs": [
         {
-            "base": "vsf",
-            "quote": "weth",
-            "config": {
-                "basePrecision": 0,
-                "pricePrecision": 8,
-                "minAmount": 10000
-            }
-        },
-        {
             "base": "zrx",
             "quote": "weth",
             "config": {
                 "basePrecision": 0,
                 "pricePrecision": 7,
                 "minAmount": 10000
-            }
-        },
-        {
-            "base": "zrx",
-            "quote": "vsf",
-            "config": {
-                "basePrecision": 0,
-                "pricePrecision": 7,
-                "minAmount": 10
             }
         },
         {
@@ -166,10 +131,6 @@
         {
             "text": "ETH",
             "value": "weth"
-        },
-        {
-            "text": "VSF",
-            "value": "vsf"
         }
     ]
 }

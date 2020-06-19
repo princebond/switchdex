@@ -102,12 +102,12 @@ export const GeneralWizardForm = ({
                     />
                 </LabelContainer>
                 <FieldContainer>
-                    <Field required={true} name={`${name}.title`} component={TextInput} placeholder={`Title`} />
+                    <Field required={true} min={'2'} name={`${name}.title`} component={TextInput} placeholder={`Title`} />
                 </FieldContainer>
                 <LabelContainer>
                     <Label>Dex Domain</Label> {` `}
                     <TooltipStyled
-                        description="Domain where your DEX will be showed. Ex: https://dex.verisafe.io/"
+                        description="Domain where your DEX will be showed. Ex: https://switchdex.ag/"
                         iconType={IconType.Fill}
                     />
                 </LabelContainer>
@@ -143,7 +143,7 @@ export const GeneralWizardForm = ({
                         name={`${name}.feePercentage`}
                         type={'number'}
                         component={StyledInput}
-                        placeholder={`Affiliate fee Percentage`}
+                        placeholder={`Affiliate fee percentage`}
                         min={0}
                         step={0.001}
                         max={0.05}

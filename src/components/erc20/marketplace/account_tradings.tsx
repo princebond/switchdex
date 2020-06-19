@@ -105,6 +105,7 @@ const AccountTradings: React.FC<Props> = props => {
         if (isInvalidMarket) {
             setLoading(false);
         }
+     // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [baseToken, quoteToken]);
 
     if (accountMarketStats && !isInvalidMarket && currencyPair) {
