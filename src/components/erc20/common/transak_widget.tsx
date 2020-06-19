@@ -45,7 +45,7 @@ export const TransakWidget = (props: Props) => {
             defaultCryptoCurrency: props.tokenSymbol || 'ETH',
             walletAddress: props.walletAddress || '',
             themeColor: '#02112c', // App theme color in hex
-            fiatCurrency: 'USD', // INR/GBP
+            fiatCurrency: '', // INR/GBP
             redirectURL: '',
             hostURL: window.location.origin,
             widgetHeight: props.height || '650px',

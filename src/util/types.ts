@@ -204,6 +204,7 @@ export interface UIState {
     readonly orderSellPriceSelected: BigNumber | null;
     readonly makerAmountSelected: BigNumber | null;
     readonly sidebarOpen: boolean;
+    readonly isAffiliate: boolean;
     readonly openFiatOnRampModal: boolean;
     readonly openFiatOnRampChooseModal: boolean;
     readonly fiatType: 'APPLE_PAY' | 'CREDIT_CARD' | 'DEBIT_CARD' | 'CARDS';

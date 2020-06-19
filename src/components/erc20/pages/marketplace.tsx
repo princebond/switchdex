@@ -16,7 +16,6 @@ import { isMobile } from '../../../util/screen';
 import { FiatOnRampModalContainer } from '../../account/fiat_modal';
 import { FiatChooseModalContainer } from '../../account/fiat_onchoose_modal';
 import { CheckWalletStateModalContainer } from '../../common/check_wallet_state_modal_container';
-import { ErrorCard, FontSize } from '../../common/error_card';
 import { useWindowSize } from '../../common/hooks/window_size_hook';
 import { Content } from '../common/content_wrapper';
 import { MarketDetailsContainer } from '../common/market_details';
@@ -210,7 +209,7 @@ const Marketplace = () => {
     if (isMobile(size.width)) {
         content = (
             <Content>
-                {!isListed && <ErrorCard fontSize={FontSize.Large} text={msg} />}
+                {/*!isListed && <ErrorCard fontSize={FontSize.Large} text={msg} />*/}
                 <BuySellContainer />
                 <OrderBookTableContainer />
                 <MarketDetailsContainer isTradingGraphic={false} />
@@ -233,7 +232,7 @@ const Marketplace = () => {
         if (isMarketDetails) {
             cards.push(
                 <div key="b" className="market-details">
-                    {!isListed && <ErrorCard fontSize={FontSize.Large} text={msg} />}
+                    {/*!isListed && <ErrorCard fontSize={FontSize.Large} text={msg} />*/}
                     <MarketDetailsContainer isTradingGraphic={true} />
                 </div>,
             );

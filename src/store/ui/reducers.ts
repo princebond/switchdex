@@ -60,6 +60,7 @@ const initialUIState: UIState = {
     generalConfig: Config.getConfig().general,
     configData: null,
     userConfigData: localStorage.getUserConfigData(),
+    isAffiliate: false,
 };
 
 export function stepsModal(state: StepsModalState = initialStepsModalState, action: RootAction): StepsModalState {
@@ -122,6 +123,8 @@ export function ui(state: UIState = initialUIState, action: RootAction): UIState
             return { ...state, startTour: action.payload };
         case getType(actions.setFiatType):
             return { ...state, fiatType: action.payload };
+        case getType(actions.setIsAffiliate):
+            return { ...state, isAffiliate: action.payload };
         case getType(actions.addNotifications): {
             const newNotifications = action.payload.filter(notification => {
                 const doesAlreadyExist = state.notifications

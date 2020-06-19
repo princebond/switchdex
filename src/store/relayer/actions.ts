@@ -314,6 +314,7 @@ export const submitLimitOrder: ThunkCreator = (signedOrder: SignedOrder, amount:
         const state = getState();
         const baseToken = getBaseToken(state) as Token;
         try {
+            console.log(signedOrder);
             const submitResult = await getRelayer().submitOrderAsync(signedOrder);
             // tslint:disable-next-line:no-floating-promises
             dispatch(getOrderbookAndUserOrders());

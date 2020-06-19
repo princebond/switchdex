@@ -7,7 +7,6 @@ import styled from 'styled-components';
 import {
     goToHome,
     goToHomeDefi,
-    goToHomeLaunchpad,
     goToHomeMarketTrade,
     goToWallet,
     logoutWallet,
@@ -16,9 +15,9 @@ import {
     setERC20Theme,
     setThemeName,
 } from '../../../store/actions';
-import { getEthAccount, getThemeName, getBaseToken } from '../../../store/selectors';
+import { getBaseToken, getEthAccount, getThemeName } from '../../../store/selectors';
 import { getThemeFromConfigDex } from '../../../themes/theme_meta_data_utils';
-import { connectToExplorer, viewOnFabrx } from '../../../util/external_services';
+import { connectToExplorer } from '../../../util/external_services';
 import { truncateAddress } from '../../../util/number_utils';
 import { viewAddressOnEtherscan } from '../../../util/transaction_link';
 import { WalletConnectionStatusDotStyled, WalletConnectionStatusText } from '../../account/wallet_connection_status';
@@ -58,9 +57,9 @@ export const MobileWalletConnectionContent = () => {
     const dispatch = useDispatch();
     const [isEnableFiat, setIsEnableFiat] = useState(false);
 
-    const openFabrx = () => {
+    /*const openFabrx = () => {
         viewOnFabrx(ethAccount);
-    };
+    };*/
 
     const onCloseTransakModal = () => {
         setIsEnableFiat(false);
@@ -78,10 +77,10 @@ export const MobileWalletConnectionContent = () => {
         dispatch(openSideBar(false));
     };
 
-    const onGoToLaunchpad = () => {
+   /* const onGoToLaunchpad = () => {
         dispatch(goToHomeLaunchpad());
         dispatch(openSideBar(false));
-    };
+    };*/
 
     const onGoToMarketTrade = () => {
         dispatch(goToHomeMarketTrade());

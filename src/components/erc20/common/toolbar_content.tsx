@@ -9,6 +9,7 @@ import { separatorTopbar, ToolbarContainer } from '../../../components/common/to
 import { NotificationsDropdownContainer } from '../../../components/notifications/notifications_dropdown';
 import {
     changeSwapBaseToken,
+    changeSwapQuoteToken,
     goToHome,
     goToHomeDefi,
     goToHomeMarketTrade,
@@ -16,7 +17,6 @@ import {
     openFiatOnRampModal,
     openSideBar,
     setFiatType,
-    setSwapQuoteToken,
 } from '../../../store/actions';
 import {
     getBaseToken,
@@ -30,6 +30,7 @@ import { Theme, themeBreakPoints } from '../../../themes/commons';
 import { isMobile } from '../../../util/screen';
 import { MARKETPLACES } from '../../../util/types';
 import { Button } from '../../common/button';
+import { DropdownPositions } from '../../common/dropdown';
 import { withWindowWidth } from '../../common/hoc/withWindowWidth';
 import { LogoIcon } from '../../common/icons/logo_icon';
 import { MenuBurguer } from '../../common/icons/menu_burguer';
@@ -152,7 +153,7 @@ const ToolbarContent = (props: Props) => {
 
     const onClickSwap: React.EventHandler<React.MouseEvent> = e => {
         e.preventDefault();
-        dispatch(setSwapQuoteToken(baseSwapToken));
+        dispatch(changeSwapQuoteToken(baseSwapToken));
         dispatch(changeSwapBaseToken(quoteSwapToken));
     };
 
@@ -165,7 +166,8 @@ const ToolbarContent = (props: Props) => {
                     isQuote={false}
                 />
                 <SwapStyledButton onClick={onClickSwap}>⇋</SwapStyledButton>
-                <SwapDropdownHeader shouldCloseDropdownBodyOnClick={false} className={'swap-dropdown'} isQuote={true} />
+                <SwapDropdownHeader shouldCloseDropdownBodyOnClick={false} className={'swap-dropdown'} isQuote={true}
+                horizontalPosition={isMobile(props.windowWidth) ? DropdownPositions.Center : DropdownPositions.Left} />
             </>
         ) : (
             <MarketsDropdownHeader shouldCloseDropdownBodyOnClick={false} className={'markets-dropdown'} />
