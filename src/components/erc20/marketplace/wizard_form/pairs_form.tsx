@@ -55,7 +55,8 @@ export const PairsForm = ({
                             <StyledPair key={name}>
                                 <PairReadOnly name={name} index={index} values={fields.value} />
                             </StyledPair>
-                        ))}
+                        ))
+                    }
                 </FieldArray>
                 <OnChange name={'pairs'}>
                     {(value: CurrencyPair[], _previous: CurrencyPair[]) => {

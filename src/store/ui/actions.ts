@@ -934,7 +934,7 @@ export const createConfigSignature: ThunkCreator = (message: string) => {
                 },
                 message: {
                     message: 'I want to create/edit this DEX',
-                    terms: 'Powered by SwitchDEX',
+                    terms: 'Powered by Switch',
                 },
             };
             const web3Metamask = new Web3Wrapper(provider);

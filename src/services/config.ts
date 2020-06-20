@@ -22,9 +22,8 @@ export const getConfigFromNameOrDomain = async ({
         response = await fetch('assets/wizard/ConfigFile.json');
         try {
             const json = await response.json();
-            return {config: JSON.stringify(json) } as ConfigRelayerData;
-        } catch {
-        }
+            return { config: JSON.stringify(json) } as ConfigRelayerData;
+        } catch {}
         response = await fetch(`${RELAYER_URL}/config?domain=${domain}`, init);
     }
     if (name) {

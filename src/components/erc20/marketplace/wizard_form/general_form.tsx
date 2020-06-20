@@ -102,7 +102,13 @@ export const GeneralWizardForm = ({
                     />
                 </LabelContainer>
                 <FieldContainer>
-                    <Field required={true} min={'2'} name={`${name}.title`} component={TextInput} placeholder={`Title`} />
+                    <Field
+                        required={true}
+                        min={'2'}
+                        name={`${name}.title`}
+                        component={TextInput}
+                        placeholder={`Title`}
+                    />
                 </FieldContainer>
                 <LabelContainer>
                     <Label>Dex Domain</Label> {` `}

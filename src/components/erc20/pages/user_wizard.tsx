@@ -22,8 +22,8 @@ const UserWizardPage = () => (
             <UserWizardFormWithTheme />
         </ColumnWideMyWallet>
         <CheckWalletStateModalContainer />
-            <FiatOnRampModalContainer />
-            <FiatChooseModalContainer />
+        <FiatOnRampModalContainer />
+        <FiatChooseModalContainer />
     </Content>
 );
 

@@ -18,12 +18,12 @@ const ColumnWideMyWallet = styled(ColumnWide)`
 
 const WizardPage = () => (
     <Content>
-            <ColumnWideMyWallet>
-               <WizardFormWithTheme />
-            </ColumnWideMyWallet>
+        <ColumnWideMyWallet>
+            <WizardFormWithTheme />
             <CheckWalletStateModalContainer />
             <FiatOnRampModalContainer />
             <FiatChooseModalContainer />
+        </ColumnWideMyWallet>
     </Content>
 );
 

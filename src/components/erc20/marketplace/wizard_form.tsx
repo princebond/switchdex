@@ -7,7 +7,7 @@ import styled, { withTheme } from 'styled-components';
 
 import { ConfigTemplate } from '../../../common/config';
 import { startDexConfigSteps } from '../../../store/actions';
-import { getConfigData, getERC20Layout, getERC20Theme, getThemeName } from '../../../store/selectors';
+import { getConfigData, getERC20Layout, getERC20Theme, getEthAccount, getThemeName } from '../../../store/selectors';
 import { Theme, themeDimensions } from '../../../themes/commons';
 import { getThemeByName } from '../../../themes/theme_meta_data_utils';
 import { ButtonVariant, ConfigFile } from '../../../util/types';
@@ -52,6 +52,7 @@ const Introduction = styled.p`
 
 const WizardForm = (_props: Props) => {
     const configTemplate = ConfigTemplate.getConfig();
+    const ethAccount = useSelector(getEthAccount);
     const dispatch = useDispatch();
     const steps: Step[] = [
         {
@@ -180,7 +181,7 @@ const WizardForm = (_props: Props) => {
                             <ButtonContainer>
                                 <Button
                                     onClick={form.submit}
-                                    disabled={submitting || pristine}
+                                    disabled={submitting || pristine || !ethAccount}
                                     variant={ButtonVariant.Buy}
                                 >
                                     Submit
@@ -259,6 +260,11 @@ const WizardForm = (_props: Props) => {
                 {' '}
                 Create your DEX with few steps. <button onClick={onTakeTutorial}>Take Tutorial</button>
             </Introduction>
+            {!ethAccount && (
+                <Introduction>
+                    Please note to submit you need to be connected to your wallet to sign a message
+                </Introduction>
+            )}
             <Joyride
                 run={isRun}
                 steps={stepsState}

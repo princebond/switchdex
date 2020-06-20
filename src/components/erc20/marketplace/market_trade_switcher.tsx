@@ -29,7 +29,7 @@ const StyledP = styled.p`
 `;
 
 const Container = styled.div`
-   display: fex;
+    display: fex;
 `;
 
 export const MarketTradeSwitcherComponent = () => {
@@ -42,20 +42,13 @@ export const MarketTradeSwitcherComponent = () => {
         dispatch(changeSwapBaseToken(quoteSwapToken));
     };
 
-    const content =
+    const content = (
         <Container>
-            <SwapDropdownHeader
-                shouldCloseDropdownBodyOnClick={false}
-                className={'swap-dropdown'}
-                isQuote={false}
-            />
+            <SwapDropdownHeader shouldCloseDropdownBodyOnClick={false} className={'swap-dropdown'} isQuote={false} />
             <SwapStyledButton onClick={onClickSwap}>⇋</SwapStyledButton>
             <SwapDropdownHeader shouldCloseDropdownBodyOnClick={false} className={'swap-dropdown'} isQuote={true} />
-        </Container >;
-
-    return (
-        <StyledCard title="Tokens Available">
-            {content}
-        </StyledCard>
+        </Container>
     );
+
+    return <StyledCard title="Tokens Available">{content}</StyledCard>;
 };
