@@ -6,7 +6,7 @@ import { useLocation } from 'react-router';
 import styled from 'styled-components';
 
 import { ZERO } from '../../../common/constants';
-import { calculateSwapQuote, setSwapBaseToken, setSwapQuoteToken, startSwapMarketSteps } from '../../../store/actions';
+import { calculateSwapQuote, setSwapBaseToken, setSwapQuoteToken, startSwapMarketSteps, updateMarketPriceTokens } from '../../../store/actions';
 import {
     getCurrencyPair,
     getOrderPriceSelected,
@@ -130,7 +130,7 @@ const LabelAvailableContainer = styled.div`
 const Label = styled.label<{ color?: string }>`
     color: ${props => props.color || props.theme.componentsTheme.textColorCommon};
     font-size: 14px;
-    font-weight: 500;
+    font-weight: bold;
     line-height: normal;
     margin: 0;
 `;
@@ -187,6 +187,10 @@ const BigInputNumberTokenLabel = (props: { tokenSymbol: string }) => (
     </TokenContainer>
 );
 
+const StyledLoader = styled(Button)`
+ padding:8px;
+`;
+
 const TIMEOUT_BTN_ERROR = 2000;
 const TIMEOUT_CARD_ERROR = 4000;
 
@@ -205,7 +209,7 @@ const MarketTrade = (props: Props) => {
         ? sideQuery.toLocaleUpperCase() === 'sell'
             ? OrderSide.Sell
             : OrderSide.Buy
-        : OrderSide.Buy;
+        : OrderSide.Sell;
     const [tabState, setTabState] = useState(initialSide);
     const [errorState, setErrorState] = useState<{ btnMsg: null | string; cardMsg: null | string }>({
         btnMsg: null,
@@ -284,8 +288,8 @@ const MarketTrade = (props: Props) => {
 
     const isOrderTypeMarketIsEmpty = isMakerAmountEmpty || isMaxAmount;
     const baseSymbol = formatTokenSymbol(baseToken.symbol);
-    const btnPrefix = tabState === OrderSide.Buy ? 'Buy ' : 'Sell ';
-    const btnText = errorState && errorState.btnMsg ? errorState.btnMsg : btnPrefix + baseSymbol;
+    const btnPrefix = tabState === OrderSide.Buy ? 'BUY ' : 'SWAP ';
+    const btnText = errorState && errorState.btnMsg ? errorState.btnMsg : btnPrefix;
     const _reset = () => {
         setMakerAmountState(new BigNumber(0));
         setPriceState(new BigNumber(0));
@@ -305,6 +309,7 @@ const MarketTrade = (props: Props) => {
             return;
         }
         dispatch(calculateSwapQuote(params));
+        dispatch(updateMarketPriceTokens());
     };
 
     const debouncedAmount = useDebounce(makerAmountState, 500);
@@ -353,6 +358,12 @@ const MarketTrade = (props: Props) => {
         setTabState(tab);
         if (makerAmountState.isGreaterThan(0)) {
             onCalculateSwapQuote(makerAmountState, tab);
+        }
+    };
+
+    const updateQuote = () => {
+        if (makerAmountState.isGreaterThan(0)) {
+            onCalculateSwapQuote(makerAmountState, tabState);
         }
     };
 
@@ -428,34 +439,21 @@ const MarketTrade = (props: Props) => {
     };
     const btnVariant = errorState.btnMsg
         ? ButtonVariant.Error
-        : tabState === OrderSide.Buy
-        ? ButtonVariant.Buy
-        : ButtonVariant.Sell;
+        : ButtonVariant.Buy;
+
     /*  const isListed = baseToken ? baseToken.listed : true;
     const msg = 'Token inserted by User. Please proceed with caution and do your own research!';*/
     return (
         <>
             {/*!isListed && <ErrorCard fontSize={FontSize.Large} text={msg} />*/}
             <BuySellWrapper>
-                <TabsContainer>
-                    <TabButton
-                        isSelected={tabState === OrderSide.Buy}
-                        onClick={changeTab(OrderSide.Buy)}
-                        side={OrderSide.Buy}
-                    >
-                        Buy
-                    </TabButton>
-                    <TabButton
-                        isSelected={tabState === OrderSide.Sell}
-                        onClick={changeTab(OrderSide.Sell)}
-                        side={OrderSide.Sell}
-                    >
-                        Sell
-                    </TabButton>
-                </TabsContainer>
                 <Content>
                     <LabelContainer>
-                        <Label>Amount</Label>
+                        <Label>Send:</Label>
+                        <StyledLoader onClick={updateQuote} variant={ButtonVariant.Primary}>
+                            {' '}
+                            ⟳{' '}
+                        </StyledLoader>
                     </LabelContainer>
                     <FieldAmountContainer>
                         <BigInputNumberStyled

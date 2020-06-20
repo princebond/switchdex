@@ -195,6 +195,10 @@ export const setConfigData = createAction('ui/CONFIG_DATA_set', resolve => {
     return (config: ConfigData) => resolve(config);
 });
 
+export const setIsAffiliate = createAction('ui/IS_AFFILIATE_set', resolve => {
+    return (isAffiliate: boolean) => resolve(isAffiliate);
+});
+
 export const setUserConfigData = createAction('ui/USER_CONFIG_DATA_set', resolve => {
     return (config: UserConfigData | null) => resolve(config);
 });
@@ -830,6 +834,12 @@ export const createSignedOrder: ThunkCreator = (amount: BigNumber, price: BigNum
         const ethAccount = selectors.getEthAccount(state);
         const baseToken = selectors.getBaseToken(state) as Token;
         const quoteToken = selectors.getQuoteToken(state) as Token;
+        const isAffiliate = selectors.getIsAffiliate(state);
+        let affiliateAddress;
+        if (isAffiliate) {
+            affiliateAddress = selectors.getFeeRecipient(state);
+        }
+
         const orderSecondsExpirationTime = selectors.getOrderSecondsExpirationTime(state);
         const expirationTimeSeconds = orderSecondsExpirationTime
             ? getExpirationTimeFromSeconds(orderSecondsExpirationTime)
@@ -849,6 +859,7 @@ export const createSignedOrder: ThunkCreator = (amount: BigNumber, price: BigNum
                 },
                 side,
                 expirationTimeSeconds,
+                affiliateAddress,
             );
 
             const provider = new MetamaskSubprovider(web3Wrapper.getProvider());
@@ -916,14 +927,14 @@ export const createConfigSignature: ThunkCreator = (message: string) => {
                 },
                 primaryType: 'Message',
                 domain: {
-                    name: 'Veridex',
+                    name: 'DexWizard',
                     version: '1',
                     chainId: CHAIN_ID,
                     verifyingContract: '0xCcCCccccCCCCcCCCCCCcCcCccCcCCCcCcccccccC',
                 },
                 message: {
-                    message: 'I want to create/edit this DEX. Veridex terms apply',
-                    terms: 'verisafe.io/terms-and-conditions',
+                    message: 'I want to create/edit this DEX',
+                    terms: 'Powered by SwitchDEX',
                 },
             };
             const web3Metamask = new Web3Wrapper(provider);
@@ -1149,7 +1160,9 @@ export const initConfigData: ThunkCreator = (queryString: string | undefined, do
             if (!configRelayerData) {
                 return;
             }
+
             const configFile: ConfigFile = JSON.parse(configRelayerData.config);
+
             const configData: ConfigData = { ...configRelayerData, config: configFile };
             dispatch(setConfigData(configData));
             const configInstance = Config.getInstance();
@@ -1189,8 +1202,9 @@ export const initConfigData: ThunkCreator = (queryString: string | undefined, do
                 feeRecipient = general.feeRecipient || FEE_RECIPIENT;
                 feePercentage = general.feePercentage || FEE_PERCENTAGE;
             }
-            dispatch(setFeeRecipient(feeRecipient));
+            dispatch(setFeeRecipient(feeRecipient.toLowerCase()));
             dispatch(setFeePercentage(feePercentage));
+            dispatch(setIsAffiliate(true));
         } catch (e) {
             return;
         }

@@ -18,6 +18,9 @@ const ColumnWideMyWallet = styled(ColumnWide)`
         width: 100%;
     }
     @media (min-width: ${themeBreakPoints.md}) {
+        max-width: 100%;
+    }
+    @media (min-width: ${themeBreakPoints.lg}) {
         max-width: 60%;
     }
 `;

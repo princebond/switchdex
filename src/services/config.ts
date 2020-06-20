@@ -17,6 +17,14 @@ export const getConfigFromNameOrDomain = async ({
     };
     let response;
     if (domain) {
+        // check if file exists on local server
+        // TODO optimize this to not stringify and parse two times
+        response = await fetch('assets/wizard/ConfigFile.json');
+        try {
+            const json = await response.json();
+            return {config: JSON.stringify(json) } as ConfigRelayerData;
+        } catch {
+        }
         response = await fetch(`${RELAYER_URL}/config?domain=${domain}`, init);
     }
     if (name) {

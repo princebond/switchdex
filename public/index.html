@@ -21,6 +21,7 @@
     />
     <meta name="theme-color" content="#000000" />
     <link rel="manifest" href="%PUBLIC_URL%/manifest.json" />
+    <meta name="fortmatic-site-verification" content="ww68W6VjqmanwxFA" />
       <!-- Primary Meta Tags -->
     <title>McafeeDex — ERC20 trading, swap, fiat-onramp, defi and market maker tools</title>
     <meta name="title" content="McafeeDex — ERC20 trading, swap, defi, fiat-onramp and market maker tools">
@@ -42,7 +43,7 @@
     <meta property="twitter:image" content="https://mcafeedex.com/assets/McafeeDex.png">
 
     <meta name="keywords" content="dex,decentralized exchange,erc20,cryptocurrency trading,0xproject,ethereum,altcoins,lending,funding,margin,loans,macfee,switch">
-    <meta name="fortmatic-site-verification" content="tDRN42YhholYOtQ5" />
+
   <!-- <script async src="//pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script>
     <script>
         (adsbygoogle = window.adsbygoogle || []).push({
@@ -341,10 +342,41 @@
           </div>
     </div>
   </body>
-  <script id="chatBroEmbedCode">
-      /* Chatbro Widget Embed Code Start */
-     /* function ChatbroLoader(chats,async){async=!1!==async;var params={embedChatsParameters:chats instanceof Array?chats:[chats],lang:navigator.language||navigator.userLanguage,needLoadCode:'undefined'==typeof Chatbro,embedParamsVersion:localStorage.embedParamsVersion,chatbroScriptVersion:localStorage.chatbroScriptVersion},xhr=new XMLHttpRequest;xhr.withCredentials=!0,xhr.onload=function(){eval(xhr.responseText)},xhr.onerror=function(){console.error('Chatbro loading error')},xhr.open('GET','//www.chatbro.com/embed.js?'+btoa(unescape(encodeURIComponent(JSON.stringify(params)))),async),xhr.send()}*/
-      /* Chatbro Widget Embed Code End */
-   /*   ChatbroLoader({encodedChatId: '43oXy'});*/
+  <script id="dexWizard">
+    // run to costumize tags
+      if (
+        window.location.hostname === "localhost" ||
+        window.location.hostname === "switchdex.ag" ||
+        window.location.hostname === "mcafeedex.com"
+      ) {
+
+
+      }else{
+        const capitalize = (s) => {
+            if (typeof s !== 'string') return ''
+            return s.charAt(0).toUpperCase() + s.slice(1)
+          }
+
+        const hostname =  window.location.hostname;
+        const dexName = capitalize(hostname);
+        const url = `https://${hostname}`;
+        const image = `https://${hostname}/assets/wizard/dex.png`;
+
+        const title = `${dexName} — ERC20 trading, swap, defi, fiat-onramp and market maker tools`;
+        const description = `${dexName} is an open-source decentralized ERC20  trading, swap, wallet, defi ready, and launchpad platform with market maker tools and integrated fiat-onramp. Easy onboarding for new users and no KYC required.`;
+        document.title = title
+        document.getElementById('loadingText').textContent = `${dexName} loading ...`;
+        document.querySelector('meta[name="title"]').setAttribute("content", title);
+        document.querySelector('meta[name="description"]').setAttribute("content", description);
+        document.querySelector('meta[property="twitter:url"]').setAttribute("content", url);
+        document.querySelector('meta[property="twitter:title"]').setAttribute("content", title);
+        document.querySelector('meta[property="twitter:image"]').setAttribute("content", image);
+        document.querySelector('meta[property="twitter:description"]').setAttribute("content", description);
+
+        document.querySelector('meta[property="og:url"]').setAttribute("content", url);
+        document.querySelector('meta[property="og:title"]').setAttribute("content", title);
+        document.querySelector('meta[property="og:image"]').setAttribute("content", image);
+        document.querySelector('meta[property="og:description"]').setAttribute("content", description);
+      }
   </script> 
 </html>

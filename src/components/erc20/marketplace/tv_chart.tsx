@@ -61,7 +61,7 @@ export default class TVChartContainer extends React.PureComponent<Partial<ChartC
         studiesOverrides: {},
     };
     public readonly state = {
-        symbol: this.props.symbol ? this.props.symbol : 'VSF-WETH',
+        symbol: this.props.symbol ? this.props.symbol : 'ESH-WETH',
     };
     private _tvWidget: IChartingLibraryWidget | null = null;
 
@@ -114,7 +114,7 @@ export default class TVChartContainer extends React.PureComponent<Partial<ChartC
     public componentDidUpdate(): void {
         if (this._tvWidget !== null) {
             if (this.props.symbol !== this.state.symbol) {
-                const symbol = this.props.symbol ? this.props.symbol : 'VSF-WETH';
+                const symbol = this.props.symbol ? this.props.symbol : 'ESH-WETH';
                 if (symbol) {
                     this.setState({ symbol });
                     // tslint:disable-next-line: no-empty
