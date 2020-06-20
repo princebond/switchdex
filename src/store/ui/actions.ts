@@ -933,8 +933,8 @@ export const createConfigSignature: ThunkCreator = (message: string) => {
                     verifyingContract: '0xCcCCccccCCCCcCCCCCCcCcCccCcCCCcCcccccccC',
                 },
                 message: {
-                    message: 'I want to create/edit this DEX. Veridex terms apply',
-                    terms: 'verisafe.io/terms-and-conditions',
+                    message: 'I want to create/edit this DEX',
+                    terms: 'Powered by Switch',
                 },
             };
             const web3Metamask = new Web3Wrapper(provider);

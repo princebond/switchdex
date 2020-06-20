@@ -77,7 +77,7 @@ export const MobileWalletConnectionContent = () => {
         dispatch(openSideBar(false));
     };
 
-   /* const onGoToLaunchpad = () => {
+    /* const onGoToLaunchpad = () => {
         dispatch(goToHomeLaunchpad());
         dispatch(openSideBar(false));
     };*/

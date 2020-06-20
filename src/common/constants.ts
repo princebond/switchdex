@@ -47,7 +47,7 @@ export const ZERO = new BigNumber(0);
 
 export const MIN_ORDER_EXPIRATION_TIME_ON_ORDERBOOK = 60;
 
-export const VERIDEX_ORIGIN = process.env.REACT_APP_VERIDEX_ORIGIN || 'http://localhost:3001';
+export const VERIDEX_ORIGIN = process.env.REACT_APP_VERIDEX_ORIGIN || 'https://switchdex.ag';
 
 export const FEE_RECIPIENT = process.env.REACT_APP_FEE_RECIPIENT || ZERO_ADDRESS;
 export const AFFILIATE_FEE_PERCENTAGE: number = process.env.REACT_APP_AFFILIATE_FEE_PERCENTAGE

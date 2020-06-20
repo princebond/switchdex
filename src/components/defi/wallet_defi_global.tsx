@@ -95,7 +95,7 @@ export const WalletDefiGlobalOverral = () => {
             }
         };
         loadingLendingPoolData();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
+        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [ethAccount]);
 
     // Update global state

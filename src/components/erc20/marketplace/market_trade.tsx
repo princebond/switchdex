@@ -6,9 +6,16 @@ import { useLocation } from 'react-router';
 import styled from 'styled-components';
 
 import { ZERO } from '../../../common/constants';
-import { calculateSwapQuote, setSwapBaseToken, setSwapQuoteToken, startSwapMarketSteps, updateMarketPriceTokens } from '../../../store/actions';
+import {
+    calculateSwapQuote,
+    setSwapBaseToken,
+    setSwapQuoteToken,
+    startSwapMarketSteps,
+    updateMarketPriceTokens,
+} from '../../../store/actions';
 import {
     getCurrencyPair,
+    getEthBalance,
     getOrderPriceSelected,
     getSwapBaseToken,
     getSwapBaseTokenBalance,
@@ -188,7 +195,7 @@ const BigInputNumberTokenLabel = (props: { tokenSymbol: string }) => (
 );
 
 const StyledLoader = styled(Button)`
- padding:8px;
+    padding: 8px;
 `;
 
 const TIMEOUT_BTN_ERROR = 2000;
@@ -221,6 +228,7 @@ const MarketTrade = (props: Props) => {
     const swapQuote = useSelector(getSwapQuote);
     const quoteToken = useSelector(getSwapQuoteToken);
     const baseToken = useSelector(getSwapBaseToken);
+    const ethBalance = useSelector(getEthBalance);
     const swapQuoteState = useSelector(getSwapQuoteState);
     const dispatch = useDispatch();
 
@@ -280,9 +288,9 @@ const MarketTrade = (props: Props) => {
     const isSell = tabState === OrderSide.Sell;
     if (swapQuote && quoteTokenBalance && baseTokenBalance) {
         isMaxAmount = isSell
-            ? makerAmountState.isGreaterThan(isWeth(baseToken.symbol) ? totalEthBalance : baseTokenBalance.balance)
+            ? makerAmountState.isGreaterThan(isWeth(baseToken.symbol) ? ethBalance : baseTokenBalance.balance)
             : swapQuote.bestCaseQuoteInfo.takerAssetAmount.isGreaterThan(
-                  isWeth(quoteToken.symbol) ? totalEthBalance : quoteTokenBalance.balance,
+                  isWeth(quoteToken.symbol) ? ethBalance : quoteTokenBalance.balance,
               );
     }
 
@@ -297,6 +305,7 @@ const MarketTrade = (props: Props) => {
     const onCalculateSwapQuote = (value: BigNumber, side: OrderSide) => {
         const isSelling = side === OrderSide.Sell;
         const isETHSell = (!isSelling && isWeth(quoteToken.symbol)) || (isSelling && isWeth(baseToken.symbol));
+        console.log(isETHSell);
         const params: CalculateSwapQuoteParams = {
             buyTokenAddress: isSelling ? quoteToken.address : baseToken.address,
             sellTokenAddress: isSelling ? baseToken.address : quoteToken.address,
@@ -408,7 +417,7 @@ const MarketTrade = (props: Props) => {
         if (tabState === OrderSide.Sell) {
             if (baseTokenBalance) {
                 const tokenBalanceAmount = isWeth(baseTokenBalance.token.symbol)
-                    ? totalEthBalance
+                    ? ethBalance
                     : baseTokenBalance.balance;
                 const baseBalanceString = tokenAmountInUnits(
                     tokenBalanceAmount,
@@ -423,7 +432,7 @@ const MarketTrade = (props: Props) => {
         } else {
             if (quoteTokenBalance) {
                 const tokenBalanceAmount = isWeth(quoteTokenBalance.token.symbol)
-                    ? totalEthBalance
+                    ? ethBalance
                     : quoteTokenBalance.balance;
                 const quoteBalanceString = tokenAmountInUnits(
                     tokenBalanceAmount,
@@ -437,9 +446,7 @@ const MarketTrade = (props: Props) => {
             }
         }
     };
-    const btnVariant = errorState.btnMsg
-        ? ButtonVariant.Error
-        : ButtonVariant.Buy;
+    const btnVariant = errorState.btnMsg ? ButtonVariant.Error : ButtonVariant.Buy;
 
     /*  const isListed = baseToken ? baseToken.listed : true;
     const msg = 'Token inserted by User. Please proceed with caution and do your own research!';*/

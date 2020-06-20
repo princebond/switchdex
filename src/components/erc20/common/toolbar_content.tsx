@@ -166,8 +166,12 @@ const ToolbarContent = (props: Props) => {
                     isQuote={false}
                 />
                 <SwapStyledButton onClick={onClickSwap}>⇋</SwapStyledButton>
-                <SwapDropdownHeader shouldCloseDropdownBodyOnClick={false} className={'swap-dropdown'} isQuote={true}
-                horizontalPosition={isMobile(props.windowWidth) ? DropdownPositions.Center : DropdownPositions.Left} />
+                <SwapDropdownHeader
+                    shouldCloseDropdownBodyOnClick={false}
+                    className={'swap-dropdown'}
+                    isQuote={true}
+                    horizontalPosition={isMobile(props.windowWidth) ? DropdownPositions.Center : DropdownPositions.Left}
+                />
             </>
         ) : (
             <MarketsDropdownHeader shouldCloseDropdownBodyOnClick={false} className={'markets-dropdown'} />
@@ -222,7 +226,7 @@ const ToolbarContent = (props: Props) => {
         endOptContent = (
             <>
                 {/*  <SettingsContentContainer  className={'settings-dropdown'} /> */}
-                 <StyledButton onClick={handleTransakModal} className={'buy-fiat'}>
+                <StyledButton onClick={handleTransakModal} className={'buy-fiat'}>
                     FIAT
                 </StyledButton>
                 <StyledLink href="/defi" onClick={handleDefiClick} className={'defi'}>

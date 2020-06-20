@@ -47,7 +47,7 @@ function getLanguageFromURL(): LanguageCode | null {
 // tslint:disable-next-line: no-default-export
 export default class TVChartContainer extends React.PureComponent<Partial<ChartContainerProps>, ChartContainerState> {
     public static defaultProps: ChartContainerProps = {
-        symbol: 'VSF-WETH',
+        symbol: 'ESH-WETH',
         interval: 'D',
         containerId: 'tv_chart_container',
         datafeedUrl: `${RELAYER_URL}/candles`,

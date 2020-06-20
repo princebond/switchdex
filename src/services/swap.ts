@@ -39,7 +39,7 @@ export class SwapService {
             expiryBufferMs: QUOTE_ORDER_EXPIRATION_BUFFER_MS,
             permittedOrderFeeTypes: new Set<OrderPrunerPermittedFeeTypes>([
                 OrderPrunerPermittedFeeTypes.NoFees,
-              //  OrderPrunerPermittedFeeTypes.MakerDenominatedTakerFee,
+                //  OrderPrunerPermittedFeeTypes.MakerDenominatedTakerFee,
                 OrderPrunerPermittedFeeTypes.TakerDenominatedTakerFee,
             ]),
         };

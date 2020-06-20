@@ -320,7 +320,8 @@ export const createSwapMarketSteps = (
     const unlockTokenStep = getUnlockTokenStepIfNeeded(tokenToUnlock, tokenBalances, wethTokenBalance);
     // Unlock token step should be added if it:
     // 1) it's a sell, or
-    const isSell = unlockTokenStep && side === OrderSide.Sell;
+    // We are assuming only buys with ETH at the moment
+    const isSell = unlockTokenStep && side === OrderSide.Sell && !isWeth(tokenToUnlock.symbol);
     // 2) is a buy and
     // base token is not weth and is locked, or
     // base token is weth, is locked and there is not enouth plain ETH to fill the order

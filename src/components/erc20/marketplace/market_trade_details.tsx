@@ -89,8 +89,8 @@ const PointerLabel = styled(Label)`
     font-weight: 700;
     display: flex;
     :hover {
-		cursor: pointer;
-	}
+        cursor: pointer;
+    }
 `;
 
 const Wave = styled.div``;
@@ -222,12 +222,14 @@ class MarketTradeDetails extends React.Component<Props, State> {
                     <CostValue>{cost}</CostValue>
                 </Row>
                 <Row>
-                    <PointerLabel onClick={() => this._switchPrice()}>Price
-                    </PointerLabel>
-                    <CostValue>{slippage}{' '}{priceMedianText}</CostValue>
+                    <PointerLabel onClick={() => this._switchPrice()}>Price</PointerLabel>
+                    <CostValue>
+                        {slippage} {priceMedianText}
+                    </CostValue>
                 </Row>
                 <Row>
-                    <CostLabel>Price by Coingecko:
+                    <CostLabel>
+                        Price by Coingecko:
                         <StyledTooltip description="Reference Price" />
                     </CostLabel>
                     <CostValue>{priceMarketTrackerText}</CostValue>
@@ -243,9 +245,9 @@ class MarketTradeDetails extends React.Component<Props, State> {
         if (!geckoPrice.isZero()) {
             this.setState({ geckoPrice: new BigNumber(1).dividedBy(geckoPrice) });
         }
-    }
+    };
 
-    private readonly _getPriceSlippage =  () => {
+    private readonly _getPriceSlippage = () => {
         const { price, geckoPrice } = this.state;
         const { quoteState } = this.props;
         if (!price || !geckoPrice) {
@@ -255,12 +257,14 @@ class MarketTradeDetails extends React.Component<Props, State> {
             return null;
         }
         if (!price.isZero() && !geckoPrice.isZero()) {
-            const slippage = geckoPrice.minus(price).dividedBy(geckoPrice).multipliedBy(100);
+            const slippage = geckoPrice
+                .minus(price)
+                .dividedBy(geckoPrice)
+                .multipliedBy(100);
             return <Span>({slippage.toFixed(2)}%) </Span>;
         }
         return null;
-
-    }
+    };
 
     private readonly _updateOrderDetailsState = async () => {
         const { quote, orderSide, baseToken, quoteToken, tokenPrices } = this.props;
