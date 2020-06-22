@@ -70,6 +70,7 @@ import { setCurrencyPair, setMarketTokens } from '../market/actions';
 import { setFeePercentage, setFeeRecipient } from '../relayer/actions';
 import * as selectors from '../selectors';
 import { getUserConfigData } from '../selectors';
+import { setSwapBaseToken, setSwapQuoteToken } from '../swap/actions';
 
 export const setHasUnreadNotifications = createAction('ui/UNREAD_NOTIFICATIONS_set', resolve => {
     return (hasUnreadNotifications: boolean) => resolve(hasUnreadNotifications);
@@ -1177,19 +1178,37 @@ export const initConfigData: ThunkCreator = (queryString: string | undefined, do
             let currencyPair;
             try {
                 currencyPair = getCurrencyPairByTokensSymbol(base, quote);
+                const tokenBase = known_tokens.getTokenBySymbol(base);
+                const tokenQuote = known_tokens.getTokenBySymbol(quote);
+
+                dispatch(setSwapBaseToken(tokenBase));
+                dispatch(setSwapQuoteToken(tokenQuote));
+                dispatch(setCurrencyPair(currencyPair));
+                dispatch(
+                    setMarketTokens({
+                        baseToken: tokenBase,
+                        quoteToken: tokenQuote,
+                    }),
+                );
+
             } catch (e) {
                 currencyPair = getCurrencyPairByTokensSymbol(
                     getAvailableMarkets()[0].base,
                     getAvailableMarkets()[0].quote,
                 );
+                const tokenBase = known_tokens.getTokenBySymbol(getAvailableMarkets()[0].base);
+                const tokenQuote = known_tokens.getTokenBySymbol(getAvailableMarkets()[0].quote);
+                dispatch(setSwapBaseToken(tokenBase));
+                dispatch(setSwapQuoteToken(tokenQuote));
+                dispatch(
+                    setMarketTokens({
+                        baseToken: tokenBase,
+                        quoteToken: tokenQuote,
+                    }),
+                );
+
             }
-            dispatch(setCurrencyPair(currencyPair));
-            dispatch(
-                setMarketTokens({
-                    baseToken: known_tokens.getTokenBySymbol(currencyPair.base),
-                    quoteToken: known_tokens.getTokenBySymbol(currencyPair.quote),
-                }),
-            );
+
             dispatch(setGeneralConfig(Config.getConfig().general));
             const localStorage = new LocalStorage(window.localStorage);
             const themeName = localStorage.getThemeName() || Config.getConfig().theme_name;

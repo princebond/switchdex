@@ -14,20 +14,20 @@ export const mapCurrencyPairMetaToCurrencyPair = (currencyPair: CurrencyPairMeta
             config: {
                 basePrecision:
                     currencyPair.config.basePrecision !== undefined
-                        ? currencyPair.config.basePrecision
+                        ? Number(currencyPair.config.basePrecision)
                         : UI_DECIMALS_DISPLAYED_ORDER_SIZE,
                 pricePrecision:
                     currencyPair.config.pricePrecision !== undefined
-                        ? currencyPair.config.pricePrecision
+                        ? Number(currencyPair.config.pricePrecision)
                         : UI_DECIMALS_DISPLAYED_PRICE_ETH,
                 minAmount: currencyPair.config.minAmount !== undefined ? currencyPair.config.minAmount : 0,
                 maxAmount:
                     currencyPair.config.maxAmount !== undefined
-                        ? currencyPair.config.maxAmount
+                        ? Number(currencyPair.config.maxAmount)
                         : MAX_AMOUNT_TOKENS_IN_UNITS,
                 quotePrecision:
                     currencyPair.config.quotePrecision !== undefined
-                        ? currencyPair.config.quotePrecision
+                        ? Number(currencyPair.config.quotePrecision)
                         : UI_DECIMALS_DISPLAYED_PRICE_ETH,
             },
         };
