@@ -100,8 +100,7 @@ export const TokensForm = ({
                             <StyledToken key={name}>
                                 <TokenForm name={name} index={index} />
                             </StyledToken>
-                        ))
-                    }
+                        ))}
                 </FieldArray>
             </AccordionCollapse>
         </>
@@ -399,8 +398,10 @@ const TokenForm = ({ name, index }: { name: string; index: number }) => {
         };
         const value = fields.value[index];
         let isTokenQuote = false;
+        let isWethToken = false;
         if (value && value.symbol) {
             isTokenQuote = isQuote(value.symbol, marketFilters);
+            isWethToken = value.symbol.toLowerCase() === 'weth';
         }
         const nameField = () => (
             <StyledFieldContainer>
@@ -413,16 +414,17 @@ const TokenForm = ({ name, index }: { name: string; index: number }) => {
                             ❌
                         </StyledActions>
                     )}
-                    {!isTokenQuote && (
-                        <StyledActions onClick={onSetIsEdit} style={{ cursor: 'pointer' }}>
-                            ✎
-                        </StyledActions>
-                    )}
-                    {isTokenQuote && (
+                     {isTokenQuote && (
                         <StyledActions style={{ cursor: 'pointer' }}>
                             Quote: {turnInQuoteInput(value.symbol, marketFilterArray)}
                         </StyledActions>
                     )}
+                    {!isWethToken && (
+                        <StyledActions onClick={onSetIsEdit} style={{ cursor: 'pointer' }}>
+                            ✎
+                        </StyledActions>
+                    )}
+
                     <StyledActions onClick={onSwapDown} style={{ cursor: 'pointer' }}>
                         ▼
                     </StyledActions>

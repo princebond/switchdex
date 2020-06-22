@@ -17,7 +17,7 @@ export const getWethTokenFromTokensMetaDataByNetworkId = (tokensMetaData: TokenM
         icon: tokenMetaData.icon,
         displayDecimals:
             tokenMetaData.displayDecimals !== undefined
-                ? tokenMetaData.displayDecimals
+                ? Number(tokenMetaData.displayDecimals)
                 : UI_DECIMALS_DISPLAYED_DEFAULT_PRECISION,
         id: tokenMetaData.id || undefined,
         c_id: tokenMetaData.c_id || undefined,
@@ -53,7 +53,7 @@ export const mapTokensMetaDataToTokenByNetworkId = (tokensMetaData: TokenMetaDat
                     icon: tokenMetaData.icon,
                     displayDecimals:
                         tokenMetaData.displayDecimals !== undefined
-                            ? tokenMetaData.displayDecimals
+                            ? Number(tokenMetaData.displayDecimals)
                             : UI_DECIMALS_DISPLAYED_DEFAULT_PRECISION,
                     id: tokenMetaData.id || undefined,
                     c_id: tokenMetaData.c_id || undefined,
@@ -91,11 +91,11 @@ export const mapTokensMetaDataFromForm = (tokensMetaData: TokenMetaData[]): Toke
                             : UI_DECIMALS_DISPLAYED_DEFAULT_PRECISION,
                     id: tokenMetaData.id || undefined,
                     c_id: tokenMetaData.c_id || undefined,
-                    minAmount: tokenMetaData.minAmount || 0,
-                    maxAmount: tokenMetaData.maxAmount || undefined,
+                    minAmount: Number(tokenMetaData.minAmount) || 0,
+                    maxAmount: Number(tokenMetaData.maxAmount) || undefined,
                     precision:
                         tokenMetaData.precision !== undefined
-                            ? tokenMetaData.precision
+                            ? Number(tokenMetaData.precision)
                             : UI_DECIMALS_DISPLAYED_DEFAULT_PRECISION,
                     website: tokenMetaData.website || undefined,
                     description: tokenMetaData.description || undefined,

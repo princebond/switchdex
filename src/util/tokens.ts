@@ -12,7 +12,7 @@ export const tokenAmountInUnitsToBigNumber = (amount: BigNumber, decimals: numbe
 };
 
 export const tokenAmountInUnits = (amount: BigNumber, decimals: number, toFixedDecimals = 2): string => {
-    return tokenAmountInUnitsToBigNumber(amount, decimals).toFixed(toFixedDecimals);
+    return tokenAmountInUnitsToBigNumber(amount, decimals).toFixed(Number(toFixedDecimals));
 };
 
 export const unitsInTokenAmount = (units: string, decimals: number): BigNumber => {

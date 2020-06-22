@@ -1,6 +1,6 @@
 import { getKnownTokens } from './known_tokens';
 
-const defaultDomain = 'mcafeedex.com';
+const defaultDomain = document.location.hostname;
 
 export const generateTrustWalletDeepLink = (url: string) => {
     return `https://link.trustwallet.com/open_url?coin_id=60&url=${encodeURIComponent(url)}`;

@@ -35,6 +35,7 @@ export interface ChartContainerProps {
 
 export interface ChartContainerState {
     symbol: string;
+    ready: boolean;
 }
 
 function getLanguageFromURL(): LanguageCode | null {
@@ -62,6 +63,7 @@ export default class TVChartContainer extends React.PureComponent<Partial<ChartC
     };
     public readonly state = {
         symbol: this.props.symbol ? this.props.symbol : 'ESH-WETH',
+        ready: false,
     };
     private _tvWidget: IChartingLibraryWidget | null = null;
 
@@ -102,7 +104,7 @@ export default class TVChartContainer extends React.PureComponent<Partial<ChartC
         this._tvWidget = tvWidget;
 
         // tslint:disable-next-line: no-empty
-        tvWidget.onChartReady(() => {});
+        tvWidget.onChartReady(() => {this.setState({ready: true}); });
     }
 
     public componentWillUnmount(): void {
@@ -112,7 +114,7 @@ export default class TVChartContainer extends React.PureComponent<Partial<ChartC
         }
     }
     public componentDidUpdate(): void {
-        if (this._tvWidget !== null) {
+        if (this._tvWidget !== null && this.state.ready) {
             if (this.props.symbol !== this.state.symbol) {
                 const symbol = this.props.symbol ? this.props.symbol : 'ESH-WETH';
                 if (symbol) {
