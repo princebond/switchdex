@@ -10,6 +10,25 @@
     },
     "tokens": [
         {
+            "decimals": 4,
+            "symbol": "alex",
+            "name": "Alex",
+            "primaryColor": "#081e6e",
+            "icon": "assets/icons/alex.svg",
+            "addresses": {
+                "1": "0x8BA6DcC667d3FF64C1A2123cE72FF5F0199E5315",
+                "3": "0xba3a79d758f19efe588247388754b8e4d6edda81",
+                "42": "0xBA3a79D758f19eFe588247388754b8e4d6EddA81"
+            },
+            "id": "alex",
+            "unified_cryptoasset_id": 3365,
+            "displayDecimals": 2,
+            "description": "“Control My Life”: use my cryptocurrency $ALEX to vote on my life choices",
+            "website": "https://medium.com/@AlexMasmej/introducing-control-my-life-use-my-cryptocurrency-alex-to-vote-on-my-life-choices-8d62471963cd",
+            "c_id": "alex",
+            "isStableCoin": false
+        },
+        {
             "decimals": 18,
             "symbol": "esh",
             "name": "Switch",
@@ -444,6 +463,15 @@
         }
     ],
     "pairs": [
+        {
+            "base": "alex",
+            "quote": "weth",
+            "config": {
+                "basePrecision": 2,
+                "pricePrecision": 8,
+                "minAmount": 0.0001
+            }
+        },
         {
             "base": "esh",
             "quote": "weth",
