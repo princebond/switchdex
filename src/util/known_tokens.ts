@@ -291,6 +291,10 @@ export const isWeth = (token: string): boolean => {
     return token === 'weth';
 };
 
+export const isWhackd = (token: string): boolean => {
+    return token === 'whackd';
+};
+
 export const isWethToken = (token: Token): boolean => {
     if (token.symbol.toLowerCase() === 'weth') {
         return true;

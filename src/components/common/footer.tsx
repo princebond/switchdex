@@ -5,7 +5,7 @@ import styled from 'styled-components';
 import { Config } from '../../common/config';
 import { GIT_COMMIT } from '../../common/constants';
 import { goToDexWizard, goToListedTokens, goToListings } from '../../store/actions';
-import { getCurrentMarketPlace } from '../../store/selectors';
+import { getCurrentMarketPlace, getIsAffiliate } from '../../store/selectors';
 import { themeBreakPoints, themeDimensions } from '../../themes/commons';
 import { MARKETPLACES } from '../../util/types';
 
@@ -146,6 +146,7 @@ export const Footer: React.FC<Props> = props => {
     const config = Config.getConfig();
     const dispatch = useDispatch();
     const marketplace = useSelector(getCurrentMarketPlace);
+    const isAffiliate = useSelector(getIsAffiliate);
     let socialButtons;
     if (config.general && config.general.social) {
         const social_urls_keys = Object.keys(config.general.social);
@@ -211,7 +212,7 @@ export const Footer: React.FC<Props> = props => {
                     </HrefStyled>
                 )}
                 <Pipe>|</Pipe>
-                {marketplace !== MARKETPLACES.ERC721 && (
+                {marketplace !== MARKETPLACES.ERC721 && !isAffiliate && (
                     <HrefStyled href={`/dex-wizard`} onClick={handleDexWizardClick}>
                         Dex Wizard
                     </HrefStyled>
@@ -224,9 +225,16 @@ export const Footer: React.FC<Props> = props => {
     </StyledButton> */}
             </LinksContainer>
             <LinksContainer>
-                <HrefStyled href="https://0x.org/" target="_blank" rel="noopener noreferrer">
-                    {poweredBySVG()}
-                </HrefStyled>
+                {!isAffiliate && (
+                    <HrefStyled href="https://0x.org/" target="_blank" rel="noopener noreferrer">
+                        {poweredBySVG()}
+                    </HrefStyled>
+                )}
+                {isAffiliate && (
+                    <HrefStyled href="https://switchdex.ag" target="_blank" rel="noopener noreferrer">
+                        Portal of Switch Network
+                    </HrefStyled>
+                )}
                 {/* <HrefStyled href={`/dex-wizard`} onClick={handleDexWizardClick}>
                     Dex Wizard
                  </HrefStyled>

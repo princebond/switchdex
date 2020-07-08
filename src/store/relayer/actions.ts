@@ -24,7 +24,7 @@ import {
 } from '../../services/relayer';
 import { mapRelayerFillToFill } from '../../util/fills';
 import { getCurrencyPairByTokensSymbol } from '../../util/known_currency_pairs';
-import { getKnownTokens, getWethAssetData, isWeth } from '../../util/known_tokens';
+import { getKnownTokens, getWethAssetData, isWeth, isWhackd } from '../../util/known_tokens';
 import { getLogger } from '../../util/logger';
 import { marketToString } from '../../util/markets';
 import {
@@ -421,6 +421,7 @@ export const submitLimitMatchingOrder: ThunkCreator = (amount: BigNumber, price:
                 isBuy &&
                 isWeth(quoteToken.symbol) &&
                 isEthBalanceEnough &&
+                !isWhackd(baseToken.symbol) &&
                 contractWrappers.forwarder.address !== NULL_ADDRESS;
             const orderSignatures = ordersToFill.map(o => o.signature);
 
@@ -547,6 +548,8 @@ export const submitMarketOrder: ThunkCreator<Promise<{ txHash: string; amountInR
                 isBuy &&
                 isWeth(quoteToken.symbol) &&
                 isEthBalanceEnough &&
+                // TODO: Remove this workaround, whacked is not working with forwarder
+                !isWhackd(baseToken.symbol) &&
                 contractWrappers.forwarder.address !== NULL_ADDRESS;
             const orderSignatures = ordersToFill.map(o => o.signature);
             let txHash;

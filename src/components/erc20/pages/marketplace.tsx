@@ -148,8 +148,7 @@ const Marketplace = () => {
     const isDynamicLayout = useSelector(getDynamicLayout);
     const ethAccount = useSelector(getEthAccount);
     const isStartTour = useSelector(getTourStarted);
-    const baseToken = useSelector(getBaseToken);
-    const isListed = baseToken ? baseToken.listed : true;
+
     /**
      * TODO: Remove this workaround. In some states, react-grid-layoyt is not
      * finding the correct way to get the correct width.
@@ -164,6 +163,7 @@ const Marketplace = () => {
 
     const [breakpoint, setBreakPoint] = useState('lg');
     const size = useWindowSize();
+    const rowHeight = size.height / 70;
     const onLayoutChange = (lay: any) => {
         // setLayout(layout);
         //  dispatch(setERC20Layout(JSON.stringify({...layouts, [`${breakpoint}`]:layout}, )))
@@ -315,7 +315,7 @@ const Marketplace = () => {
                     isResizable={isDynamicLayout}
                     isDraggable={isDynamicLayout}
                     margin={[2, 2]}
-                    rowHeight={10}
+                    rowHeight={rowHeight}
                     cols={{ lg: 12, md: 12, sm: 12, xs: 12, xxs: 12 }}
                     onBreakpointChange={onBreakpointChange}
                 >
@@ -324,7 +324,6 @@ const Marketplace = () => {
             </MarketPlaceDiv>
         );
     }
-
     return (
         <>
             {content}
