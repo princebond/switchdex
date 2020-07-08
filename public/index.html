@@ -311,11 +311,6 @@
     z-index: 99999 !important;
   }
     </style>
-
-
-
-
-
   </head>
   <body>
     
@@ -349,14 +344,13 @@
         window.location.hostname === "switchdex.ag" ||
         window.location.hostname === "mcafeedex.com"
       ) {
-
-
+      
       }else{
         const capitalize = (s) => {
             if (typeof s !== 'string') return ''
             return s.charAt(0).toUpperCase() + s.slice(1)
           }
-
+        window.loadingText = 'Dex Loading ...';
         const hostname =  window.location.hostname;
         const dexName = capitalize(hostname);
         const url = `https://${hostname}`;

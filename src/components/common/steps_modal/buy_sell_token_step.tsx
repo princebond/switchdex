@@ -20,6 +20,7 @@ import { OrderSide, StepBuySellMarket, StoreState, Token, Wallet } from '../../.
 
 import { BaseStepModal } from './base_step_modal';
 import { StepItem } from './steps_progress';
+import { isWhackd } from '../../../util/known_tokens';
 
 interface OwnProps {
     buildStepsProgress: (currentStepItem: StepItem) => StepItem[];
@@ -115,7 +116,10 @@ class BuySellTokenStep extends React.Component<Props, State> {
                 }
                 const web3Wrapper = await getWeb3Wrapper();
                 const isSelling = side === OrderSide.Sell;
-                const isEthSell = (!isSelling && isWeth(swapQuoteToken.symbol)) || (isSelling && isWeth(token.symbol));
+                // When quote token is Whacked we can not use forwarder
+                const isEthSell =
+                    (!isSelling && isWeth(swapQuoteToken.symbol)) ||
+                    (isSelling && isWeth(token.symbol) && !isWhackd(swapQuoteToken.symbol));
                 const txHash = await onSubmitSwapOrder(side, quote, isEthSell);
                 const bestQuote = quote.bestCaseQuoteInfo;
                 const amountInReturn =

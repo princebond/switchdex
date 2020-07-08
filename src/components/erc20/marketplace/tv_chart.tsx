@@ -11,7 +11,7 @@ import { RELAYER_URL } from '../../../common/constants';
 import { UDFCompatibleDatafeed } from '../../../datafeeds/udf/lib/udf-compatible-datafeed';
 
 const ChartContainer = styled.div`
-    height: 370px;
+    height: 50vh;
     width: 100%;
     padding: 0px;
 `;
@@ -104,7 +104,9 @@ export default class TVChartContainer extends React.PureComponent<Partial<ChartC
         this._tvWidget = tvWidget;
 
         // tslint:disable-next-line: no-empty
-        tvWidget.onChartReady(() => {this.setState({ready: true}); });
+        tvWidget.onChartReady(() => {
+            this.setState({ ready: true });
+        });
     }
 
     public componentWillUnmount(): void {

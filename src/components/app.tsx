@@ -69,6 +69,9 @@ class App extends React.Component<Props> {
         onInitUserConfig();
         const initDexConfigs = async () => {
             if (dex) {
+                if (window) {
+                    (window as any).loadingText = 'Dex loading ...';
+                }
                 await onInitConfig(dex, undefined);
             } else if (origin !== VERIDEX_ORIGIN) {
                 await onInitConfig(undefined, origin);

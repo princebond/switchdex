@@ -1190,7 +1190,6 @@ export const initConfigData: ThunkCreator = (queryString: string | undefined, do
                         quoteToken: tokenQuote,
                     }),
                 );
-
             } catch (e) {
                 currencyPair = getCurrencyPairByTokensSymbol(
                     getAvailableMarkets()[0].base,
@@ -1206,7 +1205,6 @@ export const initConfigData: ThunkCreator = (queryString: string | undefined, do
                         quoteToken: tokenQuote,
                     }),
                 );
-
             }
 
             dispatch(setGeneralConfig(Config.getConfig().general));
