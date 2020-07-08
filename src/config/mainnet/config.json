@@ -483,15 +483,6 @@
     ],
     "pairs": [
         {
-            "base": "alex",
-            "quote": "weth",
-            "config": {
-                "basePrecision": 2,
-                "pricePrecision": 8,
-                "minAmount": 0.0001
-            }
-        },
-        {
             "base": "esh",
             "quote": "weth",
             "config": {
