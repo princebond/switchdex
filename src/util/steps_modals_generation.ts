@@ -5,7 +5,7 @@ import { BigNumber } from '@0x/utils';
 
 import { LENDING_POOL_CORE_ADDRESS } from './aave/constants';
 import { ATokenData, Protocol } from './aave/types';
-import { isWeth, isZrx } from './known_tokens';
+import { isWeth, isZrx, isWhackd } from './known_tokens';
 import {
     Collectible,
     iTokenData,
@@ -154,7 +154,17 @@ export const createBuySellLimitMatchingSteps = (
 
     // wrap the necessary ether if necessary
     if (isWeth(quoteToken.symbol)) {
-        const wrapEthStep = getWrapEthStepIfNeeded(amount, price, side, wethTokenBalance, ethBalance);
+        const isWhackedBase = isWhackd(baseToken.symbol) ? true : false;
+        const wrapEthStep = getWrapEthStepIfNeeded(
+            amount,
+            price,
+            side,
+            wethTokenBalance,
+            ethBalance,
+            undefined,
+            true,
+            isWhackedBase,
+        );
         if (wrapEthStep) {
             buySellLimitMatchingFlow.push(wrapEthStep);
         }
@@ -286,7 +296,17 @@ export const createBuySellMarketSteps = (
 
     // wrap the necessary ether if necessary
     if (isWeth(quoteToken.symbol)) {
-        const wrapEthStep = getWrapEthStepIfNeeded(amount, price, side, wethTokenBalance, ethBalance);
+        const isWhackedBase = isWhackd(baseToken.symbol) ? true : false;
+        const wrapEthStep = getWrapEthStepIfNeeded(
+            amount,
+            price,
+            side,
+            wethTokenBalance,
+            ethBalance,
+            undefined,
+            true,
+            isWhackedBase,
+        );
         if (wrapEthStep) {
             buySellMarketFlow.push(wrapEthStep);
         }
@@ -348,6 +368,7 @@ export const createSwapMarketSteps = (
     // wrap the necessary ether if necessary
     if (isWeth(quoteToken.symbol) || isWeth(baseToken.symbol)) {
         const isWethQuote = isWeth(quoteToken.symbol) ? true : false;
+        const isWhackedQuote = isWhackd(quoteToken.symbol) ? true : false;
         const wrapEthStep = getWrapEthStepIfNeeded(
             amount,
             price,
@@ -356,6 +377,7 @@ export const createSwapMarketSteps = (
             ethBalance,
             undefined,
             isWethQuote,
+            isWhackedQuote,
         );
         if (wrapEthStep) {
             buySellMarketFlow.push(wrapEthStep);
@@ -576,6 +598,8 @@ export const getWrapEthStepIfNeeded = (
     ethBalance?: BigNumber,
     feeBalance?: BigNumber,
     isQuote: boolean = true,
+    // Note: some tokens not work with forwarder, force wrap for these cases. TODO: Remove this workaraound
+    forceWrap: boolean = false,
 ): StepWrapEth | null => {
     // Weth needed only when creating a buy order
     if (side === OrderSide.Sell && isQuote) {
@@ -597,7 +621,7 @@ export const getWrapEthStepIfNeeded = (
     }
 
     // Weth needed only if not enough plain ETH to use forwarder
-    if (ethBalance && ethBalance.isGreaterThan(wethAmountNeeded)) {
+    if (ethBalance && ethBalance.isGreaterThan(wethAmountNeeded) && !forceWrap) {
         return null;
     }
 
