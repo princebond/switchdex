@@ -26,7 +26,7 @@ code snippet:
         id="rf"
         sandbox="allow-same-origin allow-forms allow-scripts"
         scrolling="auto"
-        src="https://mcafeedex.com/#/erc20/?dex=whateverYourDexIDis"
+        src="https://masadex.com/#/erc20/?dex=whateverYourDexIDis"
         style="width:100%;height:100%"
     ></iframe>
 </body>
